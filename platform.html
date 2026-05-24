@@ -1,0 +1,2485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Green Mountain TOEFL Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #1a7a5e;
+      --green-dark: #0b1a14;
+      --green-light: #5DCAA5;
+      --green-pale: #e1f5ee;
+      --teal: #5DCAA5;
+      --blue: #8bb9d6;
+      --ink: #e8f0eb;
+      --muted: rgba(232, 240, 235, 0.62);
+      --line: rgba(255, 255, 255, 0.09);
+      --paper: rgba(255, 255, 255, 0.045);
+      --soft: rgba(255, 255, 255, 0.035);
+      --soft-green: rgba(93, 202, 165, 0.12);
+      --warning: #f0d080;
+      --danger: #ff9b8f;
+      --accent: #f0d080;
+      --accent2: #f4a96a;
+      --white: #f5f9f6;
+      --shadow: 0 22px 60px rgba(0, 0, 0, 0.32);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(93,202,165,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(93,202,165,0.03) 1px, transparent 1px),
+        linear-gradient(135deg, #0b1a14 0%, #112318 52%, #0b1a14 100%);
+      background-size: 60px 60px, 60px 60px, auto;
+      color: var(--ink);
+      font-family: 'DM Sans', 'Noto Sans SC', Arial, Helvetica, sans-serif;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .login-view {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      background:
+        radial-gradient(circle at 15% 50%, rgba(26,122,94,0.28), transparent 34%),
+        linear-gradient(rgba(93,202,165,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(93,202,165,0.035) 1px, transparent 1px),
+        linear-gradient(135deg, #0b1a14 0%, #112318 58%, #163a2d 100%);
+      background-size: auto, 60px 60px, 60px 60px, auto;
+    }
+
+    .login-hero {
+      color: white;
+      padding: 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-mark span {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(93, 202, 165, 0.48);
+      border-radius: 8px;
+      font-size: 18px;
+      color: var(--green-light);
+      background: rgba(93, 202, 165, 0.06);
+    }
+
+    .login-copy h1 {
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: clamp(42px, 6vw, 76px);
+      line-height: 1.06;
+      margin: 0 0 22px;
+      letter-spacing: 0;
+      max-width: 780px;
+      color: var(--white);
+    }
+
+    .login-copy h1 em {
+      color: var(--green-light);
+      font-style: italic;
+    }
+
+    .login-copy p {
+      font-size: 20px;
+      line-height: 1.55;
+      max-width: 650px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .login-panel {
+      background: rgba(245, 249, 246, 0.95);
+      margin: 28px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 34px;
+      align-self: center;
+      color: #0b1a14;
+    }
+
+    .panel-title {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
+    .panel-subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .login-panel .panel-subtitle,
+    .login-panel .field label {
+      color: #51655d;
+    }
+
+    .subhead {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 18px;
+    }
+
+    .subhead .eyebrow {
+      color: var(--green-light);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .subhead .zh {
+      font-family: 'Noto Serif SC', serif;
+      color: var(--white);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .login-panel .subhead .zh {
+      color: #0b1a14;
+    }
+
+    .subhead .en {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .login-panel .subhead .en {
+      color: #51655d;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--green-light);
+    }
+
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid rgba(26, 122, 94, 0.18);
+      border-radius: 6px;
+      padding: 10px 12px;
+      background: rgba(245, 249, 246, 0.96);
+      color: #0b1a14;
+    }
+
+    .field textarea {
+      min-height: 86px;
+      resize: vertical;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      padding: 5px;
+      border: 1px solid rgba(26, 122, 94, 0.16);
+      border-radius: 8px;
+      background: #edf5f1;
+      margin-bottom: 18px;
+    }
+
+    .segmented button {
+      min-height: 40px;
+      border-radius: 6px;
+      color: #51655d;
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .segmented button.active {
+      background: white;
+      color: var(--green);
+      box-shadow: 0 2px 10px rgba(29, 41, 53, 0.08);
+    }
+
+    .signup-box {
+      border: 1px solid rgba(26, 122, 94, 0.16);
+      border-radius: 8px;
+      padding: 14px;
+      background: #edf5f1;
+      margin-top: 18px;
+    }
+
+    .signup-box h3 {
+      margin: 0 0 8px;
+      color: #0b1a14;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 18px;
+    }
+
+    .signup-box p {
+      margin: 0 0 12px;
+      color: #51655d;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .program-menu {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .program-menu a {
+      color: var(--green-light);
+      border: 1px solid rgba(93, 202, 165, 0.32);
+      background: rgba(93, 202, 165, 0.08);
+      padding: 7px 12px;
+      border-radius: 999px;
+    }
+
+    .primary-btn, .ghost-btn, .danger-btn {
+      min-height: 42px;
+      border-radius: 6px;
+      padding: 0 16px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--green), #23946f);
+      color: white;
+    }
+
+    .ghost-btn {
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .danger-btn {
+      background: rgba(255, 155, 143, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(255, 155, 143, 0.32);
+    }
+
+    .app-view {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: rgba(11, 26, 20, 0.9);
+      color: white;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      border-right: 1px solid rgba(93, 202, 165, 0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    .sidebar .brand-mark {
+      margin-bottom: 12px;
+    }
+
+    .user-card {
+      border: 1px solid rgba(93, 202, 165, 0.18);
+      background: rgba(93, 202, 165, 0.07);
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(93, 202, 165, 0.36);
+      background: rgba(93, 202, 165, 0.12);
+      color: var(--green-light);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar.small {
+      width: 34px;
+      height: 34px;
+      font-size: 12px;
+    }
+
+    .user-card strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .user-card small {
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1.45;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav button {
+      min-height: 42px;
+      padding: 0 12px;
+      border-radius: 6px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.78);
+      text-align: left;
+      font-weight: 800;
+    }
+
+    .nav button.active, .nav button:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+    }
+
+    .main {
+      padding: 28px;
+      overflow: auto;
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .topline h2 {
+      margin: 0 0 6px;
+      font-size: 30px;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .topline p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .toolbar select {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 10px;
+      background: rgba(255, 255, 255, 0.94);
+      color: #0b1a14;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .metric {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric small {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 28px;
+      color: var(--accent);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .program-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .program-card {
+      position: relative;
+      min-height: 128px;
+      text-align: left;
+      background: var(--paper);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .program-card.active {
+      border-color: rgba(93, 202, 165, 0.72);
+      background: rgba(93, 202, 165, 0.09);
+    }
+
+    .program-card strong {
+      display: block;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 22px;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .program-card small {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .notify-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      min-width: 26px;
+      height: 26px;
+      padding: 0 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #0b1a14;
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .notify-badge.inline {
+      position: static;
+      height: 22px;
+      min-width: 22px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .category-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .category-tabs button {
+      min-height: 40px;
+      border-radius: 999px;
+      padding: 0 16px;
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--muted);
+      border: 1px solid var(--line);
+      font-weight: 800;
+    }
+
+    .category-tabs button.active {
+      color: var(--green-light);
+      border-color: rgba(93, 202, 165, 0.45);
+      background: rgba(93, 202, 165, 0.1);
+    }
+
+    .program-links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .language-switch {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .language-switch button {
+      min-height: 42px;
+      border-radius: 999px;
+      padding: 0 18px;
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--muted);
+      border: 1px solid var(--line);
+      font-weight: 900;
+    }
+
+    .language-switch button.active {
+      color: var(--green-light);
+      border-color: rgba(93, 202, 165, 0.48);
+      background: rgba(93, 202, 165, 0.11);
+    }
+
+    .program-frame {
+      width: 100%;
+      height: min(78vh, 860px);
+      border: 1px solid rgba(93, 202, 165, 0.2);
+      border-radius: 8px;
+      background: #0b1a14;
+      box-shadow: var(--shadow);
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      min-width: 0;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: var(--white);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
+    .exam-paper {
+      background: #f9fbf8;
+      color: #132019;
+      border-radius: 8px;
+      border: 1px solid rgba(26, 122, 94, 0.2);
+      padding: 22px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+    }
+
+    .exam-paper h3 {
+      margin: 0 0 8px;
+      color: #132019;
+      font-family: 'Noto Serif SC', 'Playfair Display', serif;
+    }
+
+    .exam-paper .exam-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-top: 1px solid #d6e4dd;
+      border-bottom: 1px solid #d6e4dd;
+      padding: 10px 0;
+      margin: 14px 0;
+      color: #4d6259;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .exam-paper .exam-directions {
+      background: #eaf7ee;
+      border-left: 4px solid var(--green);
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin: 12px 0 16px;
+      color: #17342f;
+      line-height: 1.6;
+    }
+
+    .exam-paper .section-list {
+      display: grid;
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .exam-paper .section-row {
+      border: 1px solid #d6e4dd;
+      border-radius: 6px;
+      padding: 12px;
+      background: white;
+    }
+
+    .lfm-choice-box {
+      display: inline-block;
+      border: 1px solid #555;
+      background: #fff;
+      padding: 6px 10px;
+      margin: 4px 8px;
+      min-width: 150px;
+      vertical-align: middle;
+      line-height: 1.45;
+    }
+
+    .block-example {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #0b1a14;
+      background: rgba(245, 249, 246, 0.92);
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    .answer-sheet-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .answer-sheet-title h3 {
+      margin: 0;
+      color: var(--white);
+      font-family: 'Noto Serif SC', 'Playfair Display', serif;
+    }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .answer-grid .question {
+      margin-bottom: 0;
+    }
+
+    .template-note {
+      border: 1px solid rgba(93, 202, 165, 0.22);
+      background: rgba(93, 202, 165, 0.08);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 12px;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .message-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .message-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .message-item small {
+      display: block;
+      color: var(--green-light);
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .score-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .score-pill {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .score-pill small {
+      color: var(--muted);
+      display: block;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .score-pill strong {
+      color: var(--accent);
+      font-size: 20px;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
+    .performance-graph {
+      width: 100%;
+      height: 220px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.035);
+      margin-bottom: 16px;
+    }
+
+    .performance-graph text {
+      fill: var(--muted);
+      font-size: 11px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .card p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 0 9px;
+      font-size: 12px;
+      font-weight: 900;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tag.green { background: var(--soft-green); color: var(--green-dark); }
+    .tag.green { color: var(--green-light); border-color: rgba(93, 202, 165, 0.28); }
+    .tag.blue { background: rgba(139, 185, 214, 0.12); color: var(--blue); }
+    .tag.warn { background: rgba(240, 208, 128, 0.1); color: var(--warning); border-color: rgba(240, 208, 128, 0.24); }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .table-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    th {
+      background: rgba(93, 202, 165, 0.07);
+      color: var(--green-light);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .test-frame {
+      min-height: 520px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .test-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      background: rgba(93, 202, 165, 0.07);
+    }
+
+    .test-body {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      min-height: 460px;
+    }
+
+    .stimulus {
+      padding: 20px;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+    }
+
+    .answer-panel {
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.025);
+      overflow: auto;
+    }
+
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .media-preview {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.035);
+      margin: 12px 0;
+    }
+
+    .media-preview img, .media-preview video {
+      width: 100%;
+      max-height: 420px;
+      object-fit: contain;
+      background: #111;
+      border-radius: 6px;
+    }
+
+    .media-preview audio {
+      width: 100%;
+    }
+
+    .question strong {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .choice {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: start;
+      margin: 8px 0;
+      color: #344054;
+    }
+
+    .review-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .review-form .field:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 980px) {
+      .login-view, .app-shell, .split, .test-body {
+        grid-template-columns: 1fr;
+      }
+
+      .login-hero {
+        min-height: auto;
+        padding: 40px 24px;
+        gap: 48px;
+      }
+
+      .login-panel {
+        margin: 0;
+        border-radius: 0;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .metric-grid, .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .program-grid, .program-links {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stimulus {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .main { padding: 18px; }
+      .metric-grid, .grid, .review-form { grid-template-columns: 1fr; }
+      .program-grid, .program-links { grid-template-columns: 1fr; }
+      .topline { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loginView" class="login-view">
+    <section class="login-hero">
+      <div class="brand-mark"><span>GM</span> Green Mountain TOEFL Academy</div>
+      <div class="login-copy">
+        <div class="subhead">
+          <div class="eyebrow">Assessment Platform</div>
+          <div class="zh">绿山托福学习平台</div>
+          <div class="en">Green Mountain TOEFL learning system</div>
+        </div>
+        <h1>One calm place for <em>tests</em>, homework, and class review.</h1>
+        <div class="program-menu">
+          <span>Program Introduction</span>
+          <a href="emerald_hills.html">EN</a>
+          <a href="emerald_hills_simplified.html">CN</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <h2 class="panel-title">Sign in</h2>
+      <p class="panel-subtitle">登录账号 · Use the demo accounts to preview student and teacher workflows.</p>
+      <div class="segmented" aria-label="Role">
+        <button id="studentRole" class="active" type="button">Student</button>
+        <button id="teacherRole" type="button">Teacher</button>
+        <button id="adminRole" type="button">Admin</button>
+      </div>
+      <div class="field teacher-name">
+        <label for="nameInput">Name</label>
+        <input id="nameInput" value="Anna Chen" autocomplete="name" />
+      </div>
+      <div class="field student-only">
+        <label for="studentInput">Registered student</label>
+        <select id="studentInput"></select>
+      </div>
+      <div class="field student-only">
+        <label for="programInput">Program</label>
+        <select id="programInput"></select>
+      </div>
+      <div class="field student-only">
+        <label for="classInput">Class</label>
+        <select id="classInput"></select>
+      </div>
+      <button id="loginBtn" class="primary-btn" type="button">Enter platform</button>
+      <div class="signup-box student-only">
+        <h3>Student sign up</h3>
+        <p>Choose your program and class first. Your name will be registered under that class and used automatically later.</p>
+        <div class="field">
+          <label for="signupName">New student name</label>
+          <input id="signupName" placeholder="Student full name" />
+        </div>
+        <div class="field">
+          <label for="signupPhoto">Profile picture</label>
+          <input id="signupPhoto" type="file" accept="image/*" />
+        </div>
+        <button id="signupBtn" class="ghost-btn" type="button">Register student</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="appView" class="app-view">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-mark"><span>GM</span> TOEFL Platform</div>
+        <div class="user-card">
+          <div class="profile-row">
+            <div id="userAvatar" class="avatar">GM</div>
+            <div>
+              <strong id="userName">Student</strong>
+          <small id="userMeta">Primary Step 1</small>
+            </div>
+          </div>
+        </div>
+        <nav id="studentNav" class="nav">
+          <button class="active" data-section="studentDashboard" onclick="activateSection('studentDashboard')">Dashboard</button>
+          <button data-section="programDetails" onclick="activateSection('programDetails')">Program Details</button>
+          <button data-section="studentAssignments" onclick="activateSection('studentAssignments')">Work Platforms</button>
+          <button data-section="studentRanking" onclick="activateSection('studentRanking')">Class Ranking</button>
+          <button data-section="studentReviews" onclick="activateSection('studentReviews')">Monthly Review</button>
+        </nav>
+        <nav id="teacherNav" class="nav hidden">
+          <button class="active" data-section="teacherDashboard" onclick="activateSection('teacherDashboard')">Dashboard</button>
+          <button data-section="programDetails" onclick="activateSection('programDetails')">Program Details</button>
+          <button data-section="teacherAssignments" onclick="activateSection('teacherAssignments')">Create & Edit Work</button>
+          <button data-section="teacherSubmissions" onclick="activateSection('teacherSubmissions')">Submissions</button>
+          <button data-section="teacherReviews" onclick="activateSection('teacherReviews')">Monthly Reviews</button>
+          <button data-section="teacherRankings" onclick="activateSection('teacherRankings')">Rankings</button>
+        </nav>
+        <nav id="adminNav" class="nav hidden">
+          <button class="active" data-section="adminDashboard" onclick="activateSection('adminDashboard')">Admin Overview</button>
+          <button data-section="adminStudents" onclick="activateSection('adminStudents')">Students</button>
+          <button data-section="adminScores" onclick="activateSection('adminScores')">Scores & Tests</button>
+          <button data-section="adminEvaluation" onclick="activateSection('adminEvaluation')">Evaluate</button>
+          <button data-section="adminMessages" onclick="activateSection('adminMessages')">Messages</button>
+        </nav>
+        <button id="logoutBtn" class="ghost-btn" type="button">Log out</button>
+      </aside>
+
+      <main class="main">
+        <section id="studentDashboard" class="section active"></section>
+        <section id="programDetails" class="section"></section>
+        <section id="studentAssignments" class="section"></section>
+        <section id="studentRanking" class="section"></section>
+        <section id="studentReviews" class="section"></section>
+        <section id="teacherDashboard" class="section"></section>
+        <section id="teacherAssignments" class="section"></section>
+        <section id="teacherSubmissions" class="section"></section>
+        <section id="teacherReviews" class="section"></section>
+        <section id="teacherRankings" class="section"></section>
+        <section id="adminDashboard" class="section"></section>
+        <section id="adminStudents" class="section"></section>
+        <section id="adminScores" class="section"></section>
+        <section id="adminEvaluation" class="section"></section>
+        <section id="adminMessages" class="section"></section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const programs = {
+      Primary: {
+        sections: ["Listening", "Reading", "Language Form & Meaning", "Speaking", "Writing"],
+        classes: ["Primary Step 1", "Primary Step 2"]
+      },
+      Junior: {
+        sections: ["Listening", "Reading", "Language Form & Meaning", "Speaking", "Writing"],
+        classes: ["Junior"]
+      },
+      ITP: {
+        sections: ["Listening", "Reading", "Structure & Written Expression", "Speaking", "Writing"],
+        classes: ["ITP"]
+      },
+      iBT: {
+        sections: ["Reading", "Listening", "Writing", "Speaking"],
+        classes: ["iBT"],
+        note: "Updated TOEFL iBT style from January 21, 2026: four skill sections with band-score reporting."
+      }
+    };
+
+    const students = [
+      { name: "Anna Chen", program: "Primary", className: "Primary Step 1", score: 94, homework: 98, exercises: 91, exams: 93 },
+      { name: "Leo Wang", program: "Primary", className: "Primary Step 1", score: 89, homework: 92, exercises: 88, exams: 87 },
+      { name: "Mia Liu", program: "Primary", className: "Primary Step 2", score: 84, homework: 80, exercises: 86, exams: 85 },
+      { name: "Chris Zhao", program: "Junior", className: "Junior", score: 91, homework: 94, exercises: 89, exams: 90 },
+      { name: "Nina Xu", program: "ITP", className: "ITP", score: 87, homework: 88, exercises: 86, exams: 87 },
+      { name: "Eric Sun", program: "iBT", className: "iBT", score: 5.5, homework: 92, exercises: 90, exams: 5.5 }
+    ];
+
+    const starterAssignments = [
+      {
+        id: "a1",
+        title: "Junior Listening Practice 01",
+        program: "Junior",
+        className: "Junior",
+        category: "Homework",
+        section: "Listening",
+        posted: "2026-05-23",
+        due: "2026-05-30",
+        instructions: "Listen to the practice set and submit answers for questions 1-10.",
+        media: null,
+        questions: [
+          "What is the main idea of the conversation?",
+          "What detail does the speaker mention?",
+          "What can the listener infer?"
+        ],
+        editable: true
+      },
+      {
+        id: "a2",
+        title: "Primary Reading Exercise",
+        program: "Primary",
+        className: "Primary Step 1",
+        category: "Exercise",
+        section: "Reading",
+        posted: "2026-05-23",
+        due: "2026-05-29",
+        instructions: "Read the passage and answer the comprehension questions.",
+        media: null,
+        questions: [
+          "Choose the best title for the passage.",
+          "Find one supporting detail from the text.",
+          "What does the underlined word most nearly mean?"
+        ],
+        editable: true
+      },
+      {
+        id: "a3",
+        title: "Junior Speaking Mock Exam",
+        program: "Junior",
+        className: "Junior",
+        category: "Mock Exam",
+        section: "Speaking",
+        posted: "2026-05-21",
+        due: "2026-05-28",
+        instructions: "Record each speaking response and submit before the deadline.",
+        media: null,
+        questions: [
+          "Describe the picture or situation.",
+          "Give your opinion and one reason.",
+          "Retell the short lecture or story."
+        ],
+        editable: true
+      },
+      {
+        id: "a4",
+        title: "iBT 2026 Writing Builder",
+        program: "iBT",
+        className: "iBT",
+        category: "Homework",
+        section: "Writing",
+        posted: "2026-05-23",
+        due: "2026-05-31",
+        instructions: "Practice sentence reconstruction and a short academic response.",
+        media: null,
+        questions: [
+          "Complete the writing task using clear organization.",
+          "Check grammar and sentence variety before submitting."
+        ],
+        editable: true
+      }
+    ];
+
+    let role = "student";
+    let currentUser = null;
+    let activeAssignmentId = null;
+    let editingAssignmentId = null;
+    let studentWorkCategory = "Exercise";
+    let programDetailsLanguage = "english";
+    let teacherProgram = {
+      teacherAssignments: "Primary",
+      teacherSubmissions: "Primary",
+      teacherReviews: "Primary",
+      teacherRankings: "Primary"
+    };
+    let teacherCategory = {
+      teacherAssignments: "Exercise",
+      teacherSubmissions: "Exercise",
+      teacherRankings: "score"
+    };
+    const workCategories = ["Exercise", "Homework", "Monthly Test", "Mock Exam"];
+    const categoryLabels = {
+      Exercise: "Class Exercises",
+      Homework: "Homework",
+      "Monthly Test": "Monthly Test",
+      "Mock Exam": "Mock Exams",
+      "Mock Test": "Mock Exams",
+      score: "Overall",
+      exams: "Exams",
+      exercises: "Exercises",
+      homework: "Homework"
+    };
+
+    const store = {
+      get students() {
+        return JSON.parse(localStorage.getItem("gm_students") || "null") || students;
+      },
+      set students(value) {
+        localStorage.setItem("gm_students", JSON.stringify(value));
+      },
+      get assignments() {
+        return JSON.parse(localStorage.getItem("gm_assignments") || "null") || starterAssignments;
+      },
+      set assignments(value) {
+        localStorage.setItem("gm_assignments", JSON.stringify(value));
+      },
+      get submissions() {
+        return JSON.parse(localStorage.getItem("gm_submissions") || "[]");
+      },
+      set submissions(value) {
+        localStorage.setItem("gm_submissions", JSON.stringify(value));
+      },
+      get reviews() {
+        return JSON.parse(localStorage.getItem("gm_reviews") || "[]");
+      },
+      set reviews(value) {
+        localStorage.setItem("gm_reviews", JSON.stringify(value));
+      },
+      get messages() {
+        return JSON.parse(localStorage.getItem("gm_messages") || "[]");
+      },
+      set messages(value) {
+        localStorage.setItem("gm_messages", JSON.stringify(value));
+      },
+      get adminNotes() {
+        return JSON.parse(localStorage.getItem("gm_admin_notes") || "[]");
+      },
+      set adminNotes(value) {
+        localStorage.setItem("gm_admin_notes", JSON.stringify(value));
+      }
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+    function fillProgramOptions() {
+      $("#programInput").innerHTML = Object.keys(programs).map((program) => `<option>${program}</option>`).join("");
+      fillClassOptions();
+    }
+
+    function fillClassOptions() {
+      const program = $("#programInput").value;
+      $("#classInput").innerHTML = programs[program].classes.map((className) => `<option>${className}</option>`).join("");
+      fillStudentOptions();
+    }
+
+    function fillStudentOptions() {
+      const program = $("#programInput").value;
+      const className = $("#classInput").value;
+      const registered = store.students.filter((student) => student.program === program && student.className === className);
+      $("#studentInput").innerHTML = registered.map((student) => `<option>${student.name}</option>`).join("") || `<option value="">No registered students</option>`;
+    }
+
+    async function registerStudent() {
+      const name = $("#signupName").value.trim();
+      if (!name) return;
+      const program = $("#programInput").value;
+      const className = $("#classInput").value;
+      const registered = store.students;
+      const exists = registered.some((student) => student.name.toLowerCase() === name.toLowerCase() && student.program === program && student.className === className);
+      const photo = await readUploadedMaterial($("#signupPhoto").files[0]);
+      if (!exists) {
+        registered.push({ name, program, className, score: 0, homework: 0, exercises: 0, exams: 0, photo: photo ? photo.dataUrl : "" });
+        store.students = registered;
+      } else if (photo) {
+        store.students = registered.map((student) => student.name.toLowerCase() === name.toLowerCase() && student.program === program && student.className === className ? { ...student, photo: photo.dataUrl } : student);
+      }
+      fillStudentOptions();
+      $("#studentInput").value = name;
+      $("#signupName").value = "";
+      $("#signupPhoto").value = "";
+    }
+
+    function setRole(nextRole) {
+      role = nextRole;
+      $("#studentRole").classList.toggle("active", role === "student");
+      $("#teacherRole").classList.toggle("active", role === "teacher");
+      $("#adminRole").classList.toggle("active", role === "admin");
+      $$(".student-only").forEach((item) => item.classList.toggle("hidden", role !== "student"));
+      $$(".teacher-name").forEach((item) => item.classList.toggle("hidden", role === "student"));
+      $("#nameInput").value = role === "admin" ? "Admin" : role === "teacher" ? "Ms. Green" : "Anna Chen";
+    }
+
+    function login() {
+      if (role === "teacher" || role === "admin") {
+        currentUser = { role, name: $("#nameInput").value || role, program: "All Programs", className: "All Classes" };
+      } else {
+        currentUser = {
+          role,
+          name: $("#studentInput").value || "Student",
+          program: $("#programInput").value,
+          className: $("#classInput").value
+        };
+      }
+      $("#loginView").style.display = "none";
+      $("#appView").style.display = "block";
+      $("#userName").textContent = currentUser.name;
+      $("#userMeta").textContent = role === "admin" ? "Admin oversight" : role === "teacher" ? "Teacher dashboard" : `${currentUser.program} · ${currentUser.className}`;
+      updateUserAvatar();
+      $("#studentNav").classList.toggle("hidden", role !== "student");
+      $("#teacherNav").classList.toggle("hidden", role !== "teacher");
+      $("#adminNav").classList.toggle("hidden", role !== "admin");
+      activateSection(role === "admin" ? "adminDashboard" : role === "teacher" ? "teacherDashboard" : "studentDashboard");
+      render();
+    }
+
+    function updateUserAvatar() {
+      const avatar = $("#userAvatar");
+      const student = role === "student" ? currentStudentRecord() : null;
+      if (student && student.photo) {
+        avatar.innerHTML = `<img src="${student.photo}" alt="${student.name}">`;
+      } else {
+        avatar.textContent = initials(currentUser.name);
+      }
+    }
+
+    function initials(name) {
+      return (name || "GM").split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+    }
+
+    function currentStudentRecord() {
+      if (!currentUser || role !== "student") return null;
+      return store.students.find((student) => student.name === currentUser.name && student.program === currentUser.program && student.className === currentUser.className);
+    }
+
+    async function uploadStudentProfilePhoto() {
+      const file = $("#studentProfilePhoto").files[0];
+      if (!file || !currentStudentRecord()) return;
+      const photo = await readUploadedMaterial(file);
+      store.students = store.students.map((student) => student.name === currentUser.name && student.program === currentUser.program && student.className === currentUser.className ? { ...student, photo: photo.dataUrl } : student);
+      updateUserAvatar();
+      render();
+    }
+
+    async function adminUploadProfilePhoto(index) {
+      const file = $(`#adminPhoto${index}`).files[0];
+      if (!file) return;
+      const photo = await readUploadedMaterial(file);
+      const students = store.students;
+      students[index] = { ...students[index], photo: photo.dataUrl };
+      store.students = students;
+      render();
+    }
+
+    function logout() {
+      currentUser = null;
+      $("#loginView").style.display = "grid";
+      $("#appView").style.display = "none";
+    }
+
+    function activateSection(id) {
+      $$(".section").forEach((section) => section.classList.remove("active"));
+      $(`#${id}`).classList.add("active");
+      $$(".nav button").forEach((button) => button.classList.toggle("active", button.dataset.section === id));
+      activeAssignmentId = null;
+      render();
+    }
+
+    function assignmentsForStudent() {
+      return store.assignments.filter((item) => item.program === currentUser.program && item.className === currentUser.className);
+    }
+
+    function categoryMatches(actual, expected) {
+      if (actual === expected) return true;
+      return expected === "Mock Exam" && actual === "Mock Test";
+    }
+
+    function studentSubmissions() {
+      return store.submissions.filter((item) => item.student === currentUser.name);
+    }
+
+    function submissionFor(assignmentId, studentName = currentUser.name) {
+      return store.submissions.find((item) => item.assignmentId === assignmentId && item.student === studentName);
+    }
+
+    function sectionTags(program) {
+      return programs[program].sections.map((section) => `<span class="tag blue">${section}</span>`).join("");
+    }
+
+    function pageHeader(eyebrow, zh, en, action = "") {
+      return `
+        <div class="topline">
+          <div>
+            <div class="subhead">
+              <div class="eyebrow">${eyebrow}</div>
+              <div class="zh">${zh}</div>
+              <div class="en">${en}</div>
+            </div>
+          </div>
+          ${action}
+        </div>
+      `;
+    }
+
+    function renderProgramPicker(sectionId, options = {}) {
+      return `
+        <div class="program-grid">
+          ${Object.keys(programs).map((program) => {
+            const count = options.badge ? options.badge(program) : 0;
+            return `
+              <button class="program-card ${teacherProgram[sectionId] === program ? "active" : ""}" onclick="selectTeacherProgram('${sectionId}', '${program}')">
+                ${count ? `<span class="notify-badge">✉ ${count}</span>` : ""}
+                <strong>${program}</strong>
+                <small>${programs[program].classes.join(" · ")}<br>${programs[program].sections.length} exam sections</small>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function renderCategoryTabs(sectionId, categories = workCategories) {
+      return `
+        <div class="category-tabs">
+          ${categories.map((category) => {
+            const count = sectionId === "teacherSubmissions" ? submissionCategoryCount(teacherProgram.teacherSubmissions, category) : 0;
+            return `
+              <button class="${teacherCategory[sectionId] === category ? "active" : ""}" onclick="selectTeacherCategory('${sectionId}', '${category}')">${categoryLabels[category] || category}${count ? ` <span class="notify-badge inline">✉ ${count}</span>` : ""}</button>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function submissionCategoryCount(program, category) {
+      return submissionsForProgram(program, category).filter((submission) => !submission.score).length;
+    }
+
+    function renderStudentWorkTabs() {
+      const assignments = assignmentsForStudent();
+      return `
+        <div class="category-tabs">
+          ${workCategories.map((category) => {
+            const count = assignments.filter((assignment) => categoryMatches(assignment.category, category)).length;
+            return `<button class="${studentWorkCategory === category ? "active" : ""}" onclick="selectStudentWorkCategory('${category}')">${categoryLabels[category]}${count ? ` <span class="notify-badge inline">${count}</span>` : ""}</button>`;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function selectStudentWorkCategory(category) {
+      studentWorkCategory = category;
+      activeAssignmentId = null;
+      renderStudentAssignments();
+    }
+
+    function selectTeacherProgram(sectionId, program) {
+      teacherProgram[sectionId] = program;
+      editingAssignmentId = null;
+      render();
+    }
+
+    function selectTeacherCategory(sectionId, category) {
+      teacherCategory[sectionId] = category;
+      editingAssignmentId = null;
+      render();
+    }
+
+    function studentsForProgram(program) {
+      return store.students.filter((student) => student.program === program);
+    }
+
+    function assignmentsForTeacher(sectionId) {
+      return store.assignments.filter((item) => item.program === teacherProgram[sectionId] && categoryMatches(item.category, teacherCategory[sectionId]));
+    }
+
+    function submissionsForProgram(program, category = null) {
+      return store.submissions.filter((submission) => {
+        const assignment = store.assignments.find((item) => item.id === submission.assignmentId);
+        return submission.program === program && (!category || (assignment && categoryMatches(assignment.category, category)));
+      });
+    }
+
+    function reviewsForProgram(program) {
+      return store.reviews.filter((review) => review.program === program);
+    }
+
+    function setProgramDetailsLanguage(language) {
+      programDetailsLanguage = language;
+      renderProgramDetails();
+    }
+
+    function setPublicOutlineLanguage(language) {
+      const isEnglish = language === "english";
+      const file = isEnglish ? "emerald_hills.html" : "emerald_hills_simplified.html";
+      window.location.href = file;
+    }
+
+    function render() {
+      if (!currentUser) return;
+      if (role === "student") {
+        renderStudentDashboard();
+        renderProgramDetails();
+        renderStudentAssignments();
+        renderStudentRanking();
+        renderStudentReviews();
+      } else if (role === "teacher") {
+        renderTeacherDashboard();
+        renderProgramDetails();
+        renderTeacherAssignments();
+        renderTeacherSubmissions();
+        renderTeacherReviews();
+        renderTeacherRankings();
+      } else {
+        renderAdminDashboard();
+        renderAdminStudents();
+        renderAdminScores();
+        renderAdminEvaluation();
+        renderAdminMessages();
+      }
+    }
+
+    function renderStudentDashboard() {
+      const assignments = assignmentsForStudent();
+      const submissions = studentSubmissions();
+      const reviewed = submissions.filter((item) => item.score !== "").length;
+      $("#studentDashboard").innerHTML = `
+        ${pageHeader("Student Center", `${currentUser.program} 学习中心`, `${currentUser.className} · ${programs[currentUser.program].sections.length} exam sections available`, `<button class="primary-btn" onclick="activateSection('studentAssignments')">Open assignments</button>`)}
+        <div class="metric-grid">
+          <div class="metric"><small>Assigned</small><strong>${assignments.length}</strong></div>
+          <div class="metric"><small>Submitted</small><strong>${submissions.length}</strong></div>
+          <div class="metric"><small>Reviewed</small><strong>${reviewed}</strong></div>
+          <div class="metric"><small>Class rank</small><strong>#${getRank(currentUser.name, currentUser.className, "score")}</strong></div>
+        </div>
+        <article class="card" style="margin-bottom:14px">
+          <h3>Profile picture</h3>
+          <p>Upload or replace your student profile picture. Admin can also update it from the admin student list.</p>
+          <div class="field"><label>Upload photo</label><input id="studentProfilePhoto" type="file" accept="image/*" onchange="uploadStudentProfilePhoto()"></div>
+        </article>
+        <div class="program-links">
+          <article class="card">
+            <h3>Program Introduction</h3>
+            <p>Open the full program introduction in the same browser tab.</p>
+            <div class="program-menu"><a href="emerald_hills.html">EN</a><a href="emerald_hills_simplified.html">CN</a></div>
+          </article>
+        </div>
+        <div class="grid">
+          ${Object.entries(programs).map(([program, detail]) => `
+            <article class="card">
+              <h3>${program}</h3>
+              <p>${program === "iBT" ? detail.note : "Same platform structure with five exam types, homework, exercises, and mock tests."}</p>
+              <div class="tag-row">${sectionTags(program)}</div>
+            </article>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderProgramDetails() {
+      const isEnglish = programDetailsLanguage === "english";
+      const file = isEnglish ? "emerald_hills.html" : "emerald_hills_simplified.html";
+      $("#programDetails").innerHTML = `
+        ${pageHeader("Program Introduction", "课程介绍", "Open the full program introduction in the same browser tab.")}
+        <div class="program-links">
+          <article class="card">
+            <h3>Program Introduction</h3>
+            <p>Choose a language. The selected outline opens in this same browser tab.</p>
+            <div class="program-menu"><a href="emerald_hills.html">EN</a><a href="emerald_hills_simplified.html">CN</a></div>
+          </article>
+        </div>
+      `;
+    }
+
+    function renderStudentAssignments() {
+      const assignments = assignmentsForStudent();
+      if (activeAssignmentId) {
+        const assignment = assignments.find((item) => item.id === activeAssignmentId);
+        $("#studentAssignments").innerHTML = assignment ? renderTestTaking(assignment) : "";
+        return;
+      }
+
+      const filteredAssignments = assignments.filter((assignment) => categoryMatches(assignment.category, studentWorkCategory));
+      $("#studentAssignments").innerHTML = `
+        ${pageHeader("Work Platforms", "学习任务平台", `Choose an independent platform: Class Exercises, Homework, Monthly Test, or Mock Exams.`)}
+        ${renderStudentWorkTabs()}
+        <div class="grid">
+          ${filteredAssignments.map(renderAssignmentCard).join("") || `<div class="empty">No ${categoryLabels[studentWorkCategory]} yet for ${currentUser.className}.</div>`}
+        </div>
+      `;
+    }
+
+    function renderAssignmentCard(assignment) {
+      const submitted = submissionFor(assignment.id);
+      return `
+        <article class="card">
+          <h3>${assignment.title}</h3>
+          <div class="tag-row">
+            <span class="tag green">${categoryLabels[assignment.category] || assignment.category}</span>
+            <span class="tag blue">${assignment.section}</span>
+            <span class="tag warn">${submitted ? "Submitted" : "Open"}</span>
+          </div>
+          <p>${assignment.instructions}</p>
+          <p><strong>Posted:</strong> ${assignment.posted}<br><strong>Due:</strong> ${assignment.due}</p>
+          <button class="primary-btn" onclick="openAssignment('${assignment.id}')">${submitted ? "View submission" : "Take test"}</button>
+        </article>
+      `;
+    }
+
+    function renderTestTaking(assignment) {
+      const submitted = submissionFor(assignment.id);
+      const answerItems = answerSheetItems(assignment);
+      return `
+        ${pageHeader("Test Player", "答题页面", `${assignment.title} · ${assignment.program} · ${assignment.className} · ${assignment.category} · ${assignment.section}`, `<button class="ghost-btn" onclick="closeAssignment()">Back</button>`)}
+        <div class="test-frame">
+          <div class="test-header">
+            <strong>${assignment.section} test player</strong>
+            <span class="tag warn">Due ${assignment.due}</span>
+          </div>
+          <div class="test-body">
+            <div class="stimulus">
+              ${renderStimulus(assignment)}
+            </div>
+            <form class="answer-panel" onsubmit="submitAssignment(event, '${assignment.id}')">
+              <div class="answer-sheet-title">
+                <h3>答题纸 · Answer Sheet</h3>
+                <span class="tag green">${answerItems.length} items</span>
+              </div>
+              <div class="template-note">${answerSheetDescription(assignment)}</div>
+              <div class="answer-grid">
+                ${answerItems.map((item, index) => `
+                  <div class="question">
+                    <strong>${item.label}</strong>
+                    ${item.prompt ? `<p>${item.prompt}</p>` : ""}
+                    <textarea class="student-answer" data-question="${index}" placeholder="${item.placeholder}">${submitted && submitted.answers ? submitted.answers[index] || "" : ""}</textarea>
+                  </div>
+                `).join("")}
+              </div>
+              ${assignment.section === "Speaking" ? `
+                <div class="field">
+                  <label>Speaking recording</label>
+                  <input id="recordingLink" placeholder="Paste audio file link or recording note" value="${submitted ? submitted.recording : ""}">
+                </div>` : ""}
+              <button class="primary-btn" type="submit">${submitted ? "Update submission" : "Submit work"}</button>
+              ${submitted ? `<p style="margin-top:12px;color:var(--muted)">Submitted on ${submitted.submittedAt}. Score: ${submitted.score || "Waiting for teacher"}.</p>` : ""}
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStimulus(assignment) {
+      const uploadedMedia = renderUploadedMedia(assignment);
+      const answerItems = answerSheetItems(assignment);
+      const visiblePrompts = answerItems.filter((item) => item.prompt);
+      const structuredBlocks = renderStructuredBlocks(assignment);
+      return `
+        <article class="exam-paper">
+          <h3>${assignment.title}</h3>
+          <div class="exam-meta">
+            <span>${assignment.program}</span>
+            <span>${assignment.className}</span>
+            <span>${assignment.category}</span>
+            <span>${assignment.section}</span>
+            <span>Due ${assignment.due}</span>
+          </div>
+          <div class="exam-directions">
+            <strong>Directions</strong><br>
+            ${examDirections(assignment)}
+          </div>
+          ${assignment.sourceMaterial ? `<div class="exam-directions"><strong>Teacher material</strong><br>${assignment.sourceMaterial.replace(/\n/g, "<br>")}</div>` : ""}
+          ${uploadedMedia || `<div class="media-preview">No media uploaded for this exam. Students answer from the teacher's written instructions and questions below.</div>`}
+          ${structuredBlocks}
+          <div class="section-list">
+            ${visiblePrompts.length ? visiblePrompts.map((item) => `
+              <div class="section-row">
+                <strong>${item.label}</strong>
+                <p>${item.prompt}</p>
+              </div>
+            `).join("") : `<div class="section-row"><strong>Generated exam structure</strong><p>The teacher-provided material is used as the exam content. The platform has generated a ${answerItems.length}-item answer sheet for this ${assignment.section} section.</p></div>`}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderStructuredBlocks(assignment) {
+      if (!assignment.sectionBlocks) return "";
+      const blocks = assignment.sectionBlocks.split(/\n---+\n/).map((block) => block.trim()).filter(Boolean);
+      if (!blocks.length) return "";
+      return `<div class="section-list">${blocks.map((block) => renderStructuredBlock(assignment, block)).join("")}</div>`;
+    }
+
+    function renderStructuredBlock(assignment, block) {
+      const lines = block.split("\n");
+      const heading = lines[0] || "Content block";
+      const body = lines.slice(1).join("\n").trim();
+      const safeBody = body.replace(/\n/g, "<br>");
+      if (assignment.section.includes("Language") || assignment.section.includes("Structure")) {
+        const withBoxes = safeBody.replace(/\[choices:([^\]]+)\]/g, (_, choices) => {
+          return `<span class="lfm-choice-box">${choices.split("|").map((choice, index) => `(${String.fromCharCode(65 + index)}) ${choice.trim()}`).join("<br>")}</span>`;
+        });
+        return `<div class="section-row"><strong>${heading}</strong><p>${withBoxes}</p></div>`;
+      }
+      return `<div class="section-row"><strong>${heading}</strong><p>${safeBody}</p></div>`;
+    }
+
+    function templateFor(program, section) {
+      if (program === "iBT") {
+        if (section === "Reading") return { count: 50, label: "Reading Item", placeholder: "Type your answer.", help: "TOEFL iBT 2026 Reading is adaptive. Build it with reading passage/module blocks; default answer sheet size is 50 items." };
+        if (section === "Listening") return { count: 47, label: "Listening Item", placeholder: "Type your answer.", help: "TOEFL iBT 2026 Listening is adaptive. Build it with audio/conversation/lecture blocks; default answer sheet size is 47 items." };
+        if (section === "Speaking") return { count: 11, label: "Speaking Task", placeholder: "Record your response or paste a recording link.", help: "TOEFL iBT 2026 Speaking has 11 tasks/items. Use task blocks for videos, audio prompts, repeat-after-me drills, and formal responses." };
+        if (section === "Writing") return { count: 12, label: "Writing Item", placeholder: "Type your writing response.", help: "TOEFL iBT 2026 Writing contains 12 items/tasks. Use writing blocks for sentence building, email/academic tasks, and extended responses." };
+      }
+      if (section === "Speaking") {
+        return {
+          count: 4,
+          label: "Speaking Task",
+          placeholder: "Record your answer, then write a short note or paste the recording link.",
+          help: program === "ITP"
+            ? "ITP Speaking uses 4 structured speaking tasks. Upload or paste the prompts/audio; the platform generates 4 response slots."
+            : "Primary/Junior Speaking uses 4 tasks. Upload pictures/audio/video or paste prompts; the platform generates 4 speaking answer slots."
+        };
+      }
+      if (section === "Writing") {
+        return {
+          count: 4,
+          label: "Writing Task",
+          placeholder: "Type your writing response here.",
+          help: "Writing uses 4 tasks. Paste the prompts or upload materials; the platform generates 4 writing response areas."
+        };
+      }
+      if (section === "Listening" || section === "Reading" || section.includes("Language") || section.includes("Structure")) {
+        return {
+          count: 42,
+          label: "Question",
+          placeholder: "Type A, B, C, D, or your short answer.",
+          help: `${section} uses a formal 42-question answer sheet. Upload/paste the exam material; the platform generates 42 numbered answer slots.`
+        };
+      }
+      return { count: 10, label: "Question", placeholder: "Type your answer.", help: "The platform generates answer slots from the selected template." };
+    }
+
+    function answerSheetItems(assignment) {
+      const template = templateFor(assignment.program, assignment.section);
+      const prompts = assignment.questions || [];
+      const count = Number(assignment.answerCount) || Math.max(template.count, prompts.length);
+      return Array.from({ length: count }, (_, index) => ({
+        label: `${template.label} ${index + 1}`,
+        prompt: prompts[index] || "",
+        placeholder: template.placeholder
+      }));
+    }
+
+    function answerSheetDescription(assignment) {
+      const template = templateFor(assignment.program, assignment.section);
+      const count = Number(assignment.answerCount) || template.count;
+      return `${assignment.section} template: ${count} answer slot${count === 1 ? "" : "s"}. Only the teacher can edit the exam material; students can only answer and submit.`;
+    }
+
+    function examDirections(assignment) {
+      if (assignment.program === "ITP" && assignment.section === "Speaking") {
+        return "This ITP Speaking task is generated from the teacher's input. Students should prepare briefly, then record clear spoken responses for read-aloud, everyday/campus communication, and academic-style speaking prompts when provided.";
+      }
+      if ((assignment.program === "Primary" || assignment.program === "Junior") && assignment.section === "Speaking") {
+        return "Look at the prompt, image, audio, or video. Prepare your response, then record your answer in the answer sheet.";
+      }
+      if ((assignment.program === "Primary" || assignment.program === "Junior") && assignment.section === "Writing") {
+        return "Read the task carefully. Write complete answers using clear organization, correct grammar, and appropriate vocabulary.";
+      }
+      if (assignment.section === "Listening") {
+        return "Play the teacher-provided audio or video. Answer each question in order. You may not edit the exam content.";
+      }
+      if (assignment.section === "Reading" || assignment.section.includes("Language") || assignment.section.includes("Structure")) {
+        return "Read the passage, image, or prompt provided by the teacher. Answer each question on the answer sheet.";
+      }
+      return assignment.instructions || "Complete the generated exam and submit your answer sheet.";
+    }
+
+    function renderUploadedMedia(assignment) {
+      const mediaBlocks = [];
+      if (assignment.media && assignment.media.dataUrl) {
+        const type = assignment.media.type || "";
+        if (type.startsWith("image/")) {
+          mediaBlocks.push(`<div class="media-preview"><img src="${assignment.media.dataUrl}" alt="${assignment.media.name}"></div>`);
+        } else if (type.startsWith("audio/")) {
+          mediaBlocks.push(`<div class="media-preview"><audio controls src="${assignment.media.dataUrl}"></audio><p>${assignment.media.name}</p></div>`);
+        } else if (type.startsWith("video/")) {
+          mediaBlocks.push(`<div class="media-preview"><video controls src="${assignment.media.dataUrl}"></video><p>${assignment.media.name}</p></div>`);
+        } else if (type === "application/pdf") {
+          mediaBlocks.push(`<div class="media-preview"><a class="primary-btn" href="${assignment.media.dataUrl}" target="_blank">Open uploaded PDF</a><p>${assignment.media.name}</p></div>`);
+        } else {
+          mediaBlocks.push(`<div class="media-preview"><a class="primary-btn" href="${assignment.media.dataUrl}" target="_blank">Open uploaded file</a><p>${assignment.media.name}</p></div>`);
+        }
+      }
+      if (assignment.mediaUrl) {
+        mediaBlocks.push(`<div class="media-preview"><a class="primary-btn" href="${assignment.mediaUrl}" target="_blank">Open teacher media link</a></div>`);
+      }
+      return mediaBlocks.join("");
+    }
+
+    function openAssignment(id) {
+      activeAssignmentId = id;
+      renderStudentAssignments();
+    }
+
+    function closeAssignment() {
+      activeAssignmentId = null;
+      renderStudentAssignments();
+    }
+
+    function submitAssignment(event, assignmentId) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const answers = Array.from(form.querySelectorAll(".student-answer")).map((answer) => answer.value.trim());
+      const submissions = store.submissions.filter((item) => !(item.assignmentId === assignmentId && item.student === currentUser.name));
+      submissions.push({
+        assignmentId,
+        student: currentUser.name,
+        program: currentUser.program,
+        className: currentUser.className,
+        answer: answers.join("\n\n"),
+        answers,
+        recording: $("#recordingLink") ? $("#recordingLink").value.trim() : "",
+        submittedAt: new Date().toISOString().slice(0, 10),
+        score: "",
+        feedback: ""
+      });
+      store.submissions = submissions;
+      render();
+    }
+
+    function renderStudentRanking() {
+      $("#studentRanking").innerHTML = `
+        ${pageHeader("Class Ranking", `${currentUser.className} 排名`, "Students only see the ranking for their own class.")}
+        ${renderRankingTable(currentUser.className, "score")}
+      `;
+    }
+
+    function renderStudentReviews() {
+      const reviews = store.reviews.filter((item) => item.student === currentUser.name && item.className === currentUser.className);
+      $("#studentReviews").innerHTML = `
+        ${pageHeader("Monthly Review", "月度学习反馈", "Teacher feedback for strengths, improvement, weaknesses, and next steps.")}
+        ${reviews.length ? renderPerformanceGraph(reviews) : ""}
+        ${reviews.map(renderReviewCard).join("") || `<div class="empty">No monthly review has been published yet.</div>`}
+      `;
+    }
+
+    function renderTeacherDashboard() {
+      const assignments = store.assignments;
+      const submissions = store.submissions;
+      $("#teacherDashboard").innerHTML = `
+        ${pageHeader("Teacher Console", "教师管理中心", "Create work, upload media, review submissions, write monthly reviews, and manage rankings.", `<button class="primary-btn" onclick="activateSection('teacherAssignments')">Create assignment</button>`)}
+        <div class="metric-grid">
+          <div class="metric"><small>Programs</small><strong>4</strong></div>
+          <div class="metric"><small>Assignments</small><strong>${assignments.length}</strong></div>
+          <div class="metric"><small>Submissions</small><strong>${submissions.length}</strong></div>
+          <div class="metric"><small>Monthly reviews</small><strong>${store.reviews.length}</strong></div>
+        </div>
+        <div class="grid">
+          ${Object.entries(programs).map(([program, detail]) => `
+            <article class="card">
+              <h3>${program}</h3>
+              <p>${program === "iBT" ? detail.note : "Five exam categories with the same assignment, submission, scoring, and ranking structure."}</p>
+              <div class="tag-row">${sectionTags(program)}</div>
+            </article>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderTeacherAssignments() {
+      const assignments = assignmentsForTeacher("teacherAssignments");
+      const allAssignments = store.assignments;
+      const editing = assignments.find((item) => item.id === editingAssignmentId);
+      const formProgram = editing ? editing.program : teacherProgram.teacherAssignments;
+      const selectedCategory = editing ? editing.category : teacherCategory.teacherAssignments;
+      $("#teacherAssignments").innerHTML = `
+        ${pageHeader("Content Builder", "创建与编辑任务", "Only teachers can create homework, exercises, mock tests, upload media, and edit exam materials.")}
+        ${renderProgramPicker("teacherAssignments")}
+        ${renderCategoryTabs("teacherAssignments")}
+        <div class="split">
+          <form class="card" onsubmit="saveAssignment(event)">
+            <h3>${editing ? "Edit assignment" : "Assignment details"}</h3>
+            <div class="field"><label>Title</label><input id="assignmentTitle" required value="${editing ? editing.title : "New class homework"}"></div>
+            <div class="field"><label>Program</label><select id="assignmentProgram" onchange="syncAssignmentOptions(); syncAssignmentTemplate();">${Object.keys(programs).map((program) => `<option ${program === formProgram ? "selected" : ""}>${program}</option>`).join("")}</select></div>
+            <div class="field"><label>Class</label><select id="assignmentClass"></select></div>
+            <div class="field"><label>Type</label><select id="assignmentCategory">${workCategories.map((category) => `<option ${selectedCategory === category ? "selected" : ""}>${category}</option>`).join("")}</select></div>
+            <div class="field"><label>Exam section</label><select id="assignmentSection" onchange="syncAssignmentTemplate()"></select></div>
+            <div class="field"><label>Date posted</label><input id="assignmentPosted" type="date" value="${editing ? editing.posted : "2026-05-23"}"></div>
+            <div class="field"><label>Deadline</label><input id="assignmentDue" type="date" value="${editing ? editing.due : "2026-05-30"}"></div>
+            <div class="field"><label>Upload question material</label><input id="assignmentFile" type="file" accept="image/*,audio/*,video/*,application/pdf"></div>
+            <div class="field"><label>Media link</label><input id="assignmentMediaUrl" placeholder="Optional video, audio, image, or document link" value="${editing && editing.mediaUrl ? editing.mediaUrl : ""}"></div>
+            <div class="field"><label>Teacher material / passage / transcript</label><textarea id="assignmentSourceMaterial" placeholder="Paste the reading passage, listening transcript, grammar text, speaking prompt, or writing source material here.">${editing && editing.sourceMaterial ? editing.sourceMaterial : ""}</textarea></div>
+            <div class="field"><label>Instructions</label><textarea id="assignmentInstructions">${editing ? editing.instructions : "Complete the assigned section and submit your answers."}</textarea></div>
+            <div class="field"><label>Answer sheet size</label><input id="assignmentAnswerCount" type="number" min="1" max="120" value="${editing && editing.answerCount ? editing.answerCount : templateFor(formProgram, editing ? editing.section : programs[formProgram].sections[0]).count}"></div>
+            <div id="templateHelp" class="template-note"></div>
+            <div id="blockExample" class="block-example"></div>
+            <div class="field"><label>Section blocks</label><textarea id="assignmentBlocks" placeholder="Use this for formal Monthly Tests and Mock Exams. Add one block per audio, passage, language group, speaking task, or writing task. Separate blocks with ---">${editing && editing.sectionBlocks ? editing.sectionBlocks : ""}</textarea></div>
+            <div class="field"><label>Teacher prompts / item text</label><textarea id="assignmentQuestions" placeholder="Optional: paste one prompt/question per line. Leave blank when the uploaded exam material already contains all questions.">${editing && editing.questions ? editing.questions.join("\n") : ""}</textarea></div>
+            ${editing && editing.media ? `<p class="tag-row"><span class="tag blue">Current upload: ${editing.media.name}</span></p>` : ""}
+            <div class="toolbar">
+              <button class="primary-btn" type="submit">${editing ? "Update assignment" : "Save assignment"}</button>
+              ${editing ? `<button class="ghost-btn" type="button" onclick="cancelAssignmentEdit()">Cancel edit</button>` : ""}
+            </div>
+          </form>
+          <div class="table-card">
+            <table>
+              <thead><tr><th>Work</th><th>Class</th><th>Dates</th><th></th></tr></thead>
+              <tbody>
+                ${assignments.map((item) => `
+                  <tr>
+                    <td><strong>${item.title}</strong><br>${item.category} · ${item.section}</td>
+                    <td>${item.program}<br>${item.className}</td>
+                    <td>${item.posted}<br>${item.due}</td>
+                    <td><div class="toolbar"><button class="ghost-btn" onclick="editAssignment('${item.id}')">Edit</button><button class="danger-btn" onclick="deleteAssignment('${item.id}')">Delete</button></div></td>
+                  </tr>
+                `).join("") || `<tr><td colspan="4">No ${categoryLabels[teacherCategory.teacherAssignments]} yet for ${teacherProgram.teacherAssignments}.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      syncAssignmentOptions(editing);
+      syncAssignmentTemplate(editing);
+    }
+
+    function syncAssignmentOptions(editing = null) {
+      const program = $("#assignmentProgram").value;
+      $("#assignmentClass").innerHTML = programs[program].classes.map((className) => `<option ${editing && editing.className === className ? "selected" : ""}>${className}</option>`).join("");
+      $("#assignmentSection").innerHTML = programs[program].sections.map((section) => `<option ${editing && editing.section === section ? "selected" : ""}>${section}</option>`).join("");
+    }
+
+    function syncAssignmentTemplate(editing = null) {
+      if (!$("#assignmentProgram") || !$("#assignmentSection")) return;
+      const program = $("#assignmentProgram").value;
+      const section = $("#assignmentSection").value;
+      const category = $("#assignmentCategory").value;
+      const template = templateFor(program, section);
+      const countInput = $("#assignmentAnswerCount");
+      if (countInput && (!editing || !editing.answerCount)) {
+        countInput.value = template.count;
+      }
+      if ($("#templateHelp")) {
+        $("#templateHelp").textContent = (category === "Homework" || category === "Exercise")
+          ? `Flexible ${categoryLabels[category]} mode: teacher decides the format. You can use simple material/prompts without formal test blocks.`
+          : template.help;
+      }
+      if ($("#blockExample")) {
+        $("#blockExample").textContent = sectionBlockExample(program, section, category);
+      }
+    }
+
+    function sectionBlockExample(program, section, category) {
+      if (category === "Homework" || category === "Exercise") {
+        return "Flexible mode example:\nPaste instructions/materials above, upload media, then set any answer sheet size you need.";
+      }
+      if (section === "Listening") {
+        return "Listening block example:\n[Questions 1-4] Conversation 1\nAudio/link: paste link or upload media above\nTranscript: optional\nQuestion notes: paste question text or use answer sheet slots\n---\n[Questions 5-10] Announcement";
+      }
+      if (section === "Reading") {
+        return "Reading block example:\n[Questions 1-4] Passage: School Notice\nPaste passage text here\n---\n[Questions 5-7] Passage: Short Story";
+      }
+      if (section.includes("Language") || section.includes("Structure")) {
+        return "Language Form & Meaning example:\n[Questions 6-9] Announcement\nA man's wristwatch [choices: finds | finding | has found | was found] in the lobby...\nCallers will be asked [choices: a detailed description is given | to give a detailed description | giving a detailed description | a detailed description gave] of the watch.";
+      }
+      if (section === "Speaking") {
+        return "Speaking block example:\n[Task 1] Independent response\nPrompt: Describe a place you like.\nPrep: 15 sec | Response: 45 sec\nMedia: optional audio/video/image link\n---\n[Task 2] Video/audio prompt";
+      }
+      if (section === "Writing") {
+        return "Writing block example:\n[Task 1] Sentence building\nPrompt/source text here\n---\n[Task 2] Email or academic response";
+      }
+      return "Add one content block, then separate the next with ---";
+    }
+
+    async function saveAssignment(event) {
+      event.preventDefault();
+      let assignments = store.assignments;
+      const existing = assignments.find((item) => item.id === editingAssignmentId);
+      const uploaded = await readUploadedMaterial($("#assignmentFile").files[0]);
+      const saved = {
+        id: editingAssignmentId || `a${Date.now()}`,
+        title: $("#assignmentTitle").value,
+        program: $("#assignmentProgram").value,
+        className: $("#assignmentClass").value,
+        category: $("#assignmentCategory").value,
+        section: $("#assignmentSection").value,
+        posted: $("#assignmentPosted").value,
+        due: $("#assignmentDue").value,
+        media: uploaded || (existing ? existing.media : null),
+        mediaUrl: $("#assignmentMediaUrl").value.trim(),
+        sourceMaterial: $("#assignmentSourceMaterial").value.trim(),
+        sectionBlocks: $("#assignmentBlocks").value.trim(),
+        instructions: $("#assignmentInstructions").value,
+        answerCount: Number($("#assignmentAnswerCount").value) || templateFor($("#assignmentProgram").value, $("#assignmentSection").value).count,
+        questions: $("#assignmentQuestions").value.split("\n").map((item) => item.trim()).filter(Boolean),
+        editable: true
+      };
+      if (editingAssignmentId) {
+        assignments = assignments.map((item) => item.id === editingAssignmentId ? saved : item);
+      } else {
+        assignments.unshift(saved);
+      }
+      editingAssignmentId = null;
+      teacherProgram.teacherAssignments = saved.program;
+      teacherCategory.teacherAssignments = saved.category;
+      store.assignments = assignments;
+      render();
+    }
+
+    function readUploadedMaterial(file) {
+      if (!file) return Promise.resolve(null);
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ name: file.name, type: file.type, dataUrl: reader.result });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function editAssignment(id) {
+      editingAssignmentId = id;
+      renderTeacherAssignments();
+    }
+
+    function cancelAssignmentEdit() {
+      editingAssignmentId = null;
+      renderTeacherAssignments();
+    }
+
+    function deleteAssignment(id) {
+      store.assignments = store.assignments.filter((item) => item.id !== id);
+      store.submissions = store.submissions.filter((item) => item.assignmentId !== id);
+      render();
+    }
+
+    function renderTeacherSubmissions() {
+      const submissions = submissionsForProgram(teacherProgram.teacherSubmissions, teacherCategory.teacherSubmissions);
+      $("#teacherSubmissions").innerHTML = `
+        ${pageHeader("Submissions", "学生提交", "Review student answers, score them, and leave feedback.")}
+        ${renderProgramPicker("teacherSubmissions", { badge: (program) => submissionsForProgram(program).filter((item) => !item.score).length })}
+        ${renderCategoryTabs("teacherSubmissions")}
+        <div class="table-card">
+          <table>
+            <thead><tr><th>Student</th><th>Assignment</th><th>Answer</th><th>Score & feedback</th></tr></thead>
+            <tbody>
+              ${submissions.map((submission) => renderSubmissionRow(submission)).join("") || `<tr><td colspan="4">No ${categoryLabels[teacherCategory.teacherSubmissions]} submissions yet for ${teacherProgram.teacherSubmissions}.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderSubmissionRow(submission) {
+      const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
+      const index = store.submissions.findIndex((item) => item.assignmentId === submission.assignmentId && item.student === submission.student);
+      return `
+        <tr>
+          <td><strong>${submission.student}</strong><br>${submission.program} · ${submission.className}<br>${submission.submittedAt}</td>
+          <td>${assignment.title || "Deleted assignment"}<br>${assignment.category || ""} · ${assignment.section || ""}</td>
+          <td>${submission.answer || "No written answer"}${submission.recording ? `<br><strong>Recording:</strong> ${submission.recording}` : ""}</td>
+          <td>
+            <div class="field"><input id="score${index}" placeholder="Score" value="${submission.score}"></div>
+            <div class="field"><textarea id="feedback${index}" placeholder="Teacher feedback">${submission.feedback}</textarea></div>
+            <button class="primary-btn" onclick="saveSubmissionReview(${index})">Save review</button>
+          </td>
+        </tr>
+      `;
+    }
+
+    function saveSubmissionReview(index) {
+      const submissions = store.submissions;
+      submissions[index].score = $(`#score${index}`).value;
+      submissions[index].feedback = $(`#feedback${index}`).value;
+      store.submissions = submissions;
+      render();
+    }
+
+    function renderTeacherReviews() {
+      const selectedStudents = studentsForProgram(teacherProgram.teacherReviews);
+      const selectedReviews = reviewsForProgram(teacherProgram.teacherReviews);
+      $("#teacherReviews").innerHTML = `
+        ${pageHeader("Monthly Reviews", "月度学习报告", "Write one monthly progress review for each student.")}
+        ${renderProgramPicker("teacherReviews")}
+        <div class="split">
+          <form class="card" onsubmit="saveMonthlyReview(event)">
+            <h3>Student review</h3>
+            <div class="field"><label>Student</label><select id="reviewStudent">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}">${student.name} · ${student.className}</option>`).join("")}</select></div>
+            <div class="field"><label>Month</label><input id="reviewMonth" type="month" value="2026-05"></div>
+            <div class="review-form">
+              <div class="field"><label>Overall score</label><input id="reviewOverall" type="number" min="0" max="120" required></div>
+              <div class="field"><label>Listening</label><input id="reviewListening" type="number" min="0" max="120"></div>
+              <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120"></div>
+              <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120"></div>
+              <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120"></div>
+              <div class="field"><label>Language / Structure</label><input id="reviewLanguage" type="number" min="0" max="120"></div>
+            </div>
+            <div class="review-form">
+              <div class="field"><label>Strong areas</label><textarea id="reviewStrong" required></textarea></div>
+              <div class="field"><label>Currently improving</label><textarea id="reviewImproving" required></textarea></div>
+              <div class="field"><label>Weaknesses</label><textarea id="reviewWeakness" required></textarea></div>
+              <div class="field"><label>Areas to improve</label><textarea id="reviewAreas" required></textarea></div>
+              <div class="field"><label>How to improve</label><textarea id="reviewHow" required></textarea></div>
+            </div>
+            <button class="primary-btn" type="submit">Publish review</button>
+          </form>
+          <div>
+            ${selectedReviews.map(renderReviewCard).join("") || `<div class="empty">No ${teacherProgram.teacherReviews} reviews written yet.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function saveMonthlyReview(event) {
+      event.preventDefault();
+      const [student, program, className] = $("#reviewStudent").value.split("|");
+      const reviews = store.reviews.filter((item) => !(item.student === student && item.month === $("#reviewMonth").value));
+      reviews.unshift({
+        student,
+        program,
+        className,
+        month: $("#reviewMonth").value,
+        scores: {
+          overall: Number($("#reviewOverall").value) || 0,
+          listening: Number($("#reviewListening").value) || 0,
+          reading: Number($("#reviewReading").value) || 0,
+          speaking: Number($("#reviewSpeaking").value) || 0,
+          writing: Number($("#reviewWriting").value) || 0,
+          language: Number($("#reviewLanguage").value) || 0
+        },
+        strong: $("#reviewStrong").value,
+        improving: $("#reviewImproving").value,
+        weakness: $("#reviewWeakness").value,
+        areas: $("#reviewAreas").value,
+        how: $("#reviewHow").value
+      });
+      store.reviews = reviews;
+      render();
+    }
+
+    function renderReviewCard(review) {
+      const scores = review.scores || {};
+      return `
+        <article class="card" style="margin-bottom:14px">
+          <h3>${review.student} · ${review.month}</h3>
+          <div class="score-strip">
+            <div class="score-pill"><small>Overall</small><strong>${scores.overall ?? "-"}</strong></div>
+            <div class="score-pill"><small>Listening</small><strong>${scores.listening ?? "-"}</strong></div>
+            <div class="score-pill"><small>Reading</small><strong>${scores.reading ?? "-"}</strong></div>
+            <div class="score-pill"><small>Speaking</small><strong>${scores.speaking ?? "-"}</strong></div>
+            <div class="score-pill"><small>Writing</small><strong>${scores.writing ?? "-"}</strong></div>
+          </div>
+          <p><strong>Strong areas:</strong> ${review.strong}</p>
+          <p><strong>Currently improving:</strong> ${review.improving}</p>
+          <p><strong>Weaknesses:</strong> ${review.weakness}</p>
+          <p><strong>Areas to improve:</strong> ${review.areas}</p>
+          <p><strong>How to improve:</strong> ${review.how}</p>
+        </article>
+      `;
+    }
+
+    function renderPerformanceGraph(reviews) {
+      const sorted = [...reviews].sort((a, b) => a.month.localeCompare(b.month));
+      const points = sorted.map((review, index) => {
+        const score = Number(review.scores && review.scores.overall) || 0;
+        const x = sorted.length === 1 ? 280 : 40 + (index * (520 / (sorted.length - 1)));
+        const y = 170 - Math.min(120, Math.max(0, score)) * 1.15;
+        return { x, y, score, month: review.month };
+      });
+      const polyline = points.map((point) => `${point.x},${point.y}`).join(" ");
+      return `
+        <svg class="performance-graph" viewBox="0 0 600 220" role="img" aria-label="Student performance graph">
+          <line x1="40" y1="170" x2="560" y2="170" stroke="rgba(255,255,255,0.18)" />
+          <line x1="40" y1="32" x2="40" y2="170" stroke="rgba(255,255,255,0.18)" />
+          <text x="40" y="24">Performance over time</text>
+          <text x="8" y="174">0</text>
+          <text x="4" y="38">120</text>
+          <polyline points="${polyline}" fill="none" stroke="#5DCAA5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          ${points.map((point) => `
+            <circle cx="${point.x}" cy="${point.y}" r="6" fill="#f0d080" />
+            <text x="${point.x - 18}" y="${point.y - 12}">${point.score}</text>
+            <text x="${point.x - 28}" y="194">${point.month}</text>
+          `).join("")}
+        </svg>
+      `;
+    }
+
+    function renderTeacherRankings() {
+      const program = teacherProgram.teacherRankings;
+      const currentClass = programs[program].classes.includes($("#rankingClass") ? $("#rankingClass").value : "") ? $("#rankingClass").value : programs[program].classes[0];
+      const metric = teacherCategory.teacherRankings || "score";
+      $("#teacherRankings").innerHTML = `
+        <div class="topline">
+          <div>
+            <div class="subhead">
+              <div class="eyebrow">Rankings</div>
+              <div class="zh">班级排名</div>
+              <div class="en">Rankings can be viewed by class and by exams, exercises, homework, or total performance.</div>
+            </div>
+          </div>
+          <div class="toolbar">
+            <select id="rankingClass" onchange="renderTeacherRankings()">${programs[program].classes.map((className) => `<option ${currentClass === className ? "selected" : ""}>${className}</option>`).join("")}</select>
+          </div>
+        </div>
+        ${renderProgramPicker("teacherRankings")}
+        ${renderCategoryTabs("teacherRankings", ["score", "exams", "exercises", "homework"])}
+        ${renderRankingTable(currentClass, metric)}
+      `;
+    }
+
+    function renderAdminDashboard() {
+      const unreviewed = store.submissions.filter((submission) => !submission.score).length;
+      $("#adminDashboard").innerHTML = `
+        ${pageHeader("Admin Overview", "管理员总览", "Oversee students, teachers, tests, comments, and messages across every program.")}
+        <div class="metric-grid">
+          <div class="metric"><small>Students</small><strong>${store.students.length}</strong></div>
+          <div class="metric"><small>Assignments</small><strong>${store.assignments.length}</strong></div>
+          <div class="metric"><small>Submissions</small><strong>${store.submissions.length}</strong></div>
+          <div class="metric"><small>Needs review</small><strong>${unreviewed}</strong></div>
+        </div>
+        <div class="grid">
+          ${Object.keys(programs).map((program) => `
+            <article class="card">
+              <h3>${program}</h3>
+              <p>${studentsForProgram(program).length} students · ${store.assignments.filter((item) => item.program === program).length} assignments · ${store.submissions.filter((item) => item.program === program).length} submissions</p>
+              <div class="tag-row">${sectionTags(program)}</div>
+            </article>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderAdminStudents() {
+      $("#adminStudents").innerHTML = `
+        ${pageHeader("Student Details", "学生详情", "All registered students, class placement, rankings, and current score data.")}
+        <div class="table-card">
+          <table>
+            <thead><tr><th>Student</th><th>Program</th><th>Class</th><th>Scores</th><th>Submissions</th><th>Profile photo</th></tr></thead>
+            <tbody>
+              ${store.students.map((student, index) => `
+                <tr>
+                  <td><div class="profile-row"><div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${student.name}">` : initials(student.name)}</div><strong>${student.name}</strong></div></td>
+                  <td>${student.program}</td>
+                  <td>${student.className}</td>
+                  <td>Overall ${student.score}<br>Homework ${student.homework}<br>Exercises ${student.exercises}<br>Exams ${student.exams}</td>
+                  <td>${store.submissions.filter((submission) => submission.student === student.name).length}</td>
+                  <td><input id="adminPhoto${index}" type="file" accept="image/*" onchange="adminUploadProfilePhoto(${index})"></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderAdminScores() {
+      $("#adminScores").innerHTML = `
+        ${pageHeader("Scores & Tests", "成绩与测试", "Review every submitted test, homework, and exercise across the school.")}
+        <div class="table-card">
+          <table>
+            <thead><tr><th>Student</th><th>Assignment</th><th>Program</th><th>Score</th><th>Teacher feedback</th></tr></thead>
+            <tbody>
+              ${store.submissions.map((submission) => {
+                const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
+                return `
+                  <tr>
+                    <td><strong>${submission.student}</strong><br>${submission.submittedAt}</td>
+                    <td>${assignment.title || "Deleted assignment"}<br>${assignment.category || ""} · ${assignment.section || ""}</td>
+                    <td>${submission.program}<br>${submission.className}</td>
+                    <td>${submission.score || "Waiting"}</td>
+                    <td>${submission.feedback || "No teacher feedback yet."}</td>
+                  </tr>
+                `;
+              }).join("") || `<tr><td colspan="5">No submissions yet.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderAdminEvaluation() {
+      $("#adminEvaluation").innerHTML = `
+        ${pageHeader("Admin Evaluation", "管理员评估", "Annotate submissions, add admin comments, and oversee test quality.")}
+        <div class="split">
+          <form class="card" onsubmit="saveAdminNote(event)">
+            <h3>Annotate submission</h3>
+            <div class="field"><label>Submission</label><select id="adminSubmission">${store.submissions.map((submission, index) => {
+              const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
+              return `<option value="${index}">${submission.student} · ${assignment.title || "Assignment"} · ${submission.submittedAt}</option>`;
+            }).join("")}</select></div>
+            <div class="field"><label>Admin score / evaluation</label><input id="adminScore" placeholder="Optional admin score"></div>
+            <div class="field"><label>Comment / annotation</label><textarea id="adminComment" placeholder="Write an admin note, quality comment, or evaluation."></textarea></div>
+            <button class="primary-btn" type="submit">Save admin note</button>
+          </form>
+          <div class="message-list">
+            ${store.adminNotes.map(renderAdminNote).join("") || `<div class="empty">No admin annotations yet.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAdminNote(note) {
+      return `
+        <article class="message-item">
+          <small>${note.date} · ${note.student} · ${note.assignment}</small>
+          <strong>${note.score || "Admin note"}</strong>
+          <p>${note.comment}</p>
+        </article>
+      `;
+    }
+
+    function saveAdminNote(event) {
+      event.preventDefault();
+      const index = Number($("#adminSubmission").value);
+      const submission = store.submissions[index];
+      if (!submission) return;
+      const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
+      const notes = store.adminNotes;
+      notes.unshift({
+        date: new Date().toISOString().slice(0, 10),
+        student: submission.student,
+        assignment: assignment.title || "Assignment",
+        score: $("#adminScore").value.trim(),
+        comment: $("#adminComment").value.trim()
+      });
+      store.adminNotes = notes;
+      render();
+    }
+
+    function renderAdminMessages() {
+      $("#adminMessages").innerHTML = `
+        ${pageHeader("Messages", "消息中心", "Admin can message students or teachers; the message log is visible here.")}
+        <div class="split">
+          <form class="card" onsubmit="sendMessage(event)">
+            <h3>Send message</h3>
+            <div class="field"><label>From</label><select id="messageFrom"><option>Admin</option><option>Teacher</option><option>Student</option></select></div>
+            <div class="field"><label>To</label><select id="messageTo">
+              <option>All Teachers</option>
+              <option>All Students</option>
+              ${store.students.map((student) => `<option>${student.name} · ${student.className}</option>`).join("")}
+              <option>Ms. Green · Teacher</option>
+            </select></div>
+            <div class="field"><label>Message</label><textarea id="messageText" required placeholder="Write a message to a student, teacher, or group."></textarea></div>
+            <button class="primary-btn" type="submit">Send message</button>
+          </form>
+          <div class="message-list">
+            ${store.messages.map(renderMessage).join("") || `<div class="empty">No messages yet.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMessage(message) {
+      return `
+        <article class="message-item">
+          <small>${message.date} · ${message.from} → ${message.to}</small>
+          <p>${message.text}</p>
+        </article>
+      `;
+    }
+
+    function sendMessage(event) {
+      event.preventDefault();
+      const messages = store.messages;
+      messages.unshift({
+        date: new Date().toISOString().slice(0, 10),
+        from: $("#messageFrom").value,
+        to: $("#messageTo").value,
+        text: $("#messageText").value.trim()
+      });
+      store.messages = messages;
+      render();
+    }
+
+    function allClasses() {
+      return Object.values(programs).flatMap((program) => program.classes);
+    }
+
+    function getRank(studentName, className, metric) {
+      const ranked = store.students.filter((student) => student.className === className).sort((a, b) => Number(b[metric]) - Number(a[metric]));
+      return ranked.findIndex((student) => student.name === studentName) + 1 || "-";
+    }
+
+    function renderRankingTable(className, metric) {
+      const ranked = store.students.filter((student) => student.className === className).sort((a, b) => Number(b[metric]) - Number(a[metric]));
+      return `
+        <div class="table-card">
+          <table>
+            <thead><tr><th>Rank</th><th>Student</th><th>Program</th><th>${metric}</th></tr></thead>
+            <tbody>
+              ${ranked.map((student, index) => `
+                <tr>
+                  <td>#${index + 1}</td>
+                  <td><strong>${student.name}</strong></td>
+                  <td>${student.program} · ${student.className}</td>
+                  <td>${student[metric]}</td>
+                </tr>
+              `).join("") || `<tr><td colspan="4">No students in this class yet.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    $("#studentRole").addEventListener("click", () => setRole("student"));
+    $("#teacherRole").addEventListener("click", () => setRole("teacher"));
+    $("#adminRole").addEventListener("click", () => setRole("admin"));
+    $("#programInput").addEventListener("change", fillClassOptions);
+    $("#classInput").addEventListener("change", fillStudentOptions);
+    $("#signupBtn").addEventListener("click", registerStudent);
+    $("#loginBtn").addEventListener("click", login);
+    $("#logoutBtn").addEventListener("click", logout);
+    $$(".nav button").forEach((button) => button.addEventListener("click", () => activateSection(button.dataset.section)));
+
+    fillProgramOptions();
+    setRole("student");
+  </script>
+</body>
+</html>

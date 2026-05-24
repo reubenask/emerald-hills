@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绿山英语学院</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --green: #1a7a5e;
+      --green-light: #5DCAA5;
+      --dark: #0b1a14;
+      --dark2: #112318;
+      --text: #e8f0eb;
+      --text-muted: rgba(232, 240, 235, 0.55);
+      --accent: #f0d080;
+      --white: #f5f9f6;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(11, 26, 20, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(93, 202, 165, 0.12);
+    }
+
+    .nav-logo {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 18px;
+      color: var(--green-light);
+      letter-spacing: 0.06em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--green-light);
+    }
+
+    section {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 80px 80px;
+      overflow: hidden;
+    }
+
+    section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(93, 202, 165, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(93, 202, 165, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--green-light);
+      margin-bottom: 20px;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    /* HERO */
+    #hero {
+      background: var(--dark);
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    #hero .bg-circle {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(26, 122, 94, 0.25) 0%, transparent 70%);
+      right: -100px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    #hero h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(42px, 6vw, 72px);
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--white);
+      max-width: 700px;
+      margin-bottom: 24px;
+    }
+
+    #hero h1 em {
+      font-style: normal;
+      color: var(--green-light);
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.9;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+
+    .tag {
+      padding: 7px 18px;
+      border: 1px solid rgba(93, 202, 165, 0.3);
+      border-radius: 30px;
+      font-size: 12px;
+      color: var(--green-light);
+      background: rgba(93, 202, 165, 0.06);
+    }
+
+    .hero-stat-row {
+      display: flex;
+      gap: 48px;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 36px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .hero-stat span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* PHILOSOPHY */
+    #philosophy {
+      background: var(--dark2);
+    }
+
+    .phil-quote {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(18px, 2.8vw, 32px);
+      color: var(--white);
+      line-height: 1.8;
+      border-left: 3px solid var(--green-light);
+      padding-left: 36px;
+      max-width: 800px;
+      margin-bottom: 36px;
+    }
+
+    .phil-body {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 680px;
+      line-height: 2;
+      font-weight: 300;
+      margin-bottom: 36px;
+      padding-left: 39px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-left: 39px;
+    }
+
+    .pill {
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 13px;
+    }
+
+    .pill-green {
+      background: rgba(93, 202, 165, 0.12);
+      color: var(--green-light);
+      border: 1px solid rgba(93, 202, 165, 0.3);
+    }
+
+    .pill-accent {
+      background: rgba(240, 208, 128, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(240, 208, 128, 0.25);
+    }
+
+    /* LEVELS */
+    #levels {
+      background: var(--dark);
+    }
+
+    #levels h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(26px, 4vw, 46px);
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .intro {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      font-weight: 300;
+      max-width: 640px;
+      line-height: 1.9;
+    }
+
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    .level-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 20px 16px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .level-card:hover {
+      border-color: var(--green-light);
+      background: rgba(93, 202, 165, 0.05);
+    }
+
+    .level-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .level-card h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 15px;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+
+    .level-card .cefr {
+      font-size: 12px;
+      color: var(--green-light);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .level-card .age {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .level-divider {
+      width: 24px;
+      height: 2px;
+      background: var(--green-light);
+      margin: 10px 0;
+      opacity: 0.4;
+    }
+
+    .skill-section-title {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      opacity: 0.7;
+      text-transform: uppercase;
+    }
+
+    .skill-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .skill-list li {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      padding-left: 12px;
+      position: relative;
+    }
+
+    .skill-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--green-light);
+      font-size: 10px;
+    }
+
+    /* METHOD */
+    #method {
+      background: var(--dark2);
+    }
+
+    #method h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(26px, 4vw, 46px);
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .step-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 26px 22px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .step-card:hover {
+      border-color: rgba(93, 202, 165, 0.4);
+    }
+
+    .step-num {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 44px;
+      font-weight: 700;
+      color: rgba(93, 202, 165, 0.15);
+      line-height: 1;
+      position: absolute;
+      top: 14px;
+      right: 16px;
+    }
+
+    .step-card h3 {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--green-light);
+      margin-bottom: 10px;
+    }
+
+    .step-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.9;
+      font-weight: 300;
+    }
+
+    /* DIFFERENTIATORS */
+    #differentiators {
+      background: var(--dark);
+    }
+
+    #differentiators h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(26px, 4vw, 46px);
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .diff-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .diff-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 28px 26px;
+      transition: border-color 0.2s;
+    }
+
+    .diff-card:hover {
+      border-color: rgba(93, 202, 165, 0.3);
+    }
+
+    .diff-card .d-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(93, 202, 165, 0.1);
+      border: 1px solid rgba(93, 202, 165, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .diff-card h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 19px;
+      color: var(--white);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .diff-card p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.95;
+      font-weight: 300;
+    }
+
+    /* OUTCOMES */
+    #outcomes {
+      background: var(--dark2);
+    }
+
+    #outcomes h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(26px, 4vw, 46px);
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .outcomes-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    .outcome-col {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 20px 16px;
+    }
+
+    .outcome-col .col-head {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .outcome-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .outcome-col li {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* COMMITMENT */
+    #commitment {
+      background: var(--dark);
+    }
+
+    #commitment h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(26px, 4vw, 46px);
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .commit-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .commit-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 26px 22px;
+    }
+
+    .commit-card h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 15px;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .commit-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.9;
+      font-weight: 300;
+    }
+
+    .commit-highlight {
+      background: rgba(93, 202, 165, 0.07);
+      border: 1px solid rgba(93, 202, 165, 0.25);
+      border-radius: 14px;
+      padding: 26px 30px;
+    }
+
+    .commit-highlight p {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 18px;
+      color: var(--white);
+      line-height: 1.9;
+    }
+
+    .commit-highlight p span {
+      color: var(--green-light);
+    }
+
+    /* ROLES */
+    #roles {
+      background: var(--dark2);
+    }
+
+    #roles h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(26px, 4vw, 46px);
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .role-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 26px 20px;
+    }
+
+    .role-card .role-icon {
+      font-size: 28px;
+      margin-bottom: 14px;
+    }
+
+    .role-card h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 17px;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .role-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.9;
+      font-weight: 300;
+    }
+
+    /* CLOSE */
+    #close {
+      background: var(--dark);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    #close .big-text {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(34px, 5vw, 62px);
+      color: var(--white);
+      line-height: 1.4;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+
+    #close .big-text em {
+      font-style: normal;
+      color: var(--green-light);
+    }
+
+    #close p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.9;
+      font-weight: 300;
+    }
+
+    .cta-tag {
+      display: inline-block;
+      padding: 12px 36px;
+      border: 1px solid rgba(93, 202, 165, 0.4);
+      border-radius: 40px;
+      color: var(--green-light);
+      font-size: 14px;
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .scroll-indicator {
+      position: fixed;
+      right: 28px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 50;
+    }
+
+    .scroll-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .scroll-dot.active {
+      background: var(--green-light);
+      transform: scale(1.5);
+    }
+
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--green-light);
+      z-index: 200;
+      transition: width 0.1s;
+    }
+
+    .b-emerald {
+      background: rgba(93, 202, 165, 0.15);
+      color: #5DCAA5;
+      border: 1px solid rgba(93, 202, 165, 0.3);
+    }
+
+    .b-blue {
+      background: rgba(55, 138, 221, 0.15);
+      color: #85B7EB;
+      border: 1px solid rgba(85, 183, 235, 0.3);
+    }
+
+    .b-amber {
+      background: rgba(239, 159, 39, 0.15);
+      color: #FAC775;
+      border: 1px solid rgba(250, 199, 117, 0.3);
+    }
+
+    .b-coral {
+      background: rgba(216, 90, 48, 0.15);
+      color: #F0997B;
+      border: 1px solid rgba(240, 153, 123, 0.3);
+    }
+
+    @media (max-width: 900px) {
+      section {
+        padding: 100px 24px 60px;
+      }
+
+      nav {
+        padding: 14px 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .levels-grid,
+      .outcomes-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .steps-grid,
+      .commit-row {
+        grid-template-columns: 1fr;
+      }
+
+      .diff-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .roles-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="progress-bar" id="progress"></div>
+
+  <nav>
+    <div class="nav-logo">绿山英语学院</div>
+    <ul class="nav-links">
+      <li><a href="#hero">首页</a></li>
+      <li><a href="#levels">课程等级</a></li>
+      <li><a href="#method">教学方式</a></li>
+      <li><a href="#differentiators">我们的特色</a></li>
+      <li><a href="#outcomes">学习成果</a></li>
+      <li><a href="#commitment">我们的承诺</a></li>
+    </ul>
+  </nav>
+
+  <div class="scroll-indicator" id="scrollDots"></div>
+
+  <!-- 首页 -->
+  <section id="hero">
+    <div class="bg-circle"></div>
+    <div class="section-label">TOEFL 备考学校 · 杭州</div>
+    <h1>我们培养的不是<br><em>考试机器，</em><br>而是思考者。</h1>
+    <p class="hero-sub">从基础英语到大学学术英语，以视觉为先、探究为本的完整学习路径——涵盖所有等级的 TOEFL 五大核心技能。</p>
+    <div class="hero-tags">
+      <div class="tag">Primary Step 1 班级</div>
+      <div class="tag">Primary Step 2 班级</div>
+      <div class="tag">Junior 班级</div>
+      <div class="tag">ITP 一、二级</div>
+      <div class="tag">iBT</div>
+      <div class="tag">适合 8–18 岁以上学员</div>
+    </div>
+    <div class="hero-stat-row">
+      <div class="hero-stat"><strong>5</strong><span>每月考核五大核心技能</span></div>
+      <div class="hero-stat"><strong>5</strong><span>完整五大等级课程</span></div>
+      <div class="hero-stat"><strong>A1→C1+</strong><span>涵盖完整 CEFR 学习路径</span></div>
+    </div>
+  </section>
+
+  <!-- 教育理念 -->
+  <section id="philosophy">
+    <div class="section-label">我们的教育理念</div>
+    <div class="phil-quote">「每一个走进我们学院的孩子，离开时得到的不只是英语——他们学会了如何思考、如何提问，以及如何在遇到困难时继续前行。」</div>
+    <p class="phil-body">
+      我们不将英语视为一门考试科目。语言是我们培养思考者、阅读者与沟通者的媒介。每一堂课的设计，都让学生先感受语言，再记忆语言——词汇在情境中相遇，语法在阅读中发现，口说能力在表演中建立。TOEFL
+      的高分，是真正语言发展的自然结果，而非最终目标。</p>
+    <div class="pill-row">
+      <div class="pill pill-green">视觉先行的学习方式</div>
+      <div class="pill pill-green">以探究为核心的课程</div>
+      <div class="pill pill-green">情境中习得词汇，而非死记</div>
+      <div class="pill pill-accent">每月考核五大 TOEFL 技能</div>
+      <div class="pill pill-accent">戏剧表演与口语训练</div>
+      <div class="pill pill-accent">AI 辅助自我学习</div>
+      <div class="pill pill-green">导读阅读计划</div>
+      <div class="pill pill-green">个人化学习路径</div>
+    </div>
+  </section>
+
+  <!-- 课程等级 -->
+  <section id="levels">
+    <div class="section-label">完整 TOEFL 学习路径</div>
+    <h2>全等级、全技能</h2>
+    <p class="intro">每个等级均完整涵盖阅读、听力、口语、写作与语言形式五大技能，并每月进行模拟考核。没有任何技能被跳过，没有任何学生在考场上措手不及。</p>
+    <div class="levels-grid">
+
+      <div class="level-card">
+        <div class="level-badge b-emerald">8 岁以上</div>
+        <h3>Primary Step 1 班级</h3>
+        <div class="cefr">A1 → A2</div>
+        <div class="age">入门基础 · 英语起点</div>
+        <div class="level-divider"></div>
+        <div class="skill-section-title">阅读</div>
+        <ul class="skill-list">
+          <li>日常情境阅读、基础词汇</li>
+          <li>简单生活文本 · 36 题 · 30 分钟</li>
+        </ul>
+        <div class="skill-section-title">听力</div>
+        <ul class="skill-list">
+          <li>简单请求、日常指示</li>
+          <li>熟悉用语 · 36 题 · 30 分钟</li>
+        </ul>
+        <div class="skill-section-title">口语</div>
+        <ul class="skill-list">
+          <li>描述图片、简单请求</li>
+          <li>基本情绪与意见 · 8 题 · 20 分钟</li>
+        </ul>
+        <div class="skill-section-title">写作</div>
+        <ul class="skill-list">
+          <li>拼写单词 · 造句 · 修改文章 · 写故事</li>
+          <li>19 题 · 30 分钟</li>
+        </ul>
+        <div class="skill-section-title">语言与语法</div>
+        <ul class="skill-list">
+          <li>自然拼读、VCV 规则、音节</li>
+          <li>词类、基础时态</li>
+        </ul>
+      </div>
+
+      <div class="level-card">
+        <div class="level-badge b-emerald">8 岁以上</div>
+        <h3>Primary Step 2 班级</h3>
+        <div class="cefr">A1 → B1</div>
+        <div class="age">基础巩固 · 进阶准备</div>
+        <div class="level-divider"></div>
+        <div class="skill-section-title">阅读</div>
+        <ul class="skill-list">
+          <li>短文阅读、语境推测</li>
+          <li>故事文本、问答与摘要 · 36 题 · 30 分钟</li>
+        </ul>
+        <div class="skill-section-title">听力</div>
+        <ul class="skill-list">
+          <li>短篇故事、科学视频</li>
+          <li>生活情境：医院、市场 · 36 题 · 30 分钟</li>
+        </ul>
+        <div class="skill-section-title">口语</div>
+        <ul class="skill-list">
+          <li>图片描述、角色扮演</li>
+          <li>四至六格连环图、指路 · 8 题 · 20 分钟</li>
+        </ul>
+        <div class="skill-section-title">写作</div>
+        <ul class="skill-list">
+          <li>拼写 · 造句 · 修改 · 故事写作</li>
+          <li>19 题 · 30 分钟</li>
+        </ul>
+        <div class="skill-section-title">语言与语法</div>
+        <ul class="skill-list">
+          <li>时态、拼字、字典技巧</li>
+          <li>基础句型建构</li>
+        </ul>
+      </div>
+
+      <div class="level-card">
+        <div class="level-badge b-blue">11 岁以上</div>
+        <h3>Junior 班级</h3>
+        <div class="cefr">A2 → B2</div>
+        <div class="age">学术过渡 · 能力跃升</div>
+        <div class="level-divider"></div>
+        <div class="skill-section-title">阅读</div>
+        <ul class="skill-list">
+          <li>学术与文学文章</li>
+          <li>主旨、细节、词意推测、推论 · 42 题 · 50 分钟</li>
+        </ul>
+        <div class="skill-section-title">听力</div>
+        <ul class="skill-list">
+          <li>课堂讲座与日常对话</li>
+          <li>学校演讲、知识角视频 · 42 题 · 40 分钟</li>
+        </ul>
+        <div class="skill-section-title">口语</div>
+        <ul class="skill-list">
+          <li>朗读 · 图片叙述</li>
+          <li>非学术与学术型听说整合 · 4 题 · 18 分钟</li>
+        </ul>
+        <div class="skill-section-title">写作</div>
+        <ul class="skill-list">
+          <li>修改 · 电子邮件 · 意见段落</li>
+          <li>学术听写整合 · 5 题 · 40 分钟</li>
+        </ul>
+        <div class="skill-section-title">语言形式</div>
+        <ul class="skill-list">
+          <li>情境语法与学术词汇</li>
+          <li>选择题 · 42 题 · 25 分钟</li>
+        </ul>
+      </div>
+
+      <div class="level-card">
+        <div class="level-badge b-amber">14 岁以上</div>
+        <h3>ITP 一、二级</h3>
+        <div class="cefr">B1 → C1</div>
+        <div class="age">大学衔接准备</div>
+        <div class="level-divider"></div>
+        <div class="skill-section-title">阅读</div>
+        <ul class="skill-list">
+          <li>大学学术风格文章</li>
+          <li>推论、主旨、词意 · 一级 50 题 · 二级 40 题</li>
+        </ul>
+        <div class="skill-section-title">听力</div>
+        <ul class="skill-list">
+          <li>三段式：短对话、长篇演讲</li>
+          <li>延伸讲座与讨论 · 一级 50 题 · 二级 30 题</li>
+        </ul>
+        <div class="skill-section-title">口语</div>
+        <ul class="skill-list">
+          <li>朗读 · 2 独立题 · 1 整合题</li>
+          <li>4 题 · 约 15 分钟</li>
+        </ul>
+        <div class="skill-section-title">写作</div>
+        <ul class="skill-list">
+          <li>书面表达、语法准确性</li>
+          <li>学术写作惯例 · 一级 40 题 · 二级 25 题</li>
+        </ul>
+        <div class="skill-section-title">结构与书面表达</div>
+        <ul class="skill-list">
+          <li>语法结构、标准学术英文</li>
+        </ul>
+      </div>
+
+      <div class="level-card">
+        <div class="level-badge b-coral">16 岁以上</div>
+        <h3>iBT</h3>
+        <div class="cefr">B2 → C1+</div>
+        <div class="age">正式考试完整备考</div>
+        <div class="level-divider"></div>
+        <div class="skill-section-title">阅读</div>
+        <ul class="skill-list">
+          <li>自适应多段学术文章</li>
+          <li>填空、理解、推论 · 30–48 题 · 约 35 分钟</li>
+        </ul>
+        <div class="skill-section-title">听力</div>
+        <ul class="skill-list">
+          <li>自适应对话与讲座</li>
+          <li>难度递进 · 35–45 题 · 约 36 分钟</li>
+        </ul>
+        <div class="skill-section-title">口语</div>
+        <ul class="skill-list">
+          <li>听后重述（7 题）</li>
+          <li>模拟面试（4 题）· 约 8 分钟</li>
+        </ul>
+        <div class="skill-section-title">写作</div>
+        <ul class="skill-list">
+          <li>句型重组 · 写电子邮件</li>
+          <li>学术讨论 · 约 23 分钟</li>
+        </ul>
+        <div class="skill-section-title">语言与 AI 工具</div>
+        <ul class="skill-list">
+          <li>语法、词汇、打字速度训练</li>
+          <li>整合 AI 辅助自我修改</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 教学方式 -->
+  <section id="method">
+    <div class="section-label">课堂结构</div>
+    <h2>一堂课，六个步骤</h2>
+    <p class="intro">每堂课遵循六步骤循环。学生先通过体验接触语言，而非死记硬背。整堂课的主题始终一致，将词汇、语意与技能紧密结合，形成完整的学习闭环。</p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <h3>观看影片</h3>
+        <p>播放纪录片、电影片段、电视节目、辩论或新闻报道。学生在接触书面文字之前，先通过情境自然感受语言。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <h3>课堂讨论</h3>
+        <p>学生讨论剧情、想法、角色与反应，辨识陌生词汇——探讨词汇出现的情境、使用方式，以及如何在句子中运用。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <h3>推导词汇</h3>
+        <p>从情境与视觉线索推测语意，从不靠背单词表死记。学生学习像母语者一样解码语言——通过接触与推理。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <h3>阅读文章</h3>
+        <p>同一主题转化为阅读文章。词汇已熟悉，文章带来更深的结构与学术语言。阅读不再陌生，而是自然流畅。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">05</div>
+        <h3>回答问题</h3>
+        <p>接着是 TOEFL 风格的题目：主旨、细节、情境词意与推论。学生运用的是亲身经历的语言，而非机械式的训练。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">06</div>
+        <h3>口说或写作</h3>
+        <p>学生以口说或书面方式回应，将本堂课的学习融合运用于一项整合任务。他们观看的主题，成为他们表达自我的素材。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 我们的特色 -->
+  <section id="differentiators">
+    <div class="section-label">我们的特色</div>
+    <h2>四大教学核心</h2>
+    <p class="intro">每一个核心都针对传统英语教学的盲点而设计。四者相辅相成，创造出一个让语言被习得、而非被填塞的学习环境。</p>
+    <div class="diff-grid">
+      <div class="diff-card">
+        <div class="d-icon">🎬</div>
+        <h3>视觉即课程</h3>
+        <p>
+          每堂课从影片开始——纪录片、电视剧、电影片段、辩论或新闻报道。学生先通过情境自然接触语言，词汇不是从列表中背诵，而是被感受、被聆听、被体验。学生所看的内容，成为他们阅读、讨论、写作与答题的素材——所有练习锚定于同一主题、词汇与核心概念。一部关于蜜蜂或吸血鬼的影片，可以转化为阅读文章、听力讲座，以及一整套
+          TOEFL 风格的题目。</p>
+      </div>
+      <div class="diff-card">
+        <div class="d-icon">📖</div>
+        <h3>导读阅读计划</h3>
+        <p>
+          阅读是一切语言学习的基石。每周一次、为期一小时的导读阅读课，让学生聚在一起为了乐趣而阅读——讨论想法、分享感受、在情境中发现新词。由教师带领课程，确保即使父母太忙无法在家陪孩子阅读的学生，也不会错过这段珍贵的阅读时光。从初级的自然拼读规则，到
+          iBT 等级的复杂学术文本，每一项阅读技能都以循序渐进、有目的性的方式逐步建立。</p>
+      </div>
+      <div class="diff-card">
+        <div class="d-icon">🎭</div>
+        <h3>戏剧、演出与表演</h3>
+        <p>
+          每个等级的学生都有机会上台表演。年幼的学习者演出脚本、角色扮演真实生活情境——看诊、逛市场。年长的学生进行辩论、演讲与叙事。表演消除了开口说话的恐惧，在压力下锻炼流利度，并让语言通过体验深植记忆。在较高等级，主题延伸至学术需求；年幼学习者则在他们能想象、能探索、能谈论的真实世界场景中习得语言。
+        </p>
+      </div>
+      <div class="diff-card">
+        <div class="d-icon">🤖</div>
+        <h3>AI 作为自学导师</h3>
+        <p>在 ITP 与 iBT 等级，学生学习的不只是用 AI 来「检查」——而是把 AI 当作个人导师。他们学习提交自己的写作接受 AI
+          评析、辨识反复出现的错误模式、要求针对弱点进行专项练习，并在等不到下次上课前就独立落实改进。这培养了现代教育中最宝贵的习惯之一：以自己的节奏、用自律的态度持续进步的能力。这不是捷径，这是一种技能。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 学习成果 -->
+  <section id="outcomes">
+    <div class="section-label">学习成果</div>
+    <h2>每位学生，每个等级</h2>
+    <p class="intro">我们的课程旨在全面培育学习者。语言技能是基础，而伴随建立的学习习惯、思维方式与现代素养，将影响学生一生。</p>
+    <div class="outcomes-grid">
+      <div class="outcome-col">
+        <div class="col-head" style="color: #5DCAA5;">语言技能</div>
+        <ul>
+          <li>情境词汇理解</li>
+          <li>阅读理解能力</li>
+          <li>口语流利度</li>
+          <li>学术写作能力</li>
+          <li>推论与判断</li>
+          <li>解码语意的框架思维</li>
+        </ul>
+      </div>
+      <div class="outcome-col">
+        <div class="col-head" style="color: #85B7EB;">思考技能</div>
+        <ul>
+          <li>批判性思考</li>
+          <li>逻辑推理</li>
+          <li>分析能力</li>
+          <li>自我修正</li>
+          <li>学术韧性</li>
+        </ul>
+      </div>
+      <div class="outcome-col">
+        <div class="col-head" style="color: #FAC775;">自信心</div>
+        <ul>
+          <li>勇于开口表达</li>
+          <li>挑战自我极限</li>
+          <li>敢于质疑老师</li>
+          <li>承担智识风险</li>
+        </ul>
+      </div>
+      <div class="outcome-col">
+        <div class="col-head" style="color: #AFA9EC;">学习习惯</div>
+        <ul>
+          <li>独立好奇心</li>
+          <li>对阅读的热爱</li>
+          <li>自主学习能力</li>
+          <li>探索环境知识</li>
+        </ul>
+      </div>
+      <div class="outcome-col">
+        <div class="col-head" style="color: #F0997B;">现代技能</div>
+        <ul>
+          <li>打字速度与流利度</li>
+          <li>AI 素养</li>
+          <li>自主改进能力</li>
+          <li>独立修稿习惯</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 我们的承诺 -->
+  <section id="commitment">
+    <div class="section-label">我们的承诺</div>
+    <h2>超越标准，精益求精</h2>
+    <p class="intro">这些不是印在宣传册上的承诺。它们已融入课程设计、课表安排，以及每位教师与学生互动的方式之中。</p>
+    <div class="commit-row">
+      <div class="commit-card">
+        <h3>每月模拟考核——五大技能全覆盖</h3>
+        <p>每位学生每月参加一次完整的模拟考核，涵盖阅读、听力、口语、写作与语言形式五大技能，无论等级高低皆然。这不是 ETS
+          的标准做法；这是我们的承诺。考核让学生保持进步动力，精准揭示需要补强之处，并每月为家长提供清晰一致的学习进度报告。</p>
+      </div>
+      <div class="commit-card">
+        <h3>个人化支持——每位学习者</h3>
+        <p>针对学生的特定弱点，教师为其设计个人化的独立练习路径。我们深知并非所有挑战都能在团体课堂中解决——我们也不假装做得到。个人化关注在这里不是例外，而是我们工作方式的一部分。</p>
+      </div>
+      <div class="commit-card">
+        <h3>有意义的语法教学</h3>
+        <p>语法从不以抽象规则列表的方式呈现。从初级的词类、时态与句型结构，到 ITP 与 iBT 等级的条件句、被动语态与学术书面表达——每一个语法概念都通过学生已经接触过的文本与视觉材料引入，使其直观而非机械式地被理解。
+        </p>
+      </div>
+    </div>
+    <div class="commit-highlight">
+      <p>我们的承诺：每个等级均完整教授并考核所有技能，包括 <span>ETS 标记为选考</span>
+        的项目。我们的每月模拟考核涵盖所有等级的五大技能领域。<span>没有任何技能被略过，没有任何学生在考场上措手不及。</span></p>
+    </div>
+  </section>
+
+  <!-- 三方角色 -->
+  <section id="roles">
+    <div class="section-label">如何运作</div>
+    <h2>教师、家长与学生</h2>
+    <p class="intro">三方各有明确角色，各获学院全力支持，各司其职。当三方目标一致，进步自然发生。</p>
+    <div class="roles-grid">
+      <div class="role-card">
+        <div class="role-icon">🏫</div>
+        <h3>学院</h3>
+        <p>提供完整的结构、资源、课程与学习环境，并根据真实的学生成果与数据持续优化教学方案。每月评量在每个等级建立清晰的问责机制。</p>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">👩‍🏫</div>
+        <h3>教师</h3>
+        <p>以方法引导、以洞察调整、以真诚的关怀支持学生。我们的教师建立深厚的师生关系，根据面前这位学习者的需求量身调整教学方式。没有任何两位学生被一视同仁地对待。</p>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">👨‍👩‍👧</div>
+        <h3>家长</h3>
+        <p>通过每月评量与开放沟通，随时掌握孩子的学习进度。我们的导读阅读计划，为太忙而无法在家陪孩子阅读的家长搭建桥梁——确保每一个孩子都不因此落后。</p>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🎒</div>
+        <h3>学生</h3>
+        <p>被鼓励更进一步、独立练习、探索不同可能，并将新知识带回课堂。自信，在一次次挑战中逐步建立。学生离开时，不只知道学了什么，更懂得如何持续学习。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 结语 -->
+  <section id="close">
+    <div class="big-text">每位孩子离开时，<br>得到的<em>远不止英语。</em></div>
+    <p>他们学会了如何思考、如何提问，以及如何在遇到困难时继续前行。这是我们存在的意义——也是每一堂课、每一次考核、每一场阅读课与每一次表演，所共同打造的目标。</p>
+    <div class="cta-tag">绿山英语学院</div>
+  </section>
+
+  <script>
+    const sections = document.querySelectorAll('section');
+    const dotsContainer = document.getElementById('scrollDots');
+    const progress = document.getElementById('progress');
+
+    sections.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'scroll-dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => sections[i].scrollIntoView({ behavior: 'smooth' });
+      dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.scroll-dot');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const idx = Array.from(sections).indexOf(entry.target);
+          dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+          const pct = (idx / (sections.length - 1)) * 100;
+          progress.style.width = pct + '%';
+        }
+      });
+    }, { threshold: 0.5 });
+
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+
+</html>

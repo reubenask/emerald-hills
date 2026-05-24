@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>绿山托福考试 答题纸 (Junior 班)</title>
+  <style>
+    :root {
+      --green: #138a36;
+      --green-dark: #0f6f2c;
+      --green-soft: #eef8f1;
+      --teal: #0096a9;
+      --ink: #263238;
+      --muted: #6b7280;
+      --line: #d8dee4;
+      --paper: #ffffff;
+      --bg: #eef3f2;
+      --danger: #d9534f;
+      --shadow: 0 10px 32px rgba(18, 38, 63, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(19,138,54,0.12), transparent 32%),
+        linear-gradient(135deg, #eef3f2 0%, #e7eef4 100%);
+    }
+
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--paper);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid rgba(19,138,54,0.12);
+    }
+
+    .school-band {
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: white;
+      text-align: center;
+      padding: 14px 18px;
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .content {
+      padding: 30px 38px 42px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 22px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #4b5563;
+      white-space: nowrap;
+    }
+
+    .ets {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 84px;
+      height: 46px;
+      border: 4px solid #5f6368;
+      border-radius: 50%;
+      font-style: italic;
+      font-weight: 900;
+      font-size: 25px;
+      letter-spacing: -1px;
+    }
+
+    .brand-text {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.7px;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: right;
+      color: var(--teal);
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .student-card {
+      background: #fbfdfc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .student-info {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr;
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #b9c1c9;
+      border-radius: 10px;
+      margin-top: 6px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      transition: 0.15s ease;
+    }
+
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(19,138,54,0.15);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 8px 0 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--green-soft);
+      color: var(--green-dark);
+      border: 1px solid rgba(19,138,54,0.22);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 800;
+    }
+
+    .section {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      margin: 18px 0;
+      overflow: hidden;
+      background: white;
+    }
+
+    .section-title {
+      background: linear-gradient(90deg, #f0f5f2, #e6f4eb);
+      color: #374151;
+      font-weight: 900;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--line);
+      letter-spacing: 0.4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title span:last-child {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .section-heading-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .section-actions {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .mini-btn {
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .mini-clear {
+      background: #fff1f1;
+      color: #a33a3a;
+      border: 1px solid #f0b8b8;
+    }
+
+    .mini-undo {
+      background: #eef8f1;
+      color: var(--green-dark);
+      border: 1px solid rgba(19,138,54,0.24);
+    }
+
+    .undo-note {
+      margin-top: 10px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .answers-grid {
+      padding: 16px 14px 18px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
+      gap: 9px 16px;
+    }
+
+    .question {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+      white-space: nowrap;
+      border-radius: 8px;
+      padding: 2px 4px;
+    }
+
+    .question:hover {
+      background: #f8fbf9;
+    }
+
+    .qnum {
+      width: 27px;
+      text-align: right;
+      font-weight: 900;
+      color: #4b5563;
+      font-size: 13px;
+    }
+
+    .choices {
+      display: inline-flex;
+      gap: 5px;
+    }
+
+    .choice input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .bubble {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border: 1.5px solid #9aa3ad;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 900;
+      color: #58606b;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.15s ease;
+      background: white;
+    }
+
+    .choice input:checked + .bubble {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(19,138,54,0.14);
+      transform: translateY(-1px);
+    }
+
+    .choice input:focus + .bubble {
+      outline: 3px solid rgba(19,138,54,0.22);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+      justify-content: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(0.98);
+    }
+
+    .primary { background: var(--green); color: white; }
+    .secondary { background: #4b5563; color: white; }
+    .teal { background: var(--teal); color: white; }
+    .danger { background: var(--danger); color: white; }
+
+    .output {
+      margin-top: 18px;
+      background: #f6fbf7;
+      border: 1px solid #b7dfc1;
+      padding: 14px;
+      border-radius: 10px;
+      display: none;
+      white-space: pre-wrap;
+      font-family: "Courier New", monospace;
+      font-size: 13px;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .page {
+        box-shadow: none;
+        border-radius: 0;
+        max-width: none;
+        border: 0;
+      }
+
+      .content {
+        padding: 24px 28px;
+      }
+
+      .controls, .output, .status-row {
+        display: none !important;
+      }
+
+      .section {
+        break-inside: avoid;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .brand {
+        justify-content: center;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      .answers-grid {
+        grid-template-columns: repeat(2, minmax(140px, 1fr));
+      }
+
+      .section-title {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-actions {
+        justify-content: flex-start;
+      }
+
+      .student-info {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 10px; }
+      .content { padding: 22px 12px; }
+      .brand-text { font-size: 26px; }
+      .ets { width: 70px; height: 39px; font-size: 21px; }
+      .answers-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="school-band">绿山托福考试 答题纸 (Junior 班)</div>
+
+    <div class="content">
+      <div class="topbar">
+        <div class="brand">
+          <span class="ets">ETS</span>
+          <span class="brand-text">TOEFL Junior</span>
+        </div>
+        <h1>Practice Test Answer Sheet</h1>
+      </div>
+
+      <div class="student-card">
+        <div class="student-info">
+          <label>Student Name
+            <input id="studentName" type="text" placeholder="Enter student name" />
+          </label>
+          <label>Class
+            <input id="studentClass" type="text" placeholder="Junior 班" />
+          </label>
+          <label>Date
+            <input id="testDate" type="date" />
+          </label>
+        </div>
+      </div>
+
+      <div class="status-row">
+        <span class="pill">Autosave enabled</span>
+        <span id="saveStatus">Ready.</span>
+      </div>
+
+      <div id="sheet"></div>
+
+      <div class="controls">
+        <button class="primary" onclick="saveNow()">Save Now</button>
+        <button class="teal" onclick="showAnswers()">Show / Copy Answers</button>
+        <button class="secondary" onclick="downloadCSV()">Download CSV</button>
+        <button class="secondary" onclick="downloadSavedHTML()">Download Saved HTML</button>
+        <button class="secondary" onclick="window.print()">Print</button>
+        <button class="secondary" onclick="undoLastClear()">Undo Last Clear</button>
+        <button class="danger" onclick="clearAnswers()">Clear All</button>
+      </div>
+
+      <div class="undo-note">Tip: Use the small buttons on each section to clear or undo only that section.</div>
+
+      <div id="output" class="output"></div>
+    </div>
+  </main>
+
+  <script id="embedded-save" type="application/json">{}</script>
+
+  <script>
+    const STORAGE_KEY = "green-mountain-toefl-answer-sheet-v1";
+
+    const sections = [
+      "Listening Comprehension",
+      "Language Form and Meaning",
+      "Reading Comprehension"
+    ];
+
+    const choices = ["A", "B", "C", "D"];
+    const sheet = document.getElementById("sheet");
+    let saveTimer = null;
+    let undoStack = [];
+
+    function createQuestion(sectionName, number) {
+      const q = document.createElement("div");
+      q.className = "question";
+
+      const qnum = document.createElement("div");
+      qnum.className = "qnum";
+      qnum.textContent = number;
+
+      const choiceWrap = document.createElement("div");
+      choiceWrap.className = "choices";
+
+      choices.forEach(letter => {
+        const label = document.createElement("label");
+        label.className = "choice";
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = `${sectionName}-${number}`;
+        input.value = letter;
+        input.addEventListener("change", scheduleSave);
+
+        const span = document.createElement("span");
+        span.className = "bubble";
+        span.textContent = letter;
+
+        label.appendChild(input);
+        label.appendChild(span);
+        choiceWrap.appendChild(label);
+      });
+
+      q.appendChild(qnum);
+      q.appendChild(choiceWrap);
+      return q;
+    }
+
+    function buildSheet() {
+      sections.forEach(sectionName => {
+        const section = document.createElement("section");
+        section.className = "section";
+
+        const title = document.createElement("div");
+        title.className = "section-title";
+
+        const left = document.createElement("div");
+        left.className = "section-heading-left";
+        left.innerHTML = `<span>${sectionName.toUpperCase()}</span><span>42 questions</span>`;
+
+        const actions = document.createElement("div");
+        actions.className = "section-actions";
+
+        const clearBtn = document.createElement("button");
+        clearBtn.type = "button";
+        clearBtn.className = "mini-btn mini-clear";
+        clearBtn.textContent = "Clear this section";
+        clearBtn.addEventListener("click", () => clearSection(sectionName));
+
+        const undoBtn = document.createElement("button");
+        undoBtn.type = "button";
+        undoBtn.className = "mini-btn mini-undo";
+        undoBtn.textContent = "Undo this section";
+        undoBtn.addEventListener("click", () => undoSection(sectionName));
+
+        actions.appendChild(clearBtn);
+        actions.appendChild(undoBtn);
+        title.appendChild(left);
+        title.appendChild(actions);
+
+        const grid = document.createElement("div");
+        grid.className = "answers-grid";
+
+        for (let i = 1; i <= 42; i++) {
+          grid.appendChild(createQuestion(sectionName, i));
+        }
+
+        section.appendChild(title);
+        section.appendChild(grid);
+        sheet.appendChild(section);
+      });
+    }
+
+    function collectAnswers() {
+      const data = [];
+      sections.forEach(section => {
+        for (let i = 1; i <= 42; i++) {
+          const selected = document.querySelector(`input[name="${section}-${i}"]:checked`);
+          data.push({
+            section,
+            question: i,
+            answer: selected ? selected.value : ""
+          });
+        }
+      });
+      return data;
+    }
+
+    function collectSectionAnswers(sectionName) {
+      const answers = [];
+      for (let i = 1; i <= 42; i++) {
+        const selected = document.querySelector(`input[name="${sectionName}-${i}"]:checked`);
+        answers.push({
+          section: sectionName,
+          question: i,
+          answer: selected ? selected.value : ""
+        });
+      }
+      return answers;
+    }
+
+    function applyAnswerRows(rows) {
+      if (!rows || !rows.length) return;
+
+      const sectionsToReset = [...new Set(rows.map(row => row.section))];
+
+      sectionsToReset.forEach(sectionName => {
+        for (let i = 1; i <= 42; i++) {
+          document.querySelectorAll(`input[name="${sectionName}-${i}"]`).forEach(input => {
+            input.checked = false;
+          });
+        }
+      });
+
+      rows.forEach(row => {
+        if (!row.answer) return;
+        const input = document.querySelector(`input[name="${row.section}-${row.question}"][value="${row.answer}"]`);
+        if (input) input.checked = true;
+      });
+    }
+
+    function clearSection(sectionName) {
+      const previous = collectSectionAnswers(sectionName);
+      const hasAnswers = previous.some(row => row.answer);
+
+      if (!hasAnswers) {
+        setStatus(`${sectionName} is already empty.`);
+        return;
+      }
+
+      if (!confirm(`Clear answers only for ${sectionName}?`)) return;
+
+      undoStack.push({
+        type: "section",
+        section: sectionName,
+        answers: previous,
+        studentName: document.getElementById("studentName").value || "",
+        studentClass: document.getElementById("studentClass").value || "",
+        testDate: document.getElementById("testDate").value || "",
+        time: new Date().toISOString()
+      });
+
+      previous.forEach(row => {
+        document.querySelectorAll(`input[name="${row.section}-${row.question}"]`).forEach(input => {
+          input.checked = false;
+        });
+      });
+
+      document.getElementById("output").style.display = "none";
+      saveNow();
+      setStatus(`Cleared ${sectionName}. You can undo this section.`);
+    }
+
+    function undoSection(sectionName) {
+      const index = undoStack.map(item => item.section).lastIndexOf(sectionName);
+
+      if (index === -1) {
+        setStatus(`No undo available for ${sectionName}.`);
+        return;
+      }
+
+      const item = undoStack.splice(index, 1)[0];
+      applyAnswerRows(item.answers);
+      document.getElementById("output").style.display = "none";
+      saveNow();
+      setStatus(`Restored ${sectionName}.`);
+    }
+
+    function undoLastClear() {
+      const item = undoStack.pop();
+
+      if (!item) {
+        setStatus("No clear action to undo.");
+        return;
+      }
+
+      if (item.type === "all") {
+        document.getElementById("studentName").value = item.studentName || "";
+        document.getElementById("studentClass").value = item.studentClass || "";
+        document.getElementById("testDate").value = item.testDate || "";
+        applyAnswerRows(item.answers);
+        saveNow();
+        setStatus("Restored the last Clear All action.");
+        return;
+      }
+
+      applyAnswerRows(item.answers);
+      saveNow();
+      setStatus(`Restored ${item.section}.`);
+    }
+
+    function collectState() {
+      return {
+        studentName: document.getElementById("studentName").value || "",
+        studentClass: document.getElementById("studentClass").value || "",
+        testDate: document.getElementById("testDate").value || "",
+        answers: collectAnswers(),
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function applyState(state) {
+      if (!state) return;
+
+      document.getElementById("studentName").value = state.studentName || "";
+      document.getElementById("studentClass").value = state.studentClass || "";
+      document.getElementById("testDate").value = state.testDate || "";
+
+      (state.answers || []).forEach(row => {
+        if (!row.answer) return;
+        const input = document.querySelector(`input[name="${row.section}-${row.question}"][value="${row.answer}"]`);
+        if (input) input.checked = true;
+      });
+    }
+
+    function getEmbeddedState() {
+      try {
+        const raw = document.getElementById("embedded-save").textContent || "{}";
+        const parsed = JSON.parse(raw);
+        return Object.keys(parsed).length ? parsed : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function loadState() {
+      const embedded = getEmbeddedState();
+      if (embedded) {
+        applyState(embedded);
+        setStatus("Loaded answers embedded in this HTML file.");
+        return;
+      }
+
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          applyState(JSON.parse(raw));
+          setStatus("Loaded autosaved answers from this browser.");
+        }
+      } catch (e) {}
+    }
+
+    function setStatus(text) {
+      document.getElementById("saveStatus").textContent = text;
+    }
+
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      setStatus("Autosave pending...");
+      saveTimer = setTimeout(saveNow, 700);
+    }
+
+    function saveNow() {
+      const state = collectState();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        setStatus("Saved at " + new Date().toLocaleTimeString());
+      } catch (e) {
+        setStatus("Browser save failed. Download Saved HTML to keep answers.");
+      }
+    }
+
+    function formatAnswersText() {
+      const name = document.getElementById("studentName").value || "Unnamed Student";
+      const studentClass = document.getElementById("studentClass").value || "";
+      const date = document.getElementById("testDate").value || "No date";
+      const data = collectAnswers();
+
+      let text = `Student: ${name}\nClass: ${studentClass}\nDate: ${date}\n\n`;
+      sections.forEach(section => {
+        text += `${section}\n`;
+        const sectionAnswers = data.filter(row => row.section === section);
+        text += sectionAnswers.map(row => `${row.question}. ${row.answer || "-"}`).join("   ");
+        text += "\n\n";
+      });
+
+      return text;
+    }
+
+    function showAnswers() {
+      saveNow();
+      const output = document.getElementById("output");
+      const text = formatAnswersText();
+      output.style.display = "block";
+      output.textContent = text;
+      navigator.clipboard?.writeText(text).catch(() => {});
+    }
+
+    function downloadCSV() {
+      saveNow();
+      const name = document.getElementById("studentName").value || "Unnamed Student";
+      const studentClass = document.getElementById("studentClass").value || "";
+      const date = document.getElementById("testDate").value || "";
+      const rows = [["Student", "Class", "Date", "Section", "Question", "Answer"]];
+
+      collectAnswers().forEach(row => {
+        rows.push([name, studentClass, date, row.section, row.question, row.answer]);
+      });
+
+      const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName(name)}_${date || "no_date"}_answer_sheet.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadSavedHTML() {
+      saveNow();
+      const state = collectState();
+      const json = JSON.stringify(state).replace(/</g, "\\u003c");
+
+      let source = document.documentElement.outerHTML;
+      source = source.replace(
+        /<script id="embedded-save" type="application\/json">[\s\S]*?<\/script>/,
+        `<script id="embedded-save" type="application/json">${json}<\/script>`
+      );
+
+      const blob = new Blob(["<!DOCTYPE html>\n" + source], { type: "text/html;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const name = document.getElementById("studentName").value || "student";
+      const date = document.getElementById("testDate").value || "no_date";
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName(name)}_${date}_saved_answer_sheet.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearAnswers() {
+      const previousAnswers = collectAnswers();
+      const previousName = document.getElementById("studentName").value || "";
+      const previousClass = document.getElementById("studentClass").value || "";
+      const previousDate = document.getElementById("testDate").value || "";
+      const hasData = previousName || previousClass || previousDate || previousAnswers.some(row => row.answer);
+
+      if (!hasData) {
+        setStatus("Everything is already empty.");
+        return;
+      }
+
+      if (!confirm("Clear all selected answers and student details?")) return;
+
+      undoStack.push({
+        type: "all",
+        section: "All sections",
+        answers: previousAnswers,
+        studentName: previousName,
+        studentClass: previousClass,
+        testDate: previousDate,
+        time: new Date().toISOString()
+      });
+
+      document.querySelectorAll("input[type='radio']").forEach(input => input.checked = false);
+      document.getElementById("studentName").value = "";
+      document.getElementById("studentClass").value = "";
+      document.getElementById("testDate").value = "";
+      document.getElementById("output").style.display = "none";
+      saveNow();
+      setStatus("Cleared. Use Undo Last Clear to restore.");
+    }
+
+    function safeName(text) {
+      return (text || "student").replace(/[^a-z0-9\u4e00-\u9fa5_-]+/gi, "_");
+    }
+
+    document.getElementById("studentName").addEventListener("input", scheduleSave);
+    document.getElementById("studentClass").addEventListener("input", scheduleSave);
+    document.getElementById("testDate").addEventListener("input", scheduleSave);
+
+    buildSheet();
+    loadState();
+  </script>
+</body>
+</html>
