@@ -1176,6 +1176,7 @@
           <button class="active" data-section="studentDashboard" onclick="activateSection('studentDashboard')">Dashboard</button>
           <button data-section="programDetails" onclick="activateSection('programDetails')">Program Details</button>
           <button data-section="studentAssignments" onclick="activateSection('studentAssignments')">Work Platforms</button>
+          <button data-section="typingCentre" onclick="activateSection('typingCentre')">Typing Centre</button>
           <button data-section="studentRanking" onclick="activateSection('studentRanking')">Class Ranking</button>
           <button data-section="studentReviews" onclick="activateSection('studentReviews')">Monthly Review</button>
         </nav>
@@ -1202,6 +1203,7 @@
         <section id="studentDashboard" class="section active"></section>
         <section id="programDetails" class="section"></section>
         <section id="studentAssignments" class="section"></section>
+        <section id="typingCentre" class="section"></section>
         <section id="studentRanking" class="section"></section>
         <section id="studentReviews" class="section"></section>
         <section id="teacherDashboard" class="section"></section>
@@ -1346,6 +1348,18 @@
       exercises: "Exercises",
       homework: "Homework"
     };
+    const typingGames = [
+      {
+        title: "TYPE//VOID",
+        file: "typing-game.html",
+        description: "Neon typing accuracy and speed practice."
+      },
+      {
+        title: "RUNTYPE Sprint",
+        file: "typing-game_runner.html",
+        description: "Runner-style sprint typing challenge."
+      }
+    ];
 
     const store = {
       get students() {
@@ -1434,21 +1448,43 @@
       return true;
     }
 
+    function nextStudentId() {
+      const accounts = store.accounts.filter((account) => account.role === "student" && account.studentId);
+      const students = store.students.filter((student) => student.studentId);
+      const allIds = [...accounts.map((account) => account.studentId), ...students.map((student) => student.studentId)];
+      const maxNumber = allIds.reduce((max, id) => {
+        const number = Number(String(id).split("-").pop());
+        return Number.isFinite(number) ? Math.max(max, number) : max;
+      }, 0);
+      return `GM-2026-${String(maxNumber + 1).padStart(4, "0")}`;
+    }
+
+    function ensureCurrentStudentId() {
+      if (!currentUser || currentUser.role !== "student") return "";
+      if (currentUser.studentId) return currentUser.studentId;
+      const studentId = nextStudentId();
+      store.accounts = store.accounts.map((account) => account.role === "student" && account.username === currentUser.username ? { ...account, studentId } : account);
+      store.students = store.students.map((student) => student.name === currentUser.name && student.program === currentUser.program && student.className === currentUser.className ? { ...student, studentId } : student);
+      currentUser.studentId = studentId;
+      return studentId;
+    }
+
     async function registerStudent() {
       const name = $("#signupName").value.trim();
       const username = normalizeUsername($("#signupUsername").value);
       const password = $("#signupPassword").value.trim();
       const program = $("#programInput").value;
       const className = $("#classInput").value;
-      if (!addAccount({ role: "student", name, username, password, program, className })) return;
+      const studentId = nextStudentId();
+      if (!addAccount({ role: "student", name, username, password, program, className, studentId })) return;
       const registered = store.students;
       const exists = registered.some((student) => student.name.toLowerCase() === name.toLowerCase() && student.program === program && student.className === className);
       const photo = await readUploadedMaterial($("#signupPhoto").files[0]);
       if (!exists) {
-        registered.push({ name, program, className, score: 0, homework: 0, exercises: 0, exams: 0, photo: photo ? photo.dataUrl : "" });
+        registered.push({ name, studentId, program, className, score: 0, homework: 0, exercises: 0, exams: 0, photo: photo ? photo.dataUrl : "" });
         store.students = registered;
       } else if (photo) {
-        store.students = registered.map((student) => student.name.toLowerCase() === name.toLowerCase() && student.program === program && student.className === className ? { ...student, photo: photo.dataUrl } : student);
+        store.students = registered.map((student) => student.name.toLowerCase() === name.toLowerCase() && student.program === program && student.className === className ? { ...student, studentId: student.studentId || studentId, photo: photo.dataUrl } : student);
       }
       $("#loginUsername").value = username;
       $("#loginPassword").value = password;
@@ -1507,10 +1543,11 @@
         return;
       }
       currentUser = { ...account };
+      if (role === "student") ensureCurrentStudentId();
       $("#loginView").style.display = "none";
       $("#appView").style.display = "block";
       $("#userName").textContent = currentUser.name;
-      $("#userMeta").textContent = role === "admin" ? "Admin oversight" : role === "teacher" ? "Teacher dashboard" : `${currentUser.program} · ${currentUser.className}`;
+      $("#userMeta").textContent = role === "admin" ? "Admin oversight" : role === "teacher" ? "Teacher dashboard" : `${currentUser.studentId} · ${currentUser.program} · ${currentUser.className}`;
       updateUserAvatar();
       $("#studentNav").classList.toggle("hidden", role !== "student");
       $("#teacherNav").classList.toggle("hidden", role !== "teacher");
@@ -1563,7 +1600,7 @@
       const confirmed = window.confirm(`Delete ${selected.name} from ${selected.className}? This also removes their submissions, reviews, and admin notes.`);
       if (!confirmed) return;
       store.students = store.students.filter((student, studentIndex) => studentIndex !== index);
-      store.accounts = store.accounts.filter((account) => !(account.role === "student" && account.name === selected.name && account.program === selected.program && account.className === selected.className));
+      store.accounts = store.accounts.filter((account) => !(account.role === "student" && ((selected.studentId && account.studentId === selected.studentId) || (account.name === selected.name && account.program === selected.program && account.className === selected.className))));
       store.submissions = store.submissions.filter((submission) => !(submission.student === selected.name && submission.program === selected.program && submission.className === selected.className));
       store.reviews = store.reviews.filter((review) => !(review.student === selected.name && review.program === selected.program && review.className === selected.className));
       store.adminNotes = store.adminNotes.filter((note) => note.student !== selected.name);
@@ -1577,7 +1614,7 @@
       if (!confirmed) return;
       store.accounts = store.accounts.filter((account, accountIndex) => accountIndex !== index);
       if (selected.role === "student") {
-        store.students = store.students.filter((student) => !(student.name === selected.name && student.program === selected.program && student.className === selected.className));
+        store.students = store.students.filter((student) => !((selected.studentId && student.studentId === selected.studentId) || (student.name === selected.name && student.program === selected.program && student.className === selected.className)));
         store.submissions = store.submissions.filter((submission) => !(submission.student === selected.name && submission.program === selected.program && submission.className === selected.className));
         store.reviews = store.reviews.filter((review) => !(review.student === selected.name && review.program === selected.program && review.className === selected.className));
         store.adminNotes = store.adminNotes.filter((note) => note.student !== selected.name);
@@ -1743,6 +1780,7 @@
         renderStudentDashboard();
         renderProgramDetails();
         renderStudentAssignments();
+        renderTypingCentre();
         renderStudentRanking();
         renderStudentReviews();
       } else if (role === "teacher") {
@@ -1766,13 +1804,14 @@
       const assignments = assignmentsForStudent();
       const submissions = studentSubmissions();
       const reviewed = submissions.filter((item) => item.score !== "").length;
+      const studentId = ensureCurrentStudentId();
       $("#studentDashboard").innerHTML = `
-        ${pageHeader("Student Center", `${currentUser.program} 学习中心`, `${currentUser.className} · ${programs[currentUser.program].sections.length} exam sections available`, `<button class="primary-btn" onclick="activateSection('studentAssignments')">Open assignments</button>`)}
+        ${pageHeader("Student Center", `${currentUser.program} 学习中心`, `${currentUser.className} · Student ID ${studentId} · ${programs[currentUser.program].sections.length} exam sections available`, `<button class="primary-btn" onclick="activateSection('studentAssignments')">Open assignments</button>`)}
         <div class="metric-grid">
+          <div class="metric"><small>Student ID</small><strong>${studentId}</strong></div>
           <div class="metric"><small>Assigned</small><strong>${assignments.length}</strong></div>
           <div class="metric"><small>Submitted</small><strong>${submissions.length}</strong></div>
           <div class="metric"><small>Reviewed</small><strong>${reviewed}</strong></div>
-          <div class="metric"><small>Class rank</small><strong>#${getRank(currentUser.name, currentUser.className, "score")}</strong></div>
         </div>
         <article class="card" style="margin-bottom:14px">
           <h3>Profile picture</h3>
@@ -1809,6 +1848,25 @@
             <p>Choose a language. The selected outline opens in this same browser tab.</p>
             <div class="program-menu"><a href="emerald_hills.html">EN</a><a href="emerald_hills_simplified.html">CN</a></div>
           </article>
+        </div>
+      `;
+    }
+
+    function renderTypingCentre() {
+      $("#typingCentre").innerHTML = `
+        ${pageHeader("Typing Centre", "打字练习中心", `${currentUser.name} · Student ID ${ensureCurrentStudentId()} · Choose a typing game and practice anytime.`)}
+        <div class="grid">
+          ${typingGames.map((game) => `
+            <article class="card">
+              <h3>${game.title}</h3>
+              <p>${game.description}</p>
+              <div class="tag-row">
+                <span class="tag green">Open to all students</span>
+                <span class="tag blue">${game.file}</span>
+              </div>
+              <a class="primary-btn" href="${game.file}?student=${encodeURIComponent(currentUser.studentId)}" target="_blank" rel="noopener">Play game</a>
+            </article>
+          `).join("")}
         </div>
       `;
     }
@@ -2631,14 +2689,14 @@
         ${pageHeader("Account Management", "账号管理", "Only admins can remove student or teacher accounts.")}
         <div class="table-card">
           <table>
-            <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Class</th><th>Created</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>ID / Class</th><th>Created</th><th>Actions</th></tr></thead>
             <tbody>
               ${store.accounts.map((account, index) => `
                 <tr>
                   <td><strong>${account.name}</strong></td>
                   <td>${account.role}</td>
                   <td>${account.username}</td>
-                  <td>${account.program || "All Programs"} · ${account.className || "-"}</td>
+                  <td>${account.studentId ? `${account.studentId}<br>` : ""}${account.program || "All Programs"} · ${account.className || "-"}</td>
                   <td>${account.createdAt || "-"}</td>
                   <td>${account.role === "admin" ? "Protected" : `<button class="danger-btn" type="button" onclick="deleteAccount(${index})">Delete account</button>`}</td>
                 </tr>
@@ -2654,11 +2712,12 @@
         ${pageHeader("Student Details", "学生详情", "All registered students, class placement, rankings, and current score data.")}
         <div class="table-card">
           <table>
-            <thead><tr><th>Student</th><th>Program</th><th>Class</th><th>Scores</th><th>Submissions</th><th>Profile photo</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Student</th><th>Student ID</th><th>Program</th><th>Class</th><th>Scores</th><th>Submissions</th><th>Profile photo</th><th>Actions</th></tr></thead>
             <tbody>
               ${store.students.map((student, index) => `
                 <tr>
                   <td><div class="profile-row"><div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${student.name}">` : initials(student.name)}</div><strong>${student.name}</strong></div></td>
+                  <td>${student.studentId || "Assigns at next login"}</td>
                   <td>${student.program}</td>
                   <td>${student.className}</td>
                   <td>Overall ${student.score}<br>Homework ${student.homework}<br>Exercises ${student.exercises}<br>Exams ${student.exams}</td>
@@ -2666,7 +2725,7 @@
                   <td><input id="adminPhoto${index}" type="file" accept="image/*" onchange="adminUploadProfilePhoto(${index})"></td>
                   <td><button class="danger-btn" type="button" onclick="deleteStudent(${index})">Delete</button></td>
                 </tr>
-              `).join("") || `<tr><td colspan="7">No students registered yet.</td></tr>`}
+              `).join("") || `<tr><td colspan="8">No students registered yet.</td></tr>`}
             </tbody>
           </table>
         </div>
