@@ -735,6 +735,46 @@
       margin-bottom: 14px;
     }
 
+    .builder-guide {
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(114, 184, 255, 0.22);
+      background: rgba(114, 184, 255, 0.07);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 12px;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .builder-guide strong {
+      color: var(--ink);
+    }
+
+    .builder-guide ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .timer-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid rgba(255, 214, 102, 0.36);
+      background: rgba(255, 214, 102, 0.12);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 14px;
+      color: var(--ink);
+    }
+
+    .timer-banner strong {
+      font-size: 22px;
+      color: var(--accent);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
     .message-list {
       display: grid;
       gap: 10px;
@@ -1280,6 +1320,7 @@
     let currentUser = null;
     let activeAssignmentId = null;
     let editingAssignmentId = null;
+    let activeTimerInterval = null;
     let studentWorkCategory = "Exercise";
     let programDetailsLanguage = "english";
     let teacherProgram = {
@@ -1348,6 +1389,12 @@
       },
       set adminNotes(value) {
         localStorage.setItem("gm_admin_notes", JSON.stringify(value));
+      },
+      get testSessions() {
+        return JSON.parse(localStorage.getItem("gm_test_sessions") || "{}");
+      },
+      set testSessions(value) {
+        localStorage.setItem("gm_test_sessions", JSON.stringify(value));
       }
     };
 
@@ -1561,6 +1608,14 @@
       return expected === "Mock Exam" && actual === "Mock Test";
     }
 
+    function isFormalTimedCategory(category) {
+      return category === "Monthly Test" || category === "Mock Exam" || category === "Mock Test";
+    }
+
+    function isTimedAssignment(assignment) {
+      return isFormalTimedCategory(assignment.category) && Number(assignment.durationMinutes) > 0;
+    }
+
     function studentSubmissions() {
       return store.submissions.filter((item) => item.student === currentUser.name);
     }
@@ -1759,10 +1814,12 @@
     }
 
     function renderStudentAssignments() {
+      clearTimerInterval();
       const assignments = assignmentsForStudent();
       if (activeAssignmentId) {
         const assignment = assignments.find((item) => item.id === activeAssignmentId);
         $("#studentAssignments").innerHTML = assignment ? renderTestTaking(assignment) : "";
+        if (assignment) startTimerInterval(assignment);
         return;
       }
 
@@ -1787,27 +1844,96 @@
             <span class="tag warn">${submitted ? "Submitted" : "Open"}</span>
           </div>
           <p>${assignment.instructions}</p>
-          <p><strong>Posted:</strong> ${assignment.posted}<br><strong>Due:</strong> ${assignment.due}</p>
+          <p><strong>Posted:</strong> ${assignment.posted}<br><strong>Due:</strong> ${assignment.due}${assignment.durationMinutes ? `<br><strong>Time limit:</strong> ${assignment.durationMinutes} minutes` : ""}</p>
           <button class="primary-btn" onclick="openAssignment('${assignment.id}')">${submitted ? "View submission" : "Take test"}</button>
         </article>
       `;
     }
 
+    function testSessionKey(assignment) {
+      return `${assignment.id}::${currentUser.name}`;
+    }
+
+    function ensureTestSession(assignment) {
+      const sessions = store.testSessions;
+      const key = testSessionKey(assignment);
+      if (!sessions[key]) {
+        sessions[key] = {
+          startedAt: Date.now(),
+          durationMinutes: Number(assignment.durationMinutes)
+        };
+        store.testSessions = sessions;
+      }
+      return sessions[key];
+    }
+
+    function getRemainingTime(assignment) {
+      if (!isTimedAssignment(assignment)) return null;
+      const session = ensureTestSession(assignment);
+      const duration = Number(session.durationMinutes || assignment.durationMinutes) * 60 * 1000;
+      return Math.max(0, session.startedAt + duration - Date.now());
+    }
+
+    function formatTime(ms) {
+      const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function renderTimerBanner(assignment, submitted) {
+      if (!isTimedAssignment(assignment)) return "";
+      const remaining = submitted ? 0 : getRemainingTime(assignment);
+      return `
+        <div class="timer-banner">
+          <span>${submitted ? "Submitted" : "Timed test in progress"}</span>
+          <strong id="testTimerCountdown">${submitted ? "Done" : formatTime(remaining)}</strong>
+        </div>
+      `;
+    }
+
+    function clearTimerInterval() {
+      if (activeTimerInterval) {
+        clearInterval(activeTimerInterval);
+        activeTimerInterval = null;
+      }
+    }
+
+    function startTimerInterval(assignment) {
+      clearTimerInterval();
+      if (!isTimedAssignment(assignment) || submissionFor(assignment.id)) return;
+      activeTimerInterval = setInterval(() => {
+        const remaining = getRemainingTime(assignment);
+        const countdown = $("#testTimerCountdown");
+        if (countdown) countdown.textContent = formatTime(remaining);
+        if (remaining <= 0) {
+          clearTimerInterval();
+          submitAssignment(null, assignment.id, true);
+          window.alert("Time is finished. The platform has submitted the answer sheet.");
+        }
+      }, 1000);
+    }
+
     function renderTestTaking(assignment) {
       const submitted = submissionFor(assignment.id);
       const answerItems = answerSheetItems(assignment);
+      if (isTimedAssignment(assignment) && !submitted) ensureTestSession(assignment);
       return `
         ${pageHeader("Test Player", "答题页面", `${assignment.title} · ${assignment.program} · ${assignment.className} · ${assignment.category} · ${assignment.section}`, `<button class="ghost-btn" onclick="closeAssignment()">Back</button>`)}
         <div class="test-frame">
           <div class="test-header">
             <strong>${assignment.section} test player</strong>
-            <span class="tag warn">Due ${assignment.due}</span>
+            <div class="tag-row">
+              ${assignment.durationMinutes ? `<span class="tag warn">${assignment.durationMinutes} min</span>` : ""}
+              <span class="tag warn">Due ${assignment.due}</span>
+            </div>
           </div>
           <div class="test-body">
             <div class="stimulus">
               ${renderStimulus(assignment)}
             </div>
-            <form class="answer-panel" onsubmit="submitAssignment(event, '${assignment.id}')">
+            <form id="activeAnswerForm" class="answer-panel" onsubmit="submitAssignment(event, '${assignment.id}')">
+              ${renderTimerBanner(assignment, submitted)}
               <div class="answer-sheet-title">
                 <h3>答题纸 · Answer Sheet</h3>
                 <span class="tag green">${answerItems.length} items</span>
@@ -1848,6 +1974,7 @@
             <span>${assignment.className}</span>
             <span>${assignment.category}</span>
             <span>${assignment.section}</span>
+            ${assignment.durationMinutes ? `<span>${assignment.durationMinutes} minutes</span>` : ""}
             <span>Due ${assignment.due}</span>
           </div>
           <div class="exam-directions">
@@ -1892,10 +2019,10 @@
 
     function templateFor(program, section) {
       if (program === "iBT") {
-        if (section === "Reading") return { count: 50, label: "Reading Item", placeholder: "Type your answer.", help: "TOEFL iBT 2026 Reading is adaptive. Build it with reading passage/module blocks; default answer sheet size is 50 items." };
-        if (section === "Listening") return { count: 47, label: "Listening Item", placeholder: "Type your answer.", help: "TOEFL iBT 2026 Listening is adaptive. Build it with audio/conversation/lecture blocks; default answer sheet size is 47 items." };
-        if (section === "Speaking") return { count: 11, label: "Speaking Task", placeholder: "Record your response or paste a recording link.", help: "TOEFL iBT 2026 Speaking has 11 tasks/items. Use task blocks for videos, audio prompts, repeat-after-me drills, and formal responses." };
-        if (section === "Writing") return { count: 12, label: "Writing Item", placeholder: "Type your writing response.", help: "TOEFL iBT 2026 Writing contains 12 items/tasks. Use writing blocks for sentence building, email/academic tasks, and extended responses." };
+        if (section === "Reading") return { count: 50, label: "Reading Item", placeholder: "Type your selected answer or short response.", help: "2026 TOEFL iBT Reading: build adaptive-style Module 1 and Module 2 passage blocks; full practice defaults to 50 answer slots." };
+        if (section === "Listening") return { count: 47, label: "Listening Item", placeholder: "Type your selected answer or short response.", help: "2026 TOEFL iBT Listening: build adaptive-style audio/video modules; full practice defaults to 47 answer slots." };
+        if (section === "Speaking") return { count: 11, label: "Speaking Item", placeholder: "Record your response or paste a recording link.", help: "2026 TOEFL iBT Speaking: build 11 interview-style spoken-response items with optional video, audio, and repeat-after-me prompts." };
+        if (section === "Writing") return { count: 12, label: "Writing Item", placeholder: "Type your writing response.", help: "2026 TOEFL iBT Writing: build 12 writing items, including sentence reconstruction and contextual or academic writing responses." };
       }
       if (section === "Speaking") {
         return {
@@ -1903,7 +2030,7 @@
           label: "Speaking Task",
           placeholder: "Record your answer, then write a short note or paste the recording link.",
           help: program === "ITP"
-            ? "ITP Speaking uses 4 structured speaking tasks. Upload or paste the prompts/audio; the platform generates 4 response slots."
+            ? "ITP Speaking uses 4 ITP-style structured speaking tasks. Upload or paste prompts/audio/video; the platform generates 4 response slots."
             : "Primary/Junior Speaking uses 4 tasks. Upload pictures/audio/video or paste prompts; the platform generates 4 speaking answer slots."
         };
       }
@@ -1920,7 +2047,7 @@
           count: 42,
           label: "Question",
           placeholder: "Type A, B, C, D, or your short answer.",
-          help: `${section} uses a formal 42-question answer sheet. Upload/paste the exam material; the platform generates 42 numbered answer slots.`
+          help: `${program} ${section} formal tests use a 42-question answer sheet by default. Add blocks by passage/audio/question range so the display matches the exam paper.`
         };
       }
       return { count: 10, label: "Question", placeholder: "Type your answer.", help: "The platform generates answer slots from the selected template." };
@@ -1944,6 +2071,18 @@
     }
 
     function examDirections(assignment) {
+      if (assignment.program === "iBT" && assignment.section === "Reading") {
+        return "Read each adaptive-style module or passage set provided by the teacher. Answer each numbered item in the generated answer sheet.";
+      }
+      if (assignment.program === "iBT" && assignment.section === "Listening") {
+        return "Play each teacher-provided audio or video module. Answer the listening items in order; each block shows the question range it covers.";
+      }
+      if (assignment.program === "iBT" && assignment.section === "Speaking") {
+        return "Complete each 2026-style speaking item. Listen to or watch the prompt when provided, prepare as instructed, then record or link your spoken response.";
+      }
+      if (assignment.program === "iBT" && assignment.section === "Writing") {
+        return "Complete each 2026-style writing item, including sentence reconstruction and contextual or academic writing prompts when provided.";
+      }
       if (assignment.program === "ITP" && assignment.section === "Speaking") {
         return "This ITP Speaking task is generated from the teacher's input. Students should prepare briefly, then record clear spoken responses for read-aloud, everyday/campus communication, and academic-style speaking prompts when provided.";
       }
@@ -1985,18 +2124,24 @@
     }
 
     function openAssignment(id) {
+      const assignment = assignmentsForStudent().find((item) => item.id === id);
+      if (assignment && isTimedAssignment(assignment) && !submissionFor(assignment.id)) {
+        ensureTestSession(assignment);
+      }
       activeAssignmentId = id;
       renderStudentAssignments();
     }
 
     function closeAssignment() {
       activeAssignmentId = null;
+      clearTimerInterval();
       renderStudentAssignments();
     }
 
-    function submitAssignment(event, assignmentId) {
-      event.preventDefault();
-      const form = event.currentTarget;
+    function submitAssignment(event, assignmentId, autoSubmit = false) {
+      if (event) event.preventDefault();
+      const form = event ? event.currentTarget : $("#activeAnswerForm");
+      if (!form) return;
       const answers = Array.from(form.querySelectorAll(".student-answer")).map((answer) => answer.value.trim());
       const submissions = store.submissions.filter((item) => !(item.assignmentId === assignmentId && item.student === currentUser.name));
       submissions.push({
@@ -2008,10 +2153,12 @@
         answers,
         recording: $("#recordingLink") ? $("#recordingLink").value.trim() : "",
         submittedAt: new Date().toISOString().slice(0, 10),
+        autoSubmitted: autoSubmit,
         score: "",
         feedback: ""
       });
       store.submissions = submissions;
+      clearTimerInterval();
       render();
     }
 
@@ -2070,16 +2217,18 @@
             <div class="field"><label>Title</label><input id="assignmentTitle" required value="${editing ? editing.title : "New class homework"}"></div>
             <div class="field"><label>Program</label><select id="assignmentProgram" onchange="syncAssignmentOptions(); syncAssignmentTemplate();">${Object.keys(programs).map((program) => `<option ${program === formProgram ? "selected" : ""}>${program}</option>`).join("")}</select></div>
             <div class="field"><label>Class</label><select id="assignmentClass"></select></div>
-            <div class="field"><label>Type</label><select id="assignmentCategory">${workCategories.map((category) => `<option ${selectedCategory === category ? "selected" : ""}>${category}</option>`).join("")}</select></div>
+            <div class="field"><label>Type</label><select id="assignmentCategory" onchange="syncAssignmentTemplate()">${workCategories.map((category) => `<option ${selectedCategory === category ? "selected" : ""}>${category}</option>`).join("")}</select></div>
             <div class="field"><label>Exam section</label><select id="assignmentSection" onchange="syncAssignmentTemplate()"></select></div>
             <div class="field"><label>Date posted</label><input id="assignmentPosted" type="date" value="${editing ? editing.posted : "2026-05-23"}"></div>
             <div class="field"><label>Deadline</label><input id="assignmentDue" type="date" value="${editing ? editing.due : "2026-05-30"}"></div>
+            <div class="field"><label>Time limit for Monthly Test / Mock Exam</label><input id="assignmentDuration" type="number" min="0" max="240" placeholder="Minutes, for example 45" value="${editing && editing.durationMinutes ? editing.durationMinutes : ""}"></div>
             <div class="field"><label>Upload question material</label><input id="assignmentFile" type="file" accept="image/*,audio/*,video/*,application/pdf"></div>
             <div class="field"><label>Media link</label><input id="assignmentMediaUrl" placeholder="Optional video, audio, image, or document link" value="${editing && editing.mediaUrl ? editing.mediaUrl : ""}"></div>
             <div class="field"><label>Teacher material / passage / transcript</label><textarea id="assignmentSourceMaterial" placeholder="Paste the reading passage, listening transcript, grammar text, speaking prompt, or writing source material here.">${editing && editing.sourceMaterial ? editing.sourceMaterial : ""}</textarea></div>
             <div class="field"><label>Instructions</label><textarea id="assignmentInstructions">${editing ? editing.instructions : "Complete the assigned section and submit your answers."}</textarea></div>
             <div class="field"><label>Answer sheet size</label><input id="assignmentAnswerCount" type="number" min="1" max="120" value="${editing && editing.answerCount ? editing.answerCount : templateFor(formProgram, editing ? editing.section : programs[formProgram].sections[0]).count}"></div>
             <div id="templateHelp" class="template-note"></div>
+            <div id="teacherGuide" class="builder-guide"></div>
             <div id="blockExample" class="block-example"></div>
             <div class="field"><label>Section blocks</label><textarea id="assignmentBlocks" placeholder="Use this for formal Monthly Tests and Mock Exams. Add one block per audio, passage, language group, speaking task, or writing task. Separate blocks with ---">${editing && editing.sectionBlocks ? editing.sectionBlocks : ""}</textarea></div>
             <div class="field"><label>Teacher prompts / item text</label><textarea id="assignmentQuestions" placeholder="Optional: paste one prompt/question per line. Leave blank when the uploaded exam material already contains all questions.">${editing && editing.questions ? editing.questions.join("\n") : ""}</textarea></div>
@@ -2097,7 +2246,7 @@
                   <tr>
                     <td><strong>${item.title}</strong><br>${item.category} · ${item.section}</td>
                     <td>${item.program}<br>${item.className}</td>
-                    <td>${item.posted}<br>${item.due}</td>
+                    <td>${item.posted}<br>${item.due}${item.durationMinutes ? `<br>${item.durationMinutes} min` : ""}</td>
                     <td><div class="toolbar"><button class="ghost-btn" onclick="editAssignment('${item.id}')">Edit</button><button class="danger-btn" onclick="deleteAssignment('${item.id}')">Delete</button></div></td>
                   </tr>
                 `).join("") || `<tr><td colspan="4">No ${categoryLabels[teacherCategory.teacherAssignments]} yet for ${teacherProgram.teacherAssignments}.</td></tr>`}
@@ -2131,14 +2280,66 @@
           ? `Flexible ${categoryLabels[category]} mode: teacher decides the format. You can use simple material/prompts without formal test blocks.`
           : template.help;
       }
+      if ($("#teacherGuide")) {
+        $("#teacherGuide").innerHTML = teacherGuide(program, section, category);
+      }
       if ($("#blockExample")) {
         $("#blockExample").textContent = sectionBlockExample(program, section, category);
       }
     }
 
+    function teacherGuide(program, section, category) {
+      const timed = isFormalTimedCategory(category);
+      const prefix = timed
+        ? "<strong>Formal test setup:</strong> add a time limit, divide the paper into blocks, then set the exact answer sheet size."
+        : "<strong>Practice setup:</strong> homework and class exercises can be loose. Use only the blocks you need.";
+      if (program === "iBT") {
+        if (section === "Reading") {
+          return `${prefix}<ul><li>Create adaptive-style Module 1 and Module 2 reading blocks.</li><li>Each block can contain one passage or one question group.</li><li>Use 50 answer slots for full 2026-style practice.</li></ul>`;
+        }
+        if (section === "Listening") {
+          return `${prefix}<ul><li>Create adaptive-style listening modules with conversations, lectures, or announcements.</li><li>Write the question range covered by each audio/video file, for example Questions 1-6.</li><li>Use 47 answer slots for full 2026-style practice.</li></ul>`;
+        }
+        if (section === "Speaking") {
+          return `${prefix}<ul><li>Build 11 speaking items for full 2026 iBT practice.</li><li>Each task can include a video, audio prompt, repeat-after-me item, prep time, and response time.</li><li>Students submit recordings or links in the answer sheet.</li></ul>`;
+        }
+        if (section === "Writing") {
+          return `${prefix}<ul><li>Build 12 writing items for full 2026 iBT practice.</li><li>Use blocks for sentence reconstruction, email/context response, and academic response items.</li><li>Students type into generated writing answer slots.</li></ul>`;
+        }
+      }
+      if (section === "Listening") {
+        return `${prefix}<ul><li>Add one block per audio, video, conversation, announcement, or lecture.</li><li>Label the exact question range: Questions 1-4, 5-10, 11-19, etc.</li><li>Upload the main file above or paste links inside the block.</li></ul>`;
+      }
+      if (section === "Reading") {
+        return `${prefix}<ul><li>Add one block per passage, notice, story, article, or image.</li><li>Label the exact question range covered by that passage.</li><li>The platform will place the passage on the left and create answer slots on the right.</li></ul>`;
+      }
+      if (section.includes("Language") || section.includes("Structure")) {
+        return `${prefix}<ul><li>Paste the sentence, letter, announcement, or story exactly as students should see it.</li><li>Insert answer boxes using [choices: option A | option B | option C | option D].</li><li>Use one block per question group, such as Questions 6-9.</li></ul>`;
+      }
+      if (section === "Speaking") {
+        return `${prefix}<ul><li>Use one block per speaking task.</li><li>Primary/Junior use picture, prompt, audio, or short-video tasks; ITP uses ITP-style structured speaking prompts.</li><li>Add prep time, response time, and media prompt notes inside each block.</li></ul>`;
+      }
+      if (section === "Writing") {
+        return `${prefix}<ul><li>Use one block per writing task.</li><li>Primary/Junior/ITP can include sentence, paragraph, email, summary, or opinion tasks.</li><li>For full tests, set 4 writing answer slots unless you intentionally need another count.</li></ul>`;
+      }
+      return `${prefix}<ul><li>Add teacher material, choose answer count, and save.</li></ul>`;
+    }
+
     function sectionBlockExample(program, section, category) {
       if (category === "Homework" || category === "Exercise") {
-        return "Flexible mode example:\nPaste instructions/materials above, upload media, then set any answer sheet size you need.";
+        return "Flexible mode example:\nPurpose: practice, class trial, or review\nMaterial: paste text, image notes, audio/video link, or instructions above\nAnswer sheet: set any number of answer boxes the task needs";
+      }
+      if (program === "iBT" && section === "Reading") {
+        return "iBT 2026 Reading example:\n[Module 1 | Questions 1-25] Passage set A\nPaste passage text, chart/image notes, and question notes here\n---\n[Module 2 | Questions 26-50] Adaptive passage set B";
+      }
+      if (program === "iBT" && section === "Listening") {
+        return "iBT 2026 Listening example:\n[Module 1 | Questions 1-24] Campus conversation + lecture\nAudio/link: paste link or upload media above\n---\n[Module 2 | Questions 25-47] Adaptive listening set";
+      }
+      if (program === "iBT" && section === "Speaking") {
+        return "iBT 2026 Speaking example:\n[Item 1] Interview-style response\nPrompt: Tell me about a class you enjoyed.\nPrep: 15 sec | Response: 45 sec\n---\n[Items 7-8] Repeat-after-me audio\nMedia/link: paste audio or video prompt";
+      }
+      if (program === "iBT" && section === "Writing") {
+        return "iBT 2026 Writing example:\n[Items 1-6] Sentence reconstruction\nPrompt/source: paste sentence items here\n---\n[Items 7-12] Contextual/academic writing responses";
       }
       if (section === "Listening") {
         return "Listening block example:\n[Questions 1-4] Conversation 1\nAudio/link: paste link or upload media above\nTranscript: optional\nQuestion notes: paste question text or use answer sheet slots\n---\n[Questions 5-10] Announcement";
@@ -2150,7 +2351,9 @@
         return "Language Form & Meaning example:\n[Questions 6-9] Announcement\nA man's wristwatch [choices: finds | finding | has found | was found] in the lobby...\nCallers will be asked [choices: a detailed description is given | to give a detailed description | giving a detailed description | a detailed description gave] of the watch.";
       }
       if (section === "Speaking") {
-        return "Speaking block example:\n[Task 1] Independent response\nPrompt: Describe a place you like.\nPrep: 15 sec | Response: 45 sec\nMedia: optional audio/video/image link\n---\n[Task 2] Video/audio prompt";
+        return program === "ITP"
+          ? "ITP Speaking block example:\n[Task 1] Read aloud / short response\nPrompt: paste ITP-style speaking prompt\nPrep: 15 sec | Response: 45 sec\n---\n[Task 2] Campus or everyday situation response\nAudio/link: paste listening prompt"
+          : "Speaking block example:\n[Task 1] Picture or independent response\nPrompt: Describe a place you like.\nPrep: 15 sec | Response: 45 sec\nMedia: optional audio/video/image link\n---\n[Task 2] Video/audio prompt";
       }
       if (section === "Writing") {
         return "Writing block example:\n[Task 1] Sentence building\nPrompt/source text here\n---\n[Task 2] Email or academic response";
@@ -2178,6 +2381,7 @@
         sectionBlocks: $("#assignmentBlocks").value.trim(),
         instructions: $("#assignmentInstructions").value,
         answerCount: Number($("#assignmentAnswerCount").value) || templateFor($("#assignmentProgram").value, $("#assignmentSection").value).count,
+        durationMinutes: Number($("#assignmentDuration").value) || 0,
         questions: $("#assignmentQuestions").value.split("\n").map((item) => item.trim()).filter(Boolean),
         editable: true
       };
