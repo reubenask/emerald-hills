@@ -1038,7 +1038,7 @@
 
     <section class="login-panel">
       <h2 class="panel-title">Sign in</h2>
-      <p class="panel-subtitle">登录账号 · Use the demo accounts to preview student and teacher workflows.</p>
+      <p class="panel-subtitle">登录账号 · Register students first, then students can sign in with their class record.</p>
       <div class="segmented" aria-label="Role">
         <button id="studentRole" class="active" type="button">Student</button>
         <button id="teacherRole" type="button">Teacher</button>
@@ -1046,7 +1046,7 @@
       </div>
       <div class="field teacher-name">
         <label for="nameInput">Name</label>
-        <input id="nameInput" value="Anna Chen" autocomplete="name" />
+        <input id="nameInput" value="" autocomplete="name" />
       </div>
       <div class="field student-only">
         <label for="studentInput">Registered student</label>
@@ -1156,14 +1156,7 @@
       }
     };
 
-    const students = [
-      { name: "Anna Chen", program: "Primary", className: "Primary Step 1", score: 94, homework: 98, exercises: 91, exams: 93 },
-      { name: "Leo Wang", program: "Primary", className: "Primary Step 1", score: 89, homework: 92, exercises: 88, exams: 87 },
-      { name: "Mia Liu", program: "Primary", className: "Primary Step 2", score: 84, homework: 80, exercises: 86, exams: 85 },
-      { name: "Chris Zhao", program: "Junior", className: "Junior", score: 91, homework: 94, exercises: 89, exams: 90 },
-      { name: "Nina Xu", program: "ITP", className: "ITP", score: 87, homework: 88, exercises: 86, exams: 87 },
-      { name: "Eric Sun", program: "iBT", className: "iBT", score: 5.5, homework: 92, exercises: 90, exams: 5.5 }
-    ];
+    const students = [];
 
     const starterAssignments = [
       {
@@ -1356,13 +1349,17 @@
       $("#adminRole").classList.toggle("active", role === "admin");
       $$(".student-only").forEach((item) => item.classList.toggle("hidden", role !== "student"));
       $$(".teacher-name").forEach((item) => item.classList.toggle("hidden", role === "student"));
-      $("#nameInput").value = role === "admin" ? "Admin" : role === "teacher" ? "Ms. Green" : "Anna Chen";
+      $("#nameInput").value = role === "admin" ? "Admin" : role === "teacher" ? "Ms. Green" : "";
     }
 
     function login() {
       if (role === "teacher" || role === "admin") {
         currentUser = { role, name: $("#nameInput").value || role, program: "All Programs", className: "All Classes" };
       } else {
+        if (!$("#studentInput").value) {
+          window.alert("Please register or select a student before signing in.");
+          return;
+        }
         currentUser = {
           role,
           name: $("#studentInput").value || "Student",
@@ -1417,6 +1414,19 @@
       const students = store.students;
       students[index] = { ...students[index], photo: photo.dataUrl };
       store.students = students;
+      render();
+    }
+
+    function deleteStudent(index) {
+      const selected = store.students[index];
+      if (!selected) return;
+      const confirmed = window.confirm(`Delete ${selected.name} from ${selected.className}? This also removes their submissions, reviews, and admin notes.`);
+      if (!confirmed) return;
+      store.students = store.students.filter((student, studentIndex) => studentIndex !== index);
+      store.submissions = store.submissions.filter((submission) => !(submission.student === selected.name && submission.program === selected.program && submission.className === selected.className));
+      store.reviews = store.reviews.filter((review) => !(review.student === selected.name && review.program === selected.program && review.className === selected.className));
+      store.adminNotes = store.adminNotes.filter((note) => note.student !== selected.name);
+      fillStudentOptions();
       render();
     }
 
@@ -2301,7 +2311,7 @@
         ${pageHeader("Student Details", "学生详情", "All registered students, class placement, rankings, and current score data.")}
         <div class="table-card">
           <table>
-            <thead><tr><th>Student</th><th>Program</th><th>Class</th><th>Scores</th><th>Submissions</th><th>Profile photo</th></tr></thead>
+            <thead><tr><th>Student</th><th>Program</th><th>Class</th><th>Scores</th><th>Submissions</th><th>Profile photo</th><th>Actions</th></tr></thead>
             <tbody>
               ${store.students.map((student, index) => `
                 <tr>
@@ -2311,8 +2321,9 @@
                   <td>Overall ${student.score}<br>Homework ${student.homework}<br>Exercises ${student.exercises}<br>Exams ${student.exams}</td>
                   <td>${store.submissions.filter((submission) => submission.student === student.name).length}</td>
                   <td><input id="adminPhoto${index}" type="file" accept="image/*" onchange="adminUploadProfilePhoto(${index})"></td>
+                  <td><button class="danger-btn" type="button" onclick="deleteStudent(${index})">Delete</button></td>
                 </tr>
-              `).join("")}
+              `).join("") || `<tr><td colspan="7">No students registered yet.</td></tr>`}
             </tbody>
           </table>
         </div>
