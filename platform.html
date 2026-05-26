@@ -212,6 +212,68 @@
       resize: vertical;
     }
 
+    .role-picker {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .role-card {
+      min-height: 94px;
+      border: 1px solid rgba(26, 122, 94, 0.18);
+      border-radius: 8px;
+      background: #edf5f1;
+      color: #51655d;
+      display: grid;
+      place-items: center;
+      gap: 8px;
+      font-weight: 900;
+    }
+
+    .role-card.active {
+      background: white;
+      color: var(--green);
+      border-color: rgba(26, 122, 94, 0.36);
+      box-shadow: 0 8px 22px rgba(29, 41, 53, 0.1);
+    }
+
+    .role-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(26, 122, 94, 0.22);
+      background: rgba(93, 202, 165, 0.1);
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 1000;
+    }
+
+    .auth-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .auth-actions button {
+      min-height: 44px;
+    }
+
+    .auth-actions button.active {
+      background: linear-gradient(135deg, var(--green), #23946f);
+      color: white;
+      border-color: transparent;
+    }
+
+    .auth-actions button:not(.active) {
+      background: transparent;
+      color: #51655d;
+      border: 1px solid rgba(26, 122, 94, 0.18);
+    }
+
     .segmented {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -375,6 +437,18 @@
       font-weight: 900;
       overflow: hidden;
       flex: 0 0 auto;
+    }
+
+    .avatar.female {
+      border-color: rgba(222, 120, 169, 0.6);
+      background: linear-gradient(135deg, rgba(222, 120, 169, 0.24), rgba(93, 202, 165, 0.12));
+      color: #f6b5d2;
+    }
+
+    .avatar.male {
+      border-color: rgba(114, 184, 255, 0.6);
+      background: linear-gradient(135deg, rgba(114, 184, 255, 0.24), rgba(93, 202, 165, 0.12));
+      color: #a8d7ff;
     }
 
     .avatar img {
@@ -1089,16 +1163,16 @@
     </section>
 
     <section class="login-panel">
-      <h2 id="authTitle" class="panel-title">Sign in</h2>
-      <p id="authSubtitle" class="panel-subtitle">登录账号 · If you already created an account, sign in with your username and password.</p>
-      <div class="segmented" aria-label="Role">
-        <button id="studentRole" class="active" type="button">Student</button>
-        <button id="teacherRole" type="button">Teacher</button>
-        <button id="adminRole" type="button">Admin</button>
+      <h2 id="authTitle" class="panel-title">Choose account type</h2>
+      <p id="authSubtitle" class="panel-subtitle">Select one account type, then sign in or sign up.</p>
+      <div class="role-picker" aria-label="Role">
+        <button id="studentRole" class="role-card active" type="button"><span class="role-icon">ST</span>Student</button>
+        <button id="teacherRole" class="role-card" type="button"><span class="role-icon">TC</span>Teacher</button>
+        <button id="adminRole" class="role-card" type="button"><span class="role-icon">AD</span>Admin</button>
       </div>
-      <div class="segmented" aria-label="Account action">
-        <button id="signinMode" class="active" type="button">Sign in</button>
-        <button id="signupMode" type="button">Sign up</button>
+      <div class="auth-actions" aria-label="Account action">
+        <button id="signinMode" class="primary-btn active" type="button">Sign in</button>
+        <button id="signupMode" class="ghost-btn" type="button">Sign up</button>
       </div>
       <div class="signin-only">
         <div class="field">
@@ -1135,6 +1209,10 @@
           <input id="signupEmail" autocomplete="email" placeholder="Student email address" type="email" />
         </div>
         <div class="field">
+          <label for="signupGender">Avatar type</label>
+          <select id="signupGender"><option value="">Initials</option><option value="female">Female avatar</option><option value="male">Male avatar</option></select>
+        </div>
+        <div class="field">
           <label for="signupPassword">Student password</label>
           <input id="signupPassword" autocomplete="new-password" placeholder="Student login password" type="password" />
         </div>
@@ -1160,8 +1238,16 @@
           <input id="teacherSignupEmail" autocomplete="email" placeholder="Teacher email address" type="email" />
         </div>
         <div class="field">
+          <label for="teacherSignupGender">Avatar type</label>
+          <select id="teacherSignupGender"><option value="">Initials</option><option value="female">Female avatar</option><option value="male">Male avatar</option></select>
+        </div>
+        <div class="field">
           <label for="teacherSignupPassword">Teacher password</label>
           <input id="teacherSignupPassword" autocomplete="new-password" placeholder="Teacher login password" type="password" />
+        </div>
+        <div class="field">
+          <label for="teacherSignupPhoto">Profile picture</label>
+          <input id="teacherSignupPhoto" type="file" accept="image/*" />
         </div>
         <button id="teacherSignupBtn" class="ghost-btn" type="button">Register teacher</button>
       </div>
@@ -1181,8 +1267,16 @@
           <input id="adminSignupEmail" autocomplete="email" placeholder="Admin email address" type="email" />
         </div>
         <div class="field">
+          <label for="adminSignupGender">Avatar type</label>
+          <select id="adminSignupGender"><option value="">Initials</option><option value="female">Female avatar</option><option value="male">Male avatar</option></select>
+        </div>
+        <div class="field">
           <label for="adminSignupPassword">Admin password</label>
           <input id="adminSignupPassword" autocomplete="new-password" placeholder="Admin login password" type="password" />
+        </div>
+        <div class="field">
+          <label for="adminSignupPhoto">Profile picture</label>
+          <input id="adminSignupPhoto" type="file" accept="image/*" />
         </div>
         <button id="adminSignupBtn" class="ghost-btn" type="button">Register admin</button>
       </div>
@@ -1464,12 +1558,33 @@
       return value.trim().toLowerCase();
     }
 
+    function roleLabel() {
+      return role === "admin" ? "Admin" : role === "teacher" ? "Teacher" : "Student";
+    }
+
     function usernameExists(username) {
       return store.accounts.some((account) => account.username === normalizeUsername(username));
     }
 
     function emailExists(email) {
       return store.accounts.some((account) => account.email && account.email === normalizeEmail(email));
+    }
+
+    function nextRoleId(nextRole) {
+      const prefix = nextRole === "admin" ? "ADM" : nextRole === "teacher" ? "TCH" : "STU";
+      const ids = store.accounts
+        .filter((account) => account.role === nextRole)
+        .map((account) => account.accountId || account.studentId)
+        .filter(Boolean);
+      const maxNumber = ids.reduce((max, id) => {
+        const number = Number(String(id).split("-").pop());
+        return Number.isFinite(number) ? Math.max(max, number) : max;
+      }, 0);
+      return `GM-${prefix}-${String(maxNumber + 1).padStart(4, "0")}`;
+    }
+
+    function accountIdExists(accountId) {
+      return store.accounts.some((account) => account.accountId === accountId || account.studentId === accountId);
     }
 
     function addAccount(account) {
@@ -1485,6 +1600,10 @@
         window.alert("That email is already registered. Please sign in or use another email.");
         return false;
       }
+      if (account.accountId && accountIdExists(account.accountId)) {
+        window.alert("That account ID already exists. Please try again.");
+        return false;
+      }
       const accounts = store.accounts;
       accounts.push({ ...account, username: normalizeUsername(account.username), email: normalizeEmail(account.email), createdAt: new Date().toISOString().slice(0, 10) });
       store.accounts = accounts;
@@ -1492,72 +1611,80 @@
     }
 
     function nextStudentId() {
-      const accounts = store.accounts.filter((account) => account.role === "student" && account.studentId);
-      const students = store.students.filter((student) => student.studentId);
-      const allIds = [...accounts.map((account) => account.studentId), ...students.map((student) => student.studentId)];
-      const maxNumber = allIds.reduce((max, id) => {
-        const number = Number(String(id).split("-").pop());
-        return Number.isFinite(number) ? Math.max(max, number) : max;
-      }, 0);
-      return `GM-2026-${String(maxNumber + 1).padStart(4, "0")}`;
+      return nextRoleId("student");
+    }
+
+    function ensureCurrentAccountId() {
+      if (!currentUser) return "";
+      const existingId = currentUser.accountId || currentUser.studentId;
+      if (existingId) return existingId;
+      const accountId = currentUser.role === "student" ? nextStudentId() : nextRoleId(currentUser.role);
+      store.accounts = store.accounts.map((account) => account.role === currentUser.role && account.username === currentUser.username ? { ...account, accountId, studentId: account.role === "student" ? accountId : account.studentId } : account);
+      if (currentUser.role === "student") {
+        store.students = store.students.map((student) => student.name === currentUser.name && student.program === currentUser.program && student.className === currentUser.className ? { ...student, studentId: accountId } : student);
+        currentUser.studentId = accountId;
+      }
+      currentUser.accountId = accountId;
+      return accountId;
     }
 
     function ensureCurrentStudentId() {
-      if (!currentUser || currentUser.role !== "student") return "";
-      if (currentUser.studentId) return currentUser.studentId;
-      const studentId = nextStudentId();
-      store.accounts = store.accounts.map((account) => account.role === "student" && account.username === currentUser.username ? { ...account, studentId } : account);
-      store.students = store.students.map((student) => student.name === currentUser.name && student.program === currentUser.program && student.className === currentUser.className ? { ...student, studentId } : student);
-      currentUser.studentId = studentId;
-      return studentId;
+      return ensureCurrentAccountId();
     }
 
     async function registerStudent() {
       const name = $("#signupName").value.trim();
       const username = normalizeUsername($("#signupUsername").value);
       const email = normalizeEmail($("#signupEmail").value);
+      const gender = $("#signupGender").value;
       const password = $("#signupPassword").value.trim();
       const program = $("#programInput").value;
       const className = $("#classInput").value;
       const studentId = nextStudentId();
-      if (!addAccount({ role: "student", name, username, email, password, program, className, studentId })) return;
+      const photo = await readUploadedMaterial($("#signupPhoto").files[0]);
+      if (!addAccount({ role: "student", name, username, email, password, gender, photo: photo ? photo.dataUrl : "", accountId: studentId, program, className, studentId })) return;
       const registered = store.students;
       const exists = registered.some((student) => student.name.toLowerCase() === name.toLowerCase() && student.program === program && student.className === className);
-      const photo = await readUploadedMaterial($("#signupPhoto").files[0]);
       if (!exists) {
-        registered.push({ name, studentId, program, className, score: 0, homework: 0, exercises: 0, exams: 0, photo: photo ? photo.dataUrl : "" });
+        registered.push({ name, studentId, gender, program, className, score: 0, homework: 0, exercises: 0, exams: 0, photo: photo ? photo.dataUrl : "" });
         store.students = registered;
       } else if (photo) {
-        store.students = registered.map((student) => student.name.toLowerCase() === name.toLowerCase() && student.program === program && student.className === className ? { ...student, studentId: student.studentId || studentId, photo: photo.dataUrl } : student);
+        store.students = registered.map((student) => student.name.toLowerCase() === name.toLowerCase() && student.program === program && student.className === className ? { ...student, studentId: student.studentId || studentId, gender, photo: photo.dataUrl } : student);
       }
       $("#loginUsername").value = username;
       $("#loginPassword").value = password;
       $("#signupName").value = "";
       $("#signupUsername").value = "";
       $("#signupEmail").value = "";
+      $("#signupGender").value = "";
       $("#signupPassword").value = "";
       $("#signupPhoto").value = "";
       setAuthMode("signin");
       window.alert(`Student account created. Student ID: ${studentId}. You can now sign in.`);
     }
 
-    function registerTeacher() {
+    async function registerTeacher() {
       const name = $("#teacherSignupName").value.trim();
       const username = normalizeUsername($("#teacherSignupUsername").value);
       const email = normalizeEmail($("#teacherSignupEmail").value);
+      const gender = $("#teacherSignupGender").value;
       const password = $("#teacherSignupPassword").value.trim();
-      if (!addAccount({ role: "teacher", name, username, email, password, program: "All Programs", className: "Teacher" })) return;
+      const accountId = nextRoleId("teacher");
+      const photo = await readUploadedMaterial($("#teacherSignupPhoto").files[0]);
+      if (!addAccount({ role: "teacher", name, username, email, password, gender, photo: photo ? photo.dataUrl : "", accountId, program: "All Programs", className: "Teacher" })) return;
       $("#loginUsername").value = username;
       $("#loginPassword").value = password;
       $("#teacherSignupName").value = "";
       $("#teacherSignupUsername").value = "";
       $("#teacherSignupEmail").value = "";
+      $("#teacherSignupGender").value = "";
       $("#teacherSignupPassword").value = "";
+      $("#teacherSignupPhoto").value = "";
       setAuthMode("signin");
-      window.alert("Teacher account created. You can now sign in.");
+      window.alert(`Teacher account created. ID: ${accountId}. You can now sign in.`);
     }
 
-    function registerAdmin() {
+    async function registerAdmin() {
       if (store.accounts.some((account) => account.role === "admin")) {
         window.alert("An admin account already exists. Sign in as admin to manage accounts.");
         return;
@@ -1565,16 +1692,21 @@
       const name = $("#adminSignupName").value.trim();
       const username = normalizeUsername($("#adminSignupUsername").value);
       const email = normalizeEmail($("#adminSignupEmail").value);
+      const gender = $("#adminSignupGender").value;
       const password = $("#adminSignupPassword").value.trim();
-      if (!addAccount({ role: "admin", name, username, email, password, program: "All Programs", className: "Admin" })) return;
+      const accountId = nextRoleId("admin");
+      const photo = await readUploadedMaterial($("#adminSignupPhoto").files[0]);
+      if (!addAccount({ role: "admin", name, username, email, password, gender, photo: photo ? photo.dataUrl : "", accountId, program: "All Programs", className: "Admin" })) return;
       $("#loginUsername").value = username;
       $("#loginPassword").value = password;
       $("#adminSignupName").value = "";
       $("#adminSignupUsername").value = "";
       $("#adminSignupEmail").value = "";
+      $("#adminSignupGender").value = "";
       $("#adminSignupPassword").value = "";
+      $("#adminSignupPhoto").value = "";
       setAuthMode("signin");
-      window.alert("Admin account created. You can now sign in.");
+      window.alert(`Admin account created. ID: ${accountId}. You can now sign in.`);
     }
 
     function setAuthMode(nextMode) {
@@ -1583,10 +1715,10 @@
       $("#signupMode").classList.toggle("active", authMode === "signup");
       $$(".signin-only").forEach((item) => item.classList.toggle("hidden", authMode !== "signin"));
       $$(".signup-only").forEach((item) => item.classList.toggle("hidden", authMode !== "signup"));
-      $("#authTitle").textContent = authMode === "signin" ? "Sign in" : "Sign up";
+      $("#authTitle").textContent = `${roleLabel()} account`;
       $("#authSubtitle").textContent = authMode === "signin"
-        ? "登录账号 · If you already created an account, sign in with your username and password."
-        : "创建账号 · If this is your first time, choose your role and create an account.";
+        ? "Sign in with your username or email."
+        : "Create your account. Username, email, and ID cannot be reused.";
       updateAuthVisibility();
     }
 
@@ -1602,6 +1734,7 @@
       $("#teacherRole").classList.toggle("active", role === "teacher");
       $("#adminRole").classList.toggle("active", role === "admin");
       updateAuthVisibility();
+      setAuthMode(authMode);
       $("#loginUsername").value = "";
       $("#loginPassword").value = "";
     }
@@ -1615,11 +1748,11 @@
         return;
       }
       currentUser = { ...account };
-      if (role === "student") ensureCurrentStudentId();
+      const accountId = ensureCurrentAccountId();
       $("#loginView").style.display = "none";
       $("#appView").style.display = "block";
       $("#userName").textContent = currentUser.name;
-      $("#userMeta").textContent = role === "admin" ? "Admin oversight" : role === "teacher" ? "Teacher dashboard" : `${currentUser.studentId} · ${currentUser.program} · ${currentUser.className}`;
+      $("#userMeta").textContent = role === "admin" ? `${accountId} · Admin` : role === "teacher" ? `${accountId} · Teacher` : `${accountId} · ${currentUser.program} · ${currentUser.className}`;
       updateUserAvatar();
       $("#studentNav").classList.toggle("hidden", role !== "student");
       $("#teacherNav").classList.toggle("hidden", role !== "teacher");
@@ -1631,10 +1764,14 @@
     function updateUserAvatar() {
       const avatar = $("#userAvatar");
       const student = role === "student" ? currentStudentRecord() : null;
-      if (student && student.photo) {
-        avatar.innerHTML = `<img src="${student.photo}" alt="${student.name}">`;
+      const photo = currentUser.photo || (student && student.photo);
+      const gender = currentUser.gender || (student && student.gender) || "";
+      avatar.classList.toggle("female", gender === "female");
+      avatar.classList.toggle("male", gender === "male");
+      if (photo) {
+        avatar.innerHTML = `<img src="${photo}" alt="${currentUser.name}">`;
       } else {
-        avatar.textContent = initials(currentUser.name);
+        avatar.textContent = gender === "female" ? "F" : gender === "male" ? "M" : initials(currentUser.name);
       }
     }
 
@@ -1651,6 +1788,8 @@
       const file = $("#studentProfilePhoto").files[0];
       if (!file || !currentStudentRecord()) return;
       const photo = await readUploadedMaterial(file);
+      currentUser.photo = photo.dataUrl;
+      store.accounts = store.accounts.map((account) => account.role === "student" && account.username === currentUser.username ? { ...account, photo: photo.dataUrl } : account);
       store.students = store.students.map((student) => student.name === currentUser.name && student.program === currentUser.program && student.className === currentUser.className ? { ...student, photo: photo.dataUrl } : student);
       updateUserAvatar();
       render();
@@ -2774,7 +2913,7 @@
                   <td>${account.role}</td>
                   <td>${account.username}</td>
                   <td>${account.email || "Not added yet"}</td>
-                  <td>${account.studentId ? `${account.studentId}<br>` : ""}${account.program || "All Programs"} · ${account.className || "-"}</td>
+                  <td>${account.accountId || account.studentId || "Assigns at next login"}<br>${account.program || "All Programs"} · ${account.className || "-"}</td>
                   <td>${account.createdAt || "-"}</td>
                   <td>${account.role === "admin" ? "Protected" : `<button class="danger-btn" type="button" onclick="deleteAccount(${index})">Delete account</button>`}</td>
                 </tr>
