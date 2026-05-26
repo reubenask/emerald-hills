@@ -1089,31 +1089,37 @@
     </section>
 
     <section class="login-panel">
-      <h2 class="panel-title">Sign in</h2>
-      <p class="panel-subtitle">登录账号 · Register students first, then students can sign in with their class record.</p>
+      <h2 id="authTitle" class="panel-title">Sign in</h2>
+      <p id="authSubtitle" class="panel-subtitle">登录账号 · If you already created an account, sign in with your username and password.</p>
       <div class="segmented" aria-label="Role">
         <button id="studentRole" class="active" type="button">Student</button>
         <button id="teacherRole" type="button">Teacher</button>
         <button id="adminRole" type="button">Admin</button>
       </div>
-      <div class="field">
-        <label for="loginUsername">Username</label>
-        <input id="loginUsername" autocomplete="username" placeholder="Account username" />
+      <div class="segmented" aria-label="Account action">
+        <button id="signinMode" class="active" type="button">Sign in</button>
+        <button id="signupMode" type="button">Sign up</button>
       </div>
-      <div class="field">
-        <label for="loginPassword">Password</label>
-        <input id="loginPassword" autocomplete="current-password" placeholder="Account password" type="password" />
+      <div class="signin-only">
+        <div class="field">
+          <label for="loginUsername">Username</label>
+          <input id="loginUsername" autocomplete="username" placeholder="Account username" />
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" autocomplete="current-password" placeholder="Account password" type="password" />
+        </div>
+        <button id="loginBtn" class="primary-btn" type="button">Enter platform</button>
       </div>
-      <div class="field student-only">
+      <div class="field student-only signup-only hidden">
         <label for="programInput">Program</label>
         <select id="programInput"></select>
       </div>
-      <div class="field student-only">
+      <div class="field student-only signup-only hidden">
         <label for="classInput">Class</label>
         <select id="classInput"></select>
       </div>
-      <button id="loginBtn" class="primary-btn" type="button">Enter platform</button>
-      <div class="signup-box student-only">
+      <div class="signup-box student-only signup-only hidden">
         <h3>Student sign up</h3>
         <p>Choose your program and class first. This creates a private student login tied to that class.</p>
         <div class="field">
@@ -1134,7 +1140,7 @@
         </div>
         <button id="signupBtn" class="ghost-btn" type="button">Register student</button>
       </div>
-      <div class="signup-box teacher-signup hidden">
+      <div class="signup-box teacher-signup signup-only hidden">
         <h3>Teacher sign up</h3>
         <p>Create a teacher account. Teachers can create and review work, but cannot delete accounts.</p>
         <div class="field">
@@ -1151,7 +1157,7 @@
         </div>
         <button id="teacherSignupBtn" class="ghost-btn" type="button">Register teacher</button>
       </div>
-      <div class="signup-box admin-signup hidden">
+      <div class="signup-box admin-signup signup-only hidden">
         <h3>Admin sign up</h3>
         <p>The first admin account can be created here. After that, use the existing admin account to oversee users.</p>
         <div class="field">
@@ -1331,6 +1337,7 @@
     ];
 
     let role = "student";
+    let authMode = "signin";
     let currentUser = null;
     let activeAssignmentId = null;
     let editingAssignmentId = null;
@@ -1504,6 +1511,8 @@
       $("#signupUsername").value = "";
       $("#signupPassword").value = "";
       $("#signupPhoto").value = "";
+      setAuthMode("signin");
+      window.alert(`Student account created. Student ID: ${studentId}. You can now sign in.`);
     }
 
     function registerTeacher() {
@@ -1516,6 +1525,8 @@
       $("#teacherSignupName").value = "";
       $("#teacherSignupUsername").value = "";
       $("#teacherSignupPassword").value = "";
+      setAuthMode("signin");
+      window.alert("Teacher account created. You can now sign in.");
     }
 
     function registerAdmin() {
@@ -1532,6 +1543,27 @@
       $("#adminSignupName").value = "";
       $("#adminSignupUsername").value = "";
       $("#adminSignupPassword").value = "";
+      setAuthMode("signin");
+      window.alert("Admin account created. You can now sign in.");
+    }
+
+    function setAuthMode(nextMode) {
+      authMode = nextMode;
+      $("#signinMode").classList.toggle("active", authMode === "signin");
+      $("#signupMode").classList.toggle("active", authMode === "signup");
+      $$(".signin-only").forEach((item) => item.classList.toggle("hidden", authMode !== "signin"));
+      $$(".signup-only").forEach((item) => item.classList.toggle("hidden", authMode !== "signup"));
+      $("#authTitle").textContent = authMode === "signin" ? "Sign in" : "Sign up";
+      $("#authSubtitle").textContent = authMode === "signin"
+        ? "登录账号 · If you already created an account, sign in with your username and password."
+        : "创建账号 · If this is your first time, choose your role and create an account.";
+      updateAuthVisibility();
+    }
+
+    function updateAuthVisibility() {
+      $$(".student-only").forEach((item) => item.classList.toggle("hidden", role !== "student" || (item.classList.contains("signup-only") && authMode !== "signup")));
+      $$(".teacher-signup").forEach((item) => item.classList.toggle("hidden", role !== "teacher" || authMode !== "signup"));
+      $$(".admin-signup").forEach((item) => item.classList.toggle("hidden", role !== "admin" || authMode !== "signup"));
     }
 
     function setRole(nextRole) {
@@ -1539,9 +1571,7 @@
       $("#studentRole").classList.toggle("active", role === "student");
       $("#teacherRole").classList.toggle("active", role === "teacher");
       $("#adminRole").classList.toggle("active", role === "admin");
-      $$(".student-only").forEach((item) => item.classList.toggle("hidden", role !== "student"));
-      $$(".teacher-signup").forEach((item) => item.classList.toggle("hidden", role !== "teacher"));
-      $$(".admin-signup").forEach((item) => item.classList.toggle("hidden", role !== "admin"));
+      updateAuthVisibility();
       $("#loginUsername").value = "";
       $("#loginPassword").value = "";
     }
@@ -2901,6 +2931,8 @@
     $("#studentRole").addEventListener("click", () => setRole("student"));
     $("#teacherRole").addEventListener("click", () => setRole("teacher"));
     $("#adminRole").addEventListener("click", () => setRole("admin"));
+    $("#signinMode").addEventListener("click", () => setAuthMode("signin"));
+    $("#signupMode").addEventListener("click", () => setAuthMode("signup"));
     $("#programInput").addEventListener("change", fillClassOptions);
     $("#signupBtn").addEventListener("click", registerStudent);
     $("#teacherSignupBtn").addEventListener("click", registerTeacher);
@@ -2911,6 +2943,7 @@
 
     fillProgramOptions();
     setRole("student");
+    setAuthMode("signin");
   </script>
 </body>
 </html>
