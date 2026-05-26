@@ -1209,8 +1209,8 @@
           <input id="signupEmail" autocomplete="email" placeholder="Student email address" type="email" />
         </div>
         <div class="field">
-          <label for="signupGender">Avatar type</label>
-          <select id="signupGender"><option value="">Initials</option><option value="female">Female avatar</option><option value="male">Male avatar</option></select>
+          <label for="signupGender">Gender</label>
+          <select id="signupGender"><option value="">Select gender</option><option value="female">Female</option><option value="male">Male</option></select>
         </div>
         <div class="field">
           <label for="signupPassword">Student password</label>
@@ -1238,8 +1238,8 @@
           <input id="teacherSignupEmail" autocomplete="email" placeholder="Teacher email address" type="email" />
         </div>
         <div class="field">
-          <label for="teacherSignupGender">Avatar type</label>
-          <select id="teacherSignupGender"><option value="">Initials</option><option value="female">Female avatar</option><option value="male">Male avatar</option></select>
+          <label for="teacherSignupGender">Gender</label>
+          <select id="teacherSignupGender"><option value="">Select gender</option><option value="female">Female</option><option value="male">Male</option></select>
         </div>
         <div class="field">
           <label for="teacherSignupPassword">Teacher password</label>
@@ -1267,8 +1267,8 @@
           <input id="adminSignupEmail" autocomplete="email" placeholder="Admin email address" type="email" />
         </div>
         <div class="field">
-          <label for="adminSignupGender">Avatar type</label>
-          <select id="adminSignupGender"><option value="">Initials</option><option value="female">Female avatar</option><option value="male">Male avatar</option></select>
+          <label for="adminSignupGender">Gender</label>
+          <select id="adminSignupGender"><option value="">Select gender</option><option value="female">Female</option><option value="male">Male</option></select>
         </div>
         <div class="field">
           <label for="adminSignupPassword">Admin password</label>
@@ -1588,8 +1588,8 @@
     }
 
     function addAccount(account) {
-      if (!account.name || !account.username || !account.email || !account.password) {
-        window.alert("Please enter name, username, email, and password.");
+      if (!account.name || !account.username || !account.email || !account.gender || !account.password) {
+        window.alert("Please enter name, username, email, gender, and password.");
         return false;
       }
       if (usernameExists(account.username)) {
