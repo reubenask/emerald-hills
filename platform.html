@@ -1102,8 +1102,8 @@
       </div>
       <div class="signin-only">
         <div class="field">
-          <label for="loginUsername">Username</label>
-          <input id="loginUsername" autocomplete="username" placeholder="Account username" />
+          <label for="loginUsername">Username or email</label>
+          <input id="loginUsername" autocomplete="username" placeholder="Account username or email" />
         </div>
         <div class="field">
           <label for="loginPassword">Password</label>
@@ -1131,6 +1131,10 @@
           <input id="signupUsername" autocomplete="new-password" placeholder="Student login username" />
         </div>
         <div class="field">
+          <label for="signupEmail">Student email</label>
+          <input id="signupEmail" autocomplete="email" placeholder="Student email address" type="email" />
+        </div>
+        <div class="field">
           <label for="signupPassword">Student password</label>
           <input id="signupPassword" autocomplete="new-password" placeholder="Student login password" type="password" />
         </div>
@@ -1152,6 +1156,10 @@
           <input id="teacherSignupUsername" autocomplete="new-password" placeholder="Teacher login username" />
         </div>
         <div class="field">
+          <label for="teacherSignupEmail">Teacher email</label>
+          <input id="teacherSignupEmail" autocomplete="email" placeholder="Teacher email address" type="email" />
+        </div>
+        <div class="field">
           <label for="teacherSignupPassword">Teacher password</label>
           <input id="teacherSignupPassword" autocomplete="new-password" placeholder="Teacher login password" type="password" />
         </div>
@@ -1167,6 +1175,10 @@
         <div class="field">
           <label for="adminSignupUsername">Admin username</label>
           <input id="adminSignupUsername" autocomplete="new-password" placeholder="Admin login username" />
+        </div>
+        <div class="field">
+          <label for="adminSignupEmail">Admin email</label>
+          <input id="adminSignupEmail" autocomplete="email" placeholder="Admin email address" type="email" />
         </div>
         <div class="field">
           <label for="adminSignupPassword">Admin password</label>
@@ -1448,21 +1460,33 @@
       return value.trim().toLowerCase();
     }
 
-    function accountExists(username) {
+    function normalizeEmail(value) {
+      return value.trim().toLowerCase();
+    }
+
+    function usernameExists(username) {
       return store.accounts.some((account) => account.username === normalizeUsername(username));
     }
 
+    function emailExists(email) {
+      return store.accounts.some((account) => account.email && account.email === normalizeEmail(email));
+    }
+
     function addAccount(account) {
-      if (!account.name || !account.username || !account.password) {
-        window.alert("Please enter name, username, and password.");
+      if (!account.name || !account.username || !account.email || !account.password) {
+        window.alert("Please enter name, username, email, and password.");
         return false;
       }
-      if (accountExists(account.username)) {
+      if (usernameExists(account.username)) {
         window.alert("That username is already registered. Please choose another username.");
         return false;
       }
+      if (emailExists(account.email)) {
+        window.alert("That email is already registered. Please sign in or use another email.");
+        return false;
+      }
       const accounts = store.accounts;
-      accounts.push({ ...account, username: normalizeUsername(account.username), createdAt: new Date().toISOString().slice(0, 10) });
+      accounts.push({ ...account, username: normalizeUsername(account.username), email: normalizeEmail(account.email), createdAt: new Date().toISOString().slice(0, 10) });
       store.accounts = accounts;
       return true;
     }
@@ -1491,11 +1515,12 @@
     async function registerStudent() {
       const name = $("#signupName").value.trim();
       const username = normalizeUsername($("#signupUsername").value);
+      const email = normalizeEmail($("#signupEmail").value);
       const password = $("#signupPassword").value.trim();
       const program = $("#programInput").value;
       const className = $("#classInput").value;
       const studentId = nextStudentId();
-      if (!addAccount({ role: "student", name, username, password, program, className, studentId })) return;
+      if (!addAccount({ role: "student", name, username, email, password, program, className, studentId })) return;
       const registered = store.students;
       const exists = registered.some((student) => student.name.toLowerCase() === name.toLowerCase() && student.program === program && student.className === className);
       const photo = await readUploadedMaterial($("#signupPhoto").files[0]);
@@ -1509,6 +1534,7 @@
       $("#loginPassword").value = password;
       $("#signupName").value = "";
       $("#signupUsername").value = "";
+      $("#signupEmail").value = "";
       $("#signupPassword").value = "";
       $("#signupPhoto").value = "";
       setAuthMode("signin");
@@ -1518,12 +1544,14 @@
     function registerTeacher() {
       const name = $("#teacherSignupName").value.trim();
       const username = normalizeUsername($("#teacherSignupUsername").value);
+      const email = normalizeEmail($("#teacherSignupEmail").value);
       const password = $("#teacherSignupPassword").value.trim();
-      if (!addAccount({ role: "teacher", name, username, password, program: "All Programs", className: "Teacher" })) return;
+      if (!addAccount({ role: "teacher", name, username, email, password, program: "All Programs", className: "Teacher" })) return;
       $("#loginUsername").value = username;
       $("#loginPassword").value = password;
       $("#teacherSignupName").value = "";
       $("#teacherSignupUsername").value = "";
+      $("#teacherSignupEmail").value = "";
       $("#teacherSignupPassword").value = "";
       setAuthMode("signin");
       window.alert("Teacher account created. You can now sign in.");
@@ -1536,12 +1564,14 @@
       }
       const name = $("#adminSignupName").value.trim();
       const username = normalizeUsername($("#adminSignupUsername").value);
+      const email = normalizeEmail($("#adminSignupEmail").value);
       const password = $("#adminSignupPassword").value.trim();
-      if (!addAccount({ role: "admin", name, username, password, program: "All Programs", className: "Admin" })) return;
+      if (!addAccount({ role: "admin", name, username, email, password, program: "All Programs", className: "Admin" })) return;
       $("#loginUsername").value = username;
       $("#loginPassword").value = password;
       $("#adminSignupName").value = "";
       $("#adminSignupUsername").value = "";
+      $("#adminSignupEmail").value = "";
       $("#adminSignupPassword").value = "";
       setAuthMode("signin");
       window.alert("Admin account created. You can now sign in.");
@@ -1577,11 +1607,11 @@
     }
 
     function login() {
-      const username = normalizeUsername($("#loginUsername").value);
+      const loginId = normalizeUsername($("#loginUsername").value);
       const password = $("#loginPassword").value.trim();
-      const account = store.accounts.find((item) => item.role === role && item.username === username && item.password === password);
+      const account = store.accounts.find((item) => item.role === role && (item.username === loginId || item.email === loginId) && item.password === password);
       if (!account) {
-        window.alert("No matching account found for this role, username, and password.");
+        window.alert("No matching account found for this role, username/email, and password.");
         return;
       }
       currentUser = { ...account };
@@ -2736,18 +2766,19 @@
         ${pageHeader("Account Management", "账号管理", "Only admins can remove student or teacher accounts.")}
         <div class="table-card">
           <table>
-            <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>ID / Class</th><th>Created</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Email</th><th>ID / Class</th><th>Created</th><th>Actions</th></tr></thead>
             <tbody>
               ${store.accounts.map((account, index) => `
                 <tr>
                   <td><strong>${account.name}</strong></td>
                   <td>${account.role}</td>
                   <td>${account.username}</td>
+                  <td>${account.email || "Not added yet"}</td>
                   <td>${account.studentId ? `${account.studentId}<br>` : ""}${account.program || "All Programs"} · ${account.className || "-"}</td>
                   <td>${account.createdAt || "-"}</td>
                   <td>${account.role === "admin" ? "Protected" : `<button class="danger-btn" type="button" onclick="deleteAccount(${index})">Delete account</button>`}</td>
                 </tr>
-              `).join("") || `<tr><td colspan="6">No accounts registered yet.</td></tr>`}
+              `).join("") || `<tr><td colspan="7">No accounts registered yet.</td></tr>`}
             </tbody>
           </table>
         </div>
