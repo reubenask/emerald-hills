@@ -61,22 +61,29 @@
     .login-view {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
+      grid-template-columns: 0.86fr 1.14fr;
       background:
-        radial-gradient(circle at 15% 50%, rgba(26,122,94,0.28), transparent 34%),
-        linear-gradient(rgba(93,202,165,0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(93,202,165,0.035) 1px, transparent 1px),
-        linear-gradient(135deg, #0b1a14 0%, #112318 58%, #163a2d 100%);
-      background-size: auto, 60px 60px, 60px 60px, auto;
+        radial-gradient(circle at 22% 22%, rgba(31,122,92,0.28), transparent 34%),
+        radial-gradient(circle at 78% 70%, rgba(31,122,92,0.16), transparent 30%),
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(135deg, #071D16 0%, #08231A 54%, #0d3024 100%);
+      background-size: auto, auto, 76px 76px, 76px 76px, auto;
     }
 
     .login-hero {
       color: white;
-      padding: 72px;
+      padding: 52px 58px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       min-height: 100vh;
+    }
+
+    .auth-stage {
+      display: grid;
+      place-items: center;
+      padding: 46px 64px 44px 30px;
     }
 
     .brand-mark {
@@ -99,14 +106,43 @@
       background: rgba(93, 202, 165, 0.06);
     }
 
+    .login-hero .brand-mark span {
+      color: #d7b76f;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      border-color: rgba(93, 202, 165, 0.54);
+      box-shadow: inset 0 0 18px rgba(93, 202, 165, 0.08);
+    }
+
+    .brand-copy {
+      display: grid;
+      gap: 3px;
+      line-height: 1.05;
+    }
+
+    .brand-copy strong {
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 24px;
+      color: #fffdf7;
+      font-weight: 700;
+    }
+
+    .brand-copy small {
+      color: #caa463;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
     .login-copy h1 {
       font-family: 'Playfair Display', 'Noto Serif SC', serif;
-      font-size: clamp(42px, 6vw, 76px);
-      line-height: 1.06;
-      margin: 0 0 22px;
+      font-size: clamp(44px, 5vw, 66px);
+      line-height: 1.1;
+      margin: 0;
       letter-spacing: 0;
-      max-width: 780px;
+      max-width: 560px;
       color: var(--white);
+      text-shadow: 0 14px 42px rgba(0,0,0,0.2);
     }
 
     .login-copy h1 em {
@@ -114,34 +150,79 @@
       font-style: italic;
     }
 
-    .login-copy p {
-      font-size: 20px;
+    .gold-divider {
+      width: 58px;
+      height: 1px;
+      background: #B9925A;
+      margin: 32px 0 30px;
+    }
+
+    .hero-support {
+      color: rgba(255,253,247,0.74);
+      font-size: 19px;
       line-height: 1.55;
-      max-width: 650px;
+      max-width: 360px;
       margin: 0;
-      color: var(--muted);
+    }
+
+    .mountain-line {
+      width: min(420px, 82%);
+      height: 170px;
+      opacity: 0.5;
+      align-self: center;
+      margin-bottom: 28px;
+      background:
+        linear-gradient(145deg, transparent 48%, rgba(185,146,90,0.62) 49%, transparent 50%) 54% 20% / 90px 130px no-repeat;
+      position: relative;
+    }
+
+    .mountain-line::before,
+    .mountain-line::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 120px;
+      border-bottom: 1px solid rgba(93,202,165,0.2);
+      clip-path: polygon(0 84%, 18% 55%, 33% 70%, 50% 24%, 68% 78%, 82% 62%, 100% 86%, 100% 100%, 0 100%);
+      background: rgba(31,122,92,0.08);
+    }
+
+    .mountain-line::after {
+      transform: translateY(24px) scaleX(1.12);
+      opacity: 0.55;
     }
 
     .login-panel {
-      background: rgba(245, 249, 246, 0.95);
-      margin: 28px;
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      padding: 34px;
+      width: min(760px, 100%);
+      background:
+        radial-gradient(circle at 20% 8%, rgba(255,255,255,0.82), transparent 36%),
+        #FFFDF7;
+      border: 1px solid rgba(255,255,255,0.72);
+      border-radius: 24px;
+      box-shadow: 0 34px 90px rgba(0,0,0,0.34);
+      padding: 48px 62px 38px;
       align-self: center;
-      color: #0b1a14;
+      color: #10231C;
+    }
+
+    .auth-stage > div {
+      width: min(760px, 100%);
     }
 
     .panel-title {
-      margin: 0 0 8px;
-      font-size: 28px;
+      margin: 10px 0 8px;
+      font-size: 38px;
       font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      text-align: center;
+      color: #10231C;
     }
 
     .panel-subtitle {
-      margin: 0 0 24px;
-      color: var(--muted);
+      margin: 0 0 34px;
+      color: #5F6B64;
       line-height: 1.5;
+      text-align: center;
+      font-size: 16px;
     }
 
     .login-panel .panel-subtitle,
@@ -185,6 +266,22 @@
       color: #51655d;
     }
 
+    .card-mountain {
+      width: 86px;
+      height: 42px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .card-mountain::before {
+      content: "";
+      position: absolute;
+      inset: 2px 8px;
+      background: #1F7A5C;
+      clip-path: polygon(0 82%, 24% 52%, 38% 66%, 55% 16%, 70% 58%, 82% 44%, 100% 82%, 92% 82%, 81% 62%, 70% 75%, 55% 33%, 40% 82%, 31% 68%, 10% 82%);
+      opacity: 0.95;
+    }
+
     .field {
       display: grid;
       gap: 7px;
@@ -199,12 +296,46 @@
 
     .field input, .field select, .field textarea {
       width: 100%;
-      min-height: 44px;
-      border: 1px solid rgba(26, 122, 94, 0.18);
-      border-radius: 6px;
-      padding: 10px 12px;
-      background: rgba(245, 249, 246, 0.96);
-      color: #0b1a14;
+      min-height: 54px;
+      border: 1px solid rgba(31,122,92,0.18);
+      border-radius: 9px;
+      padding: 12px 16px;
+      background: rgba(255,253,247,0.88);
+      color: #10231C;
+      font-size: 16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .input-shell {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-shell input {
+      padding-left: 54px;
+      padding-right: 52px;
+    }
+
+    .input-icon,
+    .eye-btn {
+      position: absolute;
+      color: #7c877f;
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+    }
+
+    .input-icon {
+      left: 8px;
+    }
+
+    .eye-btn {
+      right: 8px;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
     }
 
     .field textarea {
@@ -215,47 +346,74 @@
     .role-picker {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 32px;
+      margin: 4px 0 30px;
     }
 
     .role-card {
-      min-height: 94px;
-      border: 1px solid rgba(26, 122, 94, 0.18);
-      border-radius: 8px;
-      background: #edf5f1;
-      color: #51655d;
+      min-height: 184px;
+      border: 0;
+      background: transparent;
+      color: #806735;
       display: grid;
       place-items: center;
+      align-content: start;
       gap: 8px;
       font-weight: 900;
+      padding: 0;
     }
 
     .role-card.active {
-      background: white;
       color: var(--green);
-      border-color: rgba(26, 122, 94, 0.36);
-      box-shadow: 0 8px 22px rgba(29, 41, 53, 0.1);
+      background: transparent;
+      box-shadow: none;
     }
 
     .role-icon {
-      width: 42px;
-      height: 42px;
+      width: 138px;
+      height: 138px;
       display: grid;
       place-items: center;
       border-radius: 50%;
-      border: 1px solid rgba(26, 122, 94, 0.22);
-      background: rgba(93, 202, 165, 0.1);
+      border: 1px solid rgba(16,35,28,0.12);
+      background: radial-gradient(circle at 35% 28%, #fffdf7, #f1eadf);
       color: var(--green);
+      font-size: 42px;
+      box-shadow: inset 0 2px 12px rgba(255,255,255,0.7);
+    }
+
+    .role-icon svg,
+    .input-icon svg,
+    .eye-btn svg {
+      width: 1em;
+      height: 1em;
+      display: block;
+    }
+
+    .role-icon svg {
+      width: 78px;
+      height: 78px;
+    }
+
+    .role-card.active .role-icon {
+      border: 3px solid #1F7A5C;
+      box-shadow: 0 0 0 5px rgba(31,122,92,0.08), inset 0 2px 12px rgba(255,255,255,0.7);
+    }
+
+    .role-name {
+      display: block;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .role-card small {
       font-size: 13px;
-      font-weight: 1000;
+      color: #5F6B64;
+      font-weight: 500;
     }
 
     .auth-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 18px;
+      display: none;
     }
 
     .auth-actions button {
@@ -272,6 +430,92 @@
       background: transparent;
       color: #51655d;
       border: 1px solid rgba(26, 122, 94, 0.18);
+    }
+
+    .auth-divider {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      color: #B9925A;
+      margin: 10px 0 32px;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: "";
+      height: 1px;
+      background: rgba(185,146,90,0.26);
+    }
+
+    .account-heading {
+      margin: 0 0 18px;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 24px;
+      color: #10231C;
+    }
+
+    .remember-row,
+    .auth-footnote {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      color: #5F6B64;
+      font-size: 14px;
+      margin: 4px 0 24px;
+    }
+
+    .remember-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .remember-row input {
+      width: 20px;
+      height: 20px;
+      accent-color: #1F7A5C;
+    }
+
+    .text-link {
+      background: transparent;
+      border: 0;
+      color: #1F7A5C;
+      cursor: pointer;
+      font-weight: 900;
+      padding: 0;
+    }
+
+    .login-submit {
+      width: 100%;
+      min-height: 62px;
+      border-radius: 9px;
+      box-shadow: 0 14px 28px rgba(31,122,92,0.2);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 18px;
+      justify-content: space-between;
+      padding: 0 26px;
+      margin-top: 10px;
+    }
+
+    .auth-footnote {
+      justify-content: center;
+      margin: 22px 0 0;
+    }
+
+    .secure-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255,253,247,0.66);
+      font-size: 14px;
+      margin-top: 28px;
+    }
+
+    .secure-footer a {
+      color: #55d6a9;
     }
 
     .segmented {
@@ -300,11 +544,11 @@
     }
 
     .signup-box {
-      border: 1px solid rgba(26, 122, 94, 0.16);
-      border-radius: 8px;
-      padding: 14px;
-      background: #edf5f1;
-      margin-top: 18px;
+      border: 1px solid rgba(31, 122, 92, 0.14);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(31, 122, 92, 0.045);
+      margin-top: 10px;
     }
 
     .signup-box h3 {
@@ -1112,9 +1356,27 @@
         gap: 48px;
       }
 
+      .auth-stage {
+        padding: 28px 24px 42px;
+      }
+
       .login-panel {
         margin: 0;
-        border-radius: 0;
+        border-radius: 22px;
+        padding: 36px 26px 30px;
+      }
+
+      .role-picker {
+        gap: 16px;
+      }
+
+      .role-icon {
+        width: 112px;
+        height: 112px;
+      }
+
+      .mountain-line {
+        display: none;
       }
 
       .sidebar {
@@ -1140,51 +1402,117 @@
       .metric-grid, .grid, .review-form { grid-template-columns: 1fr; }
       .program-grid, .program-links { grid-template-columns: 1fr; }
       .topline { flex-direction: column; }
+      .brand-copy strong { font-size: 20px; }
+      .login-copy h1 { font-size: 44px; }
+      .role-picker { grid-template-columns: 1fr; }
+      .role-card { min-height: auto; }
+      .role-icon { width: 118px; height: 118px; }
+      .remember-row { align-items: flex-start; flex-direction: column; }
     }
   </style>
 </head>
 <body>
   <div id="loginView" class="login-view">
     <section class="login-hero">
-      <div class="brand-mark"><span>GM</span> Green Mountain TOEFL Academy</div>
+      <div class="brand-mark">
+        <span>GM</span>
+        <div class="brand-copy">
+          <strong>Green Mountain</strong>
+          <small>TOEFL Academy</small>
+        </div>
+      </div>
       <div class="login-copy">
         <div class="subhead">
           <div class="eyebrow">Assessment Platform</div>
           <div class="zh">绿山托福学习平台</div>
           <div class="en">Green Mountain TOEFL learning system</div>
         </div>
-        <h1>One calm place for <em>tests</em>, homework, and class review.</h1>
+        <h1>One calm place<br>for <em>tests</em>, homework,<br>and class review.</h1>
+        <div class="gold-divider"></div>
+        <p class="hero-support">A focused learning environment<br>designed to help you perform your best.</p>
         <div class="program-menu">
           <span>Program Introduction</span>
           <a href="emerald_hills.html">EN</a>
           <a href="emerald_hills_simplified.html">CN</a>
         </div>
       </div>
+      <div class="mountain-line" aria-hidden="true"></div>
     </section>
 
-    <section class="login-panel">
-      <h2 id="authTitle" class="panel-title">Choose account type</h2>
-      <p id="authSubtitle" class="panel-subtitle">Select one account type, then sign in or sign up.</p>
-      <div class="role-picker" aria-label="Role">
-        <button id="studentRole" class="role-card active" type="button"><span class="role-icon">ST</span>Student</button>
-        <button id="teacherRole" class="role-card" type="button"><span class="role-icon">TC</span>Teacher</button>
-        <button id="adminRole" class="role-card" type="button"><span class="role-icon">AD</span>Admin</button>
-      </div>
-      <div class="auth-actions" aria-label="Account action">
-        <button id="signinMode" class="primary-btn active" type="button">Sign in</button>
-        <button id="signupMode" class="ghost-btn" type="button">Sign up</button>
-      </div>
-      <div class="signin-only">
-        <div class="field">
-          <label for="loginUsername">Username or email</label>
-          <input id="loginUsername" autocomplete="username" placeholder="Account username or email" />
-        </div>
-        <div class="field">
-          <label for="loginPassword">Password</label>
-          <input id="loginPassword" autocomplete="current-password" placeholder="Account password" type="password" />
-        </div>
-        <button id="loginBtn" class="primary-btn" type="button">Enter platform</button>
-      </div>
+    <section class="auth-stage">
+      <div>
+        <section class="login-panel">
+          <div class="card-mountain" aria-hidden="true"></div>
+          <h2 class="panel-title">Welcome back</h2>
+          <p class="panel-subtitle">Choose your role to continue</p>
+          <div class="role-picker" aria-label="Role">
+            <button id="studentRole" class="role-card active" type="button">
+              <span class="role-icon" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="40" cy="24" r="12"></circle>
+                  <path d="M20 64c3-14 12-22 20-22s17 8 20 22"></path>
+                  <path d="M24 54c8 1 13 4 16 8 3-4 8-7 16-8"></path>
+                </svg>
+              </span>
+              <span class="role-name">Student</span>
+              <small>I'm here to learn</small>
+            </button>
+            <button id="teacherRole" class="role-card" type="button">
+              <span class="role-icon" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="36" cy="23" r="11"></circle>
+                  <path d="M18 64c3-13 10-21 18-21s15 8 18 21"></path>
+                  <path d="M58 21l10 10"></path>
+                  <path d="M68 21L58 31"></path>
+                  <path d="M54 42l14-14"></path>
+                </svg>
+              </span>
+              <span class="role-name">Teacher</span>
+              <small>I'm here to teach</small>
+            </button>
+            <button id="adminRole" class="role-card" type="button">
+              <span class="role-icon" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M40 10l24 9v17c0 16-10 27-24 34-14-7-24-18-24-34V19l24-9z"></path>
+                  <circle cx="40" cy="35" r="6"></circle>
+                  <path d="M40 41v13"></path>
+                </svg>
+              </span>
+              <span class="role-name">Admin</span>
+              <small>I'm here to manage</small>
+            </button>
+          </div>
+          <div class="auth-divider"><span aria-hidden="true">✦</span></div>
+          <h3 id="accountHeading" class="account-heading">Student account</h3>
+          <div class="signin-only">
+            <div class="field">
+              <label for="loginUsername">Username or email</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.8-5 4.5-7 8-7s6.2 2 8 7"></path></svg>
+                </span>
+                <input id="loginUsername" autocomplete="username" placeholder="Username or email" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="loginPassword">Password</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                </span>
+                <input id="loginPassword" autocomplete="current-password" placeholder="Password" type="password" />
+                <button id="togglePassword" class="eye-btn" type="button" aria-label="Show password">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+              </div>
+            </div>
+            <div class="remember-row">
+              <label><input id="rememberMe" type="checkbox" />Remember me</label>
+              <button class="text-link" type="button">Forgot password?</button>
+            </div>
+            <button id="loginBtn" class="primary-btn login-submit" type="button"><span>Enter platform</span><span aria-hidden="true">→</span></button>
+            <p class="auth-footnote">New here? <button id="signupMode" class="text-link" type="button">Create account</button></p>
+          </div>
       <div class="field student-only signup-only hidden">
         <label for="programInput">Program</label>
         <select id="programInput"></select>
@@ -1220,7 +1548,7 @@
           <label for="signupPhoto">Profile picture</label>
           <input id="signupPhoto" type="file" accept="image/*" />
         </div>
-        <button id="signupBtn" class="ghost-btn" type="button">Register student</button>
+        <button id="signupBtn" class="primary-btn login-submit" type="button"><span>Register student</span><span aria-hidden="true">→</span></button>
       </div>
       <div class="signup-box teacher-signup signup-only hidden">
         <h3>Teacher sign up</h3>
@@ -1249,7 +1577,7 @@
           <label for="teacherSignupPhoto">Profile picture</label>
           <input id="teacherSignupPhoto" type="file" accept="image/*" />
         </div>
-        <button id="teacherSignupBtn" class="ghost-btn" type="button">Register teacher</button>
+        <button id="teacherSignupBtn" class="primary-btn login-submit" type="button"><span>Register teacher</span><span aria-hidden="true">→</span></button>
       </div>
       <div class="signup-box admin-signup signup-only hidden">
         <h3>Admin sign up</h3>
@@ -1278,7 +1606,11 @@
           <label for="adminSignupPhoto">Profile picture</label>
           <input id="adminSignupPhoto" type="file" accept="image/*" />
         </div>
-        <button id="adminSignupBtn" class="ghost-btn" type="button">Register admin</button>
+        <button id="adminSignupBtn" class="primary-btn login-submit" type="button"><span>Register admin</span><span aria-hidden="true">→</span></button>
+      </div>
+          <p class="auth-footnote signup-only hidden">Already registered? <button id="signinMode" class="text-link" type="button">Sign in</button></p>
+        </section>
+        <div class="secure-footer"><span aria-hidden="true">🔒</span><span>Your data is safe and secure.</span><span>·</span><a href="#">Privacy Policy</a></div>
       </div>
     </section>
   </div>
@@ -1715,10 +2047,9 @@
       $("#signupMode").classList.toggle("active", authMode === "signup");
       $$(".signin-only").forEach((item) => item.classList.toggle("hidden", authMode !== "signin"));
       $$(".signup-only").forEach((item) => item.classList.toggle("hidden", authMode !== "signup"));
-      $("#authTitle").textContent = `${roleLabel()} account`;
-      $("#authSubtitle").textContent = authMode === "signin"
-        ? "Sign in with your username or email."
-        : "Create your account. Username, email, and ID cannot be reused.";
+      $("#accountHeading").textContent = authMode === "signin"
+        ? `${roleLabel()} account`
+        : `Create ${roleLabel().toLowerCase()} account`;
       updateAuthVisibility();
     }
 
@@ -1737,6 +2068,12 @@
       setAuthMode(authMode);
       $("#loginUsername").value = "";
       $("#loginPassword").value = "";
+    }
+
+    function togglePasswordVisibility() {
+      const passwordInput = $("#loginPassword");
+      passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+      $("#togglePassword").setAttribute("aria-label", passwordInput.type === "password" ? "Show password" : "Hide password");
     }
 
     function login() {
@@ -3103,6 +3440,7 @@
     $("#adminRole").addEventListener("click", () => setRole("admin"));
     $("#signinMode").addEventListener("click", () => setAuthMode("signin"));
     $("#signupMode").addEventListener("click", () => setAuthMode("signup"));
+    $("#togglePassword").addEventListener("click", togglePasswordVisibility);
     $("#programInput").addEventListener("change", fillClassOptions);
     $("#signupBtn").addEventListener("click", registerStudent);
     $("#teacherSignupBtn").addEventListener("click", registerTeacher);
