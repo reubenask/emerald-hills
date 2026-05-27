@@ -644,6 +644,14 @@
       gap: 8px;
     }
 
+    .action-row {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
     .primary-btn {
       background: linear-gradient(135deg, var(--green), #23946f);
       color: white;
@@ -2690,7 +2698,10 @@
           </div>
           <p>${assignment.instructions}</p>
           <p><strong>Posted:</strong> ${assignment.posted}<br><strong>Due:</strong> ${assignment.due}${assignment.durationMinutes ? `<br><strong>Time limit:</strong> ${assignment.durationMinutes} minutes` : ""}</p>
-          <button class="primary-btn" onclick="openAssignment('${assignment.id}')">${submitted ? "View submission" : "Take test"}</button>
+          <div class="action-row">
+            <button class="primary-btn" onclick="openAssignment('${assignment.id}')">${submitted ? "View submission" : "Take test"}</button>
+            ${submitted ? `<button class="ghost-btn" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
+          </div>
         </article>
       `;
     }
@@ -2798,7 +2809,10 @@
                   <label>Speaking recording</label>
                   <input id="recordingLink" placeholder="Paste audio file link or recording note" value="${submitted ? submitted.recording : ""}">
                 </div>` : ""}
-              <button class="primary-btn" type="submit">${submitted ? "Update submission" : "Submit work"}</button>
+              <div class="action-row">
+                <button class="primary-btn" type="submit">${submitted ? "Update submission" : "Submit work"}</button>
+                ${submitted ? `<button class="ghost-btn" type="button" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
+              </div>
               ${submitted ? `<p style="margin-top:12px;color:var(--muted)">Submitted on ${submitted.submittedAt}. Score: ${submitted.score || "Waiting for teacher"}.</p>` : ""}
             </form>
           </div>
@@ -3005,6 +3019,181 @@
       store.submissions = submissions;
       clearTimerInterval();
       render();
+    }
+
+    function buildSubmissionSummary(assignment, submission) {
+      const answers = submission.answers || [];
+      const answered = answers.filter(Boolean).length;
+      const total = answers.length || answerSheetItems(assignment).length;
+      return [
+        "Green Mountain TOEFL Academy",
+        `${submission.student} completed ${assignment.title}`,
+        `${assignment.program} · ${assignment.className} · ${categoryLabels[assignment.category] || assignment.category} · ${assignment.section}`,
+        `Submitted: ${submission.submittedAt}`,
+        `Answer sheet: ${answered}/${total} answered`,
+        `Score: ${submission.score || "Waiting for teacher review"}`,
+        submission.feedback ? `Teacher feedback: ${submission.feedback}` : ""
+      ].filter(Boolean).join("\n");
+    }
+
+    function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 4) {
+      const words = String(text).split(/\s+/);
+      const lines = [];
+      let line = "";
+      words.forEach((word) => {
+        const testLine = line ? `${line} ${word}` : word;
+        if (ctx.measureText(testLine).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = testLine;
+        }
+      });
+      if (line) lines.push(line);
+      lines.slice(0, maxLines).forEach((canvasLine, index) => {
+        const suffix = index === maxLines - 1 && lines.length > maxLines ? "..." : "";
+        ctx.fillText(`${canvasLine}${suffix}`, x, y + index * lineHeight);
+      });
+      return y + Math.min(lines.length, maxLines) * lineHeight;
+    }
+
+    function drawRoundedRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function createSubmissionCardBlob(assignment, submission) {
+      const answers = submission.answers || [];
+      const answered = answers.filter(Boolean).length;
+      const total = answers.length || answerSheetItems(assignment).length;
+      const canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = 1080;
+      const ctx = canvas.getContext("2d");
+      const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+      gradient.addColorStop(0, "#071D16");
+      gradient.addColorStop(1, "#1F7A5C");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.strokeStyle = "rgba(247,243,234,0.08)";
+      for (let i = 0; i <= 1080; i += 72) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, 1080);
+        ctx.moveTo(0, i);
+        ctx.lineTo(1080, i);
+        ctx.stroke();
+      }
+
+      drawRoundedRect(ctx, 86, 96, 908, 888, 34);
+      ctx.fillStyle = "#FFFDF7";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(31,122,92,0.18)";
+      ctx.stroke();
+
+      ctx.fillStyle = "#B9925A";
+      ctx.font = "700 24px Arial";
+      ctx.fillText("GM", 132, 166);
+      ctx.fillStyle = "#10231C";
+      ctx.font = "700 34px Georgia";
+      ctx.fillText("Green Mountain TOEFL Academy", 184, 166);
+      ctx.fillStyle = "#1F7A5C";
+      ctx.font = "700 24px Arial";
+      ctx.fillText("Submission Summary", 132, 238);
+
+      ctx.fillStyle = "#10231C";
+      ctx.font = "700 58px Georgia";
+      let nextY = wrapCanvasText(ctx, assignment.title, 132, 322, 800, 66, 3);
+
+      ctx.fillStyle = "#5F6B64";
+      ctx.font = "400 30px Arial";
+      nextY = wrapCanvasText(ctx, `${submission.student} · ${submission.program} · ${submission.className}`, 132, nextY + 34, 780, 40, 2);
+      ctx.fillText(`${categoryLabels[assignment.category] || assignment.category} · ${assignment.section}`, 132, nextY + 26);
+
+      const statY = nextY + 96;
+      const stats = [
+        ["Submitted", submission.submittedAt],
+        ["Answered", `${answered}/${total}`],
+        ["Score", submission.score || "Pending"]
+      ];
+      stats.forEach((item, index) => {
+        const x = 132 + index * 284;
+        drawRoundedRect(ctx, x, statY, 240, 138, 22);
+        ctx.fillStyle = "rgba(31,122,92,0.08)";
+        ctx.fill();
+        ctx.fillStyle = "#5F6B64";
+        ctx.font = "700 23px Arial";
+        ctx.fillText(item[0], x + 28, statY + 44);
+        ctx.fillStyle = "#10231C";
+        ctx.font = "700 32px Georgia";
+        wrapCanvasText(ctx, item[1], x + 28, statY + 92, 184, 34, 2);
+      });
+
+      ctx.fillStyle = "#5F6B64";
+      ctx.font = "400 26px Arial";
+      wrapCanvasText(ctx, assignment.instructions || "Completed work submitted for teacher review.", 132, statY + 208, 800, 38, 4);
+
+      ctx.strokeStyle = "#B9925A";
+      ctx.beginPath();
+      ctx.moveTo(132, 890);
+      ctx.lineTo(246, 890);
+      ctx.stroke();
+      ctx.fillStyle = "#10231C";
+      ctx.font = "700 28px Georgia";
+      ctx.fillText("Your work has been submitted for review.", 132, 940);
+
+      return new Promise((resolve) => canvas.toBlob(resolve, "image/png", 0.95));
+    }
+
+    async function shareSubmissionSummary(assignmentId) {
+      const assignment = store.assignments.find((item) => item.id === assignmentId);
+      const submission = assignment ? submissionFor(assignmentId) : null;
+      if (!assignment || !submission) {
+        window.alert("No submitted work found yet.");
+        return;
+      }
+      const title = `${assignment.title} summary`;
+      const text = buildSubmissionSummary(assignment, submission);
+      const blob = await createSubmissionCardBlob(assignment, submission);
+      const fileName = `${assignment.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "submission"}-summary.png`;
+      if (blob && navigator.canShare && window.File) {
+        const file = new File([blob], fileName, { type: "image/png" });
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ title, text, files: [file] });
+            return;
+          } catch (error) {
+            if (error.name === "AbortError") return;
+          }
+        }
+      }
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text });
+          return;
+        } catch (error) {
+          if (error.name === "AbortError") return;
+        }
+      }
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+      if (navigator.clipboard) await navigator.clipboard.writeText(text);
+      window.alert("Summary card downloaded. The summary text was copied where your browser allows it.");
     }
 
     function renderStudentRanking() {
