@@ -2123,10 +2123,29 @@
     }
 
     function programSummary(program) {
+      if (program === "Primary") {
+        return "TOEFL Primary reports Reading and Listening scale scores from 100-115. Speaking and Writing are reported separately with proficiency descriptors.";
+      }
+      if (program === "Junior") {
+        return "TOEFL Junior Standard reports Listening, Language Form & Meaning, and Reading from 200-300 each, with a total score from 600-900. Speaking and Writing are reported separately.";
+      }
       if (program === "ITP") {
         return "Level 1: 140 questions · 115 minutes · 310-677. Level 2: 95 questions · 70 minutes · 200-500.";
       }
+      if (program === "iBT") {
+        return "TOEFL iBT reports four skill scores with an overall 0-120 scale. The newer style also supports band-score reporting for skill performance.";
+      }
       return programs[program].note || "Same platform structure with exams, homework, exercises, and mock tests.";
+    }
+
+    function programScoreTags(program) {
+      const tags = {
+        Primary: ["Reading/Listening 100-115", "Speaking descriptor score", "Writing descriptor score"],
+        Junior: ["Section scores 200-300", "Total 600-900", "Speaking/Writing separate"],
+        ITP: ["ITP Level 1 310-677", "ITP Level 2 200-500"],
+        iBT: ["Reading 0-30", "Listening 0-30", "Speaking 0-30", "Writing 0-30", "Total 0-120"]
+      }[program] || [];
+      return tags.map((tag) => `<span class="tag green">${tag}</span>`).join("");
     }
 
     function normalizeUsername(value) {
@@ -2561,7 +2580,8 @@
 
     function sectionTags(program, className = "") {
       if (program === "ITP" && !className) {
-        return programs.ITP.classes.map((level) => `<span class="tag blue">${level}: ${itpLevelDetails[level].scoreRange}</span>`).join("");
+        const officialSections = [...new Set(programs.ITP.classes.flatMap((level) => itpLevelDetails[level].sections).filter((section) => section !== "Speaking"))];
+        return officialSections.map((section) => `<span class="tag blue">${section}</span>`).join("");
       }
       return sectionsFor(program, className).map((section) => `<span class="tag blue">${section}</span>`).join("");
     }
@@ -2734,6 +2754,7 @@
               <h3>${program}</h3>
               <p>${programSummary(program)}</p>
               <div class="tag-row">${sectionTags(program)}</div>
+              <div class="tag-row">${programScoreTags(program)}</div>
             </article>
           `).join("")}
         </div>
@@ -3370,6 +3391,7 @@
               <h3>${program}</h3>
               <p>${programSummary(program)}</p>
               <div class="tag-row">${sectionTags(program)}</div>
+              <div class="tag-row">${programScoreTags(program)}</div>
             </article>
           `).join("")}
         </div>
@@ -4036,8 +4058,9 @@
             <article class="card">
               <h3>${program}</h3>
               <p>${studentsForProgram(program).length} students · ${store.assignments.filter((item) => item.program === program).length} assignments · ${store.submissions.filter((item) => item.program === program).length} submissions</p>
-              ${program === "ITP" ? `<p>${programSummary(program)}</p>` : ""}
+              <p>${programSummary(program)}</p>
               <div class="tag-row">${sectionTags(program)}</div>
+              <div class="tag-row">${programScoreTags(program)}</div>
             </article>
           `).join("")}
         </div>
