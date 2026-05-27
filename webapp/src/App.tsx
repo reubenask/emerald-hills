@@ -104,7 +104,7 @@ export default function App() {
           <article className="card">
             <ClipboardCheck size={24} />
             <h2>Exam Builder</h2>
-            <p>Guided templates remain: Junior, Primary, ITP, and iBT 2026 section structures map to database records.</p>
+            <p>Guided templates remain: Junior, Primary, TOEFL ITP Level 1/2, and iBT 2026 section structures map to database records.</p>
           </article>
           <article className="card">
             <BookOpen size={24} />

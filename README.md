@@ -16,7 +16,7 @@ Local prototype and production foundation for the Green Mountain TOEFL Academy t
 ## Current Features
 
 - Student, teacher, and admin roles
-- Primary Step 1, Primary Step 2, Junior, ITP, and iBT class structure
+- Primary Step 1, Primary Step 2, Junior, TOEFL ITP Level 1, TOEFL ITP Level 2, and iBT class structure
 - Independent student work platforms:
   - Class Exercises
   - Homework

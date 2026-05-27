@@ -1865,13 +1865,55 @@
         classes: ["Junior"]
       },
       ITP: {
-        sections: ["Listening", "Reading", "Structure & Written Expression", "Speaking", "Writing"],
-        classes: ["ITP"]
+        sections: ["Listening Comprehension", "Structure and Written Expression", "Reading Comprehension", "Speaking"],
+        classes: ["ITP Level 1", "ITP Level 2"],
+        note: "TOEFL ITP has two proficiency levels. Level 1 is intermediate to advanced, runs about 1 hour 55 minutes, and scales 310-677. Level 2 is high beginner to intermediate, runs about 1 hour 10 minutes, and scales 200-500."
       },
       iBT: {
         sections: ["Reading", "Listening", "Writing", "Speaking"],
         classes: ["iBT"],
         note: "Updated TOEFL iBT style from January 21, 2026: four skill sections with band-score reporting."
+      }
+    };
+
+    const itpLevelDetails = {
+      "ITP Level 1": {
+        label: "Level 1 · Intermediate to Advanced",
+        note: "Official TOEFL ITP Level 1 uses multiple-choice Listening Comprehension, Structure and Written Expression, and Reading Comprehension. Total: 140 questions, 115 minutes, score range 310-677.",
+        scoreRange: "310-677",
+        durationMinutes: 115,
+        sections: ["Listening Comprehension", "Structure and Written Expression", "Reading Comprehension", "Speaking"],
+        counts: {
+          "Listening Comprehension": 50,
+          "Structure and Written Expression": 40,
+          "Reading Comprehension": 50,
+          Speaking: 4
+        },
+        times: {
+          "Listening Comprehension": "35 minutes",
+          "Structure and Written Expression": "25 minutes",
+          "Reading Comprehension": "55 minutes",
+          Speaking: "About 15 minutes, digital ITP only"
+        }
+      },
+      "ITP Level 2": {
+        label: "Level 2 · High Beginner to Intermediate",
+        note: "Official TOEFL ITP Level 2 uses multiple-choice Listening Comprehension, Structure and Written Expression, and Vocabulary and Reading Comprehension. Total: 95 questions, 70 minutes, score range 200-500.",
+        scoreRange: "200-500",
+        durationMinutes: 70,
+        sections: ["Listening Comprehension", "Structure and Written Expression", "Vocabulary and Reading Comprehension", "Speaking"],
+        counts: {
+          "Listening Comprehension": 30,
+          "Structure and Written Expression": 25,
+          "Vocabulary and Reading Comprehension": 40,
+          Speaking: 4
+        },
+        times: {
+          "Listening Comprehension": "22 minutes",
+          "Structure and Written Expression": "17 minutes",
+          "Vocabulary and Reading Comprehension": "31 minutes",
+          Speaking: "About 15 minutes, digital ITP only"
+        }
       }
     };
 
@@ -2068,6 +2110,25 @@
       $("#classInput").innerHTML = programs[program].classes.map((className) => `<option>${className}</option>`).join("");
     }
 
+    function classesFor(program) {
+      return programs[program].classes;
+    }
+
+    function sectionsFor(program, className = "") {
+      if (program === "ITP") {
+        const level = itpLevelDetails[className] || itpLevelDetails[classesFor("ITP")[0]];
+        return level.sections;
+      }
+      return programs[program].sections;
+    }
+
+    function programSummary(program) {
+      if (program === "ITP") {
+        return "Level 1: 140 questions · 115 minutes · 310-677. Level 2: 95 questions · 70 minutes · 200-500.";
+      }
+      return programs[program].note || "Same platform structure with exams, homework, exercises, and mock tests.";
+    }
+
     function normalizeUsername(value) {
       return value.trim().toLowerCase();
     }
@@ -2101,7 +2162,6 @@
     function nextRoleId(nextRole) {
       const prefix = nextRole === "admin" ? "ADM" : nextRole === "teacher" ? "TCH" : "STU";
       const ids = store.accounts
-        .filter((account) => account.role === nextRole)
         .map((account) => account.accountId || account.studentId)
         .filter(Boolean);
       const maxNumber = ids.reduce((max, id) => {
@@ -2113,6 +2173,48 @@
 
     function accountIdExists(accountId) {
       return store.accounts.some((account) => account.accountId === accountId || account.studentId === accountId);
+    }
+
+    function repairDuplicateAccountIds() {
+      const accounts = store.accounts;
+      if (!accounts.length) return;
+      const allNumbers = accounts
+        .map((account) => Number(String(account.accountId || account.studentId || "").split("-").pop()))
+        .filter(Number.isFinite);
+      let nextNumber = Math.max(0, ...allNumbers) + 1;
+      const usedNumbers = new Set();
+      let changed = false;
+      const repaired = accounts.map((account) => {
+        const oldId = account.accountId || account.studentId || "";
+        let number = Number(String(oldId).split("-").pop());
+        if (!Number.isFinite(number) || usedNumbers.has(number)) {
+          number = nextNumber++;
+          changed = true;
+        }
+        usedNumbers.add(number);
+        const prefix = account.role === "admin" ? "ADM" : account.role === "teacher" ? "TCH" : "STU";
+        const accountId = `GM-${prefix}-${String(number).padStart(4, "0")}`;
+        if (accountId !== oldId) changed = true;
+        if (account.role === "student") {
+          store.students = store.students.map((student) => {
+            const isSameStudent = (oldId && student.studentId === oldId) || (student.name === account.name && student.program === account.program && student.className === account.className);
+            return isSameStudent ? { ...student, studentId: accountId } : student;
+          });
+          return { ...account, accountId, studentId: accountId };
+        }
+        return { ...account, accountId };
+      });
+      if (changed) store.accounts = repaired;
+    }
+
+    function migrateItpLevelRecords() {
+      const normalizeRecord = (item) => item && item.program === "ITP" && item.className === "ITP" ? { ...item, className: "ITP Level 1" } : item;
+      store.accounts = store.accounts.map(normalizeRecord);
+      store.students = store.students.map(normalizeRecord);
+      store.assignments = store.assignments.map(normalizeRecord);
+      store.submissions = store.submissions.map(normalizeRecord);
+      store.reviews = store.reviews.map(normalizeRecord);
+      store.lessonNotes = store.lessonNotes.map(normalizeRecord);
     }
 
     function addAccount(account) {
@@ -2457,8 +2559,11 @@
       return store.submissions.find((item) => item.assignmentId === assignmentId && item.student === studentName);
     }
 
-    function sectionTags(program) {
-      return programs[program].sections.map((section) => `<span class="tag blue">${section}</span>`).join("");
+    function sectionTags(program, className = "") {
+      if (program === "ITP" && !className) {
+        return programs.ITP.classes.map((level) => `<span class="tag blue">${level}: ${itpLevelDetails[level].scoreRange}</span>`).join("");
+      }
+      return sectionsFor(program, className).map((section) => `<span class="tag blue">${section}</span>`).join("");
     }
 
     function pageHeader(eyebrow, zh, en, action = "") {
@@ -2485,7 +2590,7 @@
               <button class="program-card ${teacherProgram[sectionId] === program ? "active" : ""}" onclick="selectTeacherProgram('${sectionId}', '${program}')">
                 ${count ? `<span class="notify-badge">✉ ${count}</span>` : ""}
                 <strong>${program}</strong>
-                <small>${programs[program].classes.join(" · ")}<br>${programs[program].sections.length} exam sections</small>
+                <small>${programs[program].classes.join(" · ")}<br>${program === "ITP" ? "2 official ITP levels" : `${programs[program].sections.length} exam sections`}</small>
               </button>
             `;
           }).join("")}
@@ -2604,7 +2709,7 @@
       const reviewed = submissions.filter((item) => item.score !== "").length;
       const studentId = ensureCurrentStudentId();
       $("#studentDashboard").innerHTML = `
-        ${pageHeader("Student Center", `${currentUser.program} 学习中心`, `${currentUser.className} · Student ID ${studentId} · ${programs[currentUser.program].sections.length} exam sections available`, `<button class="primary-btn" onclick="activateSection('studentAssignments')">Open assignments</button>`)}
+        ${pageHeader("Student Center", `${currentUser.program} 学习中心`, `${currentUser.className} · Student ID ${studentId} · ${sectionsFor(currentUser.program, currentUser.className).length} exam sections available`, `<button class="primary-btn" onclick="activateSection('studentAssignments')">Open assignments</button>`)}
         <div class="metric-grid">
           <div class="metric"><small>Student ID</small><strong>${studentId}</strong></div>
           <div class="metric"><small>Assigned</small><strong>${assignments.length}</strong></div>
@@ -2627,7 +2732,7 @@
           ${Object.entries(programs).map(([program, detail]) => `
             <article class="card">
               <h3>${program}</h3>
-              <p>${program === "iBT" ? detail.note : "Same platform structure with five exam types, homework, exercises, and mock tests."}</p>
+              <p>${programSummary(program)}</p>
               <div class="tag-row">${sectionTags(program)}</div>
             </article>
           `).join("")}
@@ -2879,12 +2984,31 @@
       return `<div class="section-row"><strong>${heading}</strong><p>${safeBody}</p></div>`;
     }
 
-    function templateFor(program, section) {
+    function templateFor(program, section, className = "") {
       if (program === "iBT") {
         if (section === "Reading") return { count: 50, label: "Reading Item", placeholder: "Type your selected answer or short response.", help: "2026 TOEFL iBT Reading: build adaptive-style Module 1 and Module 2 passage blocks; full practice defaults to 50 answer slots." };
         if (section === "Listening") return { count: 47, label: "Listening Item", placeholder: "Type your selected answer or short response.", help: "2026 TOEFL iBT Listening: build adaptive-style audio/video modules; full practice defaults to 47 answer slots." };
         if (section === "Speaking") return { count: 11, label: "Speaking Item", placeholder: "Record your response or paste a recording link.", help: "2026 TOEFL iBT Speaking: build 11 interview-style spoken-response items with optional video, audio, and repeat-after-me prompts." };
         if (section === "Writing") return { count: 12, label: "Writing Item", placeholder: "Type your writing response.", help: "2026 TOEFL iBT Writing: build 12 writing items, including sentence reconstruction and contextual or academic writing responses." };
+      }
+      if (program === "ITP") {
+        const level = itpLevelDetails[className] || itpLevelDetails["ITP Level 1"];
+        const count = level.counts[section] || 4;
+        const time = level.times[section] || "";
+        if (section === "Speaking") {
+          return {
+            count,
+            label: "Speaking Task",
+            placeholder: "Record your answer, then write a short note or paste the recording link.",
+            help: `TOEFL ITP Speaking is a separate digital speaking test with 4 tasks. It is not part of the Level 1/Level 2 multiple-choice paper. Add prompts, audio, prep time, and response time for each task.`
+          };
+        }
+        return {
+          count,
+          label: "Question",
+          placeholder: "Type A, B, C, or D.",
+          help: `${className || "ITP"} ${section}: ${count} multiple-choice questions${time ? `, ${time}` : ""}. ${level.note}`
+        };
       }
       if (section === "Speaking") {
         return {
@@ -2904,7 +3028,7 @@
           help: "Writing uses 4 tasks. Paste the prompts or upload materials; the platform generates 4 writing response areas."
         };
       }
-      if (section === "Listening" || section === "Reading" || section.includes("Language") || section.includes("Structure")) {
+      if (section.includes("Listening") || section.includes("Reading") || section.includes("Language") || section.includes("Structure")) {
         return {
           count: 42,
           label: "Question",
@@ -2916,7 +3040,7 @@
     }
 
     function answerSheetItems(assignment) {
-      const template = templateFor(assignment.program, assignment.section);
+      const template = templateFor(assignment.program, assignment.section, assignment.className);
       const prompts = assignment.questions || [];
       const count = Number(assignment.answerCount) || Math.max(template.count, prompts.length);
       return Array.from({ length: count }, (_, index) => ({
@@ -2927,8 +3051,13 @@
     }
 
     function answerSheetDescription(assignment) {
-      const template = templateFor(assignment.program, assignment.section);
+      const template = templateFor(assignment.program, assignment.section, assignment.className);
       const count = Number(assignment.answerCount) || template.count;
+      if (assignment.program === "ITP") {
+        const level = itpLevelDetails[assignment.className];
+        const time = level && level.times[assignment.section] ? ` · ${level.times[assignment.section]}` : "";
+        return `${assignment.className} ${assignment.section}: ${count} answer slot${count === 1 ? "" : "s"}${time}. This follows the official TOEFL ITP multiple-choice section structure; students can only answer and submit.`;
+      }
       return `${assignment.section} template: ${count} answer slot${count === 1 ? "" : "s"}. Only the teacher can edit the exam material; students can only answer and submit.`;
     }
 
@@ -2945,6 +3074,15 @@
       if (assignment.program === "iBT" && assignment.section === "Writing") {
         return "Complete each 2026-style writing item, including sentence reconstruction and contextual or academic writing prompts when provided.";
       }
+      if (assignment.program === "ITP" && assignment.section.includes("Listening")) {
+        return `${assignment.className} Listening Comprehension follows the official ITP multiple-choice format. Play each teacher-provided audio block and answer the numbered items in order.`;
+      }
+      if (assignment.program === "ITP" && assignment.section.includes("Structure")) {
+        return `${assignment.className} Structure and Written Expression follows the official ITP multiple-choice grammar format. Choose the best completion or identify the written-expression error as directed.`;
+      }
+      if (assignment.program === "ITP" && (assignment.section.includes("Reading") || assignment.section.includes("Vocabulary"))) {
+        return `${assignment.className} ${assignment.section} follows the official ITP multiple-choice format. Read each vocabulary group or passage and answer the numbered items.`;
+      }
       if (assignment.program === "ITP" && assignment.section === "Speaking") {
         return "This ITP Speaking task is generated from the teacher's input. Students should prepare briefly, then record clear spoken responses for read-aloud, everyday/campus communication, and academic-style speaking prompts when provided.";
       }
@@ -2957,7 +3095,7 @@
       if (assignment.section === "Listening") {
         return "Play the teacher-provided audio or video. Answer each question in order. You may not edit the exam content.";
       }
-      if (assignment.section === "Reading" || assignment.section.includes("Language") || assignment.section.includes("Structure")) {
+      if (assignment.section.includes("Reading") || assignment.section.includes("Language") || assignment.section.includes("Structure")) {
         return "Read the passage, image, or prompt provided by the teacher. Answer each question on the answer sheet.";
       }
       return assignment.instructions || "Complete the generated exam and submit your answer sheet.";
@@ -3230,7 +3368,7 @@
           ${Object.entries(programs).map(([program, detail]) => `
             <article class="card">
               <h3>${program}</h3>
-              <p>${program === "iBT" ? detail.note : "Five exam categories with the same assignment, submission, scoring, and ranking structure."}</p>
+              <p>${programSummary(program)}</p>
               <div class="tag-row">${sectionTags(program)}</div>
             </article>
           `).join("")}
@@ -3253,7 +3391,7 @@
             <h3>${editing ? "Edit assignment" : "Assignment details"}</h3>
             <div class="field"><label>Title</label><input id="assignmentTitle" required value="${editing ? editing.title : "New class homework"}"></div>
             <div class="field"><label>Program</label><select id="assignmentProgram" onchange="syncAssignmentOptions(); syncAssignmentTemplate();">${Object.keys(programs).map((program) => `<option ${program === formProgram ? "selected" : ""}>${program}</option>`).join("")}</select></div>
-            <div class="field"><label>Class</label><select id="assignmentClass"></select></div>
+            <div class="field"><label>Class</label><select id="assignmentClass" onchange="syncAssignmentSections(); syncAssignmentTemplate();"></select></div>
             <div class="field"><label>Type</label><select id="assignmentCategory" onchange="syncAssignmentTemplate()">${workCategories.map((category) => `<option ${selectedCategory === category ? "selected" : ""}>${category}</option>`).join("")}</select></div>
             <div class="field"><label>Exam section</label><select id="assignmentSection" onchange="syncAssignmentTemplate()"></select></div>
             <div class="field"><label>Date posted</label><input id="assignmentPosted" type="date" value="${editing ? editing.posted : "2026-05-23"}"></div>
@@ -3263,7 +3401,7 @@
             <div class="field"><label>Media link</label><input id="assignmentMediaUrl" placeholder="Optional video, audio, image, or document link" value="${editing && editing.mediaUrl ? editing.mediaUrl : ""}"></div>
             <div class="field"><label>Teacher material / passage / transcript</label><textarea id="assignmentSourceMaterial" placeholder="Paste the reading passage, listening transcript, grammar text, speaking prompt, or writing source material here.">${editing && editing.sourceMaterial ? editing.sourceMaterial : ""}</textarea></div>
             <div class="field"><label>Instructions</label><textarea id="assignmentInstructions">${editing ? editing.instructions : "Complete the assigned section and submit your answers."}</textarea></div>
-            <div class="field"><label>Answer sheet size</label><input id="assignmentAnswerCount" type="number" min="1" max="120" value="${editing && editing.answerCount ? editing.answerCount : templateFor(formProgram, editing ? editing.section : programs[formProgram].sections[0]).count}"></div>
+            <div class="field"><label>Answer sheet size</label><input id="assignmentAnswerCount" type="number" min="1" max="160" value="${editing && editing.answerCount ? editing.answerCount : templateFor(formProgram, editing ? editing.section : sectionsFor(formProgram, editing ? editing.className : programs[formProgram].classes[0])[0], editing ? editing.className : programs[formProgram].classes[0]).count}"></div>
             <div id="templateHelp" class="template-note"></div>
             <div id="teacherGuide" class="builder-guide"></div>
             <div id="blockExample" class="block-example"></div>
@@ -3299,18 +3437,32 @@
     function syncAssignmentOptions(editing = null) {
       const program = $("#assignmentProgram").value;
       $("#assignmentClass").innerHTML = programs[program].classes.map((className) => `<option ${editing && editing.className === className ? "selected" : ""}>${className}</option>`).join("");
-      $("#assignmentSection").innerHTML = programs[program].sections.map((section) => `<option ${editing && editing.section === section ? "selected" : ""}>${section}</option>`).join("");
+      syncAssignmentSections(editing);
+    }
+
+    function syncAssignmentSections(editing = null) {
+      const program = $("#assignmentProgram").value;
+      const className = $("#assignmentClass").value || programs[program].classes[0];
+      const sections = sectionsFor(program, className);
+      $("#assignmentSection").innerHTML = sections.map((section) => `<option ${editing && editing.section === section ? "selected" : ""}>${section}</option>`).join("");
     }
 
     function syncAssignmentTemplate(editing = null) {
       if (!$("#assignmentProgram") || !$("#assignmentSection")) return;
       const program = $("#assignmentProgram").value;
       const section = $("#assignmentSection").value;
+      const className = $("#assignmentClass").value;
       const category = $("#assignmentCategory").value;
-      const template = templateFor(program, section);
+      const template = templateFor(program, section, className);
       const countInput = $("#assignmentAnswerCount");
       if (countInput && (!editing || !editing.answerCount)) {
         countInput.value = template.count;
+      }
+      const durationInput = $("#assignmentDuration");
+      if (durationInput && (!editing || !editing.durationMinutes) && isFormalTimedCategory(category)) {
+        const timeLabel = program === "ITP" && itpLevelDetails[className] ? itpLevelDetails[className].times[section] : "";
+        const defaultMinutes = timeLabel ? Number(String(timeLabel).match(/\d+/)?.[0] || 0) : 0;
+        durationInput.value = defaultMinutes || "";
       }
       if ($("#templateHelp")) {
         $("#templateHelp").textContent = (category === "Homework" || category === "Exercise")
@@ -3344,10 +3496,26 @@
           return `${prefix}<ul><li>Build 12 writing items for full 2026 iBT practice.</li><li>Use blocks for sentence reconstruction, email/context response, and academic response items.</li><li>Students type into generated writing answer slots.</li></ul>`;
         }
       }
-      if (section === "Listening") {
+      if (program === "ITP") {
+        const levelLabel = $("#assignmentClass") ? $("#assignmentClass").value : "ITP Level 1";
+        const level = itpLevelDetails[levelLabel] || itpLevelDetails["ITP Level 1"];
+        if (section.includes("Listening")) {
+          return `${prefix}<ul><li>${levelLabel} Listening Comprehension follows the official ITP multiple-choice format.</li><li>Use ${level.counts[section]} answer slots and ${level.times[section]} for full-section practice.</li><li>Add audio blocks by question range, for example Questions 1-8, 9-20, and 21-30/50.</li></ul>`;
+        }
+        if (section.includes("Structure")) {
+          return `${prefix}<ul><li>${levelLabel} Structure and Written Expression is multiple-choice grammar editing.</li><li>Use ${level.counts[section]} answer slots and ${level.times[section]} for full-section practice.</li><li>Paste sentence-completion and error-recognition groups exactly as students should see them.</li></ul>`;
+        }
+        if (section.includes("Reading") || section.includes("Vocabulary")) {
+          return `${prefix}<ul><li>${levelLabel} ${section} is a multiple-choice reading section.</li><li>Use ${level.counts[section]} answer slots and ${level.times[section]} for full-section practice.</li><li>Add one block per vocabulary group or passage with its exact question range.</li></ul>`;
+        }
+        if (section === "Speaking") {
+          return `${prefix}<ul><li>ITP Speaking is separate from the paper Level 1/2 test.</li><li>Build 4 digital speaking tasks with prompts, prep time, response time, and optional audio/video.</li><li>Students submit recordings or recording links.</li></ul>`;
+        }
+      }
+      if (section.includes("Listening")) {
         return `${prefix}<ul><li>Add one block per audio, video, conversation, announcement, or lecture.</li><li>Label the exact question range: Questions 1-4, 5-10, 11-19, etc.</li><li>Upload the main file above or paste links inside the block.</li></ul>`;
       }
-      if (section === "Reading") {
+      if (section.includes("Reading")) {
         return `${prefix}<ul><li>Add one block per passage, notice, story, article, or image.</li><li>Label the exact question range covered by that passage.</li><li>The platform will place the passage on the left and create answer slots on the right.</li></ul>`;
       }
       if (section.includes("Language") || section.includes("Structure")) {
@@ -3378,10 +3546,24 @@
       if (program === "iBT" && section === "Writing") {
         return "iBT 2026 Writing example:\n[Items 1-6] Sentence reconstruction\nPrompt/source: paste sentence items here\n---\n[Items 7-12] Contextual/academic writing responses";
       }
-      if (section === "Listening") {
+      if (program === "ITP") {
+        if (section.includes("Listening")) {
+          return `${program} ${section} block example:\n[Questions 1-10] Listening Comprehension Part A\nAudio/link: paste the official-style audio or upload media above\nQuestion notes: short conversations and answer choices\n---\n[Questions 11-30] Talks or longer conversations`;
+        }
+        if (section.includes("Structure")) {
+          return `${program} ${section} block example:\n[Questions 1-15] Sentence Completion\nThe students _____ in the library. [choices: is | are | was | be]\n---\n[Questions 16-40] Written Expression\nPaste error-recognition sentences and answer choices here.`;
+        }
+        if (section.includes("Vocabulary") || section.includes("Reading")) {
+          return `${program} ${section} block example:\n[Questions 1-8] Vocabulary in context\nPaste sentence group and answer choices\n---\n[Questions 9-40/50] Reading passage\nPaste passage text, image notes, and question range here.`;
+        }
+        if (section === "Speaking") {
+          return "ITP Speaking block example:\n[Task 1] Read aloud / short response\nPrompt: paste ITP-style speaking prompt\nPrep: 15 sec | Response: 45 sec\n---\n[Task 2] Campus or everyday situation response\nAudio/link: paste listening prompt";
+        }
+      }
+      if (section.includes("Listening")) {
         return "Listening block example:\n[Questions 1-4] Conversation 1\nAudio/link: paste link or upload media above\nTranscript: optional\nQuestion notes: paste question text or use answer sheet slots\n---\n[Questions 5-10] Announcement";
       }
-      if (section === "Reading") {
+      if (section.includes("Reading")) {
         return "Reading block example:\n[Questions 1-4] Passage: School Notice\nPaste passage text here\n---\n[Questions 5-7] Passage: Short Story";
       }
       if (section.includes("Language") || section.includes("Structure")) {
@@ -3417,7 +3599,7 @@
         sourceMaterial: $("#assignmentSourceMaterial").value.trim(),
         sectionBlocks: $("#assignmentBlocks").value.trim(),
         instructions: $("#assignmentInstructions").value,
-        answerCount: Number($("#assignmentAnswerCount").value) || templateFor($("#assignmentProgram").value, $("#assignmentSection").value).count,
+        answerCount: Number($("#assignmentAnswerCount").value) || templateFor($("#assignmentProgram").value, $("#assignmentSection").value, $("#assignmentClass").value).count,
         durationMinutes: Number($("#assignmentDuration").value) || 0,
         questions: $("#assignmentQuestions").value.split("\n").map((item) => item.trim()).filter(Boolean),
         editable: true
@@ -3854,6 +4036,7 @@
             <article class="card">
               <h3>${program}</h3>
               <p>${studentsForProgram(program).length} students · ${store.assignments.filter((item) => item.program === program).length} assignments · ${store.submissions.filter((item) => item.program === program).length} submissions</p>
+              ${program === "ITP" ? `<p>${programSummary(program)}</p>` : ""}
               <div class="tag-row">${sectionTags(program)}</div>
             </article>
           `).join("")}
@@ -4175,6 +4358,8 @@
     $("#logoutBtn").addEventListener("click", logout);
     $$(".nav button").forEach((button) => button.addEventListener("click", () => activateSection(button.dataset.section)));
 
+    migrateItpLevelRecords();
+    repairDuplicateAccountIds();
     fillProgramOptions();
     setAuthMode("signin");
     window.addEventListener("hashchange", syncAuthHash);
