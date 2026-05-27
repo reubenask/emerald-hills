@@ -1824,6 +1824,7 @@
           <button data-section="adminStudents" onclick="activateSection('adminStudents')">Students</button>
           <button data-section="adminScores" onclick="activateSection('adminScores')">Scores & Tests</button>
           <button data-section="adminEvaluation" onclick="activateSection('adminEvaluation')">Evaluate</button>
+          <button data-section="adminLessonNotes" onclick="activateSection('adminLessonNotes')">Lesson Notes</button>
           <button data-section="adminMessages" onclick="activateSection('adminMessages')">Messages</button>
         </nav>
         <button id="logoutBtn" class="ghost-btn" type="button">Log out</button>
@@ -1847,6 +1848,7 @@
         <section id="adminStudents" class="section"></section>
         <section id="adminScores" class="section"></section>
         <section id="adminEvaluation" class="section"></section>
+        <section id="adminLessonNotes" class="section"></section>
         <section id="adminMessages" class="section"></section>
       </main>
     </div>
@@ -2591,6 +2593,7 @@
         renderAdminStudents();
         renderAdminScores();
         renderAdminEvaluation();
+        renderAdminLessonNotes();
         renderAdminMessages();
       }
     }
@@ -3564,6 +3567,20 @@
               <h3>Homework</h3>
               <div class="field"><label>Homework assigned</label><textarea id="lessonHomework" placeholder="Homework, due date notes, and submission expectations">${escapeHtml(note.homework)}</textarea></div>
             </article>
+            ${note.adminSuggestions && note.adminSuggestions.length ? `
+              <article class="lesson-card">
+                <h3>Admin suggestions</h3>
+                <div class="message-list">
+                  ${note.adminSuggestions.map((suggestion) => `
+                    <article class="message-item">
+                      <small>${suggestion.date} · ${escapeHtml(suggestion.admin || "Admin")}</small>
+                      <strong>${escapeHtml(suggestion.focus || "Suggestion")}</strong>
+                      <p>${escapeHtml(suggestion.comment)}</p>
+                    </article>
+                  `).join("")}
+                </div>
+              </article>
+            ` : ""}
             <article class="lesson-card full">
               <h3>Individual student performance and challenges</h3>
               <div class="student-note-grid">
@@ -3830,7 +3847,7 @@
           <div class="metric"><small>Needs review</small><strong>${unreviewed}</strong></div>
           <div class="metric"><small>Accounts</small><strong>${store.accounts.length}</strong></div>
           <div class="metric"><small>Admins</small><strong>${store.accounts.filter((account) => account.role === "admin").length}</strong></div>
-          <div class="metric"><small>Classes</small><strong>${Object.values(programs).reduce((total, item) => total + item.classes.length, 0)}</strong></div>
+          <div class="metric"><small>Lesson notes</small><strong>${store.lessonNotes.length}</strong></div>
         </div>
         <div class="grid">
           ${Object.keys(programs).map((program) => `
@@ -3964,6 +3981,107 @@
         comment: $("#adminComment").value.trim()
       });
       store.adminNotes = notes;
+      render();
+    }
+
+    function lessonStudentLabel(studentKey) {
+      const student = store.students.find((item) => item.studentId === studentKey || `${item.name}-${item.className}` === studentKey);
+      return student ? `${student.name} · ${student.className}` : studentKey;
+    }
+
+    function renderStudentLessonNotes(note) {
+      const entries = Object.entries(note.studentNotes || {}).filter(([, value]) => value);
+      if (!entries.length) return `<div class="empty">No individual student performance notes were added for this lesson.</div>`;
+      return entries.map(([studentKey, value]) => `
+        <article class="student-note-card">
+          <strong>${escapeHtml(lessonStudentLabel(studentKey))}</strong>
+          <p>${escapeHtml(value)}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderLessonSuggestionList(note) {
+      const suggestions = note.adminSuggestions || [];
+      return suggestions.map((suggestion) => `
+        <article class="message-item">
+          <small>${suggestion.date} · ${escapeHtml(suggestion.admin || "Admin")}</small>
+          <strong>${escapeHtml(suggestion.focus || "Suggestion")}</strong>
+          <p>${escapeHtml(suggestion.comment)}</p>
+        </article>
+      `).join("") || `<div class="empty">No admin suggestions yet.</div>`;
+    }
+
+    function renderAdminLessonNotes() {
+      const notes = store.lessonNotes;
+      $("#adminLessonNotes").innerHTML = `
+        ${pageHeader("Teacher Lesson Notes", "教师课堂记录", "Admins can review teacher lesson boards and leave comments or suggestions.")}
+        <div class="lesson-board">
+          ${notes.map((note, index) => `
+            <article class="lesson-card full">
+              <div class="tag-row">
+                <span class="tag green">${escapeHtml(note.date)}</span>
+                <span class="tag blue">${escapeHtml(note.program)} · ${escapeHtml(note.className)}</span>
+              </div>
+              <h3>${escapeHtml(note.topic || "Untitled lesson")}</h3>
+              <p><strong>Teacher:</strong> ${escapeHtml(note.teacher || "Teacher")}</p>
+              <p><strong>Objective:</strong> ${escapeHtml(note.objective || "No objective added yet.")}</p>
+              <div class="lesson-subgrid" style="margin-top:14px">
+                <div>
+                  <strong>Ice breaker</strong>
+                  <p>${escapeHtml(note.iceBreaker || "Not added yet.")}</p>
+                </div>
+                <div>
+                  <strong>Lesson for the day</strong>
+                  <p>${escapeHtml(note.lessonForDay || "Not added yet.")}</p>
+                </div>
+                <div>
+                  <strong>Materials</strong>
+                  <p>${escapeHtml(note.materials || "Not added yet.")}</p>
+                </div>
+                <div>
+                  <strong>Homework</strong>
+                  <p>${escapeHtml(note.homework || "Not added yet.")}</p>
+                </div>
+                <div>
+                  <strong>Individual student performance</strong>
+                  <div class="student-note-grid">${renderStudentLessonNotes(note)}</div>
+                </div>
+              </div>
+              <form style="margin-top:14px" onsubmit="saveLessonSuggestion(event, ${index})">
+                <h3>Admin comment / suggestion</h3>
+                <div class="field"><label>Focus</label><input id="lessonSuggestionFocus${index}" placeholder="Teaching quality, pacing, materials, homework, student support"></div>
+                <div class="field"><label>Suggestion</label><textarea id="lessonSuggestionComment${index}" placeholder="Write a helpful comment or next-step suggestion for the teacher."></textarea></div>
+                <button class="primary-btn" type="submit">Send suggestion</button>
+              </form>
+              <div class="message-list" style="margin-top:14px">${renderLessonSuggestionList(note)}</div>
+            </article>
+          `).join("") || `<div class="empty">No teacher lesson notes have been saved yet.</div>`}
+        </div>
+      `;
+    }
+
+    function saveLessonSuggestion(event, index) {
+      event.preventDefault();
+      const notes = store.lessonNotes;
+      const note = notes[index];
+      if (!note) return;
+      const focus = $(`#lessonSuggestionFocus${index}`).value.trim();
+      const comment = $(`#lessonSuggestionComment${index}`).value.trim();
+      if (!comment) {
+        window.alert("Please write a suggestion before sending.");
+        return;
+      }
+      const suggestions = note.adminSuggestions || [];
+      notes[index] = {
+        ...note,
+        adminSuggestions: [{
+          admin: currentUser.name,
+          date: new Date().toISOString().slice(0, 10),
+          focus: focus || "Admin suggestion",
+          comment
+        }, ...suggestions]
+      };
+      store.lessonNotes = notes;
       render();
     }
 
