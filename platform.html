@@ -61,29 +61,44 @@
     .login-view {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 0.86fr 1.14fr;
+      grid-template-columns: 0.9fr 1.1fr;
+      position: relative;
+      isolation: isolate;
       background:
-        radial-gradient(circle at 22% 22%, rgba(31,122,92,0.28), transparent 34%),
-        radial-gradient(circle at 78% 70%, rgba(31,122,92,0.16), transparent 30%),
-        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
-        linear-gradient(135deg, #071D16 0%, #08231A 54%, #0d3024 100%);
-      background-size: auto, auto, 76px 76px, 76px 76px, auto;
+        url("assets/auth-mountain-background.png") left bottom / cover no-repeat,
+        #071D16;
+    }
+
+    .login-view::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 80% 52%, rgba(31,122,92,0.2), transparent 38%),
+        linear-gradient(90deg, rgba(7,29,22,0.18) 0%, rgba(7,29,22,0.04) 48%, rgba(7,29,22,0.28) 100%),
+        linear-gradient(180deg, rgba(7,29,22,0.12), rgba(7,29,22,0.24));
     }
 
     .login-hero {
       color: white;
-      padding: 52px 58px;
+      padding: clamp(34px, 4vw, 58px);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
+      gap: clamp(92px, 15vh, 170px);
       min-height: 100vh;
+      position: relative;
+      z-index: 1;
     }
 
     .auth-stage {
       display: grid;
       place-items: center;
-      padding: 46px 64px 44px 30px;
+      padding: 54px clamp(52px, 6vw, 92px) 54px 24px;
+      position: relative;
+      z-index: 1;
     }
 
     .brand-mark {
@@ -145,6 +160,10 @@
       text-shadow: 0 14px 42px rgba(0,0,0,0.2);
     }
 
+    .login-copy {
+      max-width: 560px;
+    }
+
     .login-copy h1 em {
       color: var(--green-light);
       font-style: italic;
@@ -166,30 +185,7 @@
     }
 
     .mountain-line {
-      width: min(420px, 82%);
-      height: 170px;
-      opacity: 0.5;
-      align-self: center;
-      margin-bottom: 28px;
-      background:
-        linear-gradient(145deg, transparent 48%, rgba(185,146,90,0.62) 49%, transparent 50%) 54% 20% / 90px 130px no-repeat;
-      position: relative;
-    }
-
-    .mountain-line::before,
-    .mountain-line::after {
-      content: "";
-      position: absolute;
-      inset: auto 0 0;
-      height: 120px;
-      border-bottom: 1px solid rgba(93,202,165,0.2);
-      clip-path: polygon(0 84%, 18% 55%, 33% 70%, 50% 24%, 68% 78%, 82% 62%, 100% 86%, 100% 100%, 0 100%);
-      background: rgba(31,122,92,0.08);
-    }
-
-    .mountain-line::after {
-      transform: translateY(24px) scaleX(1.12);
-      opacity: 0.55;
+      display: none;
     }
 
     .login-panel {
@@ -200,7 +196,7 @@
       border: 1px solid rgba(255,255,255,0.72);
       border-radius: 24px;
       box-shadow: 0 34px 90px rgba(0,0,0,0.34);
-      padding: 48px 62px 38px;
+      padding: 46px 58px 38px;
       align-self: center;
       color: #10231C;
     }
@@ -347,7 +343,7 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 32px;
-      margin: 4px 0 30px;
+      margin: 4px 0 6px;
     }
 
     .role-card {
@@ -361,6 +357,7 @@
       gap: 8px;
       font-weight: 900;
       padding: 0;
+      text-align: center;
     }
 
     .role-card.active {
@@ -398,6 +395,12 @@
     .role-card.active .role-icon {
       border: 3px solid #1F7A5C;
       box-shadow: 0 0 0 5px rgba(31,122,92,0.08), inset 0 2px 12px rgba(255,255,255,0.7);
+    }
+
+    .role-card:hover .role-icon,
+    .role-card:focus-visible .role-icon {
+      border-color: rgba(31,122,92,0.48);
+      box-shadow: 0 0 0 5px rgba(31,122,92,0.06), inset 0 2px 12px rgba(255,255,255,0.7);
     }
 
     .role-name {
@@ -441,6 +444,37 @@
       margin: 10px 0 32px;
     }
 
+    .account-panel {
+      margin-top: 28px;
+      animation: fadeInAuth 180ms ease-out;
+    }
+
+    .account-topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .account-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #1F7A5C;
+      background: rgba(31,122,92,0.08);
+      border: 1px solid rgba(31,122,92,0.16);
+      border-radius: 999px;
+      min-height: 34px;
+      padding: 0 13px;
+      font-weight: 900;
+    }
+
+    @keyframes fadeInAuth {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .auth-divider::before,
     .auth-divider::after {
       content: "";
@@ -449,7 +483,7 @@
     }
 
     .account-heading {
-      margin: 0 0 18px;
+      margin: 0;
       font-family: 'Playfair Display', 'Noto Serif SC', serif;
       font-size: 24px;
       color: #10231C;
@@ -1445,45 +1479,51 @@
           <div class="card-mountain" aria-hidden="true"></div>
           <h2 class="panel-title">Welcome back</h2>
           <p class="panel-subtitle">Choose your role to continue</p>
-          <div class="role-picker" aria-label="Role">
-            <button id="studentRole" class="role-card active" type="button">
-              <span class="role-icon" aria-hidden="true">
-                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="40" cy="24" r="12"></circle>
-                  <path d="M20 64c3-14 12-22 20-22s17 8 20 22"></path>
-                  <path d="M24 54c8 1 13 4 16 8 3-4 8-7 16-8"></path>
-                </svg>
-              </span>
-              <span class="role-name">Student</span>
-              <small>I'm here to learn</small>
-            </button>
-            <button id="teacherRole" class="role-card" type="button">
-              <span class="role-icon" aria-hidden="true">
-                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="36" cy="23" r="11"></circle>
-                  <path d="M18 64c3-13 10-21 18-21s15 8 18 21"></path>
-                  <path d="M58 21l10 10"></path>
-                  <path d="M68 21L58 31"></path>
-                  <path d="M54 42l14-14"></path>
-                </svg>
-              </span>
-              <span class="role-name">Teacher</span>
-              <small>I'm here to teach</small>
-            </button>
-            <button id="adminRole" class="role-card" type="button">
-              <span class="role-icon" aria-hidden="true">
-                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M40 10l24 9v17c0 16-10 27-24 34-14-7-24-18-24-34V19l24-9z"></path>
-                  <circle cx="40" cy="35" r="6"></circle>
-                  <path d="M40 41v13"></path>
-                </svg>
-              </span>
-              <span class="role-name">Admin</span>
-              <small>I'm here to manage</small>
-            </button>
+          <div id="roleGateway" class="role-gateway">
+            <div class="role-picker" aria-label="Role">
+              <a id="studentRole" class="role-card" href="#student-login">
+                <span class="role-icon" aria-hidden="true">
+                  <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="40" cy="24" r="12"></circle>
+                    <path d="M20 64c3-14 12-22 20-22s17 8 20 22"></path>
+                    <path d="M24 54c8 1 13 4 16 8 3-4 8-7 16-8"></path>
+                  </svg>
+                </span>
+                <span class="role-name">Student</span>
+                <small>I'm here to learn</small>
+              </a>
+              <a id="teacherRole" class="role-card" href="#teacher-login">
+                <span class="role-icon" aria-hidden="true">
+                  <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="36" cy="23" r="11"></circle>
+                    <path d="M18 64c3-13 10-21 18-21s15 8 18 21"></path>
+                    <path d="M58 21l10 10"></path>
+                    <path d="M68 21L58 31"></path>
+                    <path d="M54 42l14-14"></path>
+                  </svg>
+                </span>
+                <span class="role-name">Teacher</span>
+                <small>I'm here to teach</small>
+              </a>
+              <a id="adminRole" class="role-card" href="#admin-login">
+                <span class="role-icon" aria-hidden="true">
+                  <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M40 10l24 9v17c0 16-10 27-24 34-14-7-24-18-24-34V19l24-9z"></path>
+                    <circle cx="40" cy="35" r="6"></circle>
+                    <path d="M40 41v13"></path>
+                  </svg>
+                </span>
+                <span class="role-name">Admin</span>
+                <small>I'm here to manage</small>
+              </a>
+            </div>
           </div>
+          <div id="accountPanel" class="account-panel hidden">
           <div class="auth-divider"><span aria-hidden="true">✦</span></div>
-          <h3 id="accountHeading" class="account-heading">Student account</h3>
+          <div class="account-topline">
+            <h3 id="accountHeading" class="account-heading">Student account</h3>
+            <a id="backToRoles" class="account-back" href="#roles"><span aria-hidden="true">←</span><span>Roles</span></a>
+          </div>
           <div class="signin-only">
             <div class="field">
               <label for="loginUsername">Username or email</label>
@@ -1609,6 +1649,7 @@
         <button id="adminSignupBtn" class="primary-btn login-submit" type="button"><span>Register admin</span><span aria-hidden="true">→</span></button>
       </div>
           <p class="auth-footnote signup-only hidden">Already registered? <button id="signinMode" class="text-link" type="button">Sign in</button></p>
+          </div>
         </section>
         <div class="secure-footer"><span aria-hidden="true">🔒</span><span>Your data is safe and secure.</span><span>·</span><a href="#">Privacy Policy</a></div>
       </div>
@@ -1776,6 +1817,7 @@
 
     let role = "student";
     let authMode = "signin";
+    let authStep = "roles";
     let currentUser = null;
     let activeAssignmentId = null;
     let editingAssignmentId = null;
@@ -2050,7 +2092,50 @@
       $("#accountHeading").textContent = authMode === "signin"
         ? `${roleLabel()} account`
         : `Create ${roleLabel().toLowerCase()} account`;
+      if (authStep === "account") {
+        $(".panel-subtitle").textContent = authMode === "signin"
+          ? "Sign in to continue, or create a new account below."
+          : "Create your account. Username, email, and ID cannot be reused.";
+      }
       updateAuthVisibility();
+    }
+
+    var showRoleGateway = function() {
+      authStep = "roles";
+      $("#roleGateway").classList.remove("hidden");
+      $("#accountPanel").classList.add("hidden");
+      $(".panel-title").textContent = "Welcome back";
+      $(".panel-subtitle").textContent = "Choose your role to continue";
+      $("#studentRole").classList.remove("active");
+      $("#teacherRole").classList.remove("active");
+      $("#adminRole").classList.remove("active");
+      $("#loginUsername").value = "";
+      $("#loginPassword").value = "";
+    };
+
+    var openRoleAccount = function(nextRole) {
+      authStep = "account";
+      setRole(nextRole);
+      $("#roleGateway").classList.add("hidden");
+      $("#accountPanel").classList.remove("hidden");
+      $(".panel-title").textContent = `${roleLabel()} access`;
+      $(".panel-subtitle").textContent = authMode === "signin"
+        ? "Sign in to continue, or create a new account below."
+        : "Create your account. Username, email, and ID cannot be reused.";
+      setAuthMode("signin");
+    };
+
+    function syncAuthHash() {
+      const target = window.location.hash.replace("#", "");
+      if (target === "student-login") {
+        openRoleAccount("student");
+      } else if (target === "teacher-login") {
+        openRoleAccount("teacher");
+      } else if (target === "admin-login") {
+        openRoleAccount("admin");
+      } else {
+        showRoleGateway();
+      }
     }
 
     function updateAuthVisibility() {
@@ -2075,6 +2160,9 @@
       passwordInput.type = passwordInput.type === "password" ? "text" : "password";
       $("#togglePassword").setAttribute("aria-label", passwordInput.type === "password" ? "Show password" : "Hide password");
     }
+
+    window.openRoleAccount = openRoleAccount;
+    window.showRoleGateway = showRoleGateway;
 
     function login() {
       const loginId = normalizeUsername($("#loginUsername").value);
@@ -2174,6 +2262,7 @@
       currentUser = null;
       $("#loginView").style.display = "grid";
       $("#appView").style.display = "none";
+      showRoleGateway();
     }
 
     function activateSection(id) {
@@ -3435,9 +3524,10 @@
       `;
     }
 
-    $("#studentRole").addEventListener("click", () => setRole("student"));
-    $("#teacherRole").addEventListener("click", () => setRole("teacher"));
-    $("#adminRole").addEventListener("click", () => setRole("admin"));
+    $("#studentRole").addEventListener("click", () => openRoleAccount("student"));
+    $("#teacherRole").addEventListener("click", () => openRoleAccount("teacher"));
+    $("#adminRole").addEventListener("click", () => openRoleAccount("admin"));
+    $("#backToRoles").addEventListener("click", showRoleGateway);
     $("#signinMode").addEventListener("click", () => setAuthMode("signin"));
     $("#signupMode").addEventListener("click", () => setAuthMode("signup"));
     $("#togglePassword").addEventListener("click", togglePasswordVisibility);
@@ -3450,8 +3540,9 @@
     $$(".nav button").forEach((button) => button.addEventListener("click", () => activateSection(button.dataset.section)));
 
     fillProgramOptions();
-    setRole("student");
     setAuthMode("signin");
+    window.addEventListener("hashchange", syncAuthHash);
+    syncAuthHash();
   </script>
 </body>
 </html>
