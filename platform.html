@@ -83,7 +83,11 @@
 
     .login-hero {
       color: white;
-      padding: clamp(34px, 4vw, 58px);
+      padding:
+        clamp(34px, 4vw, 58px)
+        clamp(34px, 4vw, 58px)
+        clamp(34px, 4vw, 58px)
+        clamp(70px, 6vw, 88px);
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -1386,7 +1390,7 @@
 
       .login-hero {
         min-height: auto;
-        padding: 40px 24px;
+        padding: 40px clamp(28px, 8vw, 58px);
         gap: 48px;
       }
 
