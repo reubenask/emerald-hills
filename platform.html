@@ -1202,6 +1202,69 @@
       background: rgba(255, 214, 102, 0.12);
     }
 
+    .speaking-player {
+      border: 1px solid rgba(93, 202, 165, 0.28);
+      background: rgba(93, 202, 165, 0.08);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .speaking-task-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+    }
+
+    .speaking-task-card h4 {
+      margin: 0 0 8px;
+      color: var(--white);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 18px;
+    }
+
+    .speaking-task-card p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .speaking-progress {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .speaking-progress button {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .speaking-progress button.active {
+      border-color: rgba(93, 202, 165, 0.72);
+      background: rgba(93, 202, 165, 0.18);
+      color: var(--green-light);
+    }
+
+    .auto-score-box {
+      border: 1px solid rgba(93, 202, 165, 0.24);
+      background: rgba(93, 202, 165, 0.08);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
     .message-list {
       display: grid;
       gap: 10px;
@@ -2044,6 +2107,10 @@
     let activeLessonDate = "";
     let lessonCalendarMonth = new Date().toISOString().slice(0, 7);
     let activeTimerInterval = null;
+    let activeMediaRecorder = null;
+    let activeRecordingChunks = [];
+    const speakingRecordings = {};
+    const speakingDraftLinks = {};
     let studentWorkCategory = "Exercise";
     let programDetailsLanguage = "english";
     let teacherProgram = {
@@ -2576,6 +2643,8 @@
     }
 
     function logout() {
+      clearTimerInterval();
+      activeAssignmentId = null;
       currentUser = null;
       $("#loginView").style.display = "grid";
       $("#appView").style.display = "none";
@@ -2612,6 +2681,61 @@
       return isFormalTimedCategory(assignment.category) && Number(assignment.durationMinutes) > 0;
     }
 
+    function isTeacherScoredSection(section = "") {
+      return section === "Speaking" || section === "Writing";
+    }
+
+    function parseAnswerKey(raw = "") {
+      const source = Array.isArray(raw) ? raw.join("\n") : raw;
+      return String(source)
+        .split(/[\n,;]+/)
+        .map((answer) => answer.trim())
+        .filter(Boolean);
+    }
+
+    function normalizeAnswer(value = "") {
+      return String(value)
+        .trim()
+        .toUpperCase()
+        .replace(/^\(?([A-D])\)?\.?$/, "$1");
+    }
+
+    function objectiveAutoScore(assignment, answers) {
+      if (!assignment || isTeacherScoredSection(assignment.section)) return null;
+      const key = parseAnswerKey(assignment.answerKey);
+      if (!key.length) return null;
+      const total = Math.min(key.length, answers.length || key.length);
+      const marked = key.slice(0, total).map((correct, index) => {
+        const studentAnswer = normalizeAnswer(answers[index] || "");
+        const correctAnswer = normalizeAnswer(correct);
+        return {
+          question: index + 1,
+          studentAnswer,
+          correctAnswer,
+          correct: Boolean(studentAnswer) && studentAnswer === correctAnswer
+        };
+      });
+      const correct = marked.filter((item) => item.correct).length;
+      const percent = total ? Math.round((correct / total) * 100) : 0;
+      return {
+        correct,
+        total,
+        percent,
+        scoreLabel: `${correct}/${total} (${percent}%)`,
+        marked
+      };
+    }
+
+    function teacherScoringNote(assignment) {
+      if (!assignment) return "";
+      if (isTeacherScoredSection(assignment.section)) {
+        return "Speaking and writing are teacher-scored. Students submit recordings, links, or written responses; teachers add the final score and feedback.";
+      }
+      return parseAnswerKey(assignment.answerKey).length
+        ? "Objective answer key is set. The platform will auto-score A/B/C/D answers when students submit."
+        : "No objective answer key has been set yet. Teacher can still review and score manually after submission.";
+    }
+
     function parseTimingPlan(raw = "") {
       return String(raw).split("\n").map((line) => line.trim()).filter(Boolean).map((line, index) => {
         const parts = line.split("|").map((part) => part.trim());
@@ -2633,7 +2757,8 @@
       return store.submissions.filter((item) => item.student === currentUser.name);
     }
 
-    function submissionFor(assignmentId, studentName = currentUser.name) {
+    function submissionFor(assignmentId, studentName = currentUser ? currentUser.name : "") {
+      if (!studentName) return null;
       return store.submissions.find((item) => item.assignmentId === assignmentId && item.student === studentName);
     }
 
@@ -2926,6 +3051,7 @@
     }
 
     function getTaskTimerState(assignment) {
+      if (!currentUser) return null;
       if (!hasTaskTiming(assignment) || submissionFor(assignment.id)) return null;
       const steps = parseTimingPlan(assignment.timingPlan);
       const session = ensureTestSession(assignment);
@@ -2943,6 +3069,7 @@
     }
 
     function taskRemainingMs(assignment) {
+      if (!currentUser) return null;
       const state = getTaskTimerState(assignment);
       if (!state || state.session.taskTimer.startedAt === null) return null;
       const step = state.steps[state.session.taskTimer.activeIndex];
@@ -2955,6 +3082,145 @@
       const key = testSessionKey(assignment);
       sessions[key] = { ...(sessions[key] || ensureTestSession(assignment)), taskTimer };
       store.testSessions = sessions;
+    }
+
+    function speakingTaskIndex(assignment) {
+      const session = ensureTestSession(assignment);
+      return Number(session.speakingTaskIndex) || 0;
+    }
+
+    function saveSpeakingTaskIndex(assignment, index) {
+      const sessions = store.testSessions;
+      const key = testSessionKey(assignment);
+      const session = sessions[key] || ensureTestSession(assignment);
+      sessions[key] = { ...session, speakingTaskIndex: index };
+      store.testSessions = sessions;
+    }
+
+    function setSpeakingTask(assignmentId, index) {
+      const assignment = assignmentsForStudent().find((item) => item.id === assignmentId);
+      if (!assignment) return;
+      const maxIndex = Math.max(0, answerSheetItems(assignment).length - 1);
+      saveSpeakingTaskIndex(assignment, Math.min(Math.max(0, index), maxIndex));
+      renderStudentAssignments();
+    }
+
+    function nextSpeakingTask(assignmentId, silent = false) {
+      const assignment = assignmentsForStudent().find((item) => item.id === assignmentId);
+      if (!assignment) return;
+      const currentIndex = speakingTaskIndex(assignment);
+      const maxIndex = Math.max(0, answerSheetItems(assignment).length - 1);
+      saveSpeakingTaskIndex(assignment, Math.min(currentIndex + 1, maxIndex));
+      if (!silent && currentIndex >= maxIndex) window.alert("You are already on the final speaking task.");
+      renderStudentAssignments();
+    }
+
+    function taskStepLooksLikeResponse(label = "") {
+      return /response|answer|record/i.test(label);
+    }
+
+    function playSpeakingPrompt(assignmentId) {
+      const assignment = assignmentsForStudent().find((item) => item.id === assignmentId);
+      if (!assignment || !("speechSynthesis" in window)) return;
+      const items = answerSheetItems(assignment);
+      const index = speakingTaskIndex(assignment);
+      const item = items[index] || {};
+      const prompt = item.prompt || assignment.sourceMaterial || assignment.instructions || `${item.label || "Speaking task"} prompt`;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(prompt));
+    }
+
+    async function startSpeakingRecording(assignmentId, taskIndex) {
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        window.alert("Audio recording is not available in this browser. Paste a recording link instead.");
+        return;
+      }
+      if (activeMediaRecorder && activeMediaRecorder.state !== "inactive") activeMediaRecorder.stop();
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (error) {
+        window.alert("Microphone permission was not granted. Paste a recording link instead.");
+        return;
+      }
+      activeRecordingChunks = [];
+      activeMediaRecorder = new MediaRecorder(stream);
+      activeMediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size) activeRecordingChunks.push(event.data);
+      };
+      activeMediaRecorder.onstop = () => {
+        const blob = new Blob(activeRecordingChunks, { type: "audio/webm" });
+        const reader = new FileReader();
+        reader.onload = () => {
+          const key = `${assignmentId}:${taskIndex}`;
+          speakingRecordings[key] = reader.result;
+          const input = $(`#speakingRecording${taskIndex}`);
+          if (input) input.value = "Recorded audio saved in this browser";
+          const preview = $(`#speakingPreview${taskIndex}`);
+          if (preview) preview.innerHTML = `<audio controls src="${reader.result}"></audio>`;
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach((track) => track.stop());
+      };
+      activeMediaRecorder.start();
+      const status = $(`#speakingStatus${taskIndex}`);
+      if (status) status.textContent = "Recording now...";
+    }
+
+    function stopSpeakingRecording(taskIndex) {
+      if (activeMediaRecorder && activeMediaRecorder.state !== "inactive") {
+        activeMediaRecorder.stop();
+        const status = $(`#speakingStatus${taskIndex}`);
+        if (status) status.textContent = "Recording saved.";
+      }
+    }
+
+    function saveSpeakingLinkDraft(assignmentId, taskIndex, value) {
+      speakingDraftLinks[`${assignmentId}:${taskIndex}`] = value;
+    }
+
+    function renderSpeakingPlayer(assignment, submitted, answerItems) {
+      if (assignment.section !== "Speaking") return "";
+      const activeIndex = submitted ? 0 : speakingTaskIndex(assignment);
+      const current = answerItems[activeIndex] || answerItems[0] || {};
+      const submittedRecordings = submitted && submitted.recordings ? submitted.recordings : [];
+      return `
+        <div class="speaking-player">
+          <div class="answer-sheet-title">
+            <h3>TOEFL Speaking Player</h3>
+            <span class="tag green">${answerItems.length} tasks</span>
+          </div>
+          <div class="speaking-progress">
+            ${answerItems.map((item, index) => `<button type="button" class="${index === activeIndex ? "active" : ""}" onclick="setSpeakingTask('${assignment.id}', ${index})">${index + 1}</button>`).join("")}
+          </div>
+          <div class="speaking-task-card">
+            <h4>${current.label || "Speaking Task"}</h4>
+            <p>${current.prompt ? escapeHtml(current.prompt) : "Play or read the prompt, use the prep countdown set by the teacher, then record or paste your response link."}</p>
+            <div class="action-row">
+              <button class="primary-btn" type="button" onclick="playSpeakingPrompt('${assignment.id}')">Play prompt</button>
+              <button class="ghost-btn" type="button" onclick="startTaskTimerStep('${assignment.id}')">Start prep / response timer</button>
+              <button class="ghost-btn" type="button" onclick="nextSpeakingTask('${assignment.id}')">Next task</button>
+            </div>
+          </div>
+          <div class="grid">
+            ${answerItems.map((item, index) => {
+              const key = `${assignment.id}:${index}`;
+              const savedValue = submittedRecordings[index] || speakingDraftLinks[key] || (speakingRecordings[key] ? "Recorded audio saved in this browser" : "");
+              return `
+              <div class="field">
+                <label>${item.label} recording / link</label>
+                <input id="speakingRecording${index}" class="speaking-recording-link" data-speaking-task="${index}" oninput="saveSpeakingLinkDraft('${assignment.id}', ${index}, this.value)" placeholder="Paste link, recording note, or record while this task is active" value="${escapeHtml(savedValue)}">
+                <div id="speakingPreview${index}"></div>
+              </div>
+            `}).join("")}
+          </div>
+          <div class="action-row">
+            <button class="ghost-btn" type="button" onclick="startSpeakingRecording('${assignment.id}', ${activeIndex})">Start recording</button>
+            <button class="ghost-btn" type="button" onclick="stopSpeakingRecording(${activeIndex})">Stop recording</button>
+            <span id="speakingStatus${activeIndex}" class="tag blue">Ready</span>
+          </div>
+        </div>
+      `;
     }
 
     function renderTaskTimerPanel(assignment, submitted) {
@@ -3015,6 +3281,10 @@
       clearTimerInterval();
       if (submissionFor(assignment.id)) return;
       activeTimerInterval = setInterval(() => {
+        if (!currentUser) {
+          clearTimerInterval();
+          return;
+        }
         if (isTimedAssignment(assignment)) {
           const remaining = getRemainingTime(assignment);
           const countdown = $("#testTimerCountdown");
@@ -3051,6 +3321,7 @@
       const state = getTaskTimerState(assignment);
       if (!state) return;
       const currentIndex = state.session.taskTimer.activeIndex;
+      const currentStep = state.steps[currentIndex] || {};
       const completed = [...new Set([...(state.session.taskTimer.completed || []), currentIndex])];
       const nextIndex = Math.min(currentIndex + 1, state.steps.length);
       saveTaskTimerState(assignment, {
@@ -3058,6 +3329,11 @@
         startedAt: null,
         completed
       });
+      if (assignment.section === "Speaking" && taskStepLooksLikeResponse(currentStep.label)) {
+        const speakingIndex = speakingTaskIndex(assignment);
+        const maxIndex = Math.max(0, answerSheetItems(assignment).length - 1);
+        saveSpeakingTaskIndex(assignment, Math.min(speakingIndex + 1, maxIndex));
+      }
       if (autoAdvance) {
         window.alert("This timed step is finished. Move to the next step.");
       }
@@ -3078,7 +3354,14 @@
       if (event) event.preventDefault();
       const form = event ? event.currentTarget : $("#activeAnswerForm");
       if (!form) return;
+      const assignment = assignmentsForStudent().find((item) => item.id === assignmentId);
       const answers = Array.from(form.querySelectorAll(".student-answer")).map((answer) => answer.value.trim());
+      const speakingLinks = Array.from(form.querySelectorAll(".speaking-recording-link")).map((input) => {
+        const taskIndex = input.dataset.speakingTask;
+        const recorded = speakingRecordings[`${assignmentId}:${taskIndex}`];
+        return recorded || input.value.trim();
+      });
+      const autoScore = objectiveAutoScore(assignment, answers);
       const submissions = store.submissions.filter((item) => !(item.assignmentId === assignmentId && item.student === currentUser.name));
       submissions.push({
         assignmentId,
@@ -3087,11 +3370,13 @@
         className: currentUser.className,
         answer: answers.join("\n\n"),
         answers,
-        recording: $("#recordingLink") ? $("#recordingLink").value.trim() : "",
+        recording: speakingLinks.filter(Boolean).join("\n") || ($("#recordingLink") ? $("#recordingLink").value.trim() : ""),
+        recordings: speakingLinks,
         submittedAt: new Date().toISOString().slice(0, 10),
         autoSubmitted: autoSubmit,
-        score: "",
-        feedback: ""
+        autoScore,
+        score: autoScore ? autoScore.scoreLabel : "",
+        feedback: autoScore ? "Auto-scored from the teacher answer key." : ""
       });
       store.submissions = submissions;
       clearTimerInterval();
@@ -3119,6 +3404,8 @@
             <form id="activeAnswerForm" class="answer-panel" onsubmit="submitAssignment(event, '${assignment.id}')">
               ${renderTimerBanner(assignment, submitted)}
               ${renderTaskTimerPanel(assignment, submitted)}
+              <div class="template-note">${teacherScoringNote(assignment)}</div>
+              ${renderSpeakingPlayer(assignment, submitted, answerItems)}
               <div class="answer-sheet-title">
                 <h3>答题纸 · Answer Sheet</h3>
                 <span class="tag green">${answerItems.length} items</span>
@@ -3133,18 +3420,24 @@
                   </div>
                 `).join("")}
               </div>
-              ${assignment.section === "Speaking" ? `
-                <div class="field">
-                  <label>Speaking recording</label>
-                  <input id="recordingLink" placeholder="Paste audio file link or recording note" value="${submitted ? submitted.recording : ""}">
-                </div>` : ""}
               <div class="action-row">
                 <button class="primary-btn" type="submit">${submitted ? "Update submission" : "Submit work"}</button>
                 ${submitted ? `<button class="ghost-btn" type="button" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
               </div>
-              ${submitted ? `<p style="margin-top:12px;color:var(--muted)">Submitted on ${submitted.submittedAt}. Score: ${submitted.score || "Waiting for teacher"}.</p>` : ""}
+              ${submitted ? `<p style="margin-top:12px;color:var(--muted)">Submitted on ${submitted.submittedAt}. Score: ${submitted.score || "Waiting for teacher"}.</p>${submitted.autoScore ? renderAutoScoreBox(submitted.autoScore) : ""}` : ""}
             </form>
           </div>
+        </div>
+      `;
+    }
+
+    function renderAutoScoreBox(autoScore) {
+      if (!autoScore) return "";
+      const missed = (autoScore.marked || []).filter((item) => !item.correct).slice(0, 8);
+      return `
+        <div class="auto-score-box">
+          <strong>Auto score:</strong> ${autoScore.scoreLabel}<br>
+          ${missed.length ? `<span>Check: ${missed.map((item) => `Q${item.question} ${item.studentAnswer || "-"} -> ${item.correctAnswer}`).join(", ")}</span>` : "<span>All keyed answers correct.</span>"}
         </div>
       `;
     }
@@ -3606,6 +3899,7 @@
             <div id="blockExample" class="block-example"></div>
             <div class="field"><label>Section blocks</label><textarea id="assignmentBlocks" placeholder="Use this for formal Monthly Tests and Mock Exams. Add one block per audio, passage, language group, speaking task, or writing task. Separate blocks with ---">${editing && editing.sectionBlocks ? editing.sectionBlocks : ""}</textarea></div>
             <div class="field"><label>Teacher prompts / item text</label><textarea id="assignmentQuestions" placeholder="Optional: paste one prompt/question per line. Leave blank when the uploaded exam material already contains all questions.">${editing && editing.questions ? editing.questions.join("\n") : ""}</textarea></div>
+            <div class="field"><label>Answer key for auto scoring</label><textarea id="assignmentAnswerKey" placeholder="For Listening, Reading, Language/Form, Structure, and ITP objective sections. Enter one correct answer per line, or comma-separated:&#10;A&#10;C&#10;B&#10;D">${editing && editing.answerKey ? escapeHtml(parseAnswerKey(editing.answerKey).join("\n")) : ""}</textarea></div>
             ${editing && editing.media ? `<p class="tag-row"><span class="tag blue">Current upload: ${editing.media.name}</span></p>` : ""}
             <div class="toolbar">
               <button class="primary-btn" type="submit">${editing ? "Update assignment" : "Save assignment"}</button>
@@ -3828,6 +4122,7 @@
         answerCount: Number($("#assignmentAnswerCount").value) || templateFor($("#assignmentProgram").value, $("#assignmentSection").value, $("#assignmentClass").value).count,
         durationMinutes: Number($("#assignmentDuration").value) || 0,
         questions: $("#assignmentQuestions").value.split("\n").map((item) => item.trim()).filter(Boolean),
+        answerKey: parseAnswerKey($("#assignmentAnswerKey").value),
         editable: true
       };
       if (editingAssignmentId) {
@@ -4090,7 +4385,7 @@
         <tr>
           <td><strong>${submission.student}</strong><br>${submission.program} · ${submission.className}<br>${submission.submittedAt}</td>
           <td>${assignment.title || "Deleted assignment"}<br>${assignment.category || ""} · ${assignment.section || ""}</td>
-          <td>${submission.answer || "No written answer"}${submission.recording ? `<br><strong>Recording:</strong> ${submission.recording}` : ""}</td>
+          <td>${submission.answer || "No written answer"}${renderRecordingEvidence(submission)}${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}</td>
           <td>
             <div class="field"><input id="score${index}" placeholder="Score" value="${submission.score}"></div>
             <div class="field"><textarea id="feedback${index}" placeholder="Teacher feedback">${submission.feedback}</textarea></div>
@@ -4098,6 +4393,16 @@
           </td>
         </tr>
       `;
+    }
+
+    function renderRecordingEvidence(submission) {
+      const recordings = submission.recordings && submission.recordings.length ? submission.recordings : (submission.recording ? [submission.recording] : []);
+      if (!recordings.length) return "";
+      return `<div class="auto-score-box"><strong>Speaking recordings:</strong>${recordings.map((recording, index) => {
+        if (!recording) return "";
+        if (String(recording).startsWith("data:audio")) return `<div>Task ${index + 1}<br><audio controls src="${recording}"></audio></div>`;
+        return `<div>Task ${index + 1}: ${escapeHtml(recording)}</div>`;
+      }).join("")}</div>`;
     }
 
     function saveSubmissionReview(index) {
