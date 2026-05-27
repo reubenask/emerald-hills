@@ -1204,6 +1204,127 @@
       font-family: 'DM Sans', sans-serif;
     }
 
+    .lesson-calendar {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .calendar-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .calendar-head h3 {
+      margin: 0;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 26px;
+      color: var(--white);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .calendar-weekday {
+      color: var(--green-light);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0 4px 6px;
+    }
+
+    .calendar-day,
+    .calendar-blank {
+      min-height: 94px;
+      border-radius: 8px;
+    }
+
+    .calendar-day {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--ink);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .calendar-day:hover,
+    .calendar-day.has-note {
+      border-color: rgba(93, 202, 165, 0.42);
+      background: rgba(93, 202, 165, 0.09);
+    }
+
+    .calendar-day strong {
+      font-size: 20px;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
+    .lesson-board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(260px, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .lesson-card {
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .lesson-card h3 {
+      margin: 0 0 12px;
+      color: var(--white);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 19px;
+    }
+
+    .lesson-card.wide {
+      grid-column: span 2;
+    }
+
+    .lesson-card.full {
+      grid-column: 1 / -1;
+    }
+
+    .lesson-subgrid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .student-note-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .student-note-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .student-note-card strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
     .card p {
       margin: 0 0 14px;
       color: var(--muted);
@@ -1446,6 +1567,10 @@
       .role-card { min-height: auto; }
       .role-icon { width: 118px; height: 118px; }
       .remember-row { align-items: flex-start; flex-direction: column; }
+      .calendar-grid { gap: 5px; }
+      .calendar-day, .calendar-blank { min-height: 68px; }
+      .lesson-board, .student-note-grid { grid-template-columns: 1fr; }
+      .lesson-card.wide { grid-column: auto; }
     }
   </style>
 </head>
@@ -1685,6 +1810,7 @@
           <button class="active" data-section="teacherDashboard" onclick="activateSection('teacherDashboard')">Dashboard</button>
           <button data-section="programDetails" onclick="activateSection('programDetails')">Program Details</button>
           <button data-section="teacherAssignments" onclick="activateSection('teacherAssignments')">Create & Edit Work</button>
+          <button data-section="teacherLessonNotes" onclick="activateSection('teacherLessonNotes')">Lesson Notes</button>
           <button data-section="teacherSubmissions" onclick="activateSection('teacherSubmissions')">Submissions</button>
           <button data-section="teacherReviews" onclick="activateSection('teacherReviews')">Monthly Reviews</button>
           <button data-section="teacherRankings" onclick="activateSection('teacherRankings')">Rankings</button>
@@ -1709,6 +1835,7 @@
         <section id="studentReviews" class="section"></section>
         <section id="teacherDashboard" class="section"></section>
         <section id="teacherAssignments" class="section"></section>
+        <section id="teacherLessonNotes" class="section"></section>
         <section id="teacherSubmissions" class="section"></section>
         <section id="teacherReviews" class="section"></section>
         <section id="teacherRankings" class="section"></section>
@@ -1825,6 +1952,8 @@
     let currentUser = null;
     let activeAssignmentId = null;
     let editingAssignmentId = null;
+    let activeLessonDate = "";
+    let lessonCalendarMonth = new Date().toISOString().slice(0, 7);
     let activeTimerInterval = null;
     let studentWorkCategory = "Exercise";
     let programDetailsLanguage = "english";
@@ -1912,6 +2041,12 @@
       },
       set testSessions(value) {
         localStorage.setItem("gm_test_sessions", JSON.stringify(value));
+      },
+      get lessonNotes() {
+        return JSON.parse(localStorage.getItem("gm_lesson_notes") || "[]");
+      },
+      set lessonNotes(value) {
+        localStorage.setItem("gm_lesson_notes", JSON.stringify(value));
       }
     };
 
@@ -1934,6 +2069,16 @@
 
     function normalizeEmail(value) {
       return value.trim().toLowerCase();
+    }
+
+    function escapeHtml(value = "") {
+      return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[character]));
     }
 
     function roleLabel() {
@@ -2433,6 +2578,7 @@
         renderTeacherDashboard();
         renderProgramDetails();
         renderTeacherAssignments();
+        renderTeacherLessonNotes();
         renderTeacherSubmissions();
         renderTeacherReviews();
         renderTeacherRankings();
@@ -2886,12 +3032,12 @@
       const assignments = store.assignments;
       const submissions = store.submissions;
       $("#teacherDashboard").innerHTML = `
-        ${pageHeader("Teacher Console", "教师管理中心", "Create work, upload media, review submissions, write monthly reviews, and manage rankings.", `<button class="primary-btn" onclick="activateSection('teacherAssignments')">Create assignment</button>`)}
+        ${pageHeader("Teacher Console", "教师管理中心", "Create work, upload media, review submissions, write lesson notes, monthly reviews, and manage rankings.", `<div class="toolbar"><button class="primary-btn" onclick="activateSection('teacherAssignments')">Create assignment</button><button class="ghost-btn" onclick="activateSection('teacherLessonNotes')">Lesson notes</button></div>`)}
         <div class="metric-grid">
           <div class="metric"><small>Programs</small><strong>4</strong></div>
           <div class="metric"><small>Assignments</small><strong>${assignments.length}</strong></div>
           <div class="metric"><small>Submissions</small><strong>${submissions.length}</strong></div>
-          <div class="metric"><small>Monthly reviews</small><strong>${store.reviews.length}</strong></div>
+          <div class="metric"><small>Lesson notes</small><strong>${store.lessonNotes.length}</strong></div>
         </div>
         <div class="grid">
           ${Object.entries(programs).map(([program, detail]) => `
@@ -3125,6 +3271,190 @@
       store.assignments = store.assignments.filter((item) => item.id !== id);
       store.submissions = store.submissions.filter((item) => item.assignmentId !== id);
       render();
+    }
+
+    function monthLabel(monthValue) {
+      const [year, month] = monthValue.split("-").map(Number);
+      return new Date(year, month - 1, 1).toLocaleDateString("en", { month: "long", year: "numeric" });
+    }
+
+    function shiftLessonMonth(delta) {
+      const [year, month] = lessonCalendarMonth.split("-").map(Number);
+      const next = new Date(year, month - 1 + delta, 1);
+      lessonCalendarMonth = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`;
+      renderTeacherLessonNotes();
+    }
+
+    function defaultLessonNote(date) {
+      return {
+        date,
+        teacher: currentUser ? currentUser.name : "",
+        program: "Primary",
+        className: "Primary Step 1",
+        topic: "",
+        objective: "",
+        iceBreaker: "",
+        lessonForDay: "",
+        materials: "",
+        homework: "",
+        studentNotes: {}
+      };
+    }
+
+    function lessonNoteFor(date) {
+      return store.lessonNotes.find((note) => note.date === date) || defaultLessonNote(date);
+    }
+
+    function upsertLessonNote(note) {
+      const notes = store.lessonNotes.filter((item) => item.date !== note.date);
+      notes.unshift(note);
+      store.lessonNotes = notes;
+    }
+
+    function openLessonDate(date) {
+      activeLessonDate = date;
+      lessonCalendarMonth = date.slice(0, 7);
+      renderTeacherLessonNotes();
+    }
+
+    function backToLessonCalendar() {
+      activeLessonDate = "";
+      renderTeacherLessonNotes();
+    }
+
+    function setLessonProgram(program) {
+      const note = lessonNoteFor(activeLessonDate);
+      note.program = program;
+      note.className = programs[program].classes[0];
+      upsertLessonNote(note);
+      renderTeacherLessonNotes();
+    }
+
+    function setLessonClass(className) {
+      const note = lessonNoteFor(activeLessonDate);
+      note.className = className;
+      upsertLessonNote(note);
+      renderTeacherLessonNotes();
+    }
+
+    function renderTeacherLessonNotes() {
+      if (!activeLessonDate) {
+        $("#teacherLessonNotes").innerHTML = `
+          ${pageHeader("Lesson Notes", "课堂记录", "Choose a date. The lesson-note board opens after the date is selected.")}
+          ${renderLessonCalendar()}
+        `;
+        return;
+      }
+      const note = lessonNoteFor(activeLessonDate);
+      const students = store.students.filter((student) => student.program === note.program && student.className === note.className);
+      $("#teacherLessonNotes").innerHTML = `
+        ${pageHeader("Lesson Board", "课堂备课与记录", `${activeLessonDate} · ${note.program} · ${note.className}`, `<button class="ghost-btn" onclick="backToLessonCalendar()">Back to calendar</button>`)}
+        <form onsubmit="saveLessonNote(event)">
+          <div class="toolbar" style="margin-bottom:14px">
+            <select id="lessonProgram" onchange="setLessonProgram(this.value)">
+              ${Object.keys(programs).map((program) => `<option ${program === note.program ? "selected" : ""}>${program}</option>`).join("")}
+            </select>
+            <select id="lessonClass" onchange="setLessonClass(this.value)">
+              ${programs[note.program].classes.map((className) => `<option ${className === note.className ? "selected" : ""}>${className}</option>`).join("")}
+            </select>
+            <button class="primary-btn" type="submit">Save lesson note</button>
+          </div>
+          <div class="lesson-board">
+            <article class="lesson-card">
+              <h3>Topic for today</h3>
+              <div class="field"><label>Lesson topic</label><input id="lessonTopic" value="${escapeHtml(note.topic)}" placeholder="Main topic for today's lesson"></div>
+            </article>
+            <article class="lesson-card">
+              <h3>Teaching objective</h3>
+              <div class="field"><label>Objective</label><textarea id="lessonObjective" placeholder="What students should know or be able to do">${escapeHtml(note.objective)}</textarea></div>
+            </article>
+            <article class="lesson-card wide">
+              <h3>Overview of class content</h3>
+              <div class="lesson-subgrid">
+                <div class="field"><label>1. Ice breaker</label><textarea id="lessonIceBreaker" placeholder="Warm-up activity, quick question, game, review, or speaking opener">${escapeHtml(note.iceBreaker)}</textarea></div>
+                <div class="field"><label>2. Lesson for the day</label><textarea id="lessonForDay" placeholder="Main teaching sequence, practice stages, examples, and class flow">${escapeHtml(note.lessonForDay)}</textarea></div>
+                <div class="field"><label>3. Teaching and learning materials</label><textarea id="lessonMaterials" placeholder="Books, worksheets, audio, video, images, PDFs, links, or board work">${escapeHtml(note.materials)}</textarea></div>
+              </div>
+            </article>
+            <article class="lesson-card">
+              <h3>Homework</h3>
+              <div class="field"><label>Homework assigned</label><textarea id="lessonHomework" placeholder="Homework, due date notes, and submission expectations">${escapeHtml(note.homework)}</textarea></div>
+            </article>
+            <article class="lesson-card full">
+              <h3>Individual student performance and challenges</h3>
+              <div class="student-note-grid">
+                ${students.map((student) => {
+                  const key = student.studentId || `${student.name}-${student.className}`;
+                  return `
+                    <div class="student-note-card">
+                      <strong>${student.name}</strong>
+                      <div class="field"><label>Performance / challenges</label><textarea class="lesson-student-note" data-student-key="${escapeHtml(key)}" placeholder="Participation, strengths today, challenge noticed, support needed">${escapeHtml(note.studentNotes[key] || "")}</textarea></div>
+                    </div>
+                  `;
+                }).join("") || `<div class="empty">No registered students found for ${note.className}. Students will appear here automatically after signup.</div>`}
+              </div>
+            </article>
+          </div>
+        </form>
+      `;
+    }
+
+    function renderLessonCalendar() {
+      const [year, month] = lessonCalendarMonth.split("-").map(Number);
+      const firstDay = new Date(year, month - 1, 1);
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const leadingBlanks = firstDay.getDay();
+      const notedDates = new Set(store.lessonNotes.map((note) => note.date));
+      const cells = [
+        ...Array.from({ length: leadingBlanks }, () => `<div class="calendar-blank"></div>`),
+        ...Array.from({ length: daysInMonth }, (_, index) => {
+          const day = index + 1;
+          const date = `${lessonCalendarMonth}-${String(day).padStart(2, "0")}`;
+          return `
+            <button class="calendar-day ${notedDates.has(date) ? "has-note" : ""}" onclick="openLessonDate('${date}')">
+              <strong>${day}</strong>
+              <span class="tag ${notedDates.has(date) ? "green" : ""}">${notedDates.has(date) ? "Note saved" : "Open"}</span>
+            </button>
+          `;
+        })
+      ];
+      return `
+        <div class="lesson-calendar">
+          <div class="calendar-head">
+            <button class="ghost-btn" onclick="shiftLessonMonth(-1)">Previous</button>
+            <h3>${monthLabel(lessonCalendarMonth)}</h3>
+            <button class="ghost-btn" onclick="shiftLessonMonth(1)">Next</button>
+          </div>
+          <div class="calendar-grid">
+            ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => `<div class="calendar-weekday">${day}</div>`).join("")}
+            ${cells.join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function saveLessonNote(event) {
+      event.preventDefault();
+      const previous = lessonNoteFor(activeLessonDate);
+      const studentNotes = {};
+      $$(".lesson-student-note").forEach((field) => {
+        studentNotes[field.dataset.studentKey] = field.value.trim();
+      });
+      upsertLessonNote({
+        ...previous,
+        teacher: currentUser.name,
+        date: activeLessonDate,
+        program: $("#lessonProgram").value,
+        className: $("#lessonClass").value,
+        topic: $("#lessonTopic").value.trim(),
+        objective: $("#lessonObjective").value.trim(),
+        iceBreaker: $("#lessonIceBreaker").value.trim(),
+        lessonForDay: $("#lessonForDay").value.trim(),
+        materials: $("#lessonMaterials").value.trim(),
+        homework: $("#lessonHomework").value.trim(),
+        studentNotes
+      });
+      renderTeacherLessonNotes();
     }
 
     function renderTeacherSubmissions() {
