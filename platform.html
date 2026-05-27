@@ -380,7 +380,16 @@
       background: radial-gradient(circle at 35% 28%, #fffdf7, #f1eadf);
       color: var(--green);
       font-size: 42px;
+      overflow: hidden;
       box-shadow: inset 0 2px 12px rgba(255,255,255,0.7);
+    }
+
+    .role-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
     }
 
     .role-icon svg,
@@ -1612,35 +1621,21 @@
             <div class="role-picker" aria-label="Role">
               <a id="studentRole" class="role-card" href="#student-login">
                 <span class="role-icon" aria-hidden="true">
-                  <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="40" cy="24" r="12"></circle>
-                    <path d="M20 64c3-14 12-22 20-22s17 8 20 22"></path>
-                    <path d="M24 54c8 1 13 4 16 8 3-4 8-7 16-8"></path>
-                  </svg>
+                  <img src="assets/auth-student-avatar.png" alt="">
                 </span>
                 <span class="role-name">Student</span>
                 <small>I'm here to learn</small>
               </a>
               <a id="teacherRole" class="role-card" href="#teacher-login">
                 <span class="role-icon" aria-hidden="true">
-                  <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="36" cy="23" r="11"></circle>
-                    <path d="M18 64c3-13 10-21 18-21s15 8 18 21"></path>
-                    <path d="M58 21l10 10"></path>
-                    <path d="M68 21L58 31"></path>
-                    <path d="M54 42l14-14"></path>
-                  </svg>
+                  <img src="assets/auth-teacher-avatar.png" alt="">
                 </span>
                 <span class="role-name">Teacher</span>
                 <small>I'm here to teach</small>
               </a>
               <a id="adminRole" class="role-card" href="#admin-login">
                 <span class="role-icon" aria-hidden="true">
-                  <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M40 10l24 9v17c0 16-10 27-24 34-14-7-24-18-24-34V19l24-9z"></path>
-                    <circle cx="40" cy="35" r="6"></circle>
-                    <path d="M40 41v13"></path>
-                  </svg>
+                  <img src="assets/auth-admin-avatar.png" alt="">
                 </span>
                 <span class="role-name">Admin</span>
                 <small>I'm here to manage</small>
