@@ -1160,6 +1160,48 @@
       font-family: 'Playfair Display', 'Noto Serif SC', serif;
     }
 
+    .task-timer-panel {
+      border: 1px solid rgba(255, 214, 102, 0.3);
+      background: rgba(255, 214, 102, 0.08);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .task-timer-panel h3,
+    .task-timer-panel p {
+      margin: 0;
+    }
+
+    .task-timer-clock {
+      color: var(--accent);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 32px;
+      font-weight: 900;
+    }
+
+    .timer-step-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .timer-step {
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      padding: 10px;
+    }
+
+    .timer-step.active {
+      border-color: rgba(255, 214, 102, 0.54);
+      background: rgba(255, 214, 102, 0.12);
+    }
+
     .message-list {
       display: grid;
       gap: 10px;
@@ -2570,6 +2612,23 @@
       return isFormalTimedCategory(assignment.category) && Number(assignment.durationMinutes) > 0;
     }
 
+    function parseTimingPlan(raw = "") {
+      return String(raw).split("\n").map((line) => line.trim()).filter(Boolean).map((line, index) => {
+        const parts = line.split("|").map((part) => part.trim());
+        const seconds = Number(parts[1]) || 0;
+        return {
+          label: parts[0] || `Step ${index + 1}`,
+          seconds,
+          note: parts[2] || "",
+          index
+        };
+      }).filter((step) => step.seconds > 0);
+    }
+
+    function hasTaskTiming(assignment) {
+      return parseTimingPlan(assignment.timingPlan).length > 0;
+    }
+
     function studentSubmissions() {
       return store.submissions.filter((item) => item.student === currentUser.name);
     }
@@ -2866,6 +2925,74 @@
       return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     }
 
+    function getTaskTimerState(assignment) {
+      if (!hasTaskTiming(assignment) || submissionFor(assignment.id)) return null;
+      const steps = parseTimingPlan(assignment.timingPlan);
+      const session = ensureTestSession(assignment);
+      if (!session.taskTimer) {
+        session.taskTimer = {
+          activeIndex: 0,
+          startedAt: null,
+          completed: []
+        };
+        const sessions = store.testSessions;
+        sessions[testSessionKey(assignment)] = session;
+        store.testSessions = sessions;
+      }
+      return { session, steps };
+    }
+
+    function taskRemainingMs(assignment) {
+      const state = getTaskTimerState(assignment);
+      if (!state || state.session.taskTimer.startedAt === null) return null;
+      const step = state.steps[state.session.taskTimer.activeIndex];
+      if (!step) return null;
+      return Math.max(0, state.session.taskTimer.startedAt + step.seconds * 1000 - Date.now());
+    }
+
+    function saveTaskTimerState(assignment, taskTimer) {
+      const sessions = store.testSessions;
+      const key = testSessionKey(assignment);
+      sessions[key] = { ...(sessions[key] || ensureTestSession(assignment)), taskTimer };
+      store.testSessions = sessions;
+    }
+
+    function renderTaskTimerPanel(assignment, submitted) {
+      const steps = parseTimingPlan(assignment.timingPlan);
+      if (!steps.length) return "";
+      const state = !submitted ? getTaskTimerState(assignment) : null;
+      const timer = state ? state.session.taskTimer : { activeIndex: 0, startedAt: null, completed: [] };
+      const activeStep = steps[timer.activeIndex];
+      const remaining = submitted ? 0 : taskRemainingMs(assignment);
+      return `
+        <div class="task-timer-panel">
+          <div class="answer-sheet-title">
+            <h3>Section / Task Timer</h3>
+            <span class="tag warn">${steps.length} timed steps</span>
+          </div>
+          ${activeStep ? `
+            <div>
+              <strong>${activeStep.label}</strong>
+              <p>${activeStep.note || "Follow the prompt timing set by your teacher."}</p>
+              <div id="taskTimerCountdown" class="task-timer-clock">${remaining === null ? formatTime(activeStep.seconds * 1000) : formatTime(remaining)}</div>
+            </div>
+            <div class="action-row">
+              <button class="primary-btn" type="button" onclick="startTaskTimerStep('${assignment.id}')">${timer.startedAt === null ? "Start this step" : "Restart step"}</button>
+              <button class="ghost-btn" type="button" onclick="finishTaskTimerStep('${assignment.id}')">Next step</button>
+            </div>
+          ` : `<p>All timed steps completed. Submit your answers when ready.</p>`}
+          <div class="timer-step-list">
+            ${steps.map((step, index) => `
+              <div class="timer-step ${index === timer.activeIndex ? "active" : ""}">
+                <div><strong>${index + 1}. ${step.label}</strong><br><small>${step.note || "Timed step"}</small></div>
+                <span class="tag ${timer.completed.includes(index) ? "green" : "blue"}">${formatTime(step.seconds * 1000)}</span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
     function renderTimerBanner(assignment, submitted) {
       if (!isTimedAssignment(assignment)) return "";
       const remaining = submitted ? 0 : getRemainingTime(assignment);
@@ -2886,17 +3013,89 @@
 
     function startTimerInterval(assignment) {
       clearTimerInterval();
-      if (!isTimedAssignment(assignment) || submissionFor(assignment.id)) return;
+      if (submissionFor(assignment.id)) return;
       activeTimerInterval = setInterval(() => {
-        const remaining = getRemainingTime(assignment);
-        const countdown = $("#testTimerCountdown");
-        if (countdown) countdown.textContent = formatTime(remaining);
-        if (remaining <= 0) {
-          clearTimerInterval();
-          submitAssignment(null, assignment.id, true);
-          window.alert("Time is finished. The platform has submitted the answer sheet.");
+        if (isTimedAssignment(assignment)) {
+          const remaining = getRemainingTime(assignment);
+          const countdown = $("#testTimerCountdown");
+          if (countdown) countdown.textContent = formatTime(remaining);
+          if (remaining <= 0) {
+            clearTimerInterval();
+            submitAssignment(null, assignment.id, true);
+            window.alert("Time is finished. The platform has submitted the answer sheet.");
+          }
+        }
+        if (hasTaskTiming(assignment)) {
+          const taskRemaining = taskRemainingMs(assignment);
+          const taskCountdown = $("#taskTimerCountdown");
+          if (taskCountdown && taskRemaining !== null) taskCountdown.textContent = formatTime(taskRemaining);
+          if (taskRemaining === 0) {
+            finishTaskTimerStep(assignment.id, true);
+          }
         }
       }, 1000);
+    }
+
+    function startTaskTimerStep(assignmentId) {
+      const assignment = assignmentsForStudent().find((item) => item.id === assignmentId);
+      if (!assignment) return;
+      const state = getTaskTimerState(assignment);
+      if (!state || !state.steps[state.session.taskTimer.activeIndex]) return;
+      saveTaskTimerState(assignment, { ...state.session.taskTimer, startedAt: Date.now() });
+      renderStudentAssignments();
+    }
+
+    function finishTaskTimerStep(assignmentId, autoAdvance = false) {
+      const assignment = assignmentsForStudent().find((item) => item.id === assignmentId);
+      if (!assignment) return;
+      const state = getTaskTimerState(assignment);
+      if (!state) return;
+      const currentIndex = state.session.taskTimer.activeIndex;
+      const completed = [...new Set([...(state.session.taskTimer.completed || []), currentIndex])];
+      const nextIndex = Math.min(currentIndex + 1, state.steps.length);
+      saveTaskTimerState(assignment, {
+        activeIndex: nextIndex,
+        startedAt: null,
+        completed
+      });
+      if (autoAdvance) {
+        window.alert("This timed step is finished. Move to the next step.");
+      }
+      renderStudentAssignments();
+    }
+
+    function resetTaskTimerPlan(assignment) {
+      if (!hasTaskTiming(assignment)) return;
+      const sessions = store.testSessions;
+      const key = testSessionKey(assignment);
+      if (sessions[key]) {
+        sessions[key].taskTimer = { activeIndex: 0, startedAt: null, completed: [] };
+        store.testSessions = sessions;
+      }
+    }
+
+    function submitAssignment(event, assignmentId, autoSubmit = false) {
+      if (event) event.preventDefault();
+      const form = event ? event.currentTarget : $("#activeAnswerForm");
+      if (!form) return;
+      const answers = Array.from(form.querySelectorAll(".student-answer")).map((answer) => answer.value.trim());
+      const submissions = store.submissions.filter((item) => !(item.assignmentId === assignmentId && item.student === currentUser.name));
+      submissions.push({
+        assignmentId,
+        student: currentUser.name,
+        program: currentUser.program,
+        className: currentUser.className,
+        answer: answers.join("\n\n"),
+        answers,
+        recording: $("#recordingLink") ? $("#recordingLink").value.trim() : "",
+        submittedAt: new Date().toISOString().slice(0, 10),
+        autoSubmitted: autoSubmit,
+        score: "",
+        feedback: ""
+      });
+      store.submissions = submissions;
+      clearTimerInterval();
+      render();
     }
 
     function renderTestTaking(assignment) {
@@ -2919,6 +3118,7 @@
             </div>
             <form id="activeAnswerForm" class="answer-panel" onsubmit="submitAssignment(event, '${assignment.id}')">
               ${renderTimerBanner(assignment, submitted)}
+              ${renderTaskTimerPanel(assignment, submitted)}
               <div class="answer-sheet-title">
                 <h3>答题纸 · Answer Sheet</h3>
                 <span class="tag green">${answerItems.length} items</span>
@@ -3157,30 +3357,6 @@
       activeAssignmentId = null;
       clearTimerInterval();
       renderStudentAssignments();
-    }
-
-    function submitAssignment(event, assignmentId, autoSubmit = false) {
-      if (event) event.preventDefault();
-      const form = event ? event.currentTarget : $("#activeAnswerForm");
-      if (!form) return;
-      const answers = Array.from(form.querySelectorAll(".student-answer")).map((answer) => answer.value.trim());
-      const submissions = store.submissions.filter((item) => !(item.assignmentId === assignmentId && item.student === currentUser.name));
-      submissions.push({
-        assignmentId,
-        student: currentUser.name,
-        program: currentUser.program,
-        className: currentUser.className,
-        answer: answers.join("\n\n"),
-        answers,
-        recording: $("#recordingLink") ? $("#recordingLink").value.trim() : "",
-        submittedAt: new Date().toISOString().slice(0, 10),
-        autoSubmitted: autoSubmit,
-        score: "",
-        feedback: ""
-      });
-      store.submissions = submissions;
-      clearTimerInterval();
-      render();
     }
 
     function buildSubmissionSummary(assignment, submission) {
@@ -3424,6 +3600,7 @@
             <div class="field"><label>Teacher material / passage / transcript</label><textarea id="assignmentSourceMaterial" placeholder="Paste the reading passage, listening transcript, grammar text, speaking prompt, or writing source material here.">${editing && editing.sourceMaterial ? editing.sourceMaterial : ""}</textarea></div>
             <div class="field"><label>Instructions</label><textarea id="assignmentInstructions">${editing ? editing.instructions : "Complete the assigned section and submit your answers."}</textarea></div>
             <div class="field"><label>Answer sheet size</label><input id="assignmentAnswerCount" type="number" min="1" max="160" value="${editing && editing.answerCount ? editing.answerCount : templateFor(formProgram, editing ? editing.section : sectionsFor(formProgram, editing ? editing.className : programs[formProgram].classes[0])[0], editing ? editing.className : programs[formProgram].classes[0]).count}"></div>
+            <div class="field"><label>Section / task timing plan</label><textarea id="assignmentTimingPlan" placeholder="Optional advanced timer. One step per line: label | seconds | note&#10;Example: Task 2 prompt audio | 45 | Listen only&#10;Task 2 preparation | 30 | Prepare your answer&#10;Task 2 response | 60 | Record your response">${editing && editing.timingPlan ? editing.timingPlan : ""}</textarea></div>
             <div id="templateHelp" class="template-note"></div>
             <div id="teacherGuide" class="builder-guide"></div>
             <div id="blockExample" class="block-example"></div>
@@ -3497,6 +3674,32 @@
       if ($("#blockExample")) {
         $("#blockExample").textContent = sectionBlockExample(program, section, category);
       }
+      const timingPlan = $("#assignmentTimingPlan");
+      if (timingPlan && !editing && !timingPlan.value.trim() && isFormalTimedCategory(category)) {
+        timingPlan.value = defaultTimingPlan(program, section);
+      }
+    }
+
+    function defaultTimingPlan(program, section) {
+      if (section === "Speaking") {
+        if (program === "iBT") {
+          return "Task 1 prompt | 45 | Listen or read the question\nTask 1 preparation | 15 | Prepare your answer\nTask 1 response | 45 | Record your response\nTask 2 prompt/audio | 60 | Listen to the prompt\nTask 2 preparation | 30 | Prepare your answer\nTask 2 response | 60 | Record your response";
+        }
+        return "Task 1 prompt | 30 | Read or listen to the prompt\nTask 1 preparation | 15 | Prepare your answer\nTask 1 response | 45 | Record your response\nTask 2 prompt/audio | 45 | Listen to the prompt\nTask 2 preparation | 30 | Prepare your answer\nTask 2 response | 60 | Record your response";
+      }
+      if (section.includes("Listening")) {
+        return "Audio block 1 | 180 | Listen to the audio for this question group\nAnswer block 1 | 240 | Answer the related questions";
+      }
+      if (section.includes("Reading")) {
+        return "Passage block 1 | 600 | Read the passage and answer its questions";
+      }
+      if (section.includes("Structure") || section.includes("Language")) {
+        return "Question group 1 | 420 | Complete this grammar question group";
+      }
+      if (section === "Writing") {
+        return "Writing task 1 | 600 | Write your first response\nWriting task 2 | 1200 | Write your longer response";
+      }
+      return "";
     }
 
     function teacherGuide(program, section, category) {
@@ -3620,6 +3823,7 @@
         mediaUrl: $("#assignmentMediaUrl").value.trim(),
         sourceMaterial: $("#assignmentSourceMaterial").value.trim(),
         sectionBlocks: $("#assignmentBlocks").value.trim(),
+        timingPlan: $("#assignmentTimingPlan").value.trim(),
         instructions: $("#assignmentInstructions").value,
         answerCount: Number($("#assignmentAnswerCount").value) || templateFor($("#assignmentProgram").value, $("#assignmentSection").value, $("#assignmentClass").value).count,
         durationMinutes: Number($("#assignmentDuration").value) || 0,
