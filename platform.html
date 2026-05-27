@@ -1265,6 +1265,38 @@
       line-height: 1.5;
     }
 
+    .result-card {
+      display: grid;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .result-card h3 {
+      margin: 0;
+      color: var(--white);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
+    .result-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .result-score {
+      color: var(--accent);
+      font-size: 28px;
+      font-weight: 900;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
     .message-list {
       display: grid;
       gap: 10px;
@@ -1911,6 +1943,8 @@
           <button data-section="programDetails" onclick="activateSection('programDetails')">Program Details</button>
           <button data-section="studentAssignments" onclick="activateSection('studentAssignments')">Work Platforms</button>
           <button data-section="typingCentre" onclick="activateSection('typingCentre')">Typing Centre</button>
+          <button data-section="studentResults" onclick="activateSection('studentResults')">Results Portal</button>
+          <button data-section="studentMessages" onclick="activateSection('studentMessages')">Messages</button>
           <button data-section="studentRanking" onclick="activateSection('studentRanking')">Class Ranking</button>
           <button data-section="studentReviews" onclick="activateSection('studentReviews')">Monthly Review</button>
         </nav>
@@ -1940,6 +1974,8 @@
         <section id="programDetails" class="section"></section>
         <section id="studentAssignments" class="section"></section>
         <section id="typingCentre" class="section"></section>
+        <section id="studentResults" class="section"></section>
+        <section id="studentMessages" class="section"></section>
         <section id="studentRanking" class="section"></section>
         <section id="studentReviews" class="section"></section>
         <section id="teacherDashboard" class="section"></section>
@@ -2757,6 +2793,17 @@
       return store.submissions.filter((item) => item.student === currentUser.name);
     }
 
+    function messagesForCurrentStudent() {
+      if (!currentUser || role !== "student") return [];
+      const studentTargets = new Set([
+        "All Students",
+        `${currentUser.name} · ${currentUser.className}`,
+        `${currentUser.className} Students`,
+        currentUser.name
+      ]);
+      return store.messages.filter((message) => studentTargets.has(message.to));
+    }
+
     function submissionFor(assignmentId, studentName = currentUser ? currentUser.name : "") {
       if (!studentName) return null;
       return store.submissions.find((item) => item.assignmentId === assignmentId && item.student === studentName);
@@ -2886,6 +2933,8 @@
         renderProgramDetails();
         renderStudentAssignments();
         renderTypingCentre();
+        renderStudentResults();
+        renderStudentMessages();
         renderStudentRanking();
         renderStudentReviews();
       } else if (role === "teacher") {
@@ -2911,14 +2960,21 @@
       const assignments = assignmentsForStudent();
       const submissions = studentSubmissions();
       const reviewed = submissions.filter((item) => item.score !== "").length;
+      const inbox = messagesForCurrentStudent();
       const studentId = ensureCurrentStudentId();
       $("#studentDashboard").innerHTML = `
-        ${pageHeader("Student Center", `${currentUser.program} 学习中心`, `${currentUser.className} · Student ID ${studentId} · ${sectionsFor(currentUser.program, currentUser.className).length} exam sections available`, `<button class="primary-btn" onclick="activateSection('studentAssignments')">Open assignments</button>`)}
+        ${pageHeader("Student Center", `${currentUser.program} 学习中心`, `${currentUser.className} · Student ID ${studentId} · ${sectionsFor(currentUser.program, currentUser.className).length} exam sections available`, `<div class="toolbar"><button class="primary-btn" onclick="activateSection('studentAssignments')">Open assignments</button><button class="ghost-btn" onclick="activateSection('studentResults')">Results</button></div>`)}
         <div class="metric-grid">
           <div class="metric"><small>Student ID</small><strong>${studentId}</strong></div>
           <div class="metric"><small>Assigned</small><strong>${assignments.length}</strong></div>
           <div class="metric"><small>Submitted</small><strong>${submissions.length}</strong></div>
           <div class="metric"><small>Reviewed</small><strong>${reviewed}</strong></div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric"><small>Results posted</small><strong>${submissions.filter((submission) => submission.score || submission.feedback).length}</strong></div>
+          <div class="metric"><small>Messages</small><strong>${inbox.length}</strong></div>
+          <div class="metric"><small>Monthly reviews</small><strong>${store.reviews.filter((item) => item.student === currentUser.name && item.className === currentUser.className).length}</strong></div>
+          <div class="metric"><small>Class rank</small><strong>#${getRank(currentUser.name, currentUser.className, "score")}</strong></div>
         </div>
         <article class="card" style="margin-bottom:14px">
           <h3>Profile picture</h3>
@@ -3840,6 +3896,55 @@
         ${pageHeader("Monthly Review", "月度学习反馈", "Teacher feedback for strengths, improvement, weaknesses, and next steps.")}
         ${reviews.length ? renderPerformanceGraph(reviews) : ""}
         ${reviews.map(renderReviewCard).join("") || `<div class="empty">No monthly review has been published yet.</div>`}
+      `;
+    }
+
+    function renderStudentResults() {
+      const submissions = studentSubmissions().sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)));
+      $("#studentResults").innerHTML = `
+        ${pageHeader("Results Portal", "成绩中心", "Check submitted homework, exercises, monthly tests, mock exams, scores, auto-scoring, recordings, and teacher feedback.")}
+        <div class="grid">
+          ${submissions.map(renderStudentResultCard).join("") || `<div class="empty">No results yet. Submit homework, exercises, monthly tests, or mock exams to see results here.</div>`}
+        </div>
+      `;
+    }
+
+    function renderStudentResultCard(submission) {
+      const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
+      const answered = (submission.answers || []).filter(Boolean).length;
+      const total = assignment.id ? answerSheetItems(assignment).length : (submission.answers || []).length;
+      return `
+        <article class="result-card">
+          <div>
+            <h3>${escapeHtml(assignment.title || "Deleted assignment")}</h3>
+            <div class="result-meta">
+              <span>${escapeHtml(assignment.category || "Work")}</span>
+              <span>${escapeHtml(assignment.section || "")}</span>
+              <span>${escapeHtml(submission.submittedAt || "")}</span>
+              <span>${answered}/${total || answered} answered</span>
+            </div>
+          </div>
+          <div>
+            <small>Score</small>
+            <div class="result-score">${escapeHtml(submission.score || "Waiting for teacher")}</div>
+          </div>
+          ${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}
+          ${submission.feedback ? `<p><strong>Feedback:</strong> ${escapeHtml(submission.feedback)}</p>` : `<p style="color:var(--muted)">Feedback has not been posted yet.</p>`}
+          ${renderRecordingEvidence(submission)}
+          <div class="action-row">
+            <button class="ghost-btn" type="button" onclick="shareSubmissionSummary('${submission.assignmentId}')"><span aria-hidden="true">↗</span> Share summary</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderStudentMessages() {
+      const inbox = messagesForCurrentStudent();
+      $("#studentMessages").innerHTML = `
+        ${pageHeader("Messages", "消息", "Read messages sent by admin or teacher to you, all students, or your class.")}
+        <div class="message-list">
+          ${inbox.map(renderMessage).join("") || `<div class="empty">No messages yet.</div>`}
+        </div>
       `;
     }
 
@@ -4810,6 +4915,7 @@
             <div class="field"><label>To</label><select id="messageTo">
               <option>All Teachers</option>
               <option>All Students</option>
+              ${allClasses().map((className) => `<option>${className} Students</option>`).join("")}
               ${store.students.map((student) => `<option>${student.name} · ${student.className}</option>`).join("")}
               ${store.accounts.filter((account) => account.role === "teacher").map((teacher) => `<option>${teacher.name} · Teacher</option>`).join("")}
             </select></div>
