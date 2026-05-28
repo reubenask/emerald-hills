@@ -1999,7 +1999,8 @@
     const programs = {
       Primary: {
         sections: ["Listening", "Reading", "Language Form & Meaning", "Speaking", "Writing"],
-        classes: ["Primary Step 1", "Primary Step 2"]
+        classes: ["Primary Step 1", "Primary Step 2"],
+        note: "TOEFL Primary has two Reading and Listening levels: Step 1 for earlier proficiency and Step 2 for stronger young learners. Speaking and Writing are reported separately."
       },
       Junior: {
         sections: ["Listening", "Reading", "Language Form & Meaning", "Speaking", "Writing"],
@@ -2014,6 +2015,53 @@
         sections: ["Reading", "Listening", "Writing", "Speaking"],
         classes: ["iBT"],
         note: "Updated TOEFL iBT style from January 21, 2026: four skill sections with band-score reporting."
+      }
+    };
+
+    const primaryLevelDetails = {
+      "Primary Step 1": {
+        label: "Step 1 · earlier proficiency",
+        note: "TOEFL Primary Step 1 Reading and Listening report scaled scores from 100-109 with 1-4 stars. Each Reading/Listening section has 36 scored questions; the paper includes examples before the scored questions.",
+        scoreRange: "Reading/Listening 100-109",
+        proficiencyMarker: "1-4 stars",
+        cefr: "Below A1-A2",
+        sections: ["Listening", "Reading", "Language Form & Meaning", "Speaking", "Writing"],
+        counts: {
+          Listening: 36,
+          Reading: 36,
+          "Language Form & Meaning": 42,
+          Speaking: 8,
+          Writing: 4
+        },
+        times: {
+          Listening: "about 30 minutes",
+          Reading: "30 minutes",
+          "Language Form & Meaning": "teacher-set practice timing",
+          Speaking: "about 20 minutes",
+          Writing: "teacher-set writing timing"
+        }
+      },
+      "Primary Step 2": {
+        label: "Step 2 · stronger young learners",
+        note: "TOEFL Primary Step 2 Reading and Listening report scaled scores from 100 and 104-115 with 1-5 badges/medals. Each Reading/Listening section has 36 scored questions; the paper includes examples before the scored questions.",
+        scoreRange: "Reading/Listening 100, 104-115",
+        proficiencyMarker: "1-5 badges/medals",
+        cefr: "A1-B1",
+        sections: ["Listening", "Reading", "Language Form & Meaning", "Speaking", "Writing"],
+        counts: {
+          Listening: 36,
+          Reading: 36,
+          "Language Form & Meaning": 42,
+          Speaking: 8,
+          Writing: 4
+        },
+        times: {
+          Listening: "about 30 minutes",
+          Reading: "30 minutes",
+          "Language Form & Meaning": "teacher-set practice timing",
+          Speaking: "about 20 minutes",
+          Writing: "teacher-set writing timing"
+        }
       }
     };
 
@@ -2269,7 +2317,7 @@
 
     function programSummary(program) {
       if (program === "Primary") {
-        return "TOEFL Primary reports Reading and Listening scale scores from 100-115. Speaking and Writing are reported separately with proficiency descriptors.";
+        return "TOEFL Primary has Step 1 and Step 2 Reading/Listening levels. Step 1 reports 100-109 with 1-4 stars; Step 2 reports 100 and 104-115 with 1-5 badges/medals. Speaking is 1-27 and Writing is 0-17.";
       }
       if (program === "Junior") {
         return "TOEFL Junior Standard reports Listening, Language Form & Meaning, and Reading from 200-300 each, with a total score from 600-900. Speaking and Writing are reported separately.";
@@ -2285,7 +2333,7 @@
 
     function programScoreTags(program) {
       const tags = {
-        Primary: ["Reading/Listening 100-115", "Speaking descriptor score", "Writing descriptor score"],
+        Primary: ["Step 1 RL 100-109", "Step 2 RL 100, 104-115", "Speaking 1-27", "Writing 0-17"],
         Junior: ["Section scores 200-300", "Total 600-900", "Speaking/Writing separate"],
         ITP: ["ITP Level 1 310-677", "ITP Level 2 200-500"],
         iBT: ["Reading 0-30", "Listening 0-30", "Speaking 0-30", "Writing 0-30", "Total 0-120"]
@@ -3555,6 +3603,51 @@
     }
 
     function templateFor(program, section, className = "") {
+      if (program === "Primary") {
+        const level = primaryLevelDetails[className] || primaryLevelDetails["Primary Step 1"];
+        const count = level.counts[section] || 4;
+        const time = level.times[section] || "";
+        if (section === "Listening") {
+          return {
+            count,
+            label: "Listening Question",
+            placeholder: "Type A, B, C, or D.",
+            help: `${className || "Primary Step"} Listening: ${count} scored questions, ${time}. ${level.note}`
+          };
+        }
+        if (section === "Reading") {
+          return {
+            count,
+            label: "Reading Question",
+            placeholder: "Type A, B, C, or D.",
+            help: `${className || "Primary Step"} Reading: ${count} scored questions, ${time}. ${level.note}`
+          };
+        }
+        if (section === "Language Form & Meaning") {
+          return {
+            count,
+            label: "Language Question",
+            placeholder: "Type A, B, C, D, or your short answer.",
+            help: `${className || "Primary"} Language Form & Meaning practice follows the same platform structure, but timing and item count can be teacher-set.`
+          };
+        }
+        if (section === "Speaking") {
+          return {
+            count,
+            label: "Speaking Task",
+            placeholder: "Record your answer, then write a short note or paste the recording link.",
+            help: "TOEFL Primary Speaking is reported on a 1-27 score scale. Build 8 speaking tasks with prompt audio/video/image, prep time, and response time."
+          };
+        }
+        if (section === "Writing") {
+          return {
+            count,
+            label: "Writing Task",
+            placeholder: "Type your writing response here.",
+            help: "TOEFL Primary Writing is reported on a 0-17 score scale. Build 4 writing tasks or adjust the answer sheet size for teacher-created practice."
+          };
+        }
+      }
       if (program === "iBT") {
         if (section === "Reading") return { count: 50, label: "Reading Item", placeholder: "Type your selected answer or short response.", help: "2026 TOEFL iBT Reading: build adaptive-style Module 1 and Module 2 passage blocks; full practice defaults to 50 answer slots." };
         if (section === "Listening") return { count: 47, label: "Listening Item", placeholder: "Type your selected answer or short response.", help: "2026 TOEFL iBT Listening: build adaptive-style audio/video modules; full practice defaults to 47 answer slots." };
@@ -3628,6 +3721,19 @@
         const time = level && level.times[assignment.section] ? ` · ${level.times[assignment.section]}` : "";
         return `${assignment.className} ${assignment.section}: ${count} answer slot${count === 1 ? "" : "s"}${time}. This follows the official TOEFL ITP multiple-choice section structure; students can only answer and submit.`;
       }
+      if (assignment.program === "Primary") {
+        const level = primaryLevelDetails[assignment.className] || primaryLevelDetails["Primary Step 1"];
+        const time = level.times[assignment.section] ? ` · ${level.times[assignment.section]}` : "";
+        if (assignment.section === "Listening" || assignment.section === "Reading") {
+          return `${assignment.className} ${assignment.section}: ${count} answer slot${count === 1 ? "" : "s"}${time}. ${level.scoreRange}; ${level.proficiencyMarker}; CEFR mapping ${level.cefr}.`;
+        }
+        if (assignment.section === "Speaking") {
+          return `TOEFL Primary Speaking template: ${count} speaking task${count === 1 ? "" : "s"} · reported on a 1-27 scale. Teacher scores recordings manually.`;
+        }
+        if (assignment.section === "Writing") {
+          return `TOEFL Primary Writing template: ${count} writing task${count === 1 ? "" : "s"} · reported on a 0-17 scale. Teacher scores writing manually.`;
+        }
+      }
       return `${assignment.section} template: ${count} answer slot${count === 1 ? "" : "s"}. Only the teacher can edit the exam material; students can only answer and submit.`;
     }
 
@@ -3655,6 +3761,10 @@
       }
       if (assignment.program === "ITP" && assignment.section === "Speaking") {
         return "This ITP Speaking task is generated from the teacher's input. Students should prepare briefly, then record clear spoken responses for read-aloud, everyday/campus communication, and academic-style speaking prompts when provided.";
+      }
+      if (assignment.program === "Primary" && (assignment.section === "Listening" || assignment.section === "Reading")) {
+        const level = primaryLevelDetails[assignment.className] || primaryLevelDetails["Primary Step 1"];
+        return `${assignment.className} ${assignment.section}: answer the scored items created by the teacher. ${level.scoreRange}; results can be converted to ${level.proficiencyMarker} using the official Primary score guide.`;
       }
       if ((assignment.program === "Primary" || assignment.program === "Junior") && assignment.section === "Speaking") {
         return "Look at the prompt, image, audio, or video. Prepare your response, then record your answer in the answer sheet.";
@@ -4136,6 +4246,19 @@
           return `${prefix}<ul><li>ITP Speaking is separate from the paper Level 1/2 test.</li><li>Build 4 digital speaking tasks with prompts, prep time, response time, and optional audio/video.</li><li>Students submit recordings or recording links.</li></ul>`;
         }
       }
+      if (program === "Primary") {
+        const levelLabel = $("#assignmentClass") ? $("#assignmentClass").value : "Primary Step 1";
+        const level = primaryLevelDetails[levelLabel] || primaryLevelDetails["Primary Step 1"];
+        if (section === "Listening" || section === "Reading") {
+          return `${prefix}<ul><li>${levelLabel} ${section} uses ${level.counts[section]} scored items by default.</li><li>${level.scoreRange}; ${level.proficiencyMarker}; CEFR mapping ${level.cefr}.</li><li>Use blocks for each audio or passage range and enter the answer key for auto-scoring.</li></ul>`;
+        }
+        if (section === "Speaking") {
+          return `${prefix}<ul><li>Primary Speaking is reported on a 1-27 scale.</li><li>Build 8 tasks with prompt media, prep time, response time, and recording fields.</li><li>Teacher manually scores each recording and leaves feedback.</li></ul>`;
+        }
+        if (section === "Writing") {
+          return `${prefix}<ul><li>Primary Writing is reported on a 0-17 scale.</li><li>Build 4 writing tasks or adjust the answer sheet size for practice.</li><li>Teacher manually scores writing and leaves feedback.</li></ul>`;
+        }
+      }
       if (section.includes("Listening")) {
         return `${prefix}<ul><li>Add one block per audio, video, conversation, announcement, or lecture.</li><li>Label the exact question range: Questions 1-4, 5-10, 11-19, etc.</li><li>Upload the main file above or paste links inside the block.</li></ul>`;
       }
@@ -4182,6 +4305,21 @@
         }
         if (section === "Speaking") {
           return "ITP Speaking block example:\n[Task 1] Read aloud / short response\nPrompt: paste ITP-style speaking prompt\nPrep: 15 sec | Response: 45 sec\n---\n[Task 2] Campus or everyday situation response\nAudio/link: paste listening prompt";
+        }
+      }
+      if (program === "Primary") {
+        const levelLabel = $("#assignmentClass") ? $("#assignmentClass").value : "Primary Step 1";
+        if (section === "Listening") {
+          return `${levelLabel} Listening example:\n[Questions 1-6] Picture/audio group\nAudio/link: paste or upload teacher audio\nAnswer key: enter one answer per scored item\n---\n[Questions 7-18] Classroom conversation or short talk`;
+        }
+        if (section === "Reading") {
+          return `${levelLabel} Reading example:\n[Questions 1-6] Vocabulary / sentence group\nPaste text or image prompt\n---\n[Questions 7-18] Short passage or notice`;
+        }
+        if (section === "Speaking") {
+          return "Primary Speaking example:\n[Task 1] Listen and repeat / short answer\nPrompt media: upload audio, video, or image\nPrep: 15 sec | Response: 30 sec\n---\n[Task 2] Picture description";
+        }
+        if (section === "Writing") {
+          return "Primary Writing example:\n[Task 1] Sentence writing\nPrompt/source: paste picture or sentence prompt\n---\n[Task 2] Short message or paragraph";
         }
       }
       if (section.includes("Listening")) {
