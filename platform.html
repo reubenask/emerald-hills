@@ -105,6 +105,101 @@
       z-index: 1;
     }
 
+    .public-links {
+      position: fixed;
+      top: 26px;
+      right: 30px;
+      z-index: 6;
+      display: flex;
+      gap: 10px;
+    }
+
+    .public-links button {
+      min-height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 208, 128, 0.36);
+      background: rgba(255, 253, 247, 0.08);
+      color: #fffdf7;
+      padding: 0 15px;
+      font-weight: 900;
+      backdrop-filter: blur(12px);
+    }
+
+    .public-links button:hover {
+      border-color: rgba(93, 202, 165, 0.62);
+      background: rgba(93, 202, 165, 0.14);
+    }
+
+    .public-view {
+      min-height: 100vh;
+      background:
+        url("assets/auth-mountain-background.png") left bottom / cover no-repeat,
+        #071D16;
+      padding: clamp(26px, 5vw, 64px);
+    }
+
+    .public-shell {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .public-panel {
+      background: rgba(255, 253, 247, 0.95);
+      color: #10231C;
+      border-radius: 18px;
+      padding: clamp(22px, 4vw, 42px);
+      box-shadow: 0 34px 90px rgba(0,0,0,0.34);
+    }
+
+    .public-panel h1,
+    .public-panel h2,
+    .public-panel h3 {
+      color: #10231C;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      margin-top: 0;
+    }
+
+    .public-panel p {
+      color: #5F6B64;
+      line-height: 1.6;
+    }
+
+    .public-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      color: #fffdf7;
+    }
+
+    .public-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .gallery-item {
+      border: 1px solid rgba(31,122,92,0.18);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fffdf7;
+    }
+
+    .gallery-item img,
+    .gallery-item video {
+      width: 100%;
+      max-height: 360px;
+      object-fit: cover;
+      background: #071D16;
+      display: block;
+    }
+
+    .gallery-item-body {
+      padding: 14px;
+    }
+
     .brand-mark {
       display: inline-flex;
       align-items: center;
@@ -1704,6 +1799,10 @@
         grid-template-columns: 1fr 1fr;
       }
 
+      .public-grid {
+        grid-template-columns: 1fr;
+      }
+
       .stimulus {
         border-right: 0;
         border-bottom: 1px solid var(--line);
@@ -1720,6 +1819,7 @@
       .role-picker { grid-template-columns: 1fr; }
       .role-card { min-height: auto; }
       .role-icon { width: 118px; height: 118px; }
+      .public-links { position: absolute; right: 18px; top: 18px; }
       .remember-row { align-items: flex-start; flex-direction: column; }
       .calendar-grid { gap: 5px; }
       .calendar-day, .calendar-blank { min-height: 68px; }
@@ -1730,6 +1830,10 @@
 </head>
 <body>
   <div id="loginView" class="login-view">
+    <div class="public-links" aria-label="Public pages">
+      <button type="button" onclick="openPublicPage('guest')">Guest</button>
+      <button type="button" onclick="openPublicPage('gallery')">Gallery</button>
+    </div>
     <section class="login-hero">
       <div class="brand-mark">
         <span>GM</span>
@@ -1925,6 +2029,22 @@
     </section>
   </div>
 
+  <div id="publicView" class="public-view hidden">
+    <div class="public-shell">
+      <div class="public-topbar">
+        <div class="brand-mark">
+          <span>GM</span>
+          <div class="brand-copy">
+            <strong>Green Mountain</strong>
+            <small>TOEFL Academy</small>
+          </div>
+        </div>
+        <button class="ghost-btn" type="button" onclick="closePublicPage()">Back to login</button>
+      </div>
+      <section id="publicContent"></section>
+    </div>
+  </div>
+
   <div id="appView" class="app-view">
     <div class="app-shell">
       <aside class="sidebar">
@@ -1963,6 +2083,8 @@
           <button data-section="adminStudents" onclick="activateSection('adminStudents')">Students</button>
           <button data-section="adminScores" onclick="activateSection('adminScores')">Scores & Tests</button>
           <button data-section="adminEvaluation" onclick="activateSection('adminEvaluation')">Evaluate</button>
+          <button data-section="adminGuest" onclick="activateSection('adminGuest')">Guest Exam</button>
+          <button data-section="adminGallery" onclick="activateSection('adminGallery')">Gallery</button>
           <button data-section="adminLessonNotes" onclick="activateSection('adminLessonNotes')">Lesson Notes</button>
           <button data-section="adminMessages" onclick="activateSection('adminMessages')">Messages</button>
         </nav>
@@ -1989,6 +2111,8 @@
         <section id="adminStudents" class="section"></section>
         <section id="adminScores" class="section"></section>
         <section id="adminEvaluation" class="section"></section>
+        <section id="adminGuest" class="section"></section>
+        <section id="adminGallery" class="section"></section>
         <section id="adminLessonNotes" class="section"></section>
         <section id="adminMessages" class="section"></section>
       </main>
@@ -2233,6 +2357,29 @@
       }
     ];
 
+    const defaultGuestExam = {
+      title: "Entrance Examination",
+      instructions: "Complete the entrance questions below. The school will review your submission and contact you.",
+      media: null,
+      mediaUrl: "",
+      questions: [
+        "Write a short introduction about yourself.",
+        "Why do you want to join Green Mountain TOEFL Academy?",
+        "Choose the best answer: I ____ English every day. (A) study (B) studies (C) studied (D) studying"
+      ],
+      answerKey: ["", "", "A"]
+    };
+
+    const defaultGalleryItems = [
+      {
+        title: "Green Mountain TOEFL Academy",
+        description: "School gallery items can include campus photos, class videos, student activities, and announcements.",
+        type: "text",
+        media: null,
+        mediaUrl: ""
+      }
+    ];
+
     const store = {
       get students() {
         return JSON.parse(localStorage.getItem("gm_students") || "null") || students;
@@ -2287,6 +2434,24 @@
       },
       set lessonNotes(value) {
         localStorage.setItem("gm_lesson_notes", JSON.stringify(value));
+      },
+      get guestExam() {
+        return JSON.parse(localStorage.getItem("gm_guest_exam") || "null") || defaultGuestExam;
+      },
+      set guestExam(value) {
+        localStorage.setItem("gm_guest_exam", JSON.stringify(value));
+      },
+      get guestSubmissions() {
+        return JSON.parse(localStorage.getItem("gm_guest_submissions") || "[]");
+      },
+      set guestSubmissions(value) {
+        localStorage.setItem("gm_guest_submissions", JSON.stringify(value));
+      },
+      get galleryItems() {
+        return JSON.parse(localStorage.getItem("gm_gallery_items") || "null") || defaultGalleryItems;
+      },
+      set galleryItems(value) {
+        localStorage.setItem("gm_gallery_items", JSON.stringify(value));
       }
     };
 
@@ -2865,6 +3030,116 @@
       return sectionsFor(program, className).map((section) => `<span class="tag blue">${section}</span>`).join("");
     }
 
+    function openPublicPage(page) {
+      $("#loginView").style.display = "none";
+      $("#appView").style.display = "none";
+      $("#publicView").classList.remove("hidden");
+      if (page === "gallery") {
+        renderPublicGallery();
+      } else {
+        renderPublicGuest();
+      }
+    }
+
+    function closePublicPage() {
+      $("#publicView").classList.add("hidden");
+      $("#loginView").style.display = "grid";
+      $("#appView").style.display = currentUser ? "block" : "none";
+    }
+
+    function renderPublicGuest() {
+      const exam = store.guestExam;
+      const questions = exam.questions || [];
+      $("#publicContent").innerHTML = `
+        <div class="public-panel">
+          <h1>${escapeHtml(exam.title || "Entrance Examination")}</h1>
+          <p>${escapeHtml(exam.instructions || "")}</p>
+          ${renderPublicMedia(exam)}
+          <form onsubmit="submitGuestExam(event)">
+            <div class="grid">
+              <div class="field"><label>Guest name</label><input id="guestName" required placeholder="Full name"></div>
+              <div class="field"><label>Contact</label><input id="guestContact" required placeholder="Phone, WeChat, or email"></div>
+            </div>
+            <div class="grid">
+              ${questions.map((question, index) => `
+                <div class="field">
+                  <label>Question ${index + 1}</label>
+                  <p>${escapeHtml(question)}</p>
+                  <textarea class="guest-answer" required placeholder="Type your answer"></textarea>
+                </div>
+              `).join("")}
+            </div>
+            <button class="primary-btn" type="submit">Submit entrance exam</button>
+          </form>
+        </div>
+      `;
+    }
+
+    function renderPublicGallery() {
+      const items = store.galleryItems;
+      $("#publicContent").innerHTML = `
+        <div class="public-panel">
+          <h1>School Gallery</h1>
+          <p>Photos, videos, school news, class activities, and highlights published by Green Mountain TOEFL Academy.</p>
+          <div class="public-grid">
+            ${items.map(renderGalleryItem).join("") || `<div class="empty">No gallery items have been published yet.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPublicMedia(item) {
+      const blocks = [];
+      if (item.media && item.media.dataUrl) {
+        const type = item.media.type || "";
+        if (type.startsWith("image/")) blocks.push(`<div class="media-preview"><img src="${item.media.dataUrl}" alt="${escapeHtml(item.media.name || "Guest exam media")}"></div>`);
+        if (type.startsWith("audio/")) blocks.push(`<div class="media-preview"><audio controls src="${item.media.dataUrl}"></audio></div>`);
+        if (type.startsWith("video/")) blocks.push(`<div class="media-preview"><video controls src="${item.media.dataUrl}"></video></div>`);
+      }
+      if (item.mediaUrl) blocks.push(`<div class="media-preview"><a class="primary-btn" href="${escapeHtml(item.mediaUrl)}" target="_blank" rel="noopener">Open media link</a></div>`);
+      return blocks.join("");
+    }
+
+    function renderGalleryItem(item, index) {
+      return `
+        <article class="gallery-item">
+          ${renderGalleryMedia(item)}
+          <div class="gallery-item-body">
+            <h3>${escapeHtml(item.title || `Gallery item ${index + 1}`)}</h3>
+            <p>${escapeHtml(item.description || "")}</p>
+            ${item.mediaUrl ? `<a class="tag green" href="${escapeHtml(item.mediaUrl)}" target="_blank" rel="noopener">Open link</a>` : ""}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderGalleryMedia(item) {
+      if (item.media && item.media.dataUrl) {
+        const type = item.media.type || "";
+        if (type.startsWith("image/")) return `<img src="${item.media.dataUrl}" alt="${escapeHtml(item.title || "Gallery image")}">`;
+        if (type.startsWith("video/")) return `<video controls src="${item.media.dataUrl}"></video>`;
+        if (type.startsWith("audio/")) return `<div class="gallery-item-body"><audio controls src="${item.media.dataUrl}"></audio></div>`;
+      }
+      return "";
+    }
+
+    function submitGuestExam(event) {
+      event.preventDefault();
+      const exam = store.guestExam;
+      const answers = $$(".guest-answer").map((answer) => answer.value.trim());
+      const submissions = store.guestSubmissions;
+      submissions.unshift({
+        date: new Date().toISOString().slice(0, 10),
+        name: $("#guestName").value.trim(),
+        contact: $("#guestContact").value.trim(),
+        title: exam.title,
+        answers
+      });
+      store.guestSubmissions = submissions;
+      window.alert("Entrance exam submitted. The school will review it and contact you.");
+      renderPublicGuest();
+    }
+
     function pageHeader(eyebrow, zh, en, action = "") {
       return `
         <div class="topline">
@@ -2999,6 +3274,8 @@
         renderAdminStudents();
         renderAdminScores();
         renderAdminEvaluation();
+        renderAdminGuest();
+        renderAdminGallery();
         renderAdminLessonNotes();
         renderAdminMessages();
       }
@@ -4940,6 +5217,107 @@
       });
       store.adminNotes = notes;
       render();
+    }
+
+    function renderAdminGuest() {
+      const exam = store.guestExam;
+      $("#adminGuest").innerHTML = `
+        ${pageHeader("Guest Entrance Exam", "访客入学测试", "Only admin controls the public guest entrance examination and can review guest submissions.")}
+        <div class="split">
+          <form class="card" onsubmit="saveGuestExam(event)">
+            <h3>Entrance exam content</h3>
+            <div class="field"><label>Title</label><input id="guestExamTitle" required value="${escapeHtml(exam.title || "")}"></div>
+            <div class="field"><label>Instructions</label><textarea id="guestExamInstructions">${escapeHtml(exam.instructions || "")}</textarea></div>
+            <div class="field"><label>Upload image/audio/video</label><input id="guestExamFile" type="file" accept="image/*,audio/*,video/*,application/pdf"></div>
+            <div class="field"><label>Media link</label><input id="guestExamMediaUrl" placeholder="Optional public media link" value="${escapeHtml(exam.mediaUrl || "")}"></div>
+            <div class="field"><label>Entrance questions</label><textarea id="guestExamQuestions" placeholder="One question per line">${escapeHtml((exam.questions || []).join("\n"))}</textarea></div>
+            <div class="field"><label>Answer key / admin notes</label><textarea id="guestExamAnswerKey" placeholder="Optional reference answers for admin review">${escapeHtml((exam.answerKey || []).join("\n"))}</textarea></div>
+            ${exam.media ? `<p class="tag-row"><span class="tag blue">Current upload: ${escapeHtml(exam.media.name || "media")}</span></p>` : ""}
+            <button class="primary-btn" type="submit">Save guest exam</button>
+          </form>
+          <div class="table-card">
+            <table>
+              <thead><tr><th>Guest</th><th>Contact</th><th>Submission</th><th>Actions</th></tr></thead>
+              <tbody>
+                ${store.guestSubmissions.map((submission, index) => `
+                  <tr>
+                    <td><strong>${escapeHtml(submission.name)}</strong><br>${escapeHtml(submission.date)}</td>
+                    <td>${escapeHtml(submission.contact)}</td>
+                    <td>${(submission.answers || []).map((answer, answerIndex) => `<strong>Q${answerIndex + 1}</strong>: ${escapeHtml(answer)}`).join("<br>")}</td>
+                    <td><button class="danger-btn" type="button" onclick="deleteGuestSubmission(${index})">Delete</button></td>
+                  </tr>
+                `).join("") || `<tr><td colspan="4">No guest submissions yet.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    async function saveGuestExam(event) {
+      event.preventDefault();
+      const existing = store.guestExam;
+      const uploaded = await readUploadedMaterial($("#guestExamFile").files[0]);
+      store.guestExam = {
+        title: $("#guestExamTitle").value.trim(),
+        instructions: $("#guestExamInstructions").value.trim(),
+        media: uploaded || existing.media || null,
+        mediaUrl: $("#guestExamMediaUrl").value.trim(),
+        questions: $("#guestExamQuestions").value.split("\n").map((item) => item.trim()).filter(Boolean),
+        answerKey: $("#guestExamAnswerKey").value.split("\n").map((item) => item.trim())
+      };
+      renderAdminGuest();
+    }
+
+    function deleteGuestSubmission(index) {
+      store.guestSubmissions = store.guestSubmissions.filter((item, itemIndex) => itemIndex !== index);
+      renderAdminGuest();
+    }
+
+    function renderAdminGallery() {
+      $("#adminGallery").innerHTML = `
+        ${pageHeader("Gallery Management", "学校相册", "Only admin controls the public gallery page for school images, videos, and relevant updates.")}
+        <div class="split">
+          <form class="card" onsubmit="saveGalleryItem(event)">
+            <h3>Add gallery item</h3>
+            <div class="field"><label>Title</label><input id="galleryTitle" required placeholder="Gallery title"></div>
+            <div class="field"><label>Description</label><textarea id="galleryDescription" placeholder="Write a short caption or announcement."></textarea></div>
+            <div class="field"><label>Upload image/video/audio</label><input id="galleryFile" type="file" accept="image/*,video/*,audio/*"></div>
+            <div class="field"><label>Media link</label><input id="galleryMediaUrl" placeholder="Optional YouTube, school page, or media link"></div>
+            <button class="primary-btn" type="submit">Publish gallery item</button>
+          </form>
+          <div class="message-list">
+            ${store.galleryItems.map((item, index) => `
+              <article class="message-item">
+                <small>Gallery item ${index + 1}</small>
+                <strong>${escapeHtml(item.title || "Untitled")}</strong>
+                <p>${escapeHtml(item.description || "")}</p>
+                ${renderPublicMedia(item)}
+                <button class="danger-btn" type="button" onclick="deleteGalleryItem(${index})">Delete</button>
+              </article>
+            `).join("") || `<div class="empty">No gallery items yet.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    async function saveGalleryItem(event) {
+      event.preventDefault();
+      const uploaded = await readUploadedMaterial($("#galleryFile").files[0]);
+      const items = store.galleryItems;
+      items.unshift({
+        title: $("#galleryTitle").value.trim(),
+        description: $("#galleryDescription").value.trim(),
+        media: uploaded,
+        mediaUrl: $("#galleryMediaUrl").value.trim()
+      });
+      store.galleryItems = items;
+      renderAdminGallery();
+    }
+
+    function deleteGalleryItem(index) {
+      store.galleryItems = store.galleryItems.filter((item, itemIndex) => itemIndex !== index);
+      renderAdminGallery();
     }
 
     function lessonStudentLabel(studentKey) {
