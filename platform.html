@@ -180,6 +180,55 @@
       gap: 16px;
     }
 
+    .public-selector {
+      display: grid;
+      gap: 14px;
+      margin: 20px 0;
+    }
+
+    .public-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .public-tabs button {
+      border: 1px solid rgba(31,122,92,0.18);
+      background: rgba(31,122,92,0.06);
+      color: #247A5E;
+      border-radius: 999px;
+      min-height: 38px;
+      padding: 0 14px;
+      font-weight: 900;
+    }
+
+    .public-tabs button.active {
+      background: #247A5E;
+      color: #fffdf7;
+      border-color: #247A5E;
+    }
+
+    .entrance-exam-card {
+      border: 1px solid rgba(31,122,92,0.18);
+      border-radius: 14px;
+      padding: 18px;
+      background: rgba(255,253,247,0.72);
+    }
+
+    .entrance-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 16px;
+    }
+
+    .speaking-prompt-card {
+      border: 1px solid rgba(185,146,90,0.28);
+      border-radius: 12px;
+      padding: 14px;
+      background: rgba(185,146,90,0.08);
+    }
+
     .gallery-item {
       border: 1px solid rgba(31,122,92,0.18);
       border-radius: 12px;
@@ -2332,6 +2381,10 @@
       teacherSubmissions: "Exercise",
       teacherRankings: "score"
     };
+    let publicGuestLevel = "Primary Step 1";
+    let publicGuestSection = "Listening";
+    let adminGuestLevel = "Primary Step 1";
+    let adminGuestSection = "Listening";
     const workCategories = ["Exercise", "Homework", "Monthly Test", "Mock Exam"];
     const categoryLabels = {
       Exercise: "Class Exercises",
@@ -2357,18 +2410,7 @@
       }
     ];
 
-    const defaultGuestExam = {
-      title: "Entrance Examination",
-      instructions: "Complete the entrance questions below. The school will review your submission and contact you.",
-      media: null,
-      mediaUrl: "",
-      questions: [
-        "Write a short introduction about yourself.",
-        "Why do you want to join Green Mountain TOEFL Academy?",
-        "Choose the best answer: I ____ English every day. (A) study (B) studies (C) studied (D) studying"
-      ],
-      answerKey: ["", "", "A"]
-    };
+    const defaultGuestExam = buildDefaultGuestExamBank();
 
     const defaultGalleryItems = [
       {
@@ -2379,6 +2421,99 @@
         mediaUrl: ""
       }
     ];
+
+    function entranceLevels() {
+      return [
+        { key: "Primary Step 1", program: "Primary", className: "Primary Step 1", label: "Primary Step 1" },
+        { key: "Primary Step 2", program: "Primary", className: "Primary Step 2", label: "Primary Step 2" },
+        { key: "Junior", program: "Junior", className: "Junior", label: "Junior" },
+        { key: "ITP Level 1", program: "ITP", className: "ITP Level 1", label: "ITP Level 1" },
+        { key: "ITP Level 2", program: "ITP", className: "ITP Level 2", label: "ITP Level 2" },
+        { key: "iBT", program: "iBT", className: "iBT", label: "iBT" }
+      ];
+    }
+
+    function entranceLevelMeta(levelKey) {
+      return entranceLevels().find((level) => level.key === levelKey) || entranceLevels()[0];
+    }
+
+    function defaultGuestSectionExam(levelKey, section) {
+      const level = entranceLevelMeta(levelKey);
+      const template = templateFor(level.program, section, level.className);
+      const miniCount = section === "Speaking" ? 2 : section === "Writing" ? 1 : Math.min(8, template.count || 8);
+      const sectionTitle = `${level.label} ${section} Mini Entrance`;
+      const objectivePrompt = section.includes("Language") || section.includes("Structure")
+        ? "Paste each grammar sentence or paragraph on a new line. Use [choices: A option | B option | C option | D option] beside the blank so it displays as a formal answer box."
+        : `Add ${section.toLowerCase()} passages, audio notes, images, or question ranges here. One prompt per line is enough for the platform to build the answer sheet.`;
+      const speakingPrompt = "Task 1: Listen or read the prompt, prepare, then record your answer.\nTask 2: Respond to the picture, audio, or video prompt uploaded by admin.";
+      const writingPrompt = "Writing Task: Type a short organized response to the entrance prompt.";
+      return {
+        title: sectionTitle,
+        instructions: `Complete this short ${section} entrance section. It is a mini version of the real ${level.label} structure and will be reviewed by the school.`,
+        program: level.program,
+        className: level.className,
+        section,
+        answerCount: miniCount,
+        media: null,
+        mediaUrl: "",
+        timingPlan: section === "Speaking"
+          ? "Prompt playback | 30 | Listen or view the task\nPreparation | 15 | Prepare your response\nResponse | 45 | Record or paste your answer link"
+          : "",
+        questions: section === "Speaking" ? speakingPrompt.split("\n") : section === "Writing" ? [writingPrompt] : [objectivePrompt],
+        answerKey: Array.from({ length: miniCount }, () => "")
+      };
+    }
+
+    function buildDefaultGuestExamBank() {
+      return entranceLevels().reduce((bank, level) => {
+        bank[level.key] = {
+          program: level.program,
+          className: level.className,
+          label: level.label,
+          sections: sectionsFor(level.program, level.className).reduce((sections, section) => {
+            sections[section] = defaultGuestSectionExam(level.key, section);
+            return sections;
+          }, {})
+        };
+        return bank;
+      }, {});
+    }
+
+    function normalizeGuestExamBank(saved) {
+      const base = buildDefaultGuestExamBank();
+      if (!saved) return base;
+      if (saved.questions || saved.title) {
+        base["Primary Step 1"].sections.Listening = {
+          ...base["Primary Step 1"].sections.Listening,
+          ...saved,
+          program: "Primary",
+          className: "Primary Step 1",
+          section: "Listening"
+        };
+        return base;
+      }
+      Object.keys(base).forEach((levelKey) => {
+        const savedLevel = saved[levelKey] || {};
+        base[levelKey] = {
+          ...base[levelKey],
+          ...savedLevel,
+          sections: { ...base[levelKey].sections }
+        };
+        Object.keys(base[levelKey].sections).forEach((section) => {
+          const savedSection = savedLevel.sections ? savedLevel.sections[section] : null;
+          if (savedSection) {
+            base[levelKey].sections[section] = {
+              ...base[levelKey].sections[section],
+              ...savedSection,
+              program: base[levelKey].program,
+              className: base[levelKey].className,
+              section
+            };
+          }
+        });
+      });
+      return base;
+    }
 
     const store = {
       get students() {
@@ -2436,7 +2571,7 @@
         localStorage.setItem("gm_lesson_notes", JSON.stringify(value));
       },
       get guestExam() {
-        return JSON.parse(localStorage.getItem("gm_guest_exam") || "null") || defaultGuestExam;
+        return normalizeGuestExamBank(JSON.parse(localStorage.getItem("gm_guest_exam") || "null")) || defaultGuestExam;
       },
       set guestExam(value) {
         localStorage.setItem("gm_guest_exam", JSON.stringify(value));
@@ -3048,31 +3183,78 @@
     }
 
     function renderPublicGuest() {
-      const exam = store.guestExam;
+      const bank = store.guestExam;
+      const level = entranceLevelMeta(publicGuestLevel);
+      const sections = Object.keys(bank[level.key].sections);
+      if (!sections.includes(publicGuestSection)) publicGuestSection = sections[0];
+      const exam = bank[level.key].sections[publicGuestSection];
       const questions = exam.questions || [];
+      const answerCount = Number(exam.answerCount) || Math.max(questions.length, 1);
       $("#publicContent").innerHTML = `
         <div class="public-panel">
-          <h1>${escapeHtml(exam.title || "Entrance Examination")}</h1>
-          <p>${escapeHtml(exam.instructions || "")}</p>
-          ${renderPublicMedia(exam)}
+          <h1>Entrance Examination</h1>
+          <p>Choose the level and complete the mini entrance section. Each level follows a short version of its real exam structure.</p>
+          <div class="public-selector">
+            <div>
+              <strong>Level</strong>
+              <div class="public-tabs">
+                ${entranceLevels().map((item) => `<button type="button" class="${item.key === publicGuestLevel ? "active" : ""}" onclick="setPublicGuestLevel('${escapeHtml(item.key)}')">${escapeHtml(item.label)}</button>`).join("")}
+              </div>
+            </div>
+            <div>
+              <strong>Section</strong>
+              <div class="public-tabs">
+                ${sections.map((section) => `<button type="button" class="${section === publicGuestSection ? "active" : ""}" onclick="setPublicGuestSection('${escapeHtml(section)}')">${escapeHtml(section)}</button>`).join("")}
+              </div>
+            </div>
+          </div>
           <form onsubmit="submitGuestExam(event)">
             <div class="grid">
               <div class="field"><label>Guest name</label><input id="guestName" required placeholder="Full name"></div>
               <div class="field"><label>Contact</label><input id="guestContact" required placeholder="Phone, WeChat, or email"></div>
             </div>
+            <div class="entrance-exam-card">
+              <h2>${escapeHtml(exam.title || `${level.label} ${publicGuestSection}`)}</h2>
+              <p>${escapeHtml(exam.instructions || "")}</p>
+              <div class="entrance-meta">
+                <span class="tag green">${escapeHtml(level.program)}</span>
+                <span class="tag blue">${escapeHtml(level.className)}</span>
+                <span class="tag blue">${escapeHtml(publicGuestSection)}</span>
+                <span class="tag green">${answerCount} answer slot${answerCount === 1 ? "" : "s"}</span>
+              </div>
+              ${exam.timingPlan ? `<div class="speaking-prompt-card"><strong>Timing guide</strong><p>${escapeHtml(exam.timingPlan).replace(/\n/g, "<br>")}</p></div>` : ""}
+              ${renderPublicMedia(exam)}
+            </div>
             <div class="grid">
-              ${questions.map((question, index) => `
+              ${Array.from({ length: answerCount }, (_, index) => {
+                const prompt = questions[index] || `${publicGuestSection} answer ${index + 1}`;
+                const isSpeaking = publicGuestSection === "Speaking";
+                return `
                 <div class="field">
-                  <label>Question ${index + 1}</label>
-                  <p>${escapeHtml(question)}</p>
-                  <textarea class="guest-answer" required placeholder="Type your answer"></textarea>
+                  <label>${isSpeaking ? "Speaking task" : "Question"} ${index + 1}</label>
+                  <p>${escapeHtml(prompt)}</p>
+                  ${isSpeaking ? `<button class="secondary-btn" type="button" onclick="speakGuestPrompt(${index})">Play prompt</button>` : ""}
+                  <textarea class="guest-answer" required placeholder="${isSpeaking ? "Paste recording link or write your spoken response note" : "Type your answer"}"></textarea>
                 </div>
-              `).join("")}
+              `;
+              }).join("")}
             </div>
             <button class="primary-btn" type="submit">Submit entrance exam</button>
           </form>
         </div>
       `;
+    }
+
+    function setPublicGuestLevel(levelKey) {
+      publicGuestLevel = levelKey;
+      const level = entranceLevelMeta(publicGuestLevel);
+      publicGuestSection = sectionsFor(level.program, level.className)[0];
+      renderPublicGuest();
+    }
+
+    function setPublicGuestSection(section) {
+      publicGuestSection = section;
+      renderPublicGuest();
     }
 
     function renderPublicGallery() {
@@ -3095,6 +3277,7 @@
         if (type.startsWith("image/")) blocks.push(`<div class="media-preview"><img src="${item.media.dataUrl}" alt="${escapeHtml(item.media.name || "Guest exam media")}"></div>`);
         if (type.startsWith("audio/")) blocks.push(`<div class="media-preview"><audio controls src="${item.media.dataUrl}"></audio></div>`);
         if (type.startsWith("video/")) blocks.push(`<div class="media-preview"><video controls src="${item.media.dataUrl}"></video></div>`);
+        if (type === "application/pdf") blocks.push(`<div class="media-preview"><a class="primary-btn" href="${item.media.dataUrl}" target="_blank" rel="noopener">Open uploaded PDF</a></div>`);
       }
       if (item.mediaUrl) blocks.push(`<div class="media-preview"><a class="primary-btn" href="${escapeHtml(item.mediaUrl)}" target="_blank" rel="noopener">Open media link</a></div>`);
       return blocks.join("");
@@ -3125,19 +3308,35 @@
 
     function submitGuestExam(event) {
       event.preventDefault();
-      const exam = store.guestExam;
+      const bank = store.guestExam;
+      const level = entranceLevelMeta(publicGuestLevel);
+      const exam = bank[level.key].sections[publicGuestSection];
       const answers = $$(".guest-answer").map((answer) => answer.value.trim());
       const submissions = store.guestSubmissions;
       submissions.unshift({
         date: new Date().toISOString().slice(0, 10),
         name: $("#guestName").value.trim(),
         contact: $("#guestContact").value.trim(),
+        program: level.program,
+        className: level.className,
+        level: level.key,
+        section: publicGuestSection,
         title: exam.title,
         answers
       });
       store.guestSubmissions = submissions;
       window.alert("Entrance exam submitted. The school will review it and contact you.");
       renderPublicGuest();
+    }
+
+    function speakGuestPrompt(index) {
+      const bank = store.guestExam;
+      const level = entranceLevelMeta(publicGuestLevel);
+      const exam = bank[level.key].sections[publicGuestSection];
+      const prompt = (exam.questions || [])[index] || "";
+      if (!prompt || !window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(prompt));
     }
 
     function pageHeader(eyebrow, zh, en, action = "") {
@@ -5220,33 +5419,55 @@
     }
 
     function renderAdminGuest() {
-      const exam = store.guestExam;
+      const bank = store.guestExam;
+      const level = entranceLevelMeta(adminGuestLevel);
+      const sections = Object.keys(bank[level.key].sections);
+      if (!sections.includes(adminGuestSection)) adminGuestSection = sections[0];
+      const exam = bank[level.key].sections[adminGuestSection];
       $("#adminGuest").innerHTML = `
-        ${pageHeader("Guest Entrance Exam", "访客入学测试", "Only admin controls the public guest entrance examination and can review guest submissions.")}
+        ${pageHeader("Guest Entrance Exams", "访客入学测试", "Admin controls mini entrance exams for every level and section, including speaking media prompts.")}
         <div class="split">
           <form class="card" onsubmit="saveGuestExam(event)">
             <h3>Entrance exam content</h3>
+            <div class="grid">
+              <div class="field">
+                <label>Entrance level</label>
+                <select id="guestExamLevel" onchange="setAdminGuestLevel(this.value)">
+                  ${entranceLevels().map((item) => `<option value="${escapeHtml(item.key)}" ${item.key === adminGuestLevel ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="field">
+                <label>Exam section</label>
+                <select id="guestExamSection" onchange="setAdminGuestSection(this.value)">
+                  ${sections.map((section) => `<option value="${escapeHtml(section)}" ${section === adminGuestSection ? "selected" : ""}>${escapeHtml(section)}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+            <p class="help-text">${escapeHtml(templateFor(level.program, adminGuestSection, level.className).help)}</p>
             <div class="field"><label>Title</label><input id="guestExamTitle" required value="${escapeHtml(exam.title || "")}"></div>
             <div class="field"><label>Instructions</label><textarea id="guestExamInstructions">${escapeHtml(exam.instructions || "")}</textarea></div>
-            <div class="field"><label>Upload image/audio/video</label><input id="guestExamFile" type="file" accept="image/*,audio/*,video/*,application/pdf"></div>
+            <div class="field"><label>Upload prompt material</label><input id="guestExamFile" type="file" accept="image/*,audio/*,video/*,application/pdf"></div>
             <div class="field"><label>Media link</label><input id="guestExamMediaUrl" placeholder="Optional public media link" value="${escapeHtml(exam.mediaUrl || "")}"></div>
-            <div class="field"><label>Entrance questions</label><textarea id="guestExamQuestions" placeholder="One question per line">${escapeHtml((exam.questions || []).join("\n"))}</textarea></div>
+            <div class="field"><label>Answer sheet slots</label><input id="guestExamAnswerCount" type="number" min="1" max="120" value="${Number(exam.answerCount) || 1}"></div>
+            <div class="field"><label>Section / speaking timing plan</label><textarea id="guestExamTimingPlan" placeholder="Optional timer. One step per line: label | seconds | note&#10;Example: Prompt playback | 30 | Listen only&#10;Preparation | 15 | Prepare&#10;Response | 45 | Speak">${escapeHtml(exam.timingPlan || "")}</textarea></div>
+            <div class="field"><label>Entrance questions / prompts</label><textarea id="guestExamQuestions" placeholder="One prompt per line. For Language/Form use [choices: option A | option B | option C | option D].">${escapeHtml((exam.questions || []).join("\n"))}</textarea></div>
             <div class="field"><label>Answer key / admin notes</label><textarea id="guestExamAnswerKey" placeholder="Optional reference answers for admin review">${escapeHtml((exam.answerKey || []).join("\n"))}</textarea></div>
             ${exam.media ? `<p class="tag-row"><span class="tag blue">Current upload: ${escapeHtml(exam.media.name || "media")}</span></p>` : ""}
-            <button class="primary-btn" type="submit">Save guest exam</button>
+            <button class="primary-btn" type="submit">Save selected entrance section</button>
           </form>
           <div class="table-card">
             <table>
-              <thead><tr><th>Guest</th><th>Contact</th><th>Submission</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Guest</th><th>Level</th><th>Contact</th><th>Submission</th><th>Actions</th></tr></thead>
               <tbody>
                 ${store.guestSubmissions.map((submission, index) => `
                   <tr>
                     <td><strong>${escapeHtml(submission.name)}</strong><br>${escapeHtml(submission.date)}</td>
+                    <td>${escapeHtml(submission.level || submission.className || "Entrance")}<br><span class="tag blue">${escapeHtml(submission.section || "General")}</span></td>
                     <td>${escapeHtml(submission.contact)}</td>
                     <td>${(submission.answers || []).map((answer, answerIndex) => `<strong>Q${answerIndex + 1}</strong>: ${escapeHtml(answer)}`).join("<br>")}</td>
                     <td><button class="danger-btn" type="button" onclick="deleteGuestSubmission(${index})">Delete</button></td>
                   </tr>
-                `).join("") || `<tr><td colspan="4">No guest submissions yet.</td></tr>`}
+                `).join("") || `<tr><td colspan="5">No guest submissions yet.</td></tr>`}
               </tbody>
             </table>
           </div>
@@ -5254,18 +5475,39 @@
       `;
     }
 
+    function setAdminGuestLevel(levelKey) {
+      adminGuestLevel = levelKey;
+      const level = entranceLevelMeta(adminGuestLevel);
+      adminGuestSection = sectionsFor(level.program, level.className)[0];
+      renderAdminGuest();
+    }
+
+    function setAdminGuestSection(section) {
+      adminGuestSection = section;
+      renderAdminGuest();
+    }
+
     async function saveGuestExam(event) {
       event.preventDefault();
-      const existing = store.guestExam;
+      const bank = store.guestExam;
+      const level = entranceLevelMeta(adminGuestLevel);
+      const existing = bank[level.key].sections[adminGuestSection];
       const uploaded = await readUploadedMaterial($("#guestExamFile").files[0]);
-      store.guestExam = {
+      bank[level.key].sections[adminGuestSection] = {
+        ...existing,
         title: $("#guestExamTitle").value.trim(),
         instructions: $("#guestExamInstructions").value.trim(),
+        program: level.program,
+        className: level.className,
+        section: adminGuestSection,
+        answerCount: Number($("#guestExamAnswerCount").value) || 1,
         media: uploaded || existing.media || null,
         mediaUrl: $("#guestExamMediaUrl").value.trim(),
+        timingPlan: $("#guestExamTimingPlan").value.trim(),
         questions: $("#guestExamQuestions").value.split("\n").map((item) => item.trim()).filter(Boolean),
         answerKey: $("#guestExamAnswerKey").value.split("\n").map((item) => item.trim())
       };
+      store.guestExam = bank;
       renderAdminGuest();
     }
 
