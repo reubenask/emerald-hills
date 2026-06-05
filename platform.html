@@ -2414,9 +2414,20 @@
 
     const defaultGalleryItems = [
       {
-        title: "Green Mountain TOEFL Academy",
-        description: "School gallery items can include campus photos, class videos, student activities, and announcements.",
-        type: "text",
+        id: "gallery-map-activity-01",
+        title: "World Map Learning Activity",
+        description: "Students build geography vocabulary, teamwork, and discussion skills through a hands-on classroom map activity.",
+        type: "image",
+        imageSrc: "assets/gallery-map-activity-01.jpg",
+        media: null,
+        mediaUrl: ""
+      },
+      {
+        id: "gallery-map-activity-02",
+        title: "Collaborative Classroom Practice",
+        description: "Young learners practice placement, observation, and English communication through guided group work.",
+        type: "image",
+        imageSrc: "assets/gallery-map-activity-02.jpg",
         media: null,
         mediaUrl: ""
       }
@@ -2515,6 +2526,14 @@
       return base;
     }
 
+    function normalizeGalleryItems(saved) {
+      if (!saved) return defaultGalleryItems;
+      const savedItems = Array.isArray(saved) ? saved : [];
+      const savedIds = new Set(savedItems.map((item) => item.id).filter(Boolean));
+      const publishedItems = defaultGalleryItems.filter((item) => !savedIds.has(item.id));
+      return [...publishedItems, ...savedItems];
+    }
+
     const store = {
       get students() {
         return JSON.parse(localStorage.getItem("gm_students") || "null") || students;
@@ -2583,7 +2602,7 @@
         localStorage.setItem("gm_guest_submissions", JSON.stringify(value));
       },
       get galleryItems() {
-        return JSON.parse(localStorage.getItem("gm_gallery_items") || "null") || defaultGalleryItems;
+        return normalizeGalleryItems(JSON.parse(localStorage.getItem("gm_gallery_items") || "null"));
       },
       set galleryItems(value) {
         localStorage.setItem("gm_gallery_items", JSON.stringify(value));
@@ -3297,6 +3316,9 @@
     }
 
     function renderGalleryMedia(item) {
+      if (item.imageSrc) {
+        return `<img src="${escapeHtml(item.imageSrc)}" alt="${escapeHtml(item.title || "Gallery image")}">`;
+      }
       if (item.media && item.media.dataUrl) {
         const type = item.media.type || "";
         if (type.startsWith("image/")) return `<img src="${item.media.dataUrl}" alt="${escapeHtml(item.title || "Gallery image")}">`;
