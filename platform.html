@@ -1881,6 +1881,7 @@
   <div id="loginView" class="login-view">
     <div class="public-links" aria-label="Public pages">
       <button type="button" onclick="openPublicPage('guest')">Guest</button>
+      <button type="button" onclick="openPublicPage('typing')">Typing Centre</button>
       <button type="button" onclick="openPublicPage('gallery')">Gallery</button>
     </div>
     <section class="login-hero">
@@ -3190,6 +3191,8 @@
       $("#publicView").classList.remove("hidden");
       if (page === "gallery") {
         renderPublicGallery();
+      } else if (page === "typing") {
+        renderPublicTypingCentre();
       } else {
         renderPublicGuest();
       }
@@ -3284,6 +3287,30 @@
           <p>Photos, videos, school news, class activities, and highlights published by Green Mountain TOEFL Academy.</p>
           <div class="public-grid">
             ${items.map(renderGalleryItem).join("") || `<div class="empty">No gallery items have been published yet.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPublicTypingCentre() {
+      $("#publicContent").innerHTML = `
+        <div class="public-panel">
+          <h1>Typing Centre</h1>
+          <p>Choose a typing game and practice speed, accuracy, and keyboard confidence. This area is open to guests and registered students.</p>
+          <div class="public-grid">
+            ${typingGames.map((game) => `
+              <article class="gallery-item">
+                <div class="gallery-item-body">
+                  <h3>${escapeHtml(game.title)}</h3>
+                  <p>${escapeHtml(game.description)}</p>
+                  <div class="entrance-meta">
+                    <span class="tag green">Open to guests</span>
+                    <span class="tag blue">Typing practice</span>
+                  </div>
+                  <a class="primary-btn" href="${escapeHtml(game.file)}?guest=typing-centre">Play game</a>
+                </div>
+              </article>
+            `).join("")}
           </div>
         </div>
       `;
