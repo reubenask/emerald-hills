@@ -2411,6 +2411,29 @@
       }
     ];
 
+    const seededStudentAccounts = [
+      { name: "Ethan Guo", username: "ethan.guo", email: "ethanguo@greenmountain.local", password: "GM-EthanG-4821", gender: "male", accountId: "GM-STU-2001" },
+      { name: "Ethan Yang", username: "ethan.yang", email: "ethanyang@greenmountain.local", password: "GM-EthanY-7394", gender: "male", accountId: "GM-STU-2002" },
+      { name: "Oscar", username: "oscar", email: "oscar@greenmountain.local", password: "GM-Oscar-2158", gender: "male", accountId: "GM-STU-2003" },
+      { name: "Ran", username: "ran", email: "ran@greenmountain.local", password: "GM-Ran-9046", gender: "male", accountId: "GM-STU-2004" },
+      { name: "Yaya", username: "yaya", email: "yaya@greenmountain.local", password: "GM-Yaya-3672", gender: "female", accountId: "GM-STU-2005" },
+      { name: "Leonardo", username: "leonardo", email: "leonardo@greenmountain.local", password: "GM-Leonardo-5819", gender: "male", accountId: "GM-STU-2006" },
+      { name: "Isaac", username: "isaac", email: "isaac@greenmountain.local", password: "GM-Isaac-6403", gender: "male", accountId: "GM-STU-2007" },
+      { name: "Wilson", username: "wilson", email: "wilson@greenmountain.local", password: "GM-Wilson-1287", gender: "male", accountId: "GM-STU-2008" },
+      { name: "Miumiu", username: "miumiu", email: "miumiu@greenmountain.local", password: "GM-Miumiu-7526", gender: "female", accountId: "GM-STU-2009" },
+      { name: "Yann", username: "yann", email: "yann@greenmountain.local", password: "GM-Yann-4930", gender: "male", accountId: "GM-STU-2010" },
+      { name: "Cherry", username: "cherry", email: "cherry@greenmountain.local", password: "GM-Cherry-8164", gender: "female", accountId: "GM-STU-2011" },
+      { name: "Grace", username: "grace", email: "grace@greenmountain.local", password: "GM-Grace-2705", gender: "female", accountId: "GM-STU-2012" }
+    ].map((account) => ({
+      ...account,
+      role: "student",
+      studentId: account.accountId,
+      program: "Primary",
+      className: "Primary Step 1",
+      photo: "",
+      createdAt: "2026-06-11"
+    }));
+
     const defaultGuestExam = buildDefaultGuestExamBank();
 
     const defaultGalleryItems = [
@@ -2535,15 +2558,47 @@
       return [...publishedItems, ...savedItems];
     }
 
+    function mergeSeededAccounts(saved) {
+      const accounts = Array.isArray(saved) ? saved : [];
+      const existingKeys = new Set(accounts.map((account) => `${account.role || "student"}:${String(account.username || "").toLowerCase()}`));
+      const existingNames = new Set(accounts.map((account) => `${account.role || "student"}:${String(account.name || "").toLowerCase()}`));
+      const seeded = seededStudentAccounts.filter((account) => {
+        const usernameKey = `${account.role}:${account.username.toLowerCase()}`;
+        const nameKey = `${account.role}:${account.name.toLowerCase()}`;
+        return !existingKeys.has(usernameKey) && !existingNames.has(nameKey);
+      });
+      return [...seeded, ...accounts];
+    }
+
+    function mergeSeededStudents(saved) {
+      const registered = Array.isArray(saved) ? saved : [];
+      const existing = new Set(registered.map((student) => `${String(student.name || "").toLowerCase()}:${student.program}:${student.className}`));
+      const seeded = seededStudentAccounts
+        .filter((account) => !existing.has(`${account.name.toLowerCase()}:${account.program}:${account.className}`))
+        .map((account) => ({
+          name: account.name,
+          studentId: account.studentId,
+          gender: account.gender,
+          program: account.program,
+          className: account.className,
+          score: 0,
+          homework: 0,
+          exercises: 0,
+          exams: 0,
+          photo: ""
+        }));
+      return [...seeded, ...registered];
+    }
+
     const store = {
       get students() {
-        return JSON.parse(localStorage.getItem("gm_students") || "null") || students;
+        return mergeSeededStudents(JSON.parse(localStorage.getItem("gm_students") || "null") || students);
       },
       set students(value) {
         localStorage.setItem("gm_students", JSON.stringify(value));
       },
       get accounts() {
-        return JSON.parse(localStorage.getItem("gm_accounts") || "[]");
+        return mergeSeededAccounts(JSON.parse(localStorage.getItem("gm_accounts") || "[]"));
       },
       set accounts(value) {
         localStorage.setItem("gm_accounts", JSON.stringify(value));
