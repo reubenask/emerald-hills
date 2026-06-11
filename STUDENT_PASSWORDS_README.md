@@ -6,10 +6,10 @@ These accounts are grouped by the old score tables in `Primary.junior.iBT.pdf`.
 
 | Student | Username | Password | Student ID | Class |
 |---|---|---|---|---|
-| Miumiu | `miumiu` | `GM-Miumiu-7526` | `GM-STU-2009` | Primary Step 1 |
-| Cherry | `cherry` | `GM-Cherry-8164` | `GM-STU-2011` | Primary Step 1 |
-| Grace | `grace` | `GM-Grace-2705` | `GM-STU-2012` | Primary Step 1 |
-| Yann | `yann` | `GM-Yann-4930` | `GM-STU-2010` | Primary Step 1 |
+| Miumiu | `miumiu` | `GM-Miumiu-7526` | `GM-STU-2009` | Primary Step 2 |
+| Cherry | `cherry` | `GM-Cherry-8164` | `GM-STU-2011` | Primary Step 2 |
+| Grace | `grace` | `GM-Grace-2705` | `GM-STU-2012` | Primary Step 2 |
+| Yann | `yann` | `GM-Yann-4930` | `GM-STU-2010` | Primary Step 2 |
 
 ## Table 2 · Junior
 
