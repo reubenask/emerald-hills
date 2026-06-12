@@ -995,6 +995,33 @@
       box-shadow: var(--shadow);
     }
 
+    .metric-link,
+    .program-overview-card {
+      cursor: pointer;
+      text-align: left;
+      color: inherit;
+      font: inherit;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .metric-link {
+      width: 100%;
+      appearance: none;
+    }
+
+    .metric-link:hover,
+    .program-overview-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(93, 202, 165, 0.72);
+      background: rgba(93, 202, 165, 0.1);
+    }
+
+    .metric-link:focus-visible,
+    .program-overview-card:focus-visible {
+      outline: 3px solid rgba(93, 202, 165, 0.45);
+      outline-offset: 3px;
+    }
+
     .metric small {
       color: var(--muted);
       font-weight: 800;
@@ -3667,6 +3694,21 @@
       render();
     }
 
+    function openProgramRecords(sectionId, program) {
+      teacherProgram[sectionId] = program;
+      if (recordClassFilter[sectionId] !== undefined) recordClassFilter[sectionId] = "";
+      activateSection(sectionId);
+    }
+
+    function dashboardMetric(label, value, sectionId, detail = "Open details") {
+      return `
+        <button class="metric metric-link" type="button" onclick="activateSection('${sectionId}')" aria-label="${escapeHtml(label)}: ${escapeHtml(String(value))}. ${escapeHtml(detail)}">
+          <small>${escapeHtml(label)}</small>
+          <strong>${escapeHtml(String(value))}</strong>
+        </button>
+      `;
+    }
+
     function studentsForProgram(program) {
       return store.students.filter((student) => student.program === program);
     }
@@ -3765,12 +3807,12 @@
         </div>
         <div class="grid">
           ${Object.entries(programs).map(([program, detail]) => `
-            <article class="card">
+            <button class="card program-overview-card" type="button" onclick="openProgramRecords('teacherRecords', '${program}')">
               <h3>${program}</h3>
               <p>${programSummary(program)}</p>
               <div class="tag-row">${sectionTags(program)}</div>
               <div class="tag-row">${programScoreTags(program)}</div>
-            </article>
+            </button>
           `).join("")}
         </div>
       `;
@@ -5654,26 +5696,26 @@
       $("#adminDashboard").innerHTML = `
         ${pageHeader("Admin Overview", "管理员总览", "Oversee students, teachers, tests, comments, and messages across every program.", `<div class="toolbar"><button class="primary-btn" onclick="activateSection('adminRecords')">Student records</button><button class="ghost-btn" onclick="activateSection('adminScores')">Scores & tests</button></div>`)}
         <div class="metric-grid">
-          <div class="metric"><small>Students</small><strong>${store.students.length}</strong></div>
-          <div class="metric"><small>Teachers</small><strong>${teachers}</strong></div>
-          <div class="metric"><small>Assignments</small><strong>${store.assignments.length}</strong></div>
-          <div class="metric"><small>Submissions</small><strong>${store.submissions.length}</strong></div>
+          ${dashboardMetric("Students", store.students.length, "adminStudents", "Open student details")}
+          ${dashboardMetric("Teachers", teachers, "adminAccounts", "Open teacher accounts")}
+          ${dashboardMetric("Assignments", store.assignments.length, "adminRecords", "Open assignment records by student")}
+          ${dashboardMetric("Submissions", store.submissions.length, "adminScores", "Open submitted tests and homework")}
         </div>
         <div class="metric-grid">
-          <div class="metric"><small>Needs review</small><strong>${unreviewed}</strong></div>
-          <div class="metric"><small>Accounts</small><strong>${store.accounts.length}</strong></div>
-          <div class="metric"><small>Admins</small><strong>${store.accounts.filter((account) => account.role === "admin").length}</strong></div>
-          <div class="metric"><small>Lesson notes</small><strong>${store.lessonNotes.length}</strong></div>
+          ${dashboardMetric("Needs review", unreviewed, "adminEvaluation", "Open admin evaluation")}
+          ${dashboardMetric("Accounts", store.accounts.length, "adminAccounts", "Open all accounts")}
+          ${dashboardMetric("Admins", store.accounts.filter((account) => account.role === "admin").length, "adminAccounts", "Open admin accounts")}
+          ${dashboardMetric("Lesson notes", store.lessonNotes.length, "adminLessonNotes", "Open lesson notes")}
         </div>
         <div class="grid">
           ${Object.keys(programs).map((program) => `
-            <article class="card">
+            <button class="card program-overview-card" type="button" onclick="openProgramRecords('adminRecords', '${program}')">
               <h3>${program}</h3>
               <p>${studentsForProgram(program).length} students · ${store.assignments.filter((item) => item.program === program).length} assignments · ${store.submissions.filter((item) => item.program === program).length} submissions</p>
               <p>${programSummary(program)}</p>
               <div class="tag-row">${sectionTags(program)}</div>
               <div class="tag-row">${programScoreTags(program)}</div>
-            </article>
+            </button>
           `).join("")}
         </div>
       `;
