@@ -1014,6 +1014,10 @@
       gap: 14px;
     }
 
+    .grid.one-col {
+      grid-template-columns: 1fr;
+    }
+
     .program-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1462,7 +1466,7 @@
 
     .score-strip {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 8px;
       margin: 12px 0;
     }
@@ -1675,6 +1679,28 @@
       border-radius: 8px;
       overflow: hidden;
       box-shadow: var(--shadow);
+    }
+
+    .compact-table {
+      margin-top: 10px;
+    }
+
+    .compact-table th,
+    .compact-table td {
+      font-size: 13px;
+      padding: 10px;
+    }
+
+    .student-record-card details {
+      border-top: 1px solid var(--line);
+      margin-top: 14px;
+      padding-top: 12px;
+    }
+
+    .student-record-card summary {
+      cursor: pointer;
+      color: var(--white);
+      font-weight: 900;
     }
 
     table {
@@ -2124,6 +2150,7 @@
           <button data-section="teacherAssignments" onclick="activateSection('teacherAssignments')">Create & Edit Work</button>
           <button data-section="teacherLessonNotes" onclick="activateSection('teacherLessonNotes')">Lesson Notes</button>
           <button data-section="teacherSubmissions" onclick="activateSection('teacherSubmissions')">Submissions</button>
+          <button data-section="teacherRecords" onclick="activateSection('teacherRecords')">Student Records</button>
           <button data-section="teacherReviews" onclick="activateSection('teacherReviews')">Monthly Reviews</button>
           <button data-section="teacherRankings" onclick="activateSection('teacherRankings')">Rankings</button>
         </nav>
@@ -2131,6 +2158,7 @@
           <button class="active" data-section="adminDashboard" onclick="activateSection('adminDashboard')">Admin Overview</button>
           <button data-section="adminAccounts" onclick="activateSection('adminAccounts')">Accounts</button>
           <button data-section="adminStudents" onclick="activateSection('adminStudents')">Students</button>
+          <button data-section="adminRecords" onclick="activateSection('adminRecords')">Student Records</button>
           <button data-section="adminScores" onclick="activateSection('adminScores')">Scores & Tests</button>
           <button data-section="adminEvaluation" onclick="activateSection('adminEvaluation')">Evaluate</button>
           <button data-section="adminGuest" onclick="activateSection('adminGuest')">Guest Exam</button>
@@ -2154,11 +2182,13 @@
         <section id="teacherAssignments" class="section"></section>
         <section id="teacherLessonNotes" class="section"></section>
         <section id="teacherSubmissions" class="section"></section>
+        <section id="teacherRecords" class="section"></section>
         <section id="teacherReviews" class="section"></section>
         <section id="teacherRankings" class="section"></section>
         <section id="adminDashboard" class="section"></section>
         <section id="adminAccounts" class="section"></section>
         <section id="adminStudents" class="section"></section>
+        <section id="adminRecords" class="section"></section>
         <section id="adminScores" class="section"></section>
         <section id="adminEvaluation" class="section"></section>
         <section id="adminGuest" class="section"></section>
@@ -2374,13 +2404,19 @@
     let teacherProgram = {
       teacherAssignments: "Primary",
       teacherSubmissions: "Primary",
+      teacherRecords: "Primary",
       teacherReviews: "Primary",
-      teacherRankings: "Primary"
+      teacherRankings: "Primary",
+      adminRecords: "Primary"
     };
     let teacherCategory = {
       teacherAssignments: "Exercise",
       teacherSubmissions: "Exercise",
       teacherRankings: "score"
+    };
+    let recordClassFilter = {
+      teacherRecords: "",
+      adminRecords: ""
     };
     let publicGuestLevel = "Primary Step 1";
     let publicGuestSection = "Listening";
@@ -3009,10 +3045,6 @@
     }
 
     async function registerAdmin() {
-      if (store.accounts.some((account) => account.role === "admin")) {
-        window.alert("An admin account already exists. Sign in as admin to manage accounts.");
-        return;
-      }
       const name = $("#adminSignupName").value.trim();
       const username = normalizeUsername($("#adminSignupUsername").value);
       const email = normalizeEmail($("#adminSignupEmail").value);
@@ -3619,6 +3651,7 @@
 
     function selectTeacherProgram(sectionId, program) {
       teacherProgram[sectionId] = program;
+      if (recordClassFilter[sectionId] !== undefined) recordClassFilter[sectionId] = "";
       editingAssignmentId = null;
       render();
     }
@@ -3626,6 +3659,11 @@
     function selectTeacherCategory(sectionId, category) {
       teacherCategory[sectionId] = category;
       editingAssignmentId = null;
+      render();
+    }
+
+    function selectRecordClass(sectionId, className) {
+      recordClassFilter[sectionId] = className;
       render();
     }
 
@@ -3676,12 +3714,14 @@
         renderTeacherAssignments();
         renderTeacherLessonNotes();
         renderTeacherSubmissions();
+        renderTeacherRecords();
         renderTeacherReviews();
         renderTeacherRankings();
       } else {
         renderAdminDashboard();
         renderAdminAccounts();
         renderAdminStudents();
+        renderAdminRecords();
         renderAdminScores();
         renderAdminEvaluation();
         renderAdminGuest();
@@ -4752,7 +4792,7 @@
       const assignments = store.assignments;
       const submissions = store.submissions;
       $("#teacherDashboard").innerHTML = `
-        ${pageHeader("Teacher Console", "教师管理中心", "Create work, upload media, review submissions, write lesson notes, monthly reviews, and manage rankings.", `<div class="toolbar"><button class="primary-btn" onclick="activateSection('teacherAssignments')">Create assignment</button><button class="ghost-btn" onclick="activateSection('teacherLessonNotes')">Lesson notes</button></div>`)}
+        ${pageHeader("Teacher Console", "教师管理中心", "Create work, upload media, review submissions, write lesson notes, monthly reviews, and manage rankings.", `<div class="toolbar"><button class="primary-btn" onclick="activateSection('teacherRecords')">Student records</button><button class="ghost-btn" onclick="activateSection('teacherAssignments')">Create assignment</button><button class="ghost-btn" onclick="activateSection('teacherLessonNotes')">Lesson notes</button></div>`)}
         <div class="metric-grid">
           <div class="metric"><small>Programs</small><strong>4</strong></div>
           <div class="metric"><small>Assignments</small><strong>${assignments.length}</strong></div>
@@ -5346,6 +5386,132 @@
       render();
     }
 
+    function studentRecordBundle(student) {
+      const matchStudent = (item) => item.student === student.name && item.program === student.program && item.className === student.className;
+      const submissions = store.submissions.filter(matchStudent);
+      const reviews = store.reviews.filter(matchStudent).sort((a, b) => String(b.month || "").localeCompare(String(a.month || "")));
+      const assignedWork = store.assignments.filter((assignment) => assignment.program === student.program && assignment.className === student.className);
+      const notes = store.adminNotes.filter((note) => note.student === student.name);
+      const latestReview = reviews[0] || null;
+      return { submissions, reviews, assignedWork, notes, latestReview };
+    }
+
+    function renderStudentRecordCard(student, options = {}) {
+      const { submissions, reviews, assignedWork, notes, latestReview } = studentRecordBundle(student);
+      const latestScores = latestReview && latestReview.scores ? latestReview.scores : {};
+      const overall = latestScores.overall !== undefined ? latestScores.overall : student.score;
+      const sourceLabel = latestReview ? (latestReview.source || latestReview.month || "Monthly review") : "No review yet";
+      const submittedIds = new Set(submissions.map((submission) => submission.assignmentId));
+      const pendingWork = assignedWork.filter((assignment) => !submittedIds.has(assignment.id));
+      return `
+        <article class="card student-record-card">
+          <div class="topline compact">
+            <div class="profile-row">
+              <div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div>
+              <div>
+                <h3>${escapeHtml(student.name)}</h3>
+                <p>${escapeHtml(student.studentId || "No ID yet")} · ${escapeHtml(student.program)} · ${escapeHtml(student.className)}</p>
+              </div>
+            </div>
+            <div class="tag-row">
+              <span class="tag green">${submissions.length} submissions</span>
+              <span class="tag blue">${reviews.length} score/review records</span>
+              <span class="tag">${pendingWork.length} pending work</span>
+            </div>
+          </div>
+          <div class="score-strip">
+            <div class="score-pill"><small>Overall</small><strong>${overall || 0}${latestReview && latestReview.source === "Old score import" ? "%" : ""}</strong></div>
+            <div class="score-pill"><small>Speaking</small><strong>${latestScores.speaking ?? "-"}</strong></div>
+            <div class="score-pill"><small>Listening</small><strong>${latestScores.listening ?? "-"}</strong></div>
+            <div class="score-pill"><small>Reading</small><strong>${latestScores.reading ?? "-"}</strong></div>
+            <div class="score-pill"><small>Grammar</small><strong>${latestScores.language ?? "-"}</strong></div>
+            <div class="score-pill"><small>Writing</small><strong>${latestScores.writing ?? "-"}</strong></div>
+          </div>
+          <p class="muted">Latest record: ${escapeHtml(sourceLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</p>
+          ${reviews.length ? renderPerformanceGraph(reviews) : ""}
+          <details open>
+            <summary>Scores and monthly reviews</summary>
+            <div class="grid one-col">
+              ${reviews.map(renderReviewCard).join("") || `<div class="empty">No score or monthly review has been recorded yet.</div>`}
+            </div>
+          </details>
+          <details ${options.openTests ? "open" : ""}>
+            <summary>Assigned tests, homework, and exercises</summary>
+            <div class="table-card compact-table">
+              <table>
+                <thead><tr><th>Work</th><th>Section</th><th>Timing / answers</th><th>Status</th></tr></thead>
+                <tbody>
+                  ${assignedWork.map((assignment) => {
+                    const submitted = submissions.find((submission) => submission.assignmentId === assignment.id);
+                    return `
+                      <tr>
+                        <td><strong>${escapeHtml(assignment.title)}</strong><br>${escapeHtml(categoryLabels[assignment.category] || assignment.category)} · Due ${escapeHtml(assignment.due || "-")}</td>
+                        <td>${escapeHtml(assignment.section || "-")}<br>${assignment.answerKey && assignment.answerKey.length ? `${assignment.answerKey.length} answer key items` : "Manual scoring / no key"}</td>
+                        <td>${assignment.durationMinutes ? `${assignment.durationMinutes} min` : "No timer"}<br>${assignment.answerCount || 0} answer slots</td>
+                        <td>${submitted ? `Submitted ${escapeHtml(submitted.submittedAt || "")}<br>Score: ${escapeHtml(submitted.score || "Waiting")}` : "Not submitted yet"}</td>
+                      </tr>
+                    `;
+                  }).join("") || `<tr><td colspan="4">No assigned work for this student's class.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </details>
+          <details ${options.openSubmissions ? "open" : ""}>
+            <summary>Submitted answers and teacher feedback</summary>
+            <div class="table-card compact-table">
+              <table>
+                <thead><tr><th>Submission</th><th>Answer evidence</th><th>Score</th><th>Feedback</th></tr></thead>
+                <tbody>
+                  ${submissions.map((submission) => {
+                    const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
+                    return `
+                      <tr>
+                        <td><strong>${escapeHtml(assignment.title || "Deleted assignment")}</strong><br>${escapeHtml(assignment.category || "")} · ${escapeHtml(assignment.section || "")}<br>${escapeHtml(submission.submittedAt || "")}</td>
+                        <td>${escapeHtml(String(submission.answer || "No written answer")).slice(0, 260)}${renderRecordingEvidence(submission)}${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}</td>
+                        <td>${escapeHtml(submission.score || "Waiting")}</td>
+                        <td>${escapeHtml(submission.feedback || "No teacher feedback yet.")}</td>
+                      </tr>
+                    `;
+                  }).join("") || `<tr><td colspan="4">No submissions yet.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </details>
+          <details>
+            <summary>Admin annotations</summary>
+            <div class="message-list">
+              ${notes.map(renderAdminNote).join("") || `<div class="empty">No admin annotations for this student yet.</div>`}
+            </div>
+          </details>
+        </article>
+      `;
+    }
+
+    function renderStudentRecords(sectionId, targetId, title, zh, description, options = {}) {
+      const program = teacherProgram[sectionId] || "Primary";
+      const students = studentsForProgram(program);
+      const classNames = programs[program].classes;
+      const selectedClass = classNames.includes(recordClassFilter[sectionId] || "") ? recordClassFilter[sectionId] : "";
+      const visibleStudents = selectedClass ? students.filter((student) => student.className === selectedClass) : students;
+      $(`#${targetId}`).innerHTML = `
+        ${pageHeader(title, zh, description)}
+        ${renderProgramPicker(sectionId)}
+        <div class="toolbar" style="margin-bottom:14px">
+          <label class="field inline-field"><span>Class</span><select id="${targetId}Class" onchange="selectRecordClass('${sectionId}', this.value)">
+            <option value="">All ${program} classes</option>
+            ${classNames.map((className) => `<option ${selectedClass === className ? "selected" : ""}>${className}</option>`).join("")}
+          </select></label>
+        </div>
+        <div class="grid one-col">
+          ${visibleStudents.map((student) => renderStudentRecordCard(student, options)).join("") || `<div class="empty">No students found for ${program}${selectedClass ? ` · ${selectedClass}` : ""}.</div>`}
+        </div>
+      `;
+    }
+
+    function renderTeacherRecords() {
+      renderStudentRecords("teacherRecords", "teacherRecords", "Student Records", "学生完整记录", "Teachers can see each student's assigned work, submissions, scores, reviews, recordings, feedback, and progress graph.", { openTests: true });
+    }
+
     function renderTeacherReviews() {
       const selectedStudents = studentsForProgram(teacherProgram.teacherReviews);
       const selectedReviews = reviewsForProgram(teacherProgram.teacherReviews);
@@ -5486,7 +5652,7 @@
       const unreviewed = store.submissions.filter((submission) => !submission.score).length;
       const teachers = store.accounts.filter((account) => account.role === "teacher").length;
       $("#adminDashboard").innerHTML = `
-        ${pageHeader("Admin Overview", "管理员总览", "Oversee students, teachers, tests, comments, and messages across every program.")}
+        ${pageHeader("Admin Overview", "管理员总览", "Oversee students, teachers, tests, comments, and messages across every program.", `<div class="toolbar"><button class="primary-btn" onclick="activateSection('adminRecords')">Student records</button><button class="ghost-btn" onclick="activateSection('adminScores')">Scores & tests</button></div>`)}
         <div class="metric-grid">
           <div class="metric"><small>Students</small><strong>${store.students.length}</strong></div>
           <div class="metric"><small>Teachers</small><strong>${teachers}</strong></div>
@@ -5562,9 +5728,17 @@
       `;
     }
 
+    function renderAdminRecords() {
+      renderStudentRecords("adminRecords", "adminRecords", "All Student Records", "全校学生完整记录", "Admin can inspect every student's tests, answer evidence, imported scores, monthly reviews, teacher feedback, admin annotations, and progress graph.", { openTests: true, openSubmissions: true });
+    }
+
     function renderAdminScores() {
       $("#adminScores").innerHTML = `
         ${pageHeader("Scores & Tests", "成绩与测试", "Review every submitted test, homework, and exercise across the school.")}
+        <div class="toolbar" style="margin-bottom:14px">
+          <button class="primary-btn" type="button" onclick="activateSection('adminRecords')">Open full student records</button>
+        </div>
+        <h3>Submission scores</h3>
         <div class="table-card">
           <table>
             <thead><tr><th>Student</th><th>Assignment</th><th>Program</th><th>Score</th><th>Teacher feedback</th></tr></thead>
@@ -5583,6 +5757,10 @@
               }).join("") || `<tr><td colspan="5">No submissions yet.</td></tr>`}
             </tbody>
           </table>
+        </div>
+        <h3 style="margin-top:24px">Imported / monthly score records</h3>
+        <div class="grid">
+          ${store.reviews.map(renderReviewCard).join("") || `<div class="empty">No monthly reviews or imported scores yet.</div>`}
         </div>
       `;
     }
