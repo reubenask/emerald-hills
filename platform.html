@@ -2436,6 +2436,55 @@
       createdAt: "2026-06-11"
     }));
 
+    const seededQaAccounts = [
+      {
+        role: "student",
+        name: "QA Student",
+        username: "qa.student",
+        email: "qa.student@greenmountain.local",
+        password: "GM-Test-Student-2026",
+        gender: "male",
+        accountId: "GM-STU-9001",
+        studentId: "GM-STU-9001",
+        program: "Primary",
+        className: "Primary Step 2",
+        score: 0,
+        exams: 0,
+        homework: 0,
+        exercises: 0,
+        photo: "",
+        createdAt: "2026-06-12"
+      },
+      {
+        role: "teacher",
+        name: "QA Teacher",
+        username: "qa.teacher",
+        email: "qa.teacher@greenmountain.local",
+        password: "GM-Test-Teacher-2026",
+        gender: "female",
+        accountId: "GM-TCH-9001",
+        program: "All Programs",
+        className: "Teacher",
+        photo: "",
+        createdAt: "2026-06-12"
+      },
+      {
+        role: "admin",
+        name: "QA Admin",
+        username: "qa.admin",
+        email: "qa.admin@greenmountain.local",
+        password: "GM-Test-Admin-2026",
+        gender: "male",
+        accountId: "GM-ADM-9001",
+        program: "All Programs",
+        className: "Admin",
+        photo: "",
+        createdAt: "2026-06-12"
+      }
+    ];
+
+    const seededAccounts = [...seededStudentAccounts, ...seededQaAccounts];
+
     const seededScoreReviews = [
       { student: "Miumiu", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-20", overall: 57, scores: { speaking: 55, listening: 30, reading: 90, language: 50, writing: 60 } },
       { student: "Cherry", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-20", overall: 84, scores: { speaking: 70, listening: 90, reading: 100, language: 80, writing: 80 } },
@@ -2598,18 +2647,19 @@
     function mergeSeededAccounts(saved) {
       const accounts = Array.isArray(saved) ? saved : [];
       const merged = accounts.map((account) => {
-        const seed = seededStudentAccounts.find((item) => item.role === (account.role || "student") && (item.username.toLowerCase() === String(account.username || "").toLowerCase() || item.name.toLowerCase() === String(account.name || "").toLowerCase()));
+        const seed = seededAccounts.find((item) => item.role === (account.role || "student") && (item.username.toLowerCase() === String(account.username || "").toLowerCase() || item.name.toLowerCase() === String(account.name || "").toLowerCase()));
         return seed ? { ...account, ...seed } : account;
       });
       const existingKeys = new Set(merged.map((account) => `${account.role || "student"}:${String(account.username || "").toLowerCase()}`));
-      const seeded = seededStudentAccounts.filter((account) => !existingKeys.has(`${account.role}:${account.username.toLowerCase()}`));
+      const seeded = seededAccounts.filter((account) => !existingKeys.has(`${account.role}:${account.username.toLowerCase()}`));
       return [...seeded, ...merged];
     }
 
     function mergeSeededStudents(saved) {
+      const seededStudentRecords = seededAccounts.filter((account) => account.role === "student");
       const registered = Array.isArray(saved) ? saved : [];
       const merged = registered.map((student) => {
-        const seed = seededStudentAccounts.find((account) => account.name.toLowerCase() === String(student.name || "").toLowerCase());
+        const seed = seededStudentRecords.find((account) => account.name.toLowerCase() === String(student.name || "").toLowerCase());
         return seed ? {
           ...student,
           studentId: seed.studentId,
@@ -2623,7 +2673,7 @@
         } : student;
       });
       const existing = new Set(merged.map((student) => `${String(student.name || "").toLowerCase()}:${student.program}:${student.className}`));
-      const seeded = seededStudentAccounts
+      const seeded = seededStudentRecords
         .filter((account) => !existing.has(`${account.name.toLowerCase()}:${account.program}:${account.className}`))
         .map((account) => ({
           name: account.name,

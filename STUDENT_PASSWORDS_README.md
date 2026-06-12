@@ -30,3 +30,13 @@ These accounts are grouped by the old score tables in `Primary.junior.iBT.pdf`.
 | Wilson | `wilson` | `GM-Wilson-1287` | `GM-STU-2008` | iBT |
 
 No ITP student accounts are seeded yet.
+
+## Platform Test Accounts
+
+Use these accounts to test each role without using a real student's or teacher's login.
+
+| Role | Username | Password | Account ID |
+|---|---|---|---|
+| Student | `qa.student` | `GM-Test-Student-2026` | `GM-STU-9001` |
+| Teacher | `qa.teacher` | `GM-Test-Teacher-2026` | `GM-TCH-9001` |
+| Admin | `qa.admin` | `GM-Test-Admin-2026` | `GM-ADM-9001` |
