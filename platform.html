@@ -5954,7 +5954,9 @@
 
     function renderTeacherRankings() {
       const program = teacherProgram.teacherRankings;
-      const currentClass = programs[program].classes.includes($("#rankingClass") ? $("#rankingClass").value : "") ? $("#rankingClass").value : programs[program].classes[0];
+      const selectedClass = $("#rankingClass") ? $("#rankingClass").value : "";
+      const programClasses = programs[program].classes;
+      const currentClass = rankingClassForProgram(program, selectedClass);
       const metric = teacherCategory.teacherRankings || "score";
       $("#teacherRankings").innerHTML = `
         <div class="topline">
@@ -5966,13 +5968,21 @@
             </div>
           </div>
           <div class="toolbar">
-            <select id="rankingClass" onchange="renderTeacherRankings()">${programs[program].classes.map((className) => `<option ${currentClass === className ? "selected" : ""}>${className}</option>`).join("")}</select>
+            <select id="rankingClass" onchange="renderTeacherRankings()">${programClasses.map((className) => `<option ${currentClass === className ? "selected" : ""}>${className}</option>`).join("")}</select>
           </div>
         </div>
         ${renderProgramPicker("teacherRankings")}
         ${renderCategoryTabs("teacherRankings", ["score", "exams", "exercises", "homework"])}
         ${renderRankingTable(currentClass, metric)}
       `;
+    }
+
+    function rankingClassForProgram(program, selectedClass = "") {
+      const programClasses = programs[program].classes;
+      const populatedClass = programClasses.find((className) => store.students.some((student) => student.className === className));
+      if (!selectedClass || !programClasses.includes(selectedClass)) return populatedClass || programClasses[0];
+      const selectedHasStudents = store.students.some((student) => student.className === selectedClass);
+      return selectedHasStudents || !populatedClass ? selectedClass : populatedClass;
     }
 
     function renderAdminDashboard() {
