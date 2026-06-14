@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Green Mountain TOEFL Platform</title>
+  <title>Emerald Hills TOEFL Platform</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -1939,17 +1939,17 @@
     </div>
     <section class="login-hero">
       <div class="brand-mark">
-        <span>GM</span>
+        <span>EH</span>
         <div class="brand-copy">
-          <strong>Green Mountain</strong>
+          <strong>Emerald Hills</strong>
           <small>TOEFL Academy</small>
         </div>
       </div>
       <div class="login-copy">
         <div class="subhead">
           <div class="eyebrow">Assessment Platform</div>
-          <div class="zh">绿山托福学习平台</div>
-          <div class="en">Green Mountain TOEFL learning system</div>
+          <div class="zh">翡翠山托福学习平台</div>
+          <div class="en">Emerald Hills TOEFL learning system</div>
         </div>
         <h1>One calm place<br>for <em>tests</em>, homework,<br>and class review.</h1>
         <div class="gold-divider"></div>
@@ -2136,9 +2136,9 @@
     <div class="public-shell">
       <div class="public-topbar">
         <div class="brand-mark">
-          <span>GM</span>
+          <span>EH</span>
           <div class="brand-copy">
-            <strong>Green Mountain</strong>
+            <strong>Emerald Hills</strong>
             <small>TOEFL Academy</small>
           </div>
         </div>
@@ -2151,10 +2151,10 @@
   <div id="appView" class="app-view">
     <div class="app-shell">
       <aside class="sidebar">
-        <button class="brand-mark brand-home" type="button" onclick="goHome()" aria-label="Go home"><span>GM</span> TOEFL Platform</button>
+        <button class="brand-mark brand-home" type="button" onclick="goHome()" aria-label="Go home"><span>EH</span> TOEFL Platform</button>
         <div class="user-card">
           <div class="profile-row">
-            <div id="userAvatar" class="avatar">GM</div>
+            <div id="userAvatar" class="avatar">EH</div>
             <div>
               <strong id="userName">Student</strong>
           <small id="userMeta">Primary Step 1</small>
@@ -2226,6 +2226,7 @@
     </div>
   </div>
 
+  <script src="lesson-notes-seed.js"></script>
   <script>
     const programs = {
       Primary: {
@@ -2420,6 +2421,8 @@
     let activeAssignmentId = null;
     let editingAssignmentId = null;
     let activeLessonDate = "";
+    let activeLessonProgram = "Primary";
+    let activeLessonClass = "Primary Step 2";
     let lessonCalendarMonth = new Date().toISOString().slice(0, 7);
     let activeTimerInterval = null;
     let activeMediaRecorder = null;
@@ -2475,18 +2478,19 @@
     ];
 
     const seededStudentAccounts = [
-      { name: "Miumiu", username: "miumiu", email: "miumiu@greenmountain.local", password: "GM-Miumiu-7526", gender: "female", accountId: "GM-STU-2009", program: "Primary", className: "Primary Step 2", score: 57, exams: 57 },
-      { name: "Cherry", username: "cherry", email: "cherry@greenmountain.local", password: "GM-Cherry-8164", gender: "female", accountId: "GM-STU-2011", program: "Primary", className: "Primary Step 2", score: 84, exams: 84 },
-      { name: "Grace", username: "grace", email: "grace@greenmountain.local", password: "GM-Grace-2705", gender: "female", accountId: "GM-STU-2012", program: "Primary", className: "Primary Step 2", score: 51.5, exams: 51.5 },
-      { name: "Yann", username: "yann", email: "yann@greenmountain.local", password: "GM-Yann-4930", gender: "male", accountId: "GM-STU-2010", program: "Primary", className: "Primary Step 2", score: 76, exams: 76 },
-      { name: "Oscar", username: "oscar", email: "oscar@greenmountain.local", password: "GM-Oscar-2158", gender: "male", accountId: "GM-STU-2003", program: "Junior", className: "Junior", score: 70.8, exams: 70.8 },
-      { name: "Ran", username: "ran", email: "ran@greenmountain.local", password: "GM-Ran-9046", gender: "male", accountId: "GM-STU-2004", program: "Junior", className: "Junior", score: 63.6, exams: 63.6 },
-      { name: "Yaya", username: "yaya", email: "yaya@greenmountain.local", password: "GM-Yaya-3672", gender: "female", accountId: "GM-STU-2005", program: "Junior", className: "Junior", score: 59.7, exams: 59.7 },
-      { name: "Ethan Guo", username: "ethan.guo", email: "ethanguo@greenmountain.local", password: "GM-EthanG-4821", gender: "male", accountId: "GM-STU-2001", program: "Junior", className: "Junior", score: 63.6, exams: 63.6 },
-      { name: "Ethan Yang", username: "ethan.yang", email: "ethanyang@greenmountain.local", password: "GM-EthanY-7394", gender: "male", accountId: "GM-STU-2002", program: "Junior", className: "Junior", score: 74.6, exams: 74.6 },
-      { name: "Leonardo", username: "leonardo", email: "leonardo@greenmountain.local", password: "GM-Leonardo-5819", gender: "male", accountId: "GM-STU-2006", program: "iBT", className: "iBT", score: 66.7, exams: 66.7 },
-      { name: "Isaac", username: "isaac", email: "isaac@greenmountain.local", password: "GM-Isaac-6403", gender: "male", accountId: "GM-STU-2007", program: "iBT", className: "iBT", score: 47.2, exams: 47.2 },
-      { name: "Wilson", username: "wilson", email: "wilson@greenmountain.local", password: "GM-Wilson-1287", gender: "male", accountId: "GM-STU-2008", program: "iBT", className: "iBT", score: 68.7, exams: 68.7 }
+      { name: "Miumiu", username: "miumiu", email: "miumiu@emeraldhills.local", password: "GM-Miumiu-7526", gender: "female", accountId: "EH-STU-2009", program: "Primary", className: "Primary Step 2", score: 57, exams: 57 },
+      { name: "Mingyuan", username: "mingyuan", email: "mingyuan@emeraldhills.local", password: "GM-Mingyuan-6349", gender: "male", accountId: "EH-STU-2013", program: "Primary", className: "Primary Step 2", score: 42, exams: 42 },
+      { name: "Cherry", username: "cherry", email: "cherry@emeraldhills.local", password: "GM-Cherry-8164", gender: "female", accountId: "EH-STU-2011", program: "Primary", className: "Primary Step 2", score: 84, exams: 84 },
+      { name: "Grace", username: "grace", email: "grace@emeraldhills.local", password: "GM-Grace-2705", gender: "female", accountId: "EH-STU-2012", program: "Primary", className: "Primary Step 2", score: 51.5, exams: 51.5 },
+      { name: "Yann", username: "yann", email: "yann@emeraldhills.local", password: "GM-Yann-4930", gender: "male", accountId: "EH-STU-2010", program: "Primary", className: "Primary Step 2", score: 76, exams: 76 },
+      { name: "Oscar", username: "oscar", email: "oscar@emeraldhills.local", password: "GM-Oscar-2158", gender: "male", accountId: "EH-STU-2003", program: "Junior", className: "Junior", score: 70.8, exams: 70.8 },
+      { name: "Ran", username: "ran", email: "ran@emeraldhills.local", password: "GM-Ran-9046", gender: "male", accountId: "EH-STU-2004", program: "Junior", className: "Junior", score: 63.6, exams: 63.6 },
+      { name: "Yaya", username: "yaya", email: "yaya@emeraldhills.local", password: "GM-Yaya-3672", gender: "female", accountId: "EH-STU-2005", program: "Junior", className: "Junior", score: 59.7, exams: 59.7 },
+      { name: "Ethan Guo", username: "ethan.guo", email: "ethanguo@emeraldhills.local", password: "GM-EthanG-4821", gender: "male", accountId: "EH-STU-2001", program: "Junior", className: "Junior", score: 63.6, exams: 63.6 },
+      { name: "Ethan Yang", username: "ethan.yang", email: "ethanyang@emeraldhills.local", password: "GM-EthanY-7394", gender: "male", accountId: "EH-STU-2002", program: "Junior", className: "Junior", score: 74.6, exams: 74.6 },
+      { name: "Leonardo", username: "leonardo", email: "leonardo@emeraldhills.local", password: "GM-Leonardo-5819", gender: "male", accountId: "EH-STU-2006", program: "iBT", className: "iBT", score: 69.2, exams: 69.2 },
+      { name: "Isaac", username: "isaac", email: "isaac@emeraldhills.local", password: "GM-Isaac-6403", gender: "male", accountId: "EH-STU-2007", program: "iBT", className: "iBT", score: 47.2, exams: 47.2 },
+      { name: "Wilson", username: "wilson", email: "wilson@emeraldhills.local", password: "GM-Wilson-1287", gender: "male", accountId: "EH-STU-2008", program: "iBT", className: "iBT", score: 68.7, exams: 68.7 }
     ].map((account) => ({
       ...account,
       role: "student",
@@ -2504,11 +2508,11 @@
         role: "student",
         name: "QA Student",
         username: "qa.student",
-        email: "qa.student@greenmountain.local",
+        email: "qa.student@emeraldhills.local",
         password: "GM-Test-Student-2026",
         gender: "male",
-        accountId: "GM-STU-9001",
-        studentId: "GM-STU-9001",
+        accountId: "EH-STU-9001",
+        studentId: "EH-STU-9001",
         program: "Primary",
         className: "Primary Step 2",
         score: 0,
@@ -2522,10 +2526,10 @@
         role: "teacher",
         name: "QA Teacher",
         username: "qa.teacher",
-        email: "qa.teacher@greenmountain.local",
+        email: "qa.teacher@emeraldhills.local",
         password: "GM-Test-Teacher-2026",
         gender: "female",
-        accountId: "GM-TCH-9001",
+        accountId: "EH-TCH-9001",
         program: "All Programs",
         className: "Teacher",
         photo: "",
@@ -2535,10 +2539,10 @@
         role: "admin",
         name: "QA Admin",
         username: "qa.admin",
-        email: "qa.admin@greenmountain.local",
+        email: "qa.admin@emeraldhills.local",
         password: "GM-Test-Admin-2026",
         gender: "male",
-        accountId: "GM-ADM-9001",
+        accountId: "EH-ADM-9001",
         program: "All Programs",
         className: "Admin",
         photo: "",
@@ -2549,6 +2553,16 @@
     const seededAccounts = [...seededStudentAccounts, ...seededQaAccounts];
 
     const seededScoreReviews = [
+      { student: "Cherry", program: "Primary", className: "Primary Step 2", month: "2026-04", sourceDate: "2026-04-17", excluded: "Spelling excluded", overall: 80, scores: { speaking: 70, listening: 90, reading: 80, language: 80, writing: 80 } },
+      { student: "Grace", program: "Primary", className: "Primary Step 2", month: "2026-04", sourceDate: "2026-04-17", excluded: "Spelling excluded", overall: 74, scores: { speaking: 60, listening: 80, reading: 80, language: 50, writing: 100 } },
+      { student: "Yann", program: "Primary", className: "Primary Step 2", month: "2026-04", sourceDate: "2026-04-17", excluded: "Spelling excluded", overall: 84, scores: { speaking: 80, listening: 70, reading: 100, language: 70, writing: 100 } },
+      { student: "Mingyuan", program: "Primary", className: "Primary Step 2", month: "2026-04", sourceDate: "2026-04-17", excluded: "Spelling excluded", overall: 42, scores: { speaking: 50, listening: 50, reading: 40, language: 30, writing: 40 } },
+      { student: "Miumiu", program: "Primary", className: "Primary Step 2", month: "2026-04", sourceDate: "2026-04-17", excluded: "Spelling excluded", overall: 67, scores: { speaking: 65, listening: 50, reading: 100, language: 60, writing: 60 } },
+      { student: "Oscar", program: "Junior", className: "Junior", month: "2026-04", sourceDate: "2026-04-17", overall: 76.4, scores: { speaking: 75, listening: 80, reading: 64, language: 83, writing: 80 } },
+      { student: "Ran", program: "Junior", className: "Junior", month: "2026-04", sourceDate: "2026-04-17", overall: 72.8, scores: { speaking: 65, listening: 80, reading: 64, language: 75, writing: 80 } },
+      { student: "Yaya", program: "Junior", className: "Junior", month: "2026-04", sourceDate: "2026-04-17", overall: 56.9, scores: { speaking: 65, listening: 40, reading: 45.5, language: 67, writing: 67 } },
+      { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-04", sourceDate: "2026-04-17", overall: 80.7, scores: { speaking: 52.5, listening: 100, reading: 91, language: 83, writing: 77 } },
+      { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-04", sourceDate: "2026-04-17", overall: 70.1, scores: { speaking: 62.5, listening: 90, reading: 91, language: 67, writing: 40 } },
       { student: "Miumiu", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-20", overall: 57, scores: { speaking: 55, listening: 30, reading: 90, language: 50, writing: 60 } },
       { student: "Cherry", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-20", overall: 84, scores: { speaking: 70, listening: 90, reading: 100, language: 80, writing: 80 } },
       { student: "Grace", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-20", overall: 51.5, scores: { speaking: 57.5, listening: 60, reading: 80, language: 10, writing: 50 } },
@@ -2558,7 +2572,7 @@
       { student: "Yaya", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-22", overall: 59.7, scores: { speaking: 70, listening: 66.7, reading: 52.6, language: 44, writing: 65 } },
       { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-22", overall: 63.6, scores: { speaking: 70, listening: 66.7, reading: 68.4, language: 48, writing: 65 } },
       { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-22", overall: 74.6, scores: { speaking: 70, listening: 75, reading: 84.2, language: 64, writing: 80 } },
-      { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-29", overall: 66.7, scores: { speaking: 47.5, listening: 76, reading: 80, writing: 63.3 } },
+      { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-29", overall: 69.2, scores: { speaking: 57.5, listening: 76, reading: 80, writing: 63.3 } },
       { student: "Isaac", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-29", overall: 47.2, scores: { speaking: 40, listening: 52.1, reading: 50, writing: 46.6 } },
       { student: "Wilson", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-29", overall: 68.7, scores: { speaking: 50, listening: 89.1, reading: 72.5, writing: 63.3 } }
     ].map((review) => ({
@@ -2576,7 +2590,7 @@
         writing: review.scores.writing || 0,
         language: review.scores.language || 0
       },
-      strong: "Imported historical score record from the school's old score sheet.",
+      strong: review.excluded ? `Imported historical score record from the school's old score sheet. ${review.excluded}.` : "Imported historical score record from the school's old score sheet.",
       improving: "Use this baseline to compare future homework, exercises, monthly tests, and mock exams.",
       weakness: "Teacher should add a fresh diagnostic comment after the next formal class review.",
       areas: "Review the lower section scores and set a focused monthly target.",
@@ -2760,6 +2774,25 @@
       return [...seededScoreReviews, ...otherReviews];
     }
 
+    function lessonNoteKey(note) {
+      return `${note.date}|${note.program}|${note.className}`;
+    }
+
+    function mergeSeededLessonNotes(saved) {
+      const savedNotes = Array.isArray(saved) ? saved : [];
+      const isBlankSavedNote = (note) => {
+        const hasContent = ["topic", "objective", "iceBreaker", "lessonForDay", "materials", "homework"].some((key) => String(note[key] || "").trim());
+        const hasStudentNotes = note.studentNotes && Object.values(note.studentNotes).some((value) => String(value || "").trim());
+        const hasAdminSuggestions = Array.isArray(note.adminSuggestions) && note.adminSuggestions.length;
+        return !hasContent && !hasStudentNotes && !hasAdminSuggestions;
+      };
+      const seededKeys = new Set((window.seededLessonNotes || []).map(lessonNoteKey));
+      const usefulSavedNotes = savedNotes.filter((note) => !(seededKeys.has(lessonNoteKey(note)) && isBlankSavedNote(note)));
+      const savedKeys = new Set(usefulSavedNotes.map(lessonNoteKey));
+      const seededNotes = (window.seededLessonNotes || []).filter((note) => !savedKeys.has(lessonNoteKey(note)));
+      return [...seededNotes, ...usefulSavedNotes];
+    }
+
     const store = {
       get students() {
         return mergeSeededStudents(JSON.parse(localStorage.getItem("gm_students") || "null") || students);
@@ -2810,7 +2843,7 @@
         localStorage.setItem("gm_test_sessions", JSON.stringify(value));
       },
       get lessonNotes() {
-        return JSON.parse(localStorage.getItem("gm_lesson_notes") || "[]");
+        return mergeSeededLessonNotes(JSON.parse(localStorage.getItem("gm_lesson_notes") || "[]"));
       },
       set lessonNotes(value) {
         localStorage.setItem("gm_lesson_notes", JSON.stringify(value));
@@ -2925,7 +2958,7 @@
         const number = Number(String(id).split("-").pop());
         return Number.isFinite(number) ? Math.max(max, number) : max;
       }, 0);
-      return `GM-${prefix}-${String(maxNumber + 1).padStart(4, "0")}`;
+      return `EH-${prefix}-${String(maxNumber + 1).padStart(4, "0")}`;
     }
 
     function accountIdExists(accountId) {
@@ -2950,7 +2983,7 @@
         }
         usedNumbers.add(number);
         const prefix = account.role === "admin" ? "ADM" : account.role === "teacher" ? "TCH" : "STU";
-        const accountId = `GM-${prefix}-${String(number).padStart(4, "0")}`;
+        const accountId = `EH-${prefix}-${String(number).padStart(4, "0")}`;
         if (accountId !== oldId) changed = true;
         if (account.role === "student") {
           store.students = store.students.map((student) => {
@@ -3210,7 +3243,7 @@
     }
 
     function initials(name) {
-      return (name || "GM").split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+      return (name || "EH").split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
     }
 
     function currentStudentRecord() {
@@ -3505,7 +3538,7 @@
       $("#publicContent").innerHTML = `
         <div class="public-panel">
           <h1>School Gallery</h1>
-          <p>Photos, videos, school news, class activities, and highlights published by Green Mountain TOEFL Academy.</p>
+          <p>Photos, videos, school news, class activities, and highlights published by Emerald Hills TOEFL Academy.</p>
           <div class="public-grid">
             ${items.map(renderGalleryItem).join("") || `<div class="empty">No gallery items have been published yet.</div>`}
           </div>
@@ -4592,7 +4625,7 @@
       const answered = answers.filter(Boolean).length;
       const total = answers.length || answerSheetItems(assignment).length;
       return [
-        "Green Mountain TOEFL Academy",
+        "Emerald Hills TOEFL Academy",
         `${submission.student} completed ${assignment.title}`,
         `${assignment.program} · ${assignment.className} · ${categoryLabels[assignment.category] || assignment.category} · ${assignment.section}`,
         `Submitted: ${submission.submittedAt}`,
@@ -4668,10 +4701,10 @@
 
       ctx.fillStyle = "#B9925A";
       ctx.font = "700 24px Arial";
-      ctx.fillText("GM", 132, 166);
+      ctx.fillText("EH", 132, 166);
       ctx.fillStyle = "#10231C";
       ctx.font = "700 34px Georgia";
-      ctx.fillText("Green Mountain TOEFL Academy", 184, 166);
+      ctx.fillText("Emerald Hills TOEFL Academy", 184, 166);
       ctx.fillStyle = "#1F7A5C";
       ctx.font = "700 24px Arial";
       ctx.fillText("Submission Summary", 132, 238);
@@ -4836,10 +4869,10 @@
       $("#teacherDashboard").innerHTML = `
         ${pageHeader("Teacher Console", "教师管理中心", "Create work, upload media, review submissions, write lesson notes, monthly reviews, and manage rankings.", `<div class="toolbar"><button class="primary-btn" onclick="activateSection('teacherRecords')">Student records</button><button class="ghost-btn" onclick="activateSection('teacherAssignments')">Create assignment</button><button class="ghost-btn" onclick="activateSection('teacherLessonNotes')">Lesson notes</button></div>`)}
         <div class="metric-grid">
-          <div class="metric"><small>Programs</small><strong>4</strong></div>
-          <div class="metric"><small>Assignments</small><strong>${assignments.length}</strong></div>
-          <div class="metric"><small>Submissions</small><strong>${submissions.length}</strong></div>
-          <div class="metric"><small>Lesson notes</small><strong>${store.lessonNotes.length}</strong></div>
+          ${dashboardMetric("Programs", 4, "programDetails", "Open program outlines and exam structures")}
+          ${dashboardMetric("Assignments", assignments.length, "teacherAssignments", "Open create and edit work")}
+          ${dashboardMetric("Submissions", submissions.length, "teacherSubmissions", "Open student submissions")}
+          ${dashboardMetric("Lesson notes", store.lessonNotes.length, "teacherLessonNotes", "Open lesson-note calendar")}
         </div>
         <div class="grid">
           ${Object.entries(programs).map(([program, detail]) => `
@@ -5190,12 +5223,13 @@
       renderTeacherLessonNotes();
     }
 
-    function defaultLessonNote(date) {
+    function defaultLessonNote(date, program = activeLessonProgram || "Primary", className = activeLessonClass || "") {
+      const resolvedClass = className || programs[program].classes[0];
       return {
         date,
         teacher: currentUser ? currentUser.name : "",
-        program: "Primary",
-        className: "Primary Step 1",
+        program,
+        className: resolvedClass,
         topic: "",
         objective: "",
         iceBreaker: "",
@@ -5206,12 +5240,12 @@
       };
     }
 
-    function lessonNoteFor(date) {
-      return store.lessonNotes.find((note) => note.date === date) || defaultLessonNote(date);
+    function lessonNoteFor(date, program = activeLessonProgram, className = activeLessonClass) {
+      return store.lessonNotes.find((note) => note.date === date && note.program === program && note.className === className) || defaultLessonNote(date, program, className);
     }
 
     function upsertLessonNote(note) {
-      const notes = store.lessonNotes.filter((item) => item.date !== note.date);
+      const notes = store.lessonNotes.filter((item) => !(item.date === note.date && item.program === note.program && item.className === note.className));
       notes.unshift(note);
       store.lessonNotes = notes;
     }
@@ -5219,6 +5253,11 @@
     function openLessonDate(date) {
       activeLessonDate = date;
       lessonCalendarMonth = date.slice(0, 7);
+      const firstNote = store.lessonNotes.find((note) => note.date === date);
+      if (firstNote) {
+        activeLessonProgram = firstNote.program;
+        activeLessonClass = firstNote.className;
+      }
       renderTeacherLessonNotes();
     }
 
@@ -5228,17 +5267,13 @@
     }
 
     function setLessonProgram(program) {
-      const note = lessonNoteFor(activeLessonDate);
-      note.program = program;
-      note.className = programs[program].classes[0];
-      upsertLessonNote(note);
+      activeLessonProgram = program;
+      activeLessonClass = programs[program].classes[0];
       renderTeacherLessonNotes();
     }
 
     function setLessonClass(className) {
-      const note = lessonNoteFor(activeLessonDate);
-      note.className = className;
-      upsertLessonNote(note);
+      activeLessonClass = className;
       renderTeacherLessonNotes();
     }
 
@@ -5250,7 +5285,7 @@
         `;
         return;
       }
-      const note = lessonNoteFor(activeLessonDate);
+      const note = lessonNoteFor(activeLessonDate, activeLessonProgram, activeLessonClass);
       const students = store.students.filter((student) => student.program === note.program && student.className === note.className);
       $("#teacherLessonNotes").innerHTML = `
         ${pageHeader("Lesson Board", "课堂备课与记录", `${activeLessonDate} · ${note.program} · ${note.className}`, `<button class="ghost-btn" onclick="backToLessonCalendar()">Back to calendar</button>`)}
@@ -5354,7 +5389,7 @@
 
     function saveLessonNote(event) {
       event.preventDefault();
-      const previous = lessonNoteFor(activeLessonDate);
+      const previous = lessonNoteFor(activeLessonDate, $("#lessonProgram").value, $("#lessonClass").value);
       const studentNotes = {};
       $$(".lesson-student-note").forEach((field) => {
         studentNotes[field.dataset.studentKey] = field.value.trim();

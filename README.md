@@ -1,6 +1,6 @@
-# Green Mountain TOEFL Platform
+# Emerald Hills TOEFL Platform
 
-Local prototype and production foundation for the Green Mountain TOEFL Academy test platform.
+Local prototype and production foundation for the Emerald Hills TOEFL Academy test platform.
 
 ## Contents
 

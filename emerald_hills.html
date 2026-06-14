@@ -50,6 +50,23 @@
     color: var(--green-light);
     letter-spacing: 0.02em;
   }
+  .platform-home {
+    color: var(--dark);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .platform-home:hover {
+    transform: translateY(-1px);
+    background: #ffe19a;
+  }
   .nav-links {
     display: flex;
     gap: 32px;
@@ -638,6 +655,7 @@
     section { padding: 100px 24px 60px; }
     nav { padding: 14px 20px; }
     .nav-links { display: none; }
+    .platform-home { font-size: 11px; padding: 9px 12px; }
     .levels-grid, .outcomes-grid { grid-template-columns: repeat(2, 1fr); }
     .steps-grid, .commit-row { grid-template-columns: 1fr; }
     .diff-grid { grid-template-columns: 1fr; }
@@ -659,6 +677,7 @@
     <li><a href="#outcomes">Outcomes</a></li>
     <li><a href="#commitment">Commitment</a></li>
   </ul>
+  <a class="platform-home" href="platform.html">Platform Home</a>
 </nav>
 
 <div class="scroll-indicator" id="scrollDots"></div>

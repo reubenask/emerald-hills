@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>绿山英语学院</title>
+  <title>翡翠山英语学院</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap"
     rel="stylesheet">
@@ -60,6 +60,24 @@
       font-size: 18px;
       color: var(--green-light);
       letter-spacing: 0.06em;
+    }
+
+    .platform-home {
+      color: var(--dark);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .platform-home:hover {
+      transform: translateY(-1px);
+      background: #ffe19a;
     }
 
     .nav-links {
@@ -727,6 +745,11 @@
         display: none;
       }
 
+      .platform-home {
+        font-size: 11px;
+        padding: 9px 12px;
+      }
+
       .levels-grid,
       .outcomes-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -753,7 +776,7 @@
   <div class="progress-bar" id="progress"></div>
 
   <nav>
-    <div class="nav-logo">绿山英语学院</div>
+    <div class="nav-logo">翡翠山英语学院</div>
     <ul class="nav-links">
       <li><a href="#hero">首页</a></li>
       <li><a href="#levels">课程等级</a></li>
@@ -762,6 +785,7 @@
       <li><a href="#outcomes">学习成果</a></li>
       <li><a href="#commitment">我们的承诺</a></li>
     </ul>
+    <a class="platform-home" href="platform.html">返回平台首页</a>
   </nav>
 
   <div class="scroll-indicator" id="scrollDots"></div>
@@ -1172,7 +1196,7 @@
   <section id="close">
     <div class="big-text">每位孩子离开时，<br>得到的<em>远不止英语。</em></div>
     <p>他们学会了如何思考、如何提问，以及如何在遇到困难时继续前行。这是我们存在的意义——也是每一堂课、每一次考核、每一场阅读课与每一次表演，所共同打造的目标。</p>
-    <div class="cta-tag">绿山英语学院</div>
+    <div class="cta-tag">翡翠山英语学院</div>
   </section>
 
   <script>

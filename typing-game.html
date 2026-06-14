@@ -42,6 +42,8 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
 .divider{width:260px;height:1px;background:linear-gradient(90deg,transparent,var(--dim),transparent)}
 .ghost-btn{background:transparent;border:1px solid var(--dim);color:var(--text);font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:.12em;padding:12px 24px;cursor:pointer;transition:all .2s;border-radius:2px;-webkit-appearance:none;appearance:none;}
 .ghost-btn:hover{border-color:var(--c3);color:var(--c3);box-shadow:var(--glow3)}
+.home-btn{position:fixed;top:18px;left:18px;z-index:80;background:rgba(5,5,8,.72);border:1px solid rgba(0,255,224,.42);color:var(--c);font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:.14em;padding:11px 18px;border-radius:3px;cursor:pointer;box-shadow:0 0 18px rgba(0,255,224,.16);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:all .2s;-webkit-appearance:none;appearance:none;}
+.home-btn:hover,.home-btn:focus-visible{background:rgba(0,255,224,.08);box-shadow:var(--glow);outline:none;transform:translateY(-1px)}
 
 /* HUD */
 #hud{position:fixed;top:0;left:0;right:0;z-index:20;display:none;padding:14px 28px;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,255,224,.1);backdrop-filter:blur(10px);background:rgba(5,5,8,.65)}
@@ -129,6 +131,7 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
 </style>
 </head>
 <body>
+<button class="home-btn" type="button" onclick="goTypingHome()">HOME</button>
 <canvas id="canvas-bg"></canvas>
 <div class="scanline"></div>
 <div class="vignette"></div>
@@ -244,6 +247,13 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+function goTypingHome(){
+  if(document.referrer && document.referrer.includes('platform.html') && history.length > 1){
+    history.back();
+    return;
+  }
+  window.location.href = 'platform.html';
+}
 // ===================== WORD BANKS =====================
 const BANKS = {
   easy:['the','and','for','you','with','that','have','this','from','they','will','what','your','when','make','like','time','good','just','know','take','into','then','look','come','over','think','also','back','only','most','some','give','year','well','even','after','work','want','more','down','than','now','way','could','use','two','how','find','long','down','day','did','get','has','him','his','how','man','may','new','old','see','two','way','who','boy','did','its','let','put','say','she','too','use'],
