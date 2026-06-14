@@ -411,9 +411,9 @@
     }
 
     .card-mountain {
-      width: 118px;
-      height: 60px;
-      margin: 0 auto;
+      width: 160px;
+      height: 82px;
+      margin: 0 auto 2px;
       display: grid;
       place-items: center;
     }
@@ -2582,27 +2582,103 @@
       { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-29", overall: 69.2, scores: { speaking: 57.5, listening: 76, reading: 80, writing: 63.3 } },
       { student: "Isaac", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-29", overall: 47.2, scores: { speaking: 40, listening: 52.1, reading: 50, writing: 46.6 } },
       { student: "Wilson", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-29", overall: 68.7, scores: { speaking: 50, listening: 89.1, reading: 72.5, writing: 63.3 } }
-    ].map((review) => ({
-      student: review.student,
-      program: review.program,
-      className: review.className,
-      month: review.month,
-      source: "Old score import",
-      sourceDate: review.sourceDate,
-      scores: {
-        overall: review.overall,
-        listening: review.scores.listening || 0,
-        reading: review.scores.reading || 0,
-        speaking: review.scores.speaking || 0,
-        writing: review.scores.writing || 0,
-        language: review.scores.language || 0
+    ];
+
+    const mayReviewGuidance = {
+      "Primary|Primary Step 2|Miumiu|2026-05": {
+        strong: "Miumiu's reading result is a clear strength this month. A 90% reading score shows that the written story pathway is developing well and that she can use text clues, familiar vocabulary, and passage logic with confidence.",
+        improving: "May used more video-and-audio story tasks as Primary Step 2 prepares for Junior-level work. The lower listening score is therefore a useful signal: the class is now being asked to connect what is seen, heard, and inferred at the same time.",
+        weakness: "Listening accuracy and grammar control need more shared support. The issue is not effort; it is the next stage of difficulty, where visual information, spoken details, action purpose, and answer choices must be connected quickly.",
+        areas: "We will strengthen video listening, key-word capture, grammar patterns, and complete spoken answers while keeping reading confidence high.",
+        how: "We will use short animated clips, pause-and-predict questions, actor imitation from English movies, song lines, read-aloud practice, and spelling games. At home, the parent can play one short English clip twice; in class, the teacher will guide main idea, factual detail, and purpose questions; Miumiu will answer with 3 key words and 1 complete sentence."
       },
+      "Primary|Primary Step 2|Cherry|2026-05": {
+        strong: "Cherry had a very strong month, especially in reading at 100% and listening at 90%. This shows that she is handling the May video/audio and reading tasks with strong comprehension and steady attention.",
+        improving: "Speaking, grammar, and writing are also strong, so the next target is not basic accuracy alone; it is richer explanation, more natural expression, and stronger organisation.",
+        weakness: "There is no serious weak section this month. The useful signal is that speaking is lower than reading and listening, so oral detail and confidence should keep developing as the class difficulty rises.",
+        areas: "We will help Cherry move from correct answers to fuller answers with reasons, sequence words, examples, and short summaries.",
+        how: "We will give extension roles in class: reading-club retells, short movie-scene acting, song or dialogue imitation, and 45-second passage summaries. At home, the parent can ask one 'why' or 'how do you know?' question after reading aloud; the teacher will guide her to answer with because, first, next, and finally."
+      },
+      "Primary|Primary Step 2|Grace|2026-05": {
+        strong: "Grace's reading remains a positive anchor at 80%. She can still use text clues and recognise familiar information when the task is clearly framed.",
+        improving: "May increased the need to connect video, audio, and written choices. Listening and speaking are developing, and the score pattern helps us see where more guided repetition is needed.",
+        weakness: "Grammar was the most difficult area this month. This can affect writing confidence and sentence-choice accuracy, especially when the class moves from simple recognition to more Junior-style sentence control.",
+        areas: "We will rebuild grammar through small, repeated patterns while protecting reading confidence and gradually strengthening listening and speaking.",
+        how: "We will use a gentle class routine: one grammar pattern, one movie or picture example, five oral examples, then three written examples. The parent can support with read-aloud time and a simple spelling or sentence game; the teacher will connect each reading passage to one grammar pattern so the practice feels useful rather than heavy."
+      },
+      "Primary|Primary Step 2|Yann|2026-05": {
+        strong: "Yann shows a very strong rule-and-text profile this month, with grammar at 90%, reading at 90%, and writing at 80%. This means written English logic is becoming a reliable strength.",
+        improving: "Speaking and listening are both at 60%, which tells us the next challenge is real-time processing: hearing, understanding, and answering quickly while the content becomes more visual and story-based.",
+        weakness: "The gap is mainly audio-based confidence and spoken speed, not understanding alone. As the class difficulty increases, we need to help the stronger written skills transfer into oral response.",
+        areas: "We will build listening stamina, spoken sentence flow, and faster response without losing the strong grammar and reading base.",
+        how: "We will practise short video clips, repeat-after-me lines, actor-style dialogue imitation, and timed speaking in small steps. At home, the parent can play one favourite English movie line or song lyric for repetition; in class, the teacher will ask for one main idea, one detail, and one reason after each clip."
+      },
+      "Junior|Junior|Oscar|2026-05": {
+        strong: "Oscar's speaking and listening are strong this month, especially listening at 83.3% and speaking at 80%. This is a useful Junior-level foundation because classroom discussion, audio prompts, and oral explanation are becoming more demanding.",
+        improving: "Writing and Language Form and Meaning are workable, but the May material required more precise vocabulary and sentence control. The score movement should be read as a guide for the next layer of difficulty.",
+        weakness: "Reading is the section that needs the most shared attention. The issue is likely evidence-finding, question-type recognition, and slowing down before selecting an answer.",
+        areas: "We will strengthen reading accuracy, proof-finding, and vocabulary-in-context while using Oscar's speaking/listening confidence as a bridge.",
+        how: "We will use online reading club passages, paired reading, and evidence-marking. At home, the parent can ask Oscar to read one paragraph aloud and point to the sentence that proves an answer; in class, the teacher will practise main idea first, then details, then vocabulary-in-context."
+      },
+      "Junior|Junior|Ran|2026-05": {
+        strong: "Ran's speaking and writing are the strongest areas this month, both at 70%. This shows that communication is possible when the task is familiar and the ideas are organised.",
+        improving: "Listening and grammar are in the mid-60s, which gives us a usable base. As May moved into more Junior-style passages and review tasks, consistency became the main challenge.",
+        weakness: "Reading is the lowest section this month. This may reflect difficulty with passage details, inference, or comparing similar answer choices under time pressure.",
+        areas: "We will improve reading comprehension, vocabulary-in-context, and careful answer elimination through small, repeatable routines.",
+        how: "We will use online reading club, short daily paragraph reading, and class evidence games. At home, the parent can listen to one paragraph read aloud; Ran will say the main idea in one sentence; the teacher will help the class compare wrong options and explain why they do not match the text."
+      },
+      "Junior|Junior|Yaya|2026-05": {
+        strong: "Yaya's speaking is steady at 70%, and listening and writing are developing in the mid-60s. The slight overall improvement from April is encouraging because May content became more demanding.",
+        improving: "Reading has moved upward, and this suggests the reading-club and class review routines are helping. We should continue building confidence through visible progress, not pressure.",
+        weakness: "Language Form and Meaning is the main challenge this month. Grammar-in-context and sentence-choice accuracy need more practice before Junior-style passages feel comfortable.",
+        areas: "We will strengthen grammar patterns, vocabulary usage, and reading confidence through shared class routines.",
+        how: "We will use boxed grammar questions, sentence-building games, spelling competitions, and short drama lines from stories. At home, the parent can support with two or three read-aloud sentences; in class, the teacher will guide subject, verb, time marker, and meaning before the answer choice is selected."
+      },
+      "Junior|Junior|Ethan Guo|2026-05": {
+        strong: "Ethan Guo's reading remains the strongest section this month, and speaking, listening, and writing are fairly balanced. This gives us a good foundation for rebuilding consistency.",
+        improving: "May was lower than April, but the content and task style also became more demanding. The score drop is a useful signal that the next layer of Junior grammar and test accuracy needs more support.",
+        weakness: "Language Form and Meaning is the biggest area to support. Grammar and word-form choices are causing avoidable mistakes even when the main idea is understood.",
+        areas: "We will rebuild grammar accuracy and turn reading ability into more dependable evidence-based answers.",
+        how: "We will use a weekly class error log: one grammar rule, two correct examples, and one original sentence. The parent can encourage online reading club participation and short read-aloud practice; the teacher will require answer evidence before the option is marked."
+      },
+      "Junior|Junior|Ethan Yang|2026-05": {
+        strong: "Ethan Yang has a strong reading profile at 84.2% and strong writing at 80%. This shows good organisation, comprehension, and written control for the current Junior level.",
+        improving: "Listening is also solid at 75%, and speaking is stable at 70%. As the class difficulty increases, the target is to make the skill profile more balanced and more precise.",
+        weakness: "Language Form and Meaning is the main area to refine. It is not a weak result, but it is lower than reading and writing, so it limits top-band performance.",
+        areas: "We will refine grammar accuracy, advanced vocabulary choices, and spoken detail expansion.",
+        how: "We will use challenge-level grammar review, reading-club discussion, and timed retells. At home, the parent can ask for one short English summary after reading or watching; in class, Ethan Yang will explain why an answer works and add one extra detail to spoken responses."
+      }
+    };
+
+    const defaultImportedGuidance = (review) => ({
       strong: review.excluded ? `Imported historical score record from the school's old score sheet. ${review.excluded}.` : "Imported historical score record from the school's old score sheet.",
       improving: "Use this baseline to compare future homework, exercises, monthly tests, and mock exams.",
       weakness: "Teacher should add a fresh diagnostic comment after the next formal class review.",
       areas: "Review the lower section scores and set a focused monthly target.",
       how: "Practice assigned section tasks, review mistakes with the teacher, and compare the next score against this baseline."
-    }));
+    });
+
+    const seededScoreReviewsWithGuidance = seededScoreReviews.map((review) => {
+      const key = `${review.program}|${review.className}|${review.student}|${review.month}`;
+      const guidance = mayReviewGuidance[key] || defaultImportedGuidance(review);
+      return {
+        student: review.student,
+        program: review.program,
+        className: review.className,
+        month: review.month,
+        source: "Old score import",
+        sourceDate: review.sourceDate,
+        scores: {
+          overall: review.overall,
+          listening: review.scores.listening || 0,
+          reading: review.scores.reading || 0,
+          speaking: review.scores.speaking || 0,
+          writing: review.scores.writing || 0,
+          language: review.scores.language || 0
+        },
+        ...guidance
+      };
+    });
 
     const defaultGuestExam = buildDefaultGuestExamBank();
 
@@ -2776,9 +2852,9 @@
 
     function mergeSeededReviews(saved) {
       const reviews = Array.isArray(saved) ? saved : [];
-      const seededNames = new Set(seededScoreReviews.map((review) => review.student.toLowerCase()));
+      const seededNames = new Set(seededScoreReviewsWithGuidance.map((review) => review.student.toLowerCase()));
       const otherReviews = reviews.filter((review) => !(review.source === "Old score import" && seededNames.has(String(review.student || "").toLowerCase())));
-      return [...seededScoreReviews, ...otherReviews];
+      return [...seededScoreReviewsWithGuidance, ...otherReviews];
     }
 
     function lessonNoteKey(note) {
