@@ -411,19 +411,18 @@
     }
 
     .card-mountain {
-      width: 86px;
-      height: 42px;
+      width: 118px;
+      height: 60px;
       margin: 0 auto;
-      position: relative;
+      display: grid;
+      place-items: center;
     }
 
-    .card-mountain::before {
-      content: "";
-      position: absolute;
-      inset: 2px 8px;
-      background: #1F7A5C;
-      clip-path: polygon(0 82%, 24% 52%, 38% 66%, 55% 16%, 70% 58%, 82% 44%, 100% 82%, 92% 82%, 81% 62%, 70% 75%, 55% 33%, 40% 82%, 31% 68%, 10% 82%);
-      opacity: 0.95;
+    .card-mountain img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
     }
 
     .field {
@@ -840,9 +839,13 @@
     }
 
     .brand-home {
-      color: var(--ink);
+      width: max-content;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
       cursor: pointer;
-      text-align: left;
+      appearance: none;
     }
 
     .brand-home:hover span,
@@ -1966,7 +1969,9 @@
     <section class="auth-stage">
       <div>
         <section class="login-panel">
-          <div class="card-mountain" aria-hidden="true"></div>
+          <div class="card-mountain">
+            <img src="assets/emerald-hills-logo.png" alt="Emerald Hills logo">
+          </div>
           <h2 class="panel-title">Welcome back</h2>
           <p class="panel-subtitle">Choose your role to continue</p>
           <div id="roleGateway" class="role-gateway">
@@ -2151,7 +2156,7 @@
   <div id="appView" class="app-view">
     <div class="app-shell">
       <aside class="sidebar">
-        <button class="brand-mark brand-home" type="button" onclick="goHome()" aria-label="Go home"><span>EH</span> TOEFL Platform</button>
+        <button class="brand-mark brand-home" type="button" onclick="goHome()" aria-label="Go home"><span>EH</span></button>
         <div class="user-card">
           <div class="profile-row">
             <div id="userAvatar" class="avatar">EH</div>
@@ -2167,6 +2172,7 @@
           <button data-section="studentAssignments" onclick="activateSection('studentAssignments')">Work Platforms</button>
           <button data-section="typingCentre" onclick="activateSection('typingCentre')">Typing Centre</button>
           <button data-section="studentResults" onclick="activateSection('studentResults')">Results Portal</button>
+          <button data-section="studentLessonNotes" onclick="activateSection('studentLessonNotes')">Lesson Notes</button>
           <button data-section="studentMessages" onclick="activateSection('studentMessages')">Messages</button>
           <button data-section="studentRanking" onclick="activateSection('studentRanking')">Class Ranking</button>
           <button data-section="studentReviews" onclick="activateSection('studentReviews')">Monthly Review</button>
@@ -2202,6 +2208,7 @@
         <section id="studentAssignments" class="section"></section>
         <section id="typingCentre" class="section"></section>
         <section id="studentResults" class="section"></section>
+        <section id="studentLessonNotes" class="section"></section>
         <section id="studentMessages" class="section"></section>
         <section id="studentRanking" class="section"></section>
         <section id="studentReviews" class="section"></section>
@@ -3246,6 +3253,16 @@
       return (name || "EH").split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
     }
 
+    function canEditAs(...allowedRoles) {
+      return currentUser && allowedRoles.includes(role);
+    }
+
+    function stopIfNotAllowed(...allowedRoles) {
+      if (canEditAs(...allowedRoles)) return false;
+      window.alert("You do not have permission to edit this area.");
+      return true;
+    }
+
     function currentStudentRecord() {
       if (!currentUser || role !== "student") return null;
       return store.students.find((student) => student.name === currentUser.name && student.program === currentUser.program && student.className === currentUser.className);
@@ -3263,6 +3280,7 @@
     }
 
     async function adminUploadProfilePhoto(index) {
+      if (stopIfNotAllowed("admin")) return;
       const file = $(`#adminPhoto${index}`).files[0];
       if (!file) return;
       const photo = await readUploadedMaterial(file);
@@ -3273,6 +3291,7 @@
     }
 
     function deleteStudent(index) {
+      if (stopIfNotAllowed("admin")) return;
       const selected = store.students[index];
       if (!selected) return;
       const confirmed = window.confirm(`Delete ${selected.name} from ${selected.className}? This also removes their submissions, reviews, and admin notes.`);
@@ -3286,6 +3305,7 @@
     }
 
     function deleteAccount(index) {
+      if (stopIfNotAllowed("admin")) return;
       const selected = store.accounts[index];
       if (!selected || selected.role === "admin") return;
       const confirmed = window.confirm(`Delete ${selected.name}'s ${selected.role} account?`);
@@ -3780,6 +3800,7 @@
         renderStudentAssignments();
         renderTypingCentre();
         renderStudentResults();
+        renderStudentLessonNotes();
         renderStudentMessages();
         renderStudentRanking();
         renderStudentReviews();
@@ -4824,6 +4845,31 @@
       `;
     }
 
+    function renderStudentLessonNotes() {
+      const notes = store.lessonNotes
+        .filter((note) => note.program === currentUser.program && note.className === currentUser.className)
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      $("#studentLessonNotes").innerHTML = `
+        ${pageHeader("Lesson Notes", "课堂记录", "Read-only class lesson notes. Teachers and admins can edit or comment; students can only view.")}
+        <div class="grid">
+          ${notes.map((note) => `
+            <article class="card">
+              <div class="tag-row">
+                <span class="tag green">${escapeHtml(note.date)}</span>
+                <span class="tag blue">${escapeHtml(note.program)} · ${escapeHtml(note.className)}</span>
+              </div>
+              <h3>${escapeHtml(note.topic || "Untitled lesson")}</h3>
+              <p><strong>Objective:</strong> ${escapeHtml(note.objective || "No objective added yet.")}</p>
+              <p><strong>Lesson:</strong> ${escapeHtml(note.lessonForDay || "No lesson details added yet.")}</p>
+              <p><strong>Materials:</strong> ${escapeHtml(note.materials || "No materials added yet.")}</p>
+              <p><strong>Homework:</strong> ${escapeHtml(note.homework || "No homework added yet.")}</p>
+              ${renderLessonAuditTrail(note)}
+            </article>
+          `).join("") || `<div class="empty">No lesson notes have been published for your class yet.</div>`}
+        </div>
+      `;
+    }
+
     function renderStudentResultCard(submission) {
       const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
       const answered = (submission.answers || []).filter(Boolean).length;
@@ -4845,6 +4891,7 @@
           </div>
           ${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}
           ${submission.feedback ? `<p><strong>Feedback:</strong> ${escapeHtml(submission.feedback)}</p>` : `<p style="color:var(--muted)">Feedback has not been posted yet.</p>`}
+          ${renderSubmissionReviewHistory(submission)}
           ${renderRecordingEvidence(submission)}
           <div class="action-row">
             <button class="ghost-btn" type="button" onclick="shareSubmissionSummary('${submission.assignmentId}')"><span aria-hidden="true">↗</span> Share summary</button>
@@ -5149,6 +5196,7 @@
 
     async function saveAssignment(event) {
       event.preventDefault();
+      if (stopIfNotAllowed("teacher", "admin")) return;
       let assignments = store.assignments;
       const existing = assignments.find((item) => item.id === editingAssignmentId);
       const uploaded = await readUploadedMaterial($("#assignmentFile").files[0]);
@@ -5171,6 +5219,10 @@
         durationMinutes: Number($("#assignmentDuration").value) || 0,
         questions: $("#assignmentQuestions").value.split("\n").map((item) => item.trim()).filter(Boolean),
         answerKey: parseAnswerKey($("#assignmentAnswerKey").value),
+        editHistory: [
+          lessonAuditEntry(editingAssignmentId ? "Assignment updated" : "Assignment created", `${$("#assignmentCategory").value} · ${$("#assignmentSection").value}`),
+          ...((existing && existing.editHistory) || [])
+        ],
         editable: true
       };
       if (editingAssignmentId) {
@@ -5196,6 +5248,7 @@
     }
 
     function editAssignment(id) {
+      if (stopIfNotAllowed("teacher", "admin")) return;
       editingAssignmentId = id;
       renderTeacherAssignments();
     }
@@ -5206,6 +5259,7 @@
     }
 
     function deleteAssignment(id) {
+      if (stopIfNotAllowed("teacher", "admin")) return;
       store.assignments = store.assignments.filter((item) => item.id !== id);
       store.submissions = store.submissions.filter((item) => item.assignmentId !== id);
       render();
@@ -5248,6 +5302,35 @@
       const notes = store.lessonNotes.filter((item) => !(item.date === note.date && item.program === note.program && item.className === note.className));
       notes.unshift(note);
       store.lessonNotes = notes;
+    }
+
+    function lessonAuditEntry(action, note = "") {
+      return {
+        action,
+        note,
+        by: currentUser ? currentUser.name : "System",
+        role,
+        date: new Date().toISOString().slice(0, 10)
+      };
+    }
+
+    function renderLessonAuditTrail(note) {
+      const history = note.editHistory || [];
+      if (!history.length) return "";
+      return `
+        <details>
+          <summary>Edit notes</summary>
+          <div class="message-list">
+            ${history.map((entry) => `
+              <article class="message-item">
+                <small>${escapeHtml(entry.date || "")} · ${escapeHtml(entry.by || "User")} · ${escapeHtml(entry.role || "")}</small>
+                <strong>${escapeHtml(entry.action || "Updated")}</strong>
+                ${entry.note ? `<p>${escapeHtml(entry.note)}</p>` : ""}
+              </article>
+            `).join("")}
+          </div>
+        </details>
+      `;
     }
 
     function openLessonDate(date) {
@@ -5348,6 +5431,10 @@
                 }).join("") || `<div class="empty">No registered students found for ${note.className}. Students will appear here automatically after signup.</div>`}
               </div>
             </article>
+            <article class="lesson-card full">
+              <h3>Edit notes</h3>
+              ${renderLessonAuditTrail(note) || `<div class="empty">No edit notes yet. Saving this board will add one automatically.</div>`}
+            </article>
           </div>
         </form>
       `;
@@ -5389,6 +5476,7 @@
 
     function saveLessonNote(event) {
       event.preventDefault();
+      if (stopIfNotAllowed("teacher", "admin")) return;
       const previous = lessonNoteFor(activeLessonDate, $("#lessonProgram").value, $("#lessonClass").value);
       const studentNotes = {};
       $$(".lesson-student-note").forEach((field) => {
@@ -5406,7 +5494,11 @@
         lessonForDay: $("#lessonForDay").value.trim(),
         materials: $("#lessonMaterials").value.trim(),
         homework: $("#lessonHomework").value.trim(),
-        studentNotes
+        studentNotes,
+        editHistory: [
+          lessonAuditEntry("Teacher saved lesson note", "Lesson board content and/or student performance notes were updated."),
+          ...(previous.editHistory || [])
+        ]
       });
       renderTeacherLessonNotes();
     }
@@ -5440,6 +5532,7 @@
             <div class="field"><input id="score${index}" placeholder="Score" value="${submission.score}"></div>
             <div class="field"><textarea id="feedback${index}" placeholder="Teacher feedback">${submission.feedback}</textarea></div>
             <button class="primary-btn" onclick="saveSubmissionReview(${index})">Save review</button>
+            ${renderSubmissionReviewHistory(submission)}
           </td>
         </tr>
       `;
@@ -5455,10 +5548,47 @@
       }).join("")}</div>`;
     }
 
+    function renderSubmissionReviewHistory(submission) {
+      const history = submission.reviewHistory || [];
+      if (!history.length) return "";
+      return `
+        <details class="auto-score-box">
+          <summary>Score edit trail</summary>
+          <div class="message-list">
+            ${history.map((entry) => `
+              <article class="message-item">
+                <small>${escapeHtml(entry.date || "")} · ${escapeHtml(entry.by || "User")} · ${escapeHtml(entry.role || "")}</small>
+                <strong>${escapeHtml(entry.action || "Score review updated")}</strong>
+                <p>Score: ${escapeHtml(entry.previousScore || "blank")} → ${escapeHtml(entry.newScore || "blank")}</p>
+                ${entry.previousFeedback !== entry.newFeedback ? `<p>Feedback changed from "${escapeHtml(entry.previousFeedback || "blank")}" to "${escapeHtml(entry.newFeedback || "blank")}".</p>` : ""}
+              </article>
+            `).join("")}
+          </div>
+        </details>
+      `;
+    }
+
     function saveSubmissionReview(index) {
+      if (stopIfNotAllowed("teacher", "admin")) return;
       const submissions = store.submissions;
-      submissions[index].score = $(`#score${index}`).value;
-      submissions[index].feedback = $(`#feedback${index}`).value;
+      const submission = submissions[index];
+      const newScore = $(`#score${index}`).value;
+      const newFeedback = $(`#feedback${index}`).value;
+      submission.reviewHistory = [
+        {
+          action: "Score review updated",
+          by: currentUser ? currentUser.name : "System",
+          role,
+          date: new Date().toISOString().slice(0, 10),
+          previousScore: submission.score || "",
+          newScore,
+          previousFeedback: submission.feedback || "",
+          newFeedback
+        },
+        ...(submission.reviewHistory || [])
+      ];
+      submission.score = newScore;
+      submission.feedback = newFeedback;
       store.submissions = submissions;
       render();
     }
@@ -5626,29 +5756,71 @@
 
     function saveMonthlyReview(event) {
       event.preventDefault();
+      if (stopIfNotAllowed("teacher", "admin")) return;
       const [student, program, className] = $("#reviewStudent").value.split("|");
+      const month = $("#reviewMonth").value;
+      const existing = store.reviews.find((item) => item.student === student && item.month === month);
       const reviews = store.reviews.filter((item) => !(item.student === student && item.month === $("#reviewMonth").value));
+      const newScores = {
+        overall: Number($("#reviewOverall").value) || 0,
+        listening: Number($("#reviewListening").value) || 0,
+        reading: Number($("#reviewReading").value) || 0,
+        speaking: Number($("#reviewSpeaking").value) || 0,
+        writing: Number($("#reviewWriting").value) || 0,
+        language: Number($("#reviewLanguage").value) || 0
+      };
       reviews.unshift({
         student,
         program,
         className,
-        month: $("#reviewMonth").value,
-        scores: {
-          overall: Number($("#reviewOverall").value) || 0,
-          listening: Number($("#reviewListening").value) || 0,
-          reading: Number($("#reviewReading").value) || 0,
-          speaking: Number($("#reviewSpeaking").value) || 0,
-          writing: Number($("#reviewWriting").value) || 0,
-          language: Number($("#reviewLanguage").value) || 0
-        },
+        month,
+        scores: newScores,
         strong: $("#reviewStrong").value,
         improving: $("#reviewImproving").value,
         weakness: $("#reviewWeakness").value,
         areas: $("#reviewAreas").value,
-        how: $("#reviewHow").value
+        how: $("#reviewHow").value,
+        publishedBy: currentUser.name,
+        publishedRole: role,
+        publishedAt: new Date().toISOString().slice(0, 10),
+        editHistory: [
+          {
+            action: existing ? "Monthly review updated" : "Monthly review published",
+            by: currentUser ? currentUser.name : "System",
+            role,
+            date: new Date().toISOString().slice(0, 10),
+            previousScores: existing ? existing.scores || {} : {},
+            newScores
+          },
+          ...((existing && existing.editHistory) || [])
+        ]
       });
       store.reviews = reviews;
       render();
+    }
+
+    function renderReviewEditHistory(review) {
+      const history = review.editHistory || [];
+      if (!history.length) return "";
+      const scoreLine = (scores = {}) => ["overall", "speaking", "listening", "reading", "language", "writing"]
+        .filter((key) => scores[key] !== undefined)
+        .map((key) => `${key}: ${scores[key]}`)
+        .join(" · ") || "blank";
+      return `
+        <details class="auto-score-box">
+          <summary>Review edit trail</summary>
+          <div class="message-list">
+            ${history.map((entry) => `
+              <article class="message-item">
+                <small>${escapeHtml(entry.date || "")} · ${escapeHtml(entry.by || "User")} · ${escapeHtml(entry.role || "")}</small>
+                <strong>${escapeHtml(entry.action || "Review updated")}</strong>
+                <p>Previous: ${escapeHtml(scoreLine(entry.previousScores))}</p>
+                <p>New: ${escapeHtml(scoreLine(entry.newScores))}</p>
+              </article>
+            `).join("")}
+          </div>
+        </details>
+      `;
     }
 
     function renderReviewCard(review) {
@@ -5658,6 +5830,7 @@
       return `
         <article class="card" style="margin-bottom:14px">
           <h3>${review.student} · ${review.month}</h3>
+          ${review.publishedBy ? `<p class="muted">Published by ${escapeHtml(review.publishedBy)} · ${escapeHtml(review.publishedAt || "")}</p>` : ""}
           ${review.sourceDate ? `<p class="tag-row"><span class="tag blue">${escapeHtml(review.source || "Score record")}</span><span class="tag green">${escapeHtml(review.sourceDate)}</span></p>` : ""}
           <div class="score-strip">
             <div class="score-pill"><small>Overall</small><strong>${formatScore(scores.overall)}</strong></div>
@@ -5672,6 +5845,7 @@
           <p><strong>Weaknesses:</strong> ${review.weakness}</p>
           <p><strong>Areas to improve:</strong> ${review.areas}</p>
           <p><strong>How to improve:</strong> ${review.how}</p>
+          ${renderReviewEditHistory(review)}
         </article>
       `;
     }
@@ -5875,6 +6049,7 @@
 
     function saveAdminNote(event) {
       event.preventDefault();
+      if (stopIfNotAllowed("admin")) return;
       const index = Number($("#adminSubmission").value);
       const submission = store.submissions[index];
       if (!submission) return;
@@ -5962,6 +6137,7 @@
 
     async function saveGuestExam(event) {
       event.preventDefault();
+      if (stopIfNotAllowed("admin")) return;
       const bank = store.guestExam;
       const level = entranceLevelMeta(adminGuestLevel);
       const existing = bank[level.key].sections[adminGuestSection];
@@ -5985,6 +6161,7 @@
     }
 
     function deleteGuestSubmission(index) {
+      if (stopIfNotAllowed("admin")) return;
       store.guestSubmissions = store.guestSubmissions.filter((item, itemIndex) => itemIndex !== index);
       renderAdminGuest();
     }
@@ -6018,6 +6195,7 @@
 
     async function saveGalleryItem(event) {
       event.preventDefault();
+      if (stopIfNotAllowed("admin")) return;
       const uploaded = await readUploadedMaterial($("#galleryFile").files[0]);
       const items = store.galleryItems;
       items.unshift({
@@ -6031,6 +6209,7 @@
     }
 
     function deleteGalleryItem(index) {
+      if (stopIfNotAllowed("admin")) return;
       store.galleryItems = store.galleryItems.filter((item, itemIndex) => itemIndex !== index);
       renderAdminGallery();
     }
@@ -6040,7 +6219,7 @@
       return student ? `${student.name} · ${student.className}` : studentKey;
     }
 
-    function renderStudentLessonNotes(note) {
+    function renderLessonStudentPerformance(note) {
       const entries = Object.entries(note.studentNotes || {}).filter(([, value]) => value);
       if (!entries.length) return `<div class="empty">No individual student performance notes were added for this lesson.</div>`;
       return entries.map(([studentKey, value]) => `
@@ -6095,9 +6274,10 @@
                 </div>
                 <div>
                   <strong>Individual student performance</strong>
-                  <div class="student-note-grid">${renderStudentLessonNotes(note)}</div>
+                  <div class="student-note-grid">${renderLessonStudentPerformance(note)}</div>
                 </div>
               </div>
+              ${renderLessonAuditTrail(note)}
               <form style="margin-top:14px" onsubmit="saveLessonSuggestion(event, ${index})">
                 <h3>Admin comment / suggestion</h3>
                 <div class="field"><label>Focus</label><input id="lessonSuggestionFocus${index}" placeholder="Teaching quality, pacing, materials, homework, student support"></div>
@@ -6113,6 +6293,7 @@
 
     function saveLessonSuggestion(event, index) {
       event.preventDefault();
+      if (stopIfNotAllowed("admin")) return;
       const notes = store.lessonNotes;
       const note = notes[index];
       if (!note) return;
@@ -6130,7 +6311,11 @@
           date: new Date().toISOString().slice(0, 10),
           focus: focus || "Admin suggestion",
           comment
-        }, ...suggestions]
+        }, ...suggestions],
+        editHistory: [
+          lessonAuditEntry("Admin added suggestion", focus || "Admin suggestion"),
+          ...(note.editHistory || [])
+        ]
       };
       store.lessonNotes = notes;
       render();
@@ -6171,6 +6356,7 @@
 
     function sendMessage(event) {
       event.preventDefault();
+      if (stopIfNotAllowed("admin")) return;
       const messages = store.messages;
       messages.unshift({
         date: new Date().toISOString().slice(0, 10),
