@@ -812,6 +812,21 @@
       border: 1px solid rgba(255, 155, 143, 0.32);
     }
 
+    .link-btn {
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .link-btn:hover strong,
+    .link-btn:focus-visible strong {
+      color: var(--green-light);
+    }
+
     .app-view {
       display: none;
       min-height: 100vh;
@@ -2539,6 +2554,10 @@
       teacherRecords: "",
       adminRecords: ""
     };
+    let recordStudentFocus = {
+      teacherRecords: "",
+      adminRecords: ""
+    };
     let publicGuestLevel = "Primary Step 1";
     let publicGuestSection = "Listening";
     let adminGuestLevel = "Primary Step 1";
@@ -4062,6 +4081,7 @@
     function selectTeacherProgram(sectionId, program) {
       teacherProgram[sectionId] = program;
       if (recordClassFilter[sectionId] !== undefined) recordClassFilter[sectionId] = "";
+      if (recordStudentFocus[sectionId] !== undefined) recordStudentFocus[sectionId] = "";
       editingAssignmentId = null;
       render();
     }
@@ -4074,13 +4094,31 @@
 
     function selectRecordClass(sectionId, className) {
       recordClassFilter[sectionId] = className;
+      if (recordStudentFocus[sectionId] !== undefined) recordStudentFocus[sectionId] = "";
       render();
     }
 
     function openProgramRecords(sectionId, program) {
       teacherProgram[sectionId] = program;
       if (recordClassFilter[sectionId] !== undefined) recordClassFilter[sectionId] = "";
+      if (recordStudentFocus[sectionId] !== undefined) recordStudentFocus[sectionId] = "";
       activateSection(sectionId);
+    }
+
+    function studentFocusKey(student) {
+      return student.studentId || `${student.name}|${student.program}|${student.className}`;
+    }
+
+    function openStudentRecord(sectionId, studentKey, program, className = "") {
+      teacherProgram[sectionId] = program;
+      if (recordClassFilter[sectionId] !== undefined) recordClassFilter[sectionId] = className || "";
+      if (recordStudentFocus[sectionId] !== undefined) recordStudentFocus[sectionId] = studentKey;
+      activateSection(sectionId);
+    }
+
+    function clearRecordStudentFocus(sectionId) {
+      if (recordStudentFocus[sectionId] !== undefined) recordStudentFocus[sectionId] = "";
+      render();
     }
 
     function dashboardMetric(label, value, sectionId, detail = "Open details") {
@@ -6201,7 +6239,11 @@
       const students = studentsForProgram(program);
       const classNames = programs[program].classes;
       const selectedClass = classNames.includes(recordClassFilter[sectionId] || "") ? recordClassFilter[sectionId] : "";
-      const visibleStudents = selectedClass ? students.filter((student) => student.className === selectedClass) : students;
+      const focusedStudentKey = recordStudentFocus[sectionId] || "";
+      const classStudents = selectedClass ? students.filter((student) => student.className === selectedClass) : students;
+      const visibleStudents = focusedStudentKey
+        ? classStudents.filter((student) => studentFocusKey(student) === focusedStudentKey)
+        : classStudents;
       $(`#${targetId}`).innerHTML = `
         ${pageHeader(title, zh, description)}
         ${renderProgramPicker(sectionId)}
@@ -6210,9 +6252,10 @@
             <option value="">All ${program} classes</option>
             ${classNames.map((className) => `<option ${selectedClass === className ? "selected" : ""}>${className}</option>`).join("")}
           </select></label>
+          ${focusedStudentKey ? `<button class="ghost-btn" type="button" onclick="clearRecordStudentFocus('${sectionId}')">Show all students</button>` : ""}
         </div>
         <div class="grid one-col">
-          ${visibleStudents.map((student) => renderStudentRecordCard(student, options)).join("") || `<div class="empty">No students found for ${program}${selectedClass ? ` · ${selectedClass}` : ""}.</div>`}
+          ${visibleStudents.map((student) => renderStudentRecordCard(student, options)).join("") || `<div class="empty">No students found for ${program}${selectedClass ? ` · ${selectedClass}` : ""}${focusedStudentKey ? " · selected record" : ""}.</div>`}
         </div>
       `;
     }
@@ -6593,7 +6636,14 @@
             <tbody>
               ${entries.map(({ student, index }) => `
                 <tr>
-                  <td><div class="profile-row"><div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div><strong>${escapeHtml(student.name)}</strong></div></td>
+                  <td>
+                    <button class="link-btn" type="button" onclick="openStudentRecord('adminRecords', '${escapeHtml(studentFocusKey(student))}', '${escapeHtml(student.program)}', '${escapeHtml(student.className)}')" aria-label="Open full details for ${escapeHtml(student.name)}">
+                      <div class="profile-row">
+                        <div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div>
+                        <strong>${escapeHtml(student.name)}</strong>
+                      </div>
+                    </button>
+                  </td>
                   <td>${escapeHtml(student.studentId || "Assigns at next login")}</td>
                   <td>${escapeHtml(student.program)}</td>
                   <td>${escapeHtml(student.className)}</td>
@@ -6601,10 +6651,16 @@
                   <td>${store.submissions.filter((submission) => submission.student === student.name).length}</td>
                   <td><input id="adminPhoto${index}" type="file" accept="image/*" onchange="adminUploadProfilePhoto(${index})"></td>
                   <td>
-                    <div class="toolbar" style="gap:8px; align-items:flex-start">
-                      <select id="adminMoveProgram${index}" onchange="syncAdminPromotionClasses(${index})">${promotionProgramOptions(student.program)}</select>
-                      <select id="adminMoveClass${index}">${promotionClassOptions(student.program, student.className)}</select>
-                      <button class="ghost-btn" type="button" onclick="promoteStudent(${index})">Move class</button>
+                    <div class="toolbar" style="gap:8px; align-items:flex-start; flex-wrap:wrap">
+                      <div class="field" style="min-width:150px; margin:0">
+                        <label>Target program</label>
+                        <select id="adminMoveProgram${index}" onchange="syncAdminPromotionClasses(${index})">${promotionProgramOptions(student.program)}</select>
+                      </div>
+                      <div class="field" style="min-width:170px; margin:0">
+                        <label>Target class</label>
+                        <select id="adminMoveClass${index}">${promotionClassOptions(student.program, student.className)}</select>
+                      </div>
+                      <button class="ghost-btn" type="button" onclick="promoteStudent(${index})">Move / promote</button>
                       <button class="danger-btn" type="button" onclick="deleteStudent(${index})">Delete</button>
                     </div>
                   </td>
@@ -6899,53 +6955,69 @@
       `).join("") || `<div class="empty">No admin suggestions yet.</div>`;
     }
 
+    function renderAdminLessonNoteCard(note, index) {
+      return `
+        <article class="card">
+          <div class="tag-row">
+            <span class="tag green">${escapeHtml(note.date)}</span>
+            <span class="tag blue">${escapeHtml(note.program)} · ${escapeHtml(note.className)}</span>
+          </div>
+          <h3>${escapeHtml(note.topic || "Untitled lesson")}</h3>
+          <p><strong>Teacher:</strong> ${escapeHtml(note.teacher || "Teacher")}</p>
+          <div class="review-toggle-grid">
+            <details open>
+              <summary>Teaching objective</summary>
+              <p>${escapeHtml(note.objective || "No objective added yet.")}</p>
+            </details>
+            <details>
+              <summary>Ice breaker</summary>
+              <p>${escapeHtml(note.iceBreaker || "Not added yet.")}</p>
+            </details>
+            <details>
+              <summary>Lesson for the day</summary>
+              <p>${escapeHtml(note.lessonForDay || "Not added yet.")}</p>
+            </details>
+            <details>
+              <summary>Teaching and learning materials</summary>
+              <p>${escapeHtml(note.materials || "Not added yet.")}</p>
+            </details>
+            <details>
+              <summary>Homework</summary>
+              <p>${escapeHtml(note.homework || "Not added yet.")}</p>
+            </details>
+            <details>
+              <summary>Individual student performance</summary>
+              <div class="student-note-grid">${renderLessonStudentPerformance(note)}</div>
+            </details>
+            <details>
+              <summary>Edit notes</summary>
+              ${renderLessonAuditTrail(note) || `<div class="empty">No edit notes yet.</div>`}
+            </details>
+          </div>
+          <form style="margin-top:14px" onsubmit="saveLessonSuggestion(event, ${index})">
+            <h3>Admin comment / suggestion</h3>
+            <div class="field"><label>Focus</label><input id="lessonSuggestionFocus${index}" placeholder="Teaching quality, pacing, materials, homework, student support"></div>
+            <div class="field"><label>Suggestion</label><textarea id="lessonSuggestionComment${index}" placeholder="Write a helpful comment or next-step suggestion for the teacher."></textarea></div>
+            <button class="primary-btn" type="submit">Send suggestion</button>
+          </form>
+          <div class="message-list" style="margin-top:14px">${renderLessonSuggestionList(note)}</div>
+        </article>
+      `;
+    }
+
     function renderAdminLessonNotes() {
       const notes = store.lessonNotes;
       $("#adminLessonNotes").innerHTML = `
-        ${pageHeader("Teacher Lesson Notes", "教师课堂记录", "Admins can review teacher lesson boards and leave comments or suggestions.")}
-        <div class="lesson-board">
-          ${notes.map((note, index) => `
-            <article class="lesson-card full">
-              <div class="tag-row">
-                <span class="tag green">${escapeHtml(note.date)}</span>
-                <span class="tag blue">${escapeHtml(note.program)} · ${escapeHtml(note.className)}</span>
-              </div>
-              <h3>${escapeHtml(note.topic || "Untitled lesson")}</h3>
-              <p><strong>Teacher:</strong> ${escapeHtml(note.teacher || "Teacher")}</p>
-              <p><strong>Objective:</strong> ${escapeHtml(note.objective || "No objective added yet.")}</p>
-              <div class="lesson-subgrid" style="margin-top:14px">
-                <div>
-                  <strong>Ice breaker</strong>
-                  <p>${escapeHtml(note.iceBreaker || "Not added yet.")}</p>
-                </div>
-                <div>
-                  <strong>Lesson for the day</strong>
-                  <p>${escapeHtml(note.lessonForDay || "Not added yet.")}</p>
-                </div>
-                <div>
-                  <strong>Materials</strong>
-                  <p>${escapeHtml(note.materials || "Not added yet.")}</p>
-                </div>
-                <div>
-                  <strong>Homework</strong>
-                  <p>${escapeHtml(note.homework || "Not added yet.")}</p>
-                </div>
-                <div>
-                  <strong>Individual student performance</strong>
-                  <div class="student-note-grid">${renderLessonStudentPerformance(note)}</div>
-                </div>
-              </div>
-              ${renderLessonAuditTrail(note)}
-              <form style="margin-top:14px" onsubmit="saveLessonSuggestion(event, ${index})">
-                <h3>Admin comment / suggestion</h3>
-                <div class="field"><label>Focus</label><input id="lessonSuggestionFocus${index}" placeholder="Teaching quality, pacing, materials, homework, student support"></div>
-                <div class="field"><label>Suggestion</label><textarea id="lessonSuggestionComment${index}" placeholder="Write a helpful comment or next-step suggestion for the teacher."></textarea></div>
-                <button class="primary-btn" type="submit">Send suggestion</button>
-              </form>
-              <div class="message-list" style="margin-top:14px">${renderLessonSuggestionList(note)}</div>
-            </article>
-          `).join("") || `<div class="empty">No teacher lesson notes have been saved yet.</div>`}
-        </div>
+        ${pageHeader("Teacher Lesson Notes", "教师课堂记录", "Admins can review teacher lesson boards by date, open each saved lesson, and leave comments or suggestions in the same calendar-style flow used by teachers.")}
+        ${renderEventCalendar(
+          notes.sort((a, b) => String(b.date).localeCompare(String(a.date))),
+          {
+            idPrefix: "admin-lesson-note",
+            empty: "No teacher lesson notes have been saved yet.",
+            date: (note) => note.date,
+            render: (note, index) => renderAdminLessonNoteCard(note, index)
+          }
+        )}
       `;
     }
 
