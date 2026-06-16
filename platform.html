@@ -2459,6 +2459,8 @@
     let publicGuestSection = "Listening";
     let adminGuestLevel = "Primary Step 1";
     let adminGuestSection = "Listening";
+    let adminStudentFilterProgram = "All";
+    let adminStudentFilterClass = "All";
     const workCategories = ["Exercise", "Homework", "Monthly Test", "Mock Exam"];
     const categoryLabels = {
       Exercise: "Class Exercises",
@@ -2707,6 +2709,117 @@
       }
     };
 
+    const mayReviewGuidance = {
+      "Primary|Primary Step 2|Miumiu|2026-05": {
+        strong: `Strengths: Miumiu's reading and speaking are improving, and the class rule of using English first has helped her become more comfortable expressing herself. Her grammar is also gradually becoming more accurate. Her strongest classroom quality is contribution: she is not shy about answering questions, and even when she is wrong, she tries. This helps the teacher see exactly where support is needed. During the practical English class on making juice, she expressed the steps clearly and in good sequence.
+中文：优势：Miumiu 的阅读和口语正在进步，课堂上“优先使用英语”的规则帮助她更愿意表达自己。她的语法也在逐步变得更准确。她最突出的课堂品质是积极参与：她不害怕回答问题，即使答错也愿意尝试。这能帮助老师准确发现她需要支持的地方。在“制作果汁”的实践英语课中，她能按照顺序清楚表达步骤。`,
+        improving: `May overview: This month we used more practical English, classroom speaking routines, and video/audio-based comprehension to prepare Primary Step 2 students for the more demanding Junior style. Miumiu responded well when the task was concrete and visual, especially when she could connect action, sequence, and spoken English.
+中文：五月学习概况：本月我们通过更多实践英语、课堂口语规则以及视频/音频理解训练，帮助 Primary Step 2 学生逐步适应更有挑战的 Junior 学习方式。Miumiu 在任务具体、可视化时表现很好，尤其能把动作、顺序和口语表达连接起来。`,
+        weakness: `Areas for improvement: Her main challenge is reading confidence and phonics decoding. She sometimes tries to remember how a word once sounded instead of reading it from the letters she sees. VCV patterns and vowel teams such as ee, ea, and oo need more careful support.
+中文：提升空间：她当前主要需要提升的是阅读信心和自然拼读解码能力。她有时会依赖以前听过的发音，而不是根据看到的字母读出来。VCV 规则以及 ee、ea、oo 等元音组合需要进一步加强。`,
+        areas: `We will strengthen phonics, reading aloud, and sentence confidence so her strong classroom participation can transfer into more independent reading.
+中文：我们会加强自然拼读、朗读和句子自信，让她积极参与课堂的优势逐步转化为更独立的阅读能力。`,
+        how: `How we will support Miumiu: We will use animation imitation, short actor-style lines, and daily 30-minute self read-aloud practice with a timer. In class, the teacher will target VCV, ee, ea, and oo patterns through short words and sentence reading. At home, parents can let her choose a short cartoon scene, imitate whatever lines she catches, and keep going without pressure to understand every word.
+中文：我们将这样支持 Miumiu：我们会使用动画模仿、短句角色表演，以及每天30分钟计时自主朗读。课堂上，老师会用短词和句子重点练习 VCV、ee、ea、oo 等规则。家庭中，家长可以让她选择一个短动画片段，模仿她听到的台词，不要求每个词都完全理解，保持轻松持续。`
+      },
+      "Primary|Primary Step 2|Yann|2026-05": {
+        strong: `Strengths: Yann is confident, energetic, and a very strong classroom contributor. He has excellent memory and can remember words, meanings, and useful sentence patterns quickly. His sentence construction is improving, and he brings strong momentum to the class.
+中文：优势：Yann 自信、活跃，是课堂中非常积极的贡献者。他记忆力很好，能够快速记住单词、意思和有用句型。他的句子构建能力正在提升，也为课堂带来了很强的学习动力。`,
+        improving: `May overview: The English-first classroom rule is helping Yann use more spoken English. This month, the class worked with more listening, visual prompts, and story-based tasks, so his next step is to use his strong memory with calmer speaking habits and better turn-taking.
+中文：五月学习概况：课堂“优先使用英语”的规则正在帮助 Yann 使用更多口语。本月课堂加入了更多听力、视觉提示和故事型任务，因此他的下一步是把强记忆力和更稳定的表达习惯、轮流发言结合起来。`,
+        weakness: `Areas for improvement: His confidence can sometimes become impatience. He wants to answer every question, including questions meant for classmates who are trying to make progress. Speaking remains his biggest academic challenge, especially turning thoughts into controlled, complete spoken responses.
+中文：提升空间：他的自信有时会变成急躁。他想回答所有问题，包括本来留给其他同学尝试的问题。口语仍然是他最大的学习挑战，尤其是把想法转化为有控制、完整的英文回答。`,
+        areas: `We will work on speaking control, patient listening, and respectful classroom turn-taking while keeping his enthusiasm alive.
+中文：我们会在保护他学习热情的同时，练习口语控制、耐心倾听和尊重同伴发言机会。`,
+        how: `How we will support Yann: We will use actor-style animation imitation, read-aloud practice, and short speaking roles where he must listen first, wait, then respond. In class, the teacher will give him leadership moments as well as clear turn-taking limits. At home, parents can encourage him to repeat one favourite movie line clearly, then explain it in one calm sentence.
+中文：我们将这样支持 Yann：我们会使用动画角色模仿、朗读练习，以及“先听、等待、再回答”的短口语角色任务。课堂上，老师会给他领导型发言机会，同时设定清晰的轮流发言规则。家庭中，家长可以鼓励他清楚模仿一句喜欢的电影台词，再用一句平稳的英文解释。`
+      },
+      "Primary|Primary Step 2|Grace|2026-05": {
+        strong: `Strengths: Grace can be one of the strongest performers in the class on good days. Her speaking is excellent, and her listening is also strong, which supports her oral expression. She contributes well when engaged and often wants to help classmates.
+中文：优势：Grace 状态好时可以成为班级中表现最突出的学生之一。她的口语非常好，听力也很强，这对她的口语表达有明显帮助。她投入时课堂贡献很好，也经常愿意帮助同学。`,
+        improving: `May overview: This month we used story narration, vocabulary development, and linking words such as first, secondly, and also. Grace is beginning to use these linking words better, which is improving her reasoning and story organisation.
+中文：五月学习概况：本月我们练习了故事复述、词汇拓展，以及 first、secondly、also 等连接词。Grace 已经开始更好地使用这些连接词，这正在提升她的推理能力和故事组织能力。`,
+        weakness: `Areas for improvement: Reading and writing are her main challenges, especially speed and consistency. When homework is missed, she loses important practice time. The new class rule connecting homework with movie-based learning has helped her remember assignments more consistently.
+中文：提升空间：阅读和写作是她主要需要提升的部分，尤其是速度和稳定性。如果作业缺失，她会失去重要练习机会。现在课堂把作业和电影式学习活动连接起来后，她完成作业的意识正在增强。`,
+        areas: `We will build reading speed, writing fluency, and steady homework habits so her strong speaking and listening can support better written output.
+中文：我们会加强阅读速度、写作流利度和稳定作业习惯，让她较强的口语和听力能力支持更好的书面输出。`,
+        how: `How we will support Grace: We will use timer-based reading challenges, short story retells, and one-page vacation e-book reading with a small reward for beating her own time. At home, parents can listen to her read one page aloud and ask for a short summary using first, secondly, and finally. In class, the teacher will connect reading passages to short writing tasks so practice feels meaningful.
+中文：我们将这样支持 Grace：我们会使用计时阅读挑战、短故事复述，以及假期一本电子书阅读任务；如果她能突破自己的时间，可以给予小奖励。家庭中，家长可以听她朗读一页，并请她用 first、secondly、finally 做简短总结。课堂上，老师会把阅读材料和短写作任务连接起来，让练习更有意义。`
+      },
+      "Primary|Primary Step 2|Cherry|2026-05": {
+        strong: `Strengths: Cherry is strong in almost every area and continues to improve steadily. She has quiet personal goals and usually tries to complete tasks well. Her grammar has improved a lot, and her logic is becoming clearer when writing sequential stories, which is important for TOEFL-style writing and speaking.
+中文：优势：Cherry 几乎各方面都很强，并且持续稳定进步。她有自己安静但明确的目标，通常会努力把任务做好。她的语法进步很大，在写有顺序的故事时逻辑也越来越清楚，这对 TOEFL 风格的写作和口语都非常重要。`,
+        improving: `May overview: This month the class used movie watching, story narration, summary discussion, and vocabulary fishing. Because Cherry does not usually attend on Saturdays, she misses some of these movie-based speaking and vocabulary activities, but she can still use the same methods independently.
+中文：五月学习概况：本月课堂使用了电影观看、故事复述、总结讨论和“词汇捕捞”等方法。由于 Cherry 通常周六不来，她会错过部分电影式口语和词汇活动，但她完全可以在家独立使用同样的方法。`,
+        weakness: `Areas for improvement: Speaking is the weakest area compared with her other skills. She is already confident and determined, so the next step is to give her more speaking input, imitation, and story-retelling opportunities.
+中文：提升空间：相对于其他能力，口语是她目前最需要提升的部分。她已经很有信心，也很有决心，下一步是给她更多口语输入、模仿和故事复述机会。`,
+        areas: `We will help her turn her strong grammar, logic, and reading comprehension into more natural spoken expression.
+中文：我们会帮助她把较强的语法、逻辑和阅读理解能力转化为更自然的口语表达。`,
+        how: `How we will support Cherry: We will use animation and movie imitation, short scene summaries, and vocabulary fishing at home and in class. After watching a short clip, she can choose three useful words, explain how they were used, and retell the scene in order. This keeps her speaking practice connected to the story logic she is already building well.
+中文：我们将这样支持 Cherry：我们会在家庭和课堂中使用动画/电影模仿、短片段总结和词汇捕捞。看完短片后，她可以选择三个有用词汇，解释它们在片段中的用法，并按顺序复述情节。这样能把口语练习和她已经逐步建立的故事逻辑连接起来。`
+      },
+      "Junior|Junior|Ethan Yang|2026-05": {
+        strong: `Strengths: Ethan Yang becomes very serious when he recognises a knowledge gap, and he shows a real willingness to learn. His typing and overall computer use are excellent. During the 30-minute listening work with The Wild Robot, he remembered many words, how they were used, and what they meant in context.
+中文：优势：Ethan Yang 一旦意识到自己缺少某项知识，就会变得非常认真，并表现出真正想学习的意愿。他的打字和整体电脑使用能力很强。在《荒野机器人》30分钟听力学习中，他能记住许多词汇、它们的用法以及语境中的意思。`,
+        improving: `May overview: This month Junior students used longer listening input, vocabulary in context, and class discussion. Ethan Yang's vocabulary learning is improving through meaningful listening rather than isolated memorisation.
+中文：五月学习概况：本月 Junior 学生进行了更长时间的听力输入、语境词汇学习和课堂讨论。Ethan Yang 的词汇学习正在通过有意义的听力材料提升，而不是单独死记硬背。`,
+        weakness: `Areas for improvement: His main challenges are subject-verb agreement, spelling, grammar control, and using newly learned words in meaningful everyday sentences. He also needs stronger independent practice habits and clearer learning goals.
+中文：提升空间：他的主要挑战是主谓一致、拼写、语法控制，以及把新学词汇用于有意义的日常句子。他也需要更强的自主练习习惯和更清晰的学习目标。`,
+        areas: `We will focus on goal setting, grammar accuracy, vocabulary sentence use, and independent reading/writing routines.
+中文：我们会重点关注目标设定、语法准确性、词汇造句，以及自主阅读和写作习惯。`,
+        how: `How we will support Ethan Yang: We will set small independent goals: one mini book of about 1,000 words each month, one short article each week, and new vocabulary used in original sentences. In class, the teacher will connect Wild Robot vocabulary to grammar patterns. At home, parents can check only that the weekly goal was attempted, so responsibility grows without unnecessary pressure.
+中文：我们将这样支持 Ethan Yang：我们会设定小型自主目标：每月读一本约1000词的小书，每周写一篇短文，并把新词用于原创句子。课堂上，老师会把《荒野机器人》词汇和语法句型连接起来。家庭中，家长只需确认每周目标是否尝试完成，让责任感自然增长而不造成过多压力。`
+      },
+      "Junior|Junior|Ethan Guo|2026-05": {
+        strong: `Strengths: Ethan Guo is improving very quickly. He can now learn new words, remember their meanings, and use them in sentences. His attitude toward learning is becoming stronger, and if he stays on this path, he can compete with higher-level students.
+中文：优势：Ethan Guo 进步非常快。他现在不仅能学习新词、记住意思，还能尝试用这些词造句。他的学习态度正在变得更积极，如果继续保持这种轨迹，他完全可以和更高水平的学生竞争。`,
+        improving: `May overview: This month the class focused on vocabulary through listening and story context, plus grammar and writing practice. Ethan Guo's vocabulary growth is now visible in his sentence attempts.
+中文：五月学习概况：本月课堂通过听力和故事语境学习词汇，同时进行语法和写作练习。Ethan Guo 的词汇增长已经能在他的造句尝试中看出来。`,
+        weakness: `Areas for improvement: Writing and grammar remain the main challenges. Some of this comes from missing assignment practice. Assignments are not just tasks to finish; they are where mastery is built. His computer literacy also needs more practice so he can keep up with online learning and typing tasks.
+中文：提升空间：写作和语法仍然是主要挑战。其中一部分来自作业练习不足。作业不只是“完成任务”，而是建立熟练度的地方。他的电脑基础也需要更多练习，才能跟上线上学习和打字任务。`,
+        areas: `We will strengthen grammar rules, independent revision, writing habits, and basic computer confidence.
+中文：我们会加强语法规则、自主复习、写作习惯和基础电脑信心。`,
+        how: `How we will support Ethan Guo: We will treat each assignment like practice for mastery, similar to cooking: skill improves by doing, not only by watching. In class, the teacher will give focused grammar drills and short writing corrections. At home, parents can help him practise typing, basic online searching, and one short independent review session each week.
+中文：我们将这样支持 Ethan Guo：我们会把每次作业都看作“熟练掌握”的练习，就像做饭一样，技能来自实际操作，而不是只看。课堂上，老师会提供有重点的语法训练和短写作修改。家庭中，家长可以帮助他练习打字、基础网络搜索，以及每周一次短时间自主复习。`
+      },
+      "Junior|Junior|Oscar|2026-05": {
+        strong: `Strengths: Oscar loves reading and knows many words, their meanings, and how to use them. His biological vocabulary is especially strong, and he can interpret those words very well. His listening is also good, and he has strong comprehension when he works carefully.
+中文：优势：Oscar 热爱阅读，认识许多单词，知道意思，也能理解如何使用。尤其在生物类词汇方面，他的理解和解释能力非常强。他的听力也很好，只要认真完成任务，理解能力很强。`,
+        improving: `May overview: This month Junior reading required more patience and evidence-based answering. We recently tested a summary-before-answer method, and Oscar improved on the questions where he summarised first.
+中文：五月学习概况：本月 Junior 阅读更需要耐心和基于证据的答题。我们最近尝试了“先总结再答题”的方法，Oscar 在先做总结的题目上明显更准确。`,
+        weakness: `Areas for improvement: His challenge is not basic reading ability; it is rushing. He sometimes moves too quickly, especially when he wants to return to iPad games during breaks. Questions he rushed without summarising were often wrong. His computer literacy also needs practice.
+中文：提升空间：他的挑战不是基础阅读能力，而是容易赶速度。有时他太急，尤其休息时间想回到 iPad 游戏时。没有先总结、快速冲过去的题目往往容易出错。他的电脑基础也需要练习。`,
+        areas: `We will build patience, summary writing, main-idea/detail recognition, and basic computer skills.
+中文：我们会培养耐心、总结写作、主旨/细节识别能力，以及基础电脑技能。`,
+        how: `How we will support Oscar: Before answering reading questions, Oscar will write or say a one-sentence summary, then identify the main idea and one important detail. In class, the teacher will make “evidence before answer” a routine. At home, parents can support healthy break boundaries and short computer practice so games do not become the fastest habit after every task.
+中文：我们将这样支持 Oscar：回答阅读题前，Oscar 需要先写出或说出一句话总结，再找出主旨和一个重要细节。课堂上，老师会把“先找证据再答题”变成固定流程。家庭中，家长可以帮助建立健康的休息边界，并安排短时间电脑基础练习，避免每个任务后最快形成的习惯都是游戏。`
+      },
+      "Junior|Junior|Yaya|2026-05": {
+        strong: `Strengths: Yaya is making daily progress. She is focused, determined, and truly wants to compete even though some classmates have more experience. Her vocabulary is improving, and her attempts show that she is absorbing more language. She also writes her ideas with good intention.
+中文：优势：Yaya 每天都在进步。她专注、有决心，也真的想和更有经验的同学竞争。她的词汇正在提升，从她的尝试中可以看出她正在吸收更多语言。她写作时也能清楚表达自己的想法。`,
+        improving: `May overview: This month the class worked through listening, vocabulary, and written expression. Yaya's vocabulary growth is becoming visible, but pronunciation and confidence in spoken delivery need more repetition.
+中文：五月学习概况：本月课堂练习了听力、词汇和书面表达。Yaya 的词汇增长已经逐渐显现，但发音和口语输出信心还需要更多重复练习。`,
+        weakness: `Areas for improvement: Pronunciation is the main challenge. Computer literacy is also low and needs regular practice. Her writing can improve further through revision and helpful feedback.
+中文：提升空间：发音是她当前主要挑战。电脑基础也较弱，需要规律练习。她的写作可以通过修改和有效反馈进一步提升。`,
+        areas: `We will strengthen pronunciation, speaking imitation, computer basics, and writing revision.
+中文：我们会加强发音、口语模仿、电脑基础和写作修改。`,
+        how: `How we will support Yaya: We will use animation imitation and child-actor style speaking practice: watch a short scene, imitate the expression, and repeat useful lines. For writing, she can use AI tools to get first suggestions, then ask the teacher for final correction. At home, parents can support short computer practice and one read-aloud line each day.
+中文：我们将这样支持 Yaya：我们会使用动画模仿和儿童演员式口语练习：看一个短片段，模仿表情和语气，并重复有用台词。写作方面，她可以先使用 AI 工具获得初步建议，再请老师做最终修改。家庭中，家长可以支持短时间电脑练习和每天一句朗读。`
+      },
+      "Junior|Junior|Ran|2026-05": {
+        strong: `Strengths: Ran's improvement over the past 15 months has been phenomenal. He remembers vocabulary well and can explain meanings clearly. His speaking is improving, his overall class performance is stable, and he often tries to help explain knowledge to others, which is a strong sign of learning.
+中文：优势：Ran 过去15个月的进步非常显著。他记忆词汇能力强，也能清楚解释意思。他的口语正在提升，整体课堂表现稳定，并且常常尝试帮助别人解释知识，这说明他对学习内容的理解在加深。`,
+        improving: `May overview: This month Junior students worked with richer listening comprehension, vocabulary in context, and more speaking output. Ran's listening comprehension is improving significantly, and he is becoming more able to follow classroom meaning.
+中文：五月学习概况：本月 Junior 学生进行了更丰富的听力理解、语境词汇和口语输出训练。Ran 的听力理解正在显著进步，也越来越能跟上课堂内容。`,
+        weakness: `Areas for improvement: Ran can become impatient because he wants to answer every question. His main academic challenge is grammar in speaking: converting ideas into clear English sentences. Sometimes he mixes Chinese when the sentence structure is not ready. Computer literacy also needs more practice.
+中文：提升空间：Ran 有时会因为很想回答每个问题而显得急躁。他主要的学习挑战是口语中的语法：如何把想法转化为清楚的英文句子。有时句子结构还没准备好，他会混入中文。电脑基础也需要更多练习。`,
+        areas: `We will support spoken grammar, patient turn-taking, sentence framing, and basic computer skills.
+中文：我们会支持他的口语语法、耐心轮流发言、句型组织和基础电脑技能。`,
+        how: `How we will support Ran: We will use animation imitation, read-aloud practice, and sentence frames so his ideas can become complete English sentences. In class, the teacher will give him wait-turn routines and ask him to explain one answer after classmates try first. At home, parents can support short computer practice and one favourite movie line repeated clearly, followed by one original sentence.
+中文：我们将这样支持 Ran：我们会使用动画模仿、朗读练习和句型框架，帮助他把想法变成完整英文句子。课堂上，老师会设置“等待轮次”的规则，并让他在同学先尝试后解释一个答案。家庭中，家长可以支持短时间电脑练习，以及清楚重复一句喜欢的电影台词后，再造一个原创句子。`
+      }
+    };
+
     const defaultImportedGuidance = (review) => ({
       strong: review.excluded ? `Historical score record imported from the school's earlier score sheet. ${review.excluded}. 中文：该成绩来自学校旧成绩表，${review.excluded}。` : "Historical score record imported from the school's earlier score sheet. 中文：该成绩来自学校旧成绩表。",
       improving: "This record is a baseline for comparing later homework, exercises, monthly tests, and mock exams. 中文：该记录作为后续作业、练习、月考和模拟考试的对比基线。",
@@ -2717,7 +2830,7 @@
 
     const seededScoreReviewsWithGuidance = seededScoreReviews.map((review) => {
       const key = `${review.program}|${review.className}|${review.student}|${review.month}`;
-      const guidance = aprilReviewGuidance[key] || defaultImportedGuidance(review);
+      const guidance = aprilReviewGuidance[key] || mayReviewGuidance[key] || defaultImportedGuidance(review);
       return {
         student: review.student,
         program: review.program,
@@ -2865,7 +2978,7 @@
       const accounts = Array.isArray(saved) ? saved : [];
       const merged = accounts.map((account) => {
         const seed = seededAccounts.find((item) => item.role === (account.role || "student") && (item.username.toLowerCase() === String(account.username || "").toLowerCase() || item.name.toLowerCase() === String(account.name || "").toLowerCase()));
-        return seed ? { ...account, ...seed } : account;
+        return seed ? { ...seed, ...account, accountId: account.accountId || seed.accountId, studentId: account.studentId || seed.studentId } : account;
       });
       const existingKeys = new Set(merged.map((account) => `${account.role || "student"}:${String(account.username || "").toLowerCase()}`));
       const seeded = seededAccounts.filter((account) => !existingKeys.has(`${account.role}:${account.username.toLowerCase()}`));
@@ -2880,18 +2993,18 @@
         return seed ? {
           ...student,
           studentId: seed.studentId,
-          gender: seed.gender,
-          program: seed.program,
-          className: seed.className,
-          score: seed.score,
-          exams: seed.exams,
-          homework: seed.homework,
-          exercises: seed.exercises
+          gender: student.gender || seed.gender,
+          program: student.program || seed.program,
+          className: student.className || seed.className,
+          score: student.score ?? seed.score,
+          exams: student.exams ?? seed.exams,
+          homework: student.homework ?? seed.homework,
+          exercises: student.exercises ?? seed.exercises
         } : student;
       });
-      const existing = new Set(merged.map((student) => `${String(student.name || "").toLowerCase()}:${student.program}:${student.className}`));
+      const existing = new Set(merged.map((student) => String(student.name || "").toLowerCase()));
       const seeded = seededStudentRecords
-        .filter((account) => !existing.has(`${account.name.toLowerCase()}:${account.program}:${account.className}`))
+        .filter((account) => !existing.has(account.name.toLowerCase()))
         .map((account) => ({
           name: account.name,
           studentId: account.studentId,
@@ -3966,6 +4079,7 @@
       const reviewed = submissions.filter((item) => item.score !== "").length;
       const inbox = messagesForCurrentStudent();
       const studentId = ensureCurrentStudentId();
+      const ownReviews = store.reviews.filter((item) => item.student === currentUser.name);
       $("#studentDashboard").innerHTML = `
         ${pageHeader("Student Center", `${currentUser.program} 学习中心`, `${currentUser.className} · Student ID ${studentId} · ${sectionsFor(currentUser.program, currentUser.className).length} exam sections available`, `<div class="toolbar"><button class="primary-btn" onclick="activateSection('studentAssignments')">Open assignments</button><button class="ghost-btn" onclick="activateSection('studentResults')">Results</button></div>`)}
         <div class="metric-grid">
@@ -3977,7 +4091,7 @@
         <div class="metric-grid">
           <div class="metric"><small>Results posted</small><strong>${submissions.filter((submission) => submission.score || submission.feedback).length}</strong></div>
           <div class="metric"><small>Messages</small><strong>${inbox.length}</strong></div>
-          <div class="metric"><small>Monthly reviews</small><strong>${store.reviews.filter((item) => item.student === currentUser.name && item.className === currentUser.className).length}</strong></div>
+          <div class="metric"><small>Monthly reviews</small><strong>${ownReviews.length}</strong></div>
           <div class="metric"><small>Class rank</small><strong>#${getRank(currentUser.name, currentUser.className, "score")}</strong></div>
         </div>
         <article class="card" style="margin-bottom:14px">
@@ -4957,7 +5071,7 @@
     }
 
     function renderStudentReviews() {
-      const reviews = store.reviews.filter((item) => item.student === currentUser.name && item.className === currentUser.className);
+      const reviews = store.reviews.filter((item) => item.student === currentUser.name);
       $("#studentReviews").innerHTML = `
         ${pageHeader("Monthly Review", "月度学习反馈", "Teacher feedback for strengths, improvement, weaknesses, and next steps.")}
         ${reviews.length ? renderPerformanceGraph(reviews) : ""}
@@ -4967,7 +5081,7 @@
 
     function renderStudentResults() {
       const submissions = studentSubmissions().sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)));
-      const historicalScores = store.reviews.filter((item) => item.student === currentUser.name && item.className === currentUser.className && item.source === "Old score import");
+      const historicalScores = store.reviews.filter((item) => item.student === currentUser.name && item.source === "Old score import");
       $("#studentResults").innerHTML = `
         ${pageHeader("Results Portal", "成绩中心", "Check submitted homework, exercises, monthly tests, mock exams, scores, auto-scoring, recordings, and teacher feedback.")}
         ${historicalScores.length ? `<h3>Imported old scores</h3><div class="grid">${historicalScores.map(renderReviewCard).join("")}</div>` : ""}
@@ -6097,25 +6211,130 @@
       `;
     }
 
+    function programClassChoices() {
+      return Object.keys(programs).flatMap((program) => classesFor(program).map((className) => ({ program, className })));
+    }
+
+    function promotionProgramOptions(selectedProgram) {
+      return Object.keys(programs).map((program) => `<option value="${escapeHtml(program)}" ${program === selectedProgram ? "selected" : ""}>${escapeHtml(program)}</option>`).join("");
+    }
+
+    function promotionClassOptions(program, selectedClass = "") {
+      return classesFor(program).map((className) => `<option value="${escapeHtml(className)}" ${className === selectedClass ? "selected" : ""}>${escapeHtml(className)}</option>`).join("");
+    }
+
+    function filteredAdminStudentEntries() {
+      return store.students
+        .map((student, index) => ({ student, index }))
+        .filter(({ student }) => adminStudentFilterProgram === "All" || student.program === adminStudentFilterProgram)
+        .filter(({ student }) => adminStudentFilterClass === "All" || student.className === adminStudentFilterClass);
+    }
+
+    function setAdminStudentFilter(program = "All", className = "All") {
+      adminStudentFilterProgram = program;
+      adminStudentFilterClass = className;
+      renderAdminStudents();
+    }
+
+    function syncAdminPromotionClasses(index) {
+      const programSelect = $(`#adminMoveProgram${index}`);
+      const classSelect = $(`#adminMoveClass${index}`);
+      if (!programSelect || !classSelect) return;
+      classSelect.innerHTML = promotionClassOptions(programSelect.value, classesFor(programSelect.value)[0]);
+    }
+
+    function promoteStudent(index) {
+      if (stopIfNotAllowed("admin")) return;
+      const selected = store.students[index];
+      const programSelect = $(`#adminMoveProgram${index}`);
+      const classSelect = $(`#adminMoveClass${index}`);
+      if (!selected || !programSelect || !classSelect) return;
+      const nextProgram = programSelect.value;
+      const nextClass = classSelect.value;
+      if (selected.program === nextProgram && selected.className === nextClass) {
+        window.alert(`${selected.name} is already in ${nextClass}.`);
+        return;
+      }
+      const previousPlacement = `${selected.program} · ${selected.className}`;
+      const nextPlacement = `${nextProgram} · ${nextClass}`;
+      const confirmed = window.confirm(`Move ${selected.name} from ${previousPlacement} to ${nextPlacement}? Their student ID will stay the same.`);
+      if (!confirmed) return;
+      const studentId = selected.studentId;
+      store.students = store.students.map((student, studentIndex) => {
+        const sameStudent = studentIndex === index || (studentId && student.studentId === studentId);
+        return sameStudent ? { ...student, program: nextProgram, className: nextClass } : student;
+      });
+      store.accounts = store.accounts.map((account) => {
+        const sameAccount = account.role === "student" && (
+          (studentId && (account.studentId === studentId || account.accountId === studentId)) ||
+          (String(account.name || "").toLowerCase() === String(selected.name || "").toLowerCase())
+        );
+        return sameAccount ? { ...account, program: nextProgram, className: nextClass, studentId: account.studentId || studentId, accountId: account.accountId || studentId } : account;
+      });
+      if (currentUser && currentUser.role === "student" && ((studentId && currentUser.studentId === studentId) || currentUser.name === selected.name)) {
+        currentUser = { ...currentUser, program: nextProgram, className: nextClass };
+      }
+      store.adminNotes = [{
+        date: new Date().toISOString().slice(0, 10),
+        student: selected.name,
+        assignment: "Class placement update",
+        score: `${previousPlacement} -> ${nextPlacement}`,
+        comment: `${currentUser ? currentUser.name : "Admin"} moved ${selected.name} to ${nextPlacement}. Student ID unchanged: ${studentId || "pending ID"}.`
+      }, ...store.adminNotes];
+      adminStudentFilterProgram = nextProgram;
+      adminStudentFilterClass = nextClass;
+      render();
+      activateSection("adminStudents");
+    }
+
     function renderAdminStudents() {
+      const entries = filteredAdminStudentEntries();
+      const filterClassOptions = adminStudentFilterProgram === "All" ? ["All"] : ["All", ...classesFor(adminStudentFilterProgram)];
+      const classCards = programClassChoices().map(({ program, className }) => {
+        const count = store.students.filter((student) => student.program === program && student.className === className).length;
+        const isActive = adminStudentFilterProgram === program && adminStudentFilterClass === className;
+        return `<button class="tag ${isActive ? "green" : "blue"}" type="button" onclick="setAdminStudentFilter('${escapeHtml(program)}', '${escapeHtml(className)}')">${escapeHtml(className)} · ${count}</button>`;
+      }).join("");
       $("#adminStudents").innerHTML = `
-        ${pageHeader("Student Details", "学生详情", "All registered students, class placement, rankings, and current score data.")}
+        ${pageHeader("Student Details", "学生详情", "All registered students, class placement, rankings, and current score data. Admin can promote or move students without changing their ID.")}
+        <div class="card" style="margin-bottom:16px">
+          <h3>Class placement</h3>
+          <p>Click a class to view students in that group, or use the dropdowns to filter. Use Move class only when a student is promoted or reassigned.</p>
+          <div class="toolbar" style="margin-bottom:12px">
+            <select id="adminStudentProgramFilter" onchange="setAdminStudentFilter(this.value, 'All')">
+              <option value="All" ${adminStudentFilterProgram === "All" ? "selected" : ""}>All programs</option>
+              ${Object.keys(programs).map((program) => `<option value="${escapeHtml(program)}" ${adminStudentFilterProgram === program ? "selected" : ""}>${escapeHtml(program)}</option>`).join("")}
+            </select>
+            <select id="adminStudentClassFilter" onchange="setAdminStudentFilter('${escapeHtml(adminStudentFilterProgram)}', this.value)">
+              ${filterClassOptions.map((className) => `<option value="${escapeHtml(className)}" ${adminStudentFilterClass === className ? "selected" : ""}>${className === "All" ? "All classes" : escapeHtml(className)}</option>`).join("")}
+            </select>
+            <button class="ghost-btn" type="button" onclick="setAdminStudentFilter('All', 'All')">Show everyone</button>
+          </div>
+          <div class="tag-row">${classCards}</div>
+        </div>
         <div class="table-card">
           <table>
-            <thead><tr><th>Student</th><th>Student ID</th><th>Program</th><th>Class</th><th>Scores</th><th>Submissions</th><th>Profile photo</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Student</th><th>Student ID</th><th>Program</th><th>Class</th><th>Scores</th><th>Submissions</th><th>Profile photo</th><th>Admin actions</th></tr></thead>
             <tbody>
-              ${store.students.map((student, index) => `
+              ${entries.map(({ student, index }) => `
                 <tr>
-                  <td><div class="profile-row"><div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${student.name}">` : initials(student.name)}</div><strong>${student.name}</strong></div></td>
-                  <td>${student.studentId || "Assigns at next login"}</td>
-                  <td>${student.program}</td>
-                  <td>${student.className}</td>
-                  <td>Overall ${student.score}<br>Homework ${student.homework}<br>Exercises ${student.exercises}<br>Exams ${student.exams}</td>
+                  <td><div class="profile-row"><div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div><strong>${escapeHtml(student.name)}</strong></div></td>
+                  <td>${escapeHtml(student.studentId || "Assigns at next login")}</td>
+                  <td>${escapeHtml(student.program)}</td>
+                  <td>${escapeHtml(student.className)}</td>
+                  <td>Overall ${student.score ?? "-"}<br>Homework ${student.homework ?? "-"}<br>Exercises ${student.exercises ?? "-"}<br>Exams ${student.exams ?? "-"}</td>
                   <td>${store.submissions.filter((submission) => submission.student === student.name).length}</td>
                   <td><input id="adminPhoto${index}" type="file" accept="image/*" onchange="adminUploadProfilePhoto(${index})"></td>
-                  <td><button class="danger-btn" type="button" onclick="deleteStudent(${index})">Delete</button></td>
+                  <td>
+                    <div class="toolbar" style="gap:8px; align-items:flex-start">
+                      <select id="adminMoveProgram${index}" onchange="syncAdminPromotionClasses(${index})">${promotionProgramOptions(student.program)}</select>
+                      <select id="adminMoveClass${index}">${promotionClassOptions(student.program, student.className)}</select>
+                      <button class="ghost-btn" type="button" onclick="promoteStudent(${index})">Move class</button>
+                      <button class="danger-btn" type="button" onclick="deleteStudent(${index})">Delete</button>
+                    </div>
+                  </td>
                 </tr>
-              `).join("") || `<tr><td colspan="8">No students registered yet.</td></tr>`}
+              `).join("") || `<tr><td colspan="8">No students in this class yet.</td></tr>`}
             </tbody>
           </table>
         </div>
