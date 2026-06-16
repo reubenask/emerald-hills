@@ -1536,6 +1536,90 @@
       font-family: 'DM Sans', sans-serif;
     }
 
+    .event-calendar-wrap {
+      display: grid;
+      gap: 16px;
+      margin: 14px 0 18px;
+    }
+
+    .calendar-month-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .calendar-month-card h3 {
+      margin-bottom: 12px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(34px, 1fr));
+      gap: 6px;
+    }
+
+    .calendar-weekday {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .calendar-day {
+      min-height: 38px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .calendar-day.has-event {
+      border-color: rgba(255, 112, 112, 0.55);
+      background: rgba(255, 112, 112, 0.14);
+      color: #ffb1a8;
+      cursor: pointer;
+    }
+
+    .calendar-day.has-event:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 112, 112, 0.22);
+    }
+
+    .calendar-day.is-empty {
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .calendar-event-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .calendar-event-list > details,
+    .review-toggle-grid > details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .calendar-event-list summary,
+    .review-toggle-grid summary {
+      cursor: pointer;
+      color: var(--green-light);
+      font-weight: 900;
+    }
+
+    .review-toggle-grid {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
     .lesson-calendar {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -4027,6 +4111,104 @@
       return store.reviews.filter((review) => review.program === program);
     }
 
+    function activeSectionId() {
+      return ($(".section.active") && $(".section.active").id) || "";
+    }
+
+    function programIntroHref(file) {
+      return currentUser ? `${file}?return=app` : file;
+    }
+
+    function normalizeDateKey(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      if (/^\d{4}-\d{2}$/.test(raw)) return `${raw}-01`;
+      return raw.slice(0, 10);
+    }
+
+    function monthLabel(monthKey = "") {
+      if (!monthKey) return "No date";
+      const [year, month] = monthKey.split("-").map(Number);
+      const date = new Date(year, (month || 1) - 1, 1);
+      return date.toLocaleDateString("en", { month: "long", year: "numeric" });
+    }
+
+    function calendarDayCount(monthKey = "") {
+      const [year, month] = monthKey.split("-").map(Number);
+      return new Date(year, month || 1, 0).getDate();
+    }
+
+    function calendarStartOffset(monthKey = "") {
+      const [year, month] = monthKey.split("-").map(Number);
+      return new Date(year, (month || 1) - 1, 1).getDay();
+    }
+
+    function openCalendarDate(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+      target.open = true;
+      target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function renderEventCalendar(items, options) {
+      if (!items.length) return `<div class="empty">${options.empty || "No records yet."}</div>`;
+      const entries = items.map((item, index) => {
+        const date = normalizeDateKey(options.date(item));
+        return { item, index, date, month: date.slice(0, 7) || "No date" };
+      }).filter((entry) => entry.date);
+      if (!entries.length) return `<div class="empty">${options.empty || "No dated records yet."}</div>`;
+      const byMonth = entries.reduce((grouped, entry) => {
+        grouped[entry.month] = grouped[entry.month] || [];
+        grouped[entry.month].push(entry);
+        return grouped;
+      }, {});
+      return `
+        <div class="event-calendar-wrap">
+          ${Object.keys(byMonth).sort().reverse().map((month) => {
+            const monthEntries = byMonth[month];
+            const byDate = monthEntries.reduce((grouped, entry) => {
+              grouped[entry.date] = grouped[entry.date] || [];
+              grouped[entry.date].push(entry);
+              return grouped;
+            }, {});
+            const eventDates = new Set(Object.keys(byDate));
+            const blanks = Array.from({ length: calendarStartOffset(month) }, (_, index) => `<span class="calendar-day is-empty" aria-hidden="true"></span>`).join("");
+            const days = Array.from({ length: calendarDayCount(month) }, (_, index) => {
+              const day = index + 1;
+              const dateKey = `${month}-${String(day).padStart(2, "0")}`;
+              const detailId = `${options.idPrefix}-${dateKey}`;
+              const hasEvent = eventDates.has(dateKey);
+              return hasEvent
+                ? `<button class="calendar-day has-event" type="button" onclick="openCalendarDate('${detailId}')" aria-label="Open records for ${dateKey}">${day}</button>`
+                : `<span class="calendar-day">${day}</span>`;
+            }).join("");
+            return `
+              <article class="calendar-month-card">
+                <h3>${escapeHtml(monthLabel(month))}</h3>
+                <div class="calendar-grid" aria-label="${escapeHtml(monthLabel(month))} calendar">
+                  ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => `<span class="calendar-weekday">${day}</span>`).join("")}
+                  ${blanks}${days}
+                </div>
+              </article>
+              <div class="calendar-event-list">
+                ${Object.keys(byDate).sort().reverse().map((dateKey) => {
+                  const detailId = `${options.idPrefix}-${dateKey}`;
+                  return `
+                    <details id="${detailId}">
+                      <summary>${escapeHtml(dateKey)} · ${byDate[dateKey].length} ${byDate[dateKey].length === 1 ? "record" : "records"}</summary>
+                      <div class="grid one-col">
+                        ${byDate[dateKey].map(({ item, index }) => options.render(item, index)).join("")}
+                      </div>
+                    </details>
+                  `;
+                }).join("")}
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
     function setProgramDetailsLanguage(language) {
       programDetailsLanguage = language;
       renderProgramDetails();
@@ -4103,18 +4285,16 @@
           <article class="card">
             <h3>Program Introduction</h3>
             <p>Open the full program introduction in the same browser tab.</p>
-            <div class="program-menu"><a href="emerald_hills.html">EN</a><a href="emerald_hills_simplified.html">中文</a></div>
+            <div class="program-menu"><a href="${programIntroHref("emerald_hills.html")}">EN</a><a href="${programIntroHref("emerald_hills_simplified.html")}">中文</a></div>
           </article>
         </div>
         <div class="grid">
-          ${Object.entries(programs).map(([program, detail]) => `
-            <button class="card program-overview-card" type="button" onclick="openProgramRecords('teacherRecords', '${program}')">
-              <h3>${program}</h3>
-              <p>${programSummary(program)}</p>
-              <div class="tag-row">${sectionTags(program)}</div>
-              <div class="tag-row">${programScoreTags(program)}</div>
-            </button>
-          `).join("")}
+          <article class="card program-overview-card">
+            <h3>${escapeHtml(currentUser.program)} · ${escapeHtml(currentUser.className)}</h3>
+            <p>${programSummary(currentUser.program)}</p>
+            <div class="tag-row">${sectionTags(currentUser.program)}</div>
+            <div class="tag-row">${programScoreTags(currentUser.program)}</div>
+          </article>
         </div>
       `;
     }
@@ -4122,14 +4302,25 @@
     function renderProgramDetails() {
       const isEnglish = programDetailsLanguage === "english";
       const file = isEnglish ? "emerald_hills.html" : "emerald_hills_simplified.html";
+      const visiblePrograms = role === "student" ? [currentUser.program] : Object.keys(programs);
       $("#programDetails").innerHTML = `
-        ${pageHeader("Program Introduction", "课程介绍", "Open the full program introduction in the same browser tab.")}
+        ${pageHeader("Program Introduction", "课程介绍", role === "student" ? `Showing only your current level: ${currentUser.program} · ${currentUser.className}.` : "Open the full program introduction in the same browser tab.")}
         <div class="program-links">
           <article class="card">
             <h3>Program Introduction</h3>
             <p>Choose a language. The selected outline opens in this same browser tab.</p>
-            <div class="program-menu"><a href="emerald_hills.html">EN</a><a href="emerald_hills_simplified.html">中文</a></div>
+            <div class="program-menu"><a href="${programIntroHref("emerald_hills.html")}">EN</a><a href="${programIntroHref("emerald_hills_simplified.html")}">中文</a></div>
           </article>
+        </div>
+        <div class="grid">
+          ${visiblePrograms.map((program) => `
+            <article class="card program-overview-card">
+              <h3>${escapeHtml(program)}${role === "student" ? ` · ${escapeHtml(currentUser.className)}` : ""}</h3>
+              <p>${programSummary(program)}</p>
+              <div class="tag-row">${sectionTags(program)}</div>
+              <div class="tag-row">${programScoreTags(program)}</div>
+            </article>
+          `).join("")}
         </div>
       `;
     }
@@ -5064,31 +5255,54 @@
     }
 
     function renderStudentRanking() {
+      const student = currentStudentRecord() || currentUser;
+      const metric = "score";
+      const ranked = store.students.filter((item) => item.className === currentUser.className).sort((a, b) => Number(b[metric]) - Number(a[metric]));
+      const rank = getRank(currentUser.name, currentUser.className, metric);
       $("#studentRanking").innerHTML = `
-        ${pageHeader("Class Ranking", `${currentUser.className} 排名`, "Students only see the ranking for their own class.")}
-        ${renderRankingTable(currentUser.className, "score")}
+        ${pageHeader("My Class Rank", `${currentUser.className} 个人排名`, "For privacy, students only see their own score and rank. Teacher and admin dashboards keep the full class ranking.")}
+        <article class="card">
+          <h3>${escapeHtml(currentUser.name)}</h3>
+          <div class="score-strip">
+            <div class="score-pill"><small>My rank</small><strong>#${rank}</strong></div>
+            <div class="score-pill"><small>Class size</small><strong>${ranked.length}</strong></div>
+            <div class="score-pill"><small>My score</small><strong>${student.score ?? "-"}</strong></div>
+            <div class="score-pill"><small>Class</small><strong>${escapeHtml(currentUser.className)}</strong></div>
+          </div>
+          <p>Only your own placement is shown here. Other students' names, scores, and rankings are hidden from student accounts.</p>
+        </article>
       `;
     }
 
     function renderStudentReviews() {
       const reviews = store.reviews.filter((item) => item.student === currentUser.name);
       $("#studentReviews").innerHTML = `
-        ${pageHeader("Monthly Review", "月度学习反馈", "Teacher feedback for strengths, improvement, weaknesses, and next steps.")}
+        ${pageHeader("Monthly Review", "月度学习反馈", "Open a month or date to read strengths, improvement, weaknesses, and next steps.")}
         ${reviews.length ? renderPerformanceGraph(reviews) : ""}
-        ${reviews.map(renderReviewCard).join("") || `<div class="empty">No monthly review has been published yet.</div>`}
+        ${renderReviewCalendar(reviews, "student-review", "No monthly review has been published yet.")}
       `;
+    }
+
+    function renderSubmissionCalendar(submissions, idPrefix) {
+      return renderEventCalendar(
+        submissions,
+        {
+          idPrefix,
+          empty: "No submitted work has been reviewed yet.",
+          date: (submission) => submission.submittedAt,
+          render: (submission) => renderStudentResultCard(submission)
+        }
+      );
     }
 
     function renderStudentResults() {
       const submissions = studentSubmissions().sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)));
       const historicalScores = store.reviews.filter((item) => item.student === currentUser.name && item.source === "Old score import");
       $("#studentResults").innerHTML = `
-        ${pageHeader("Results Portal", "成绩中心", "Check submitted homework, exercises, monthly tests, mock exams, scores, auto-scoring, recordings, and teacher feedback.")}
-        ${historicalScores.length ? `<h3>Imported old scores</h3><div class="grid">${historicalScores.map(renderReviewCard).join("")}</div>` : ""}
+        ${pageHeader("Results Portal", "成绩中心", "Check scores by date. Red dates have available score records or submitted work.")}
+        ${historicalScores.length ? `<h3>Imported / monthly scores</h3>${renderReviewCalendar(historicalScores, "student-result-score")}` : ""}
         <h3>Submitted work</h3>
-        <div class="grid">
-          ${submissions.map(renderStudentResultCard).join("") || `<div class="empty">No results yet. Submit homework, exercises, monthly tests, or mock exams to see results here.</div>`}
-        </div>
+        ${renderSubmissionCalendar(submissions, "student-submission-result")}
       `;
     }
 
@@ -5097,23 +5311,40 @@
         .filter((note) => note.program === currentUser.program && note.className === currentUser.className)
         .sort((a, b) => String(b.date).localeCompare(String(a.date)));
       $("#studentLessonNotes").innerHTML = `
-        ${pageHeader("Lesson Notes", "课堂记录", "Read-only class lesson notes. Teachers and admins can edit or comment; students can only view.")}
-        <div class="grid">
-          ${notes.map((note) => `
-            <article class="card">
-              <div class="tag-row">
-                <span class="tag green">${escapeHtml(note.date)}</span>
-                <span class="tag blue">${escapeHtml(note.program)} · ${escapeHtml(note.className)}</span>
-              </div>
-              <h3>${escapeHtml(note.topic || "Untitled lesson")}</h3>
-              <p><strong>Objective:</strong> ${escapeHtml(note.objective || "No objective added yet.")}</p>
-              <p><strong>Lesson:</strong> ${escapeHtml(note.lessonForDay || "No lesson details added yet.")}</p>
-              <p><strong>Materials:</strong> ${escapeHtml(note.materials || "No materials added yet.")}</p>
-              <p><strong>Homework:</strong> ${escapeHtml(note.homework || "No homework added yet.")}</p>
-              ${renderLessonAuditTrail(note)}
-            </article>
-          `).join("") || `<div class="empty">No lesson notes have been published for your class yet.</div>`}
-        </div>
+        ${pageHeader("Lesson Notes", "课堂记录", "Read-only class lesson notes. Red calendar dates have a lesson note; open a date to read the details.")}
+        ${renderLessonNoteCalendar(notes, "student-lesson-note")}
+      `;
+    }
+
+    function renderLessonNoteCalendar(notes, idPrefix) {
+      return renderEventCalendar(
+        notes,
+        {
+          idPrefix,
+          empty: "No lesson notes have been published for your class yet.",
+          date: (note) => note.date,
+          render: (note) => renderLessonNoteReadCard(note)
+        }
+      );
+    }
+
+    function renderLessonNoteReadCard(note) {
+      return `
+        <article class="card">
+          <div class="tag-row">
+            <span class="tag green">${escapeHtml(note.date)}</span>
+            <span class="tag blue">${escapeHtml(note.program)} · ${escapeHtml(note.className)}</span>
+          </div>
+          <h3>${escapeHtml(note.topic || "Untitled lesson")}</h3>
+          <div class="review-toggle-grid">
+            <details><summary>Teaching objective</summary><p>${escapeHtml(note.objective || "No objective added yet.")}</p></details>
+            <details><summary>Ice breaker</summary><p>${escapeHtml(note.iceBreaker || "No ice breaker added yet.")}</p></details>
+            <details><summary>Lesson for the day</summary><p>${escapeHtml(note.lessonForDay || "No lesson details added yet.")}</p></details>
+            <details><summary>Teaching and learning materials</summary><p>${escapeHtml(note.materials || "No materials added yet.")}</p></details>
+            <details><summary>Homework</summary><p>${escapeHtml(note.homework || "No homework added yet.")}</p></details>
+          </div>
+          ${renderLessonAuditTrail(note)}
+        </article>
       `;
     }
 
@@ -5512,11 +5743,6 @@
       render();
     }
 
-    function monthLabel(monthValue) {
-      const [year, month] = monthValue.split("-").map(Number);
-      return new Date(year, month - 1, 1).toLocaleDateString("en", { month: "long", year: "numeric" });
-    }
-
     function shiftLessonMonth(delta) {
       const [year, month] = lessonCalendarMonth.split("-").map(Number);
       const next = new Date(year, month - 1 + delta, 1);
@@ -5753,17 +5979,46 @@
     function renderTeacherSubmissions() {
       const submissions = submissionsForProgram(teacherProgram.teacherSubmissions, teacherCategory.teacherSubmissions);
       $("#teacherSubmissions").innerHTML = `
-        ${pageHeader("Submissions", "学生提交", "Review student answers, score them, and leave feedback.")}
+        ${pageHeader("Submissions", "学生提交", "Review student answers by date, score them, and leave feedback. Red dates have submissions.")}
         ${renderProgramPicker("teacherSubmissions", { badge: (program) => submissionsForProgram(program).filter((item) => !item.score).length })}
         ${renderCategoryTabs("teacherSubmissions")}
-        <div class="table-card">
-          <table>
-            <thead><tr><th>Student</th><th>Assignment</th><th>Answer</th><th>Score & feedback</th></tr></thead>
-            <tbody>
-              ${submissions.map((submission) => renderSubmissionRow(submission)).join("") || `<tr><td colspan="4">No ${categoryLabels[teacherCategory.teacherSubmissions]} submissions yet for ${teacherProgram.teacherSubmissions}.</td></tr>`}
-            </tbody>
-          </table>
-        </div>
+        ${renderEventCalendar(submissions, {
+          idPrefix: "teacher-submission-calendar",
+          empty: `No ${categoryLabels[teacherCategory.teacherSubmissions]} submissions yet for ${teacherProgram.teacherSubmissions}.`,
+          date: (submission) => submission.submittedAt,
+          render: (submission) => renderTeacherSubmissionCard(submission)
+        })}
+      `;
+    }
+
+    function renderTeacherSubmissionCard(submission) {
+      const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
+      const index = store.submissions.findIndex((item) => item.assignmentId === submission.assignmentId && item.student === submission.student);
+      return `
+        <article class="card">
+          <div class="topline compact">
+            <div>
+              <h3>${escapeHtml(submission.student)} · ${escapeHtml(assignment.title || "Deleted assignment")}</h3>
+              <p>${escapeHtml(submission.program)} · ${escapeHtml(submission.className)} · ${escapeHtml(submission.submittedAt || "")}</p>
+            </div>
+            <div class="tag-row">
+              <span class="tag green">${escapeHtml(assignment.category || "Work")}</span>
+              <span class="tag blue">${escapeHtml(assignment.section || "")}</span>
+            </div>
+          </div>
+          <details>
+            <summary>Answer evidence</summary>
+            <p>${escapeHtml(submission.answer || "No written answer")}</p>
+            ${renderRecordingEvidence(submission)}
+            ${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}
+          </details>
+          <div class="review-form" style="margin-top:12px">
+            <div class="field"><label>Score</label><input id="score${index}" placeholder="Score" value="${escapeHtml(submission.score || "")}"></div>
+            <div class="field"><label>Teacher feedback</label><textarea id="feedback${index}" placeholder="Teacher feedback">${escapeHtml(submission.feedback || "")}</textarea></div>
+          </div>
+          <button class="primary-btn" onclick="saveSubmissionReview(${index})">Save review</button>
+          ${renderSubmissionReviewHistory(submission)}
+        </article>
       `;
     }
 
@@ -5841,9 +6096,10 @@
     }
 
     function studentRecordBundle(student) {
-      const matchStudent = (item) => item.student === student.name && item.program === student.program && item.className === student.className;
-      const submissions = store.submissions.filter(matchStudent);
-      const reviews = store.reviews.filter(matchStudent).sort((a, b) => String(b.month || "").localeCompare(String(a.month || "")));
+      const matchCurrentPlacement = (item) => item.student === student.name && item.program === student.program && item.className === student.className;
+      const matchStudentHistory = (item) => item.student === student.name;
+      const submissions = store.submissions.filter(matchCurrentPlacement);
+      const reviews = store.reviews.filter(matchStudentHistory).sort((a, b) => String(b.month || "").localeCompare(String(a.month || "")));
       const assignedWork = store.assignments.filter((assignment) => assignment.program === student.program && assignment.className === student.className);
       const notes = store.adminNotes.filter((note) => note.student === student.name);
       const latestReview = reviews[0] || null;
@@ -5883,11 +6139,10 @@
           </div>
           <p class="muted">Latest record: ${escapeHtml(sourceLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</p>
           ${reviews.length ? renderPerformanceGraph(reviews) : ""}
-          <details open>
+          <details>
             <summary>Scores and monthly reviews</summary>
-            <div class="grid one-col">
-              ${reviews.map(renderReviewCard).join("") || `<div class="empty">No score or monthly review has been recorded yet.</div>`}
-            </div>
+            ${reviews.length ? renderPerformanceGraph(reviews) : ""}
+            ${renderReviewCalendar(reviews, `record-review-${student.studentId || student.name.replace(/\W+/g, "-")}`, "No score or monthly review has been recorded yet.")}
           </details>
           <details ${options.openTests ? "open" : ""}>
             <summary>Assigned tests, homework, and exercises</summary>
@@ -5995,7 +6250,8 @@
             <button class="primary-btn" type="submit">Publish review</button>
           </form>
           <div>
-            ${selectedReviews.map(renderReviewCard).join("") || `<div class="empty">No ${teacherProgram.teacherReviews} reviews written yet.</div>`}
+            ${selectedReviews.length ? renderPerformanceGraph(selectedReviews) : ""}
+            ${renderReviewCalendar(selectedReviews, "teacher-review-calendar", `No ${teacherProgram.teacherReviews} reviews written yet.`)}
           </div>
         </div>
       `;
@@ -6076,7 +6332,8 @@
       const formatScore = (value) => value === undefined || value === null || value === "" ? "-" : `${value}${isImportedPercent ? "%" : ""}`;
       return `
         <article class="card" style="margin-bottom:14px">
-          <h3>${review.student} · ${review.month}</h3>
+          <h3>${escapeHtml(review.student)} · ${escapeHtml(review.month)}</h3>
+          <p class="muted">${escapeHtml(review.program || "")}${review.className ? ` · ${escapeHtml(review.className)}` : ""}</p>
           ${review.publishedBy ? `<p class="muted">Published by ${escapeHtml(review.publishedBy)} · ${escapeHtml(review.publishedAt || "")}</p>` : ""}
           ${review.sourceDate ? `<p class="tag-row"><span class="tag blue">${escapeHtml(review.source || "Score record")}</span><span class="tag green">${escapeHtml(review.sourceDate)}</span></p>` : ""}
           <div class="score-strip">
@@ -6087,14 +6344,32 @@
             ${scores.language !== undefined ? `<div class="score-pill"><small>Grammar</small><strong>${formatScore(scores.language)}</strong></div>` : ""}
             <div class="score-pill"><small>Writing</small><strong>${formatScore(scores.writing)}</strong></div>
           </div>
-          <p><strong>Strong areas:</strong> ${review.strong}</p>
-          <p><strong>Currently improving:</strong> ${review.improving}</p>
-          <p><strong>Weaknesses:</strong> ${review.weakness}</p>
-          <p><strong>Areas to improve:</strong> ${review.areas}</p>
-          <p><strong>How to improve:</strong> ${review.how}</p>
+          <div class="review-toggle-grid">
+            <details><summary>Strong areas</summary><p>${escapeHtml(review.strong || "No comment added yet.")}</p></details>
+            <details><summary>Currently improving</summary><p>${escapeHtml(review.improving || "No comment added yet.")}</p></details>
+            <details><summary>Weaknesses</summary><p>${escapeHtml(review.weakness || "No comment added yet.")}</p></details>
+            <details><summary>Areas to improve</summary><p>${escapeHtml(review.areas || "No comment added yet.")}</p></details>
+            <details><summary>How we will improve</summary><p>${escapeHtml(review.how || "No comment added yet.")}</p></details>
+          </div>
           ${renderReviewEditHistory(review)}
         </article>
       `;
+    }
+
+    function reviewDateKey(review) {
+      return normalizeDateKey(review.sourceDate || review.publishedAt || review.month);
+    }
+
+    function renderReviewCalendar(reviews, idPrefix, empty = "No monthly reviews or score records yet.") {
+      return renderEventCalendar(
+        [...reviews].sort((a, b) => String(reviewDateKey(b)).localeCompare(String(reviewDateKey(a)))),
+        {
+          idPrefix,
+          empty,
+          date: reviewDateKey,
+          render: (review) => renderReviewCard(review)
+        }
+      );
     }
 
     function renderPerformanceGraph(reviews) {
@@ -6345,36 +6620,57 @@
       renderStudentRecords("adminRecords", "adminRecords", "All Student Records", "全校学生完整记录", "Admin can inspect every student's tests, answer evidence, imported scores, monthly reviews, teacher feedback, admin annotations, and progress graph.", { openTests: true, openSubmissions: true });
     }
 
+    function renderSubmissionScoreCard(submission) {
+      const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
+      const answered = (submission.answers || []).filter(Boolean).length;
+      const total = assignment.id ? answerSheetItems(assignment).length : (submission.answers || []).length;
+      return `
+        <article class="result-card">
+          <div>
+            <h3>${escapeHtml(submission.student)} · ${escapeHtml(assignment.title || "Deleted assignment")}</h3>
+            <div class="result-meta">
+              <span>${escapeHtml(submission.program || assignment.program || "")}</span>
+              <span>${escapeHtml(submission.className || assignment.className || "")}</span>
+              <span>${escapeHtml(assignment.category || "Work")}</span>
+              <span>${escapeHtml(assignment.section || "")}</span>
+              <span>${answered}/${total || answered} answered</span>
+            </div>
+          </div>
+          <div>
+            <small>Score</small>
+            <div class="result-score">${escapeHtml(submission.score || "Waiting")}</div>
+          </div>
+          ${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}
+          ${submission.feedback ? `<p><strong>Feedback:</strong> ${escapeHtml(submission.feedback)}</p>` : `<p style="color:var(--muted)">Feedback has not been posted yet.</p>`}
+          ${renderSubmissionReviewHistory(submission)}
+          ${renderRecordingEvidence(submission)}
+        </article>
+      `;
+    }
+
+    function renderSubmissionReviewCalendar(submissions, idPrefix, empty = "No submissions yet.") {
+      return renderEventCalendar(
+        [...submissions].sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt))),
+        {
+          idPrefix,
+          empty,
+          date: (submission) => submission.submittedAt,
+          render: (submission) => renderSubmissionScoreCard(submission)
+        }
+      );
+    }
+
     function renderAdminScores() {
       $("#adminScores").innerHTML = `
-        ${pageHeader("Scores & Tests", "成绩与测试", "Review every submitted test, homework, and exercise across the school.")}
+        ${pageHeader("Scores & Tests", "成绩与测试", "Review every submitted test, homework, exercise, and imported monthly score by date. Red dates have available records.")}
         <div class="toolbar" style="margin-bottom:14px">
           <button class="primary-btn" type="button" onclick="activateSection('adminRecords')">Open full student records</button>
         </div>
         <h3>Submission scores</h3>
-        <div class="table-card">
-          <table>
-            <thead><tr><th>Student</th><th>Assignment</th><th>Program</th><th>Score</th><th>Teacher feedback</th></tr></thead>
-            <tbody>
-              ${store.submissions.map((submission) => {
-                const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
-                return `
-                  <tr>
-                    <td><strong>${submission.student}</strong><br>${submission.submittedAt}</td>
-                    <td>${assignment.title || "Deleted assignment"}<br>${assignment.category || ""} · ${assignment.section || ""}</td>
-                    <td>${submission.program}<br>${submission.className}</td>
-                    <td>${submission.score || "Waiting"}</td>
-                    <td>${submission.feedback || "No teacher feedback yet."}</td>
-                  </tr>
-                `;
-              }).join("") || `<tr><td colspan="5">No submissions yet.</td></tr>`}
-            </tbody>
-          </table>
-        </div>
+        ${renderSubmissionReviewCalendar(store.submissions, "admin-submission-calendar")}
         <h3 style="margin-top:24px">Imported / monthly score records</h3>
-        <div class="grid">
-          ${store.reviews.map(renderReviewCard).join("") || `<div class="empty">No monthly reviews or imported scores yet.</div>`}
-        </div>
+        ${store.reviews.length ? renderPerformanceGraph(store.reviews) : ""}
+        ${renderReviewCalendar(store.reviews, "admin-review-calendar", "No monthly reviews or imported scores yet.")}
       `;
     }
 

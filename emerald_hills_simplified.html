@@ -1246,6 +1246,20 @@
     const sections = document.querySelectorAll('section');
     const dotsContainer = document.getElementById('scrollDots');
     const progress = document.getElementById('progress');
+    const returnToApp = new URLSearchParams(window.location.search).get('return') === 'app';
+    const platformHome = document.querySelector('.platform-home');
+
+    if (returnToApp && platformHome) {
+      platformHome.textContent = '返回平台';
+      platformHome.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          window.location.href = 'platform.html';
+        }
+      });
+    }
 
     sections.forEach((_, i) => {
       const dot = document.createElement('div');
