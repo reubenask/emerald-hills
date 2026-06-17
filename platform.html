@@ -2290,6 +2290,7 @@
           <button class="active" data-section="adminDashboard" onclick="activateSection('adminDashboard')">Admin Overview</button>
           <button data-section="adminAccounts" onclick="activateSection('adminAccounts')">Accounts</button>
           <button data-section="adminStudents" onclick="activateSection('adminStudents')">Students</button>
+          <button data-section="adminClassShift" onclick="activateSection('adminClassShift')">Class Shift</button>
           <button data-section="adminRecords" onclick="activateSection('adminRecords')">Student Records</button>
           <button data-section="adminScores" onclick="activateSection('adminScores')">Scores & Tests</button>
           <button data-section="adminEvaluation" onclick="activateSection('adminEvaluation')">Evaluate</button>
@@ -2321,6 +2322,7 @@
         <section id="adminDashboard" class="section"></section>
         <section id="adminAccounts" class="section"></section>
         <section id="adminStudents" class="section"></section>
+        <section id="adminClassShift" class="section"></section>
         <section id="adminRecords" class="section"></section>
         <section id="adminScores" class="section"></section>
         <section id="adminEvaluation" class="section"></section>
@@ -2558,6 +2560,9 @@
       teacherRecords: "",
       adminRecords: ""
     };
+    let adminShiftFilterProgram = "All";
+    let adminShiftFilterClass = "All";
+    let adminShiftStudentIndex = "";
     let publicGuestLevel = "Primary Step 1";
     let publicGuestSection = "Listening";
     let adminGuestLevel = "Primary Step 1";
@@ -4283,6 +4288,7 @@
         renderAdminDashboard();
         renderAdminAccounts();
         renderAdminStudents();
+        renderAdminClassShift();
         renderAdminRecords();
         renderAdminScores();
         renderAdminEvaluation();
@@ -6561,14 +6567,10 @@
       classSelect.innerHTML = promotionClassOptions(programSelect.value, classesFor(programSelect.value)[0]);
     }
 
-    function promoteStudent(index) {
+    function moveStudentPlacement(index, nextProgram, nextClass, returnSection = "adminStudents") {
       if (stopIfNotAllowed("admin")) return;
       const selected = store.students[index];
-      const programSelect = $(`#adminMoveProgram${index}`);
-      const classSelect = $(`#adminMoveClass${index}`);
-      if (!selected || !programSelect || !classSelect) return;
-      const nextProgram = programSelect.value;
-      const nextClass = classSelect.value;
+      if (!selected || !nextProgram || !nextClass) return;
       if (selected.program === nextProgram && selected.className === nextClass) {
         window.alert(`${selected.name} is already in ${nextClass}.`);
         return;
@@ -6601,8 +6603,120 @@
       }, ...store.adminNotes];
       adminStudentFilterProgram = nextProgram;
       adminStudentFilterClass = nextClass;
+      adminShiftFilterProgram = nextProgram;
+      adminShiftFilterClass = nextClass;
+      adminShiftStudentIndex = "";
       render();
-      activateSection("adminStudents");
+      activateSection(returnSection);
+    }
+
+    function promoteStudent(index) {
+      const programSelect = $(`#adminMoveProgram${index}`);
+      const classSelect = $(`#adminMoveClass${index}`);
+      if (!programSelect || !classSelect) return;
+      moveStudentPlacement(index, programSelect.value, classSelect.value, "adminStudents");
+    }
+
+    function filteredAdminShiftEntries() {
+      return store.students
+        .map((student, index) => ({ student, index }))
+        .filter(({ student }) => adminShiftFilterProgram === "All" || student.program === adminShiftFilterProgram)
+        .filter(({ student }) => adminShiftFilterClass === "All" || student.className === adminShiftFilterClass);
+    }
+
+    function setAdminShiftFilter(program = "All", className = "All") {
+      adminShiftFilterProgram = program;
+      adminShiftFilterClass = className;
+      adminShiftStudentIndex = "";
+      renderAdminClassShift();
+    }
+
+    function syncAdminShiftTargetClasses() {
+      const programSelect = $("#adminShiftTargetProgram");
+      const classSelect = $("#adminShiftTargetClass");
+      if (!programSelect || !classSelect) return;
+      classSelect.innerHTML = promotionClassOptions(programSelect.value, classesFor(programSelect.value)[0]);
+    }
+
+    function syncAdminShiftStudent() {
+      adminShiftStudentIndex = $("#adminShiftStudent") ? $("#adminShiftStudent").value : "";
+      renderAdminClassShift();
+    }
+
+    function moveStudentFromShift(event) {
+      event.preventDefault();
+      const index = Number($("#adminShiftStudent").value);
+      moveStudentPlacement(index, $("#adminShiftTargetProgram").value, $("#adminShiftTargetClass").value, "adminClassShift");
+    }
+
+    function renderAdminClassShift() {
+      const entries = filteredAdminShiftEntries();
+      const firstIndex = entries.length ? String(entries[0].index) : "";
+      const selectedIndex = entries.some(({ index }) => String(index) === String(adminShiftStudentIndex)) ? String(adminShiftStudentIndex) : firstIndex;
+      adminShiftStudentIndex = selectedIndex;
+      const selected = selectedIndex !== "" ? store.students[Number(selectedIndex)] : null;
+      const filterClassOptions = adminShiftFilterProgram === "All" ? ["All"] : ["All", ...classesFor(adminShiftFilterProgram)];
+      const classCards = programClassChoices().map(({ program, className }) => {
+        const count = store.students.filter((student) => student.program === program && student.className === className).length;
+        const isActive = adminShiftFilterProgram === program && adminShiftFilterClass === className;
+        return `<button class="tag ${isActive ? "green" : "blue"}" type="button" onclick="setAdminShiftFilter('${escapeHtml(program)}', '${escapeHtml(className)}')">${escapeHtml(className)} · ${count}</button>`;
+      }).join("");
+      const targetProgram = selected ? selected.program : Object.keys(programs)[0];
+      const targetClass = selected ? selected.className : classesFor(targetProgram)[0];
+      const movementHistory = store.adminNotes.filter((note) => note.assignment === "Class placement update").slice(0, 8);
+      $("#adminClassShift").innerHTML = `
+        ${pageHeader("Class Shift", "班级调整", "Move or promote a student from one class to another. The student ID stays the same, and the change is written to the admin evidence trail.")}
+        <div class="card" style="margin-bottom:16px">
+          <h3>Class overview</h3>
+          <div class="toolbar" style="margin-bottom:12px">
+            <select id="adminShiftProgramFilter" onchange="setAdminShiftFilter(this.value, 'All')">
+              <option value="All" ${adminShiftFilterProgram === "All" ? "selected" : ""}>All programs</option>
+              ${Object.keys(programs).map((program) => `<option value="${escapeHtml(program)}" ${adminShiftFilterProgram === program ? "selected" : ""}>${escapeHtml(program)}</option>`).join("")}
+            </select>
+            <select id="adminShiftClassFilter" onchange="setAdminShiftFilter('${escapeHtml(adminShiftFilterProgram)}', this.value)">
+              ${filterClassOptions.map((className) => `<option value="${escapeHtml(className)}" ${adminShiftFilterClass === className ? "selected" : ""}>${className === "All" ? "All classes" : escapeHtml(className)}</option>`).join("")}
+            </select>
+            <button class="ghost-btn" type="button" onclick="setAdminShiftFilter('All', 'All')">Show everyone</button>
+          </div>
+          <div class="tag-row">${classCards}</div>
+        </div>
+        <div class="split">
+          <form class="card" onsubmit="moveStudentFromShift(event)">
+            <h3>Move one student</h3>
+            <div class="field">
+              <label>Student</label>
+              <select id="adminShiftStudent" onchange="syncAdminShiftStudent()">
+                ${entries.map(({ student, index }) => `<option value="${index}" ${String(index) === selectedIndex ? "selected" : ""}>${escapeHtml(student.name)} · ${escapeHtml(student.studentId || "No ID")} · ${escapeHtml(student.program)} · ${escapeHtml(student.className)}</option>`).join("")}
+              </select>
+            </div>
+            ${selected ? `
+              <div class="score-strip">
+                <div class="score-pill"><small>Current program</small><strong>${escapeHtml(selected.program)}</strong></div>
+                <div class="score-pill"><small>Current class</small><strong>${escapeHtml(selected.className)}</strong></div>
+                <div class="score-pill"><small>Student ID</small><strong>${escapeHtml(selected.studentId || "Assigns at next login")}</strong></div>
+              </div>
+              <div class="review-form" style="margin-top:14px">
+                <div class="field">
+                  <label>Target program</label>
+                  <select id="adminShiftTargetProgram" onchange="syncAdminShiftTargetClasses()">${promotionProgramOptions(targetProgram)}</select>
+                </div>
+                <div class="field">
+                  <label>Target class</label>
+                  <select id="adminShiftTargetClass">${promotionClassOptions(targetProgram, targetClass)}</select>
+                </div>
+              </div>
+              <button class="primary-btn" type="submit">Move student</button>
+              <button class="ghost-btn" type="button" onclick="openStudentRecord('adminRecords', '${escapeHtml(studentFocusKey(selected))}', '${escapeHtml(selected.program)}', '${escapeHtml(selected.className)}')">Open student details</button>
+            ` : `<div class="empty">No students match this class filter yet.</div>`}
+          </form>
+          <div class="card">
+            <h3>Recent class movement</h3>
+            <div class="message-list">
+              ${movementHistory.map(renderAdminNote).join("") || `<div class="empty">No class movement has been recorded yet.</div>`}
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     function renderAdminStudents() {
