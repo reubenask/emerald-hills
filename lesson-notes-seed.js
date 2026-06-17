@@ -728,6 +728,20 @@ window.seededLessonNotes = [
     "source": "Seeded bilingual lesson plan"
   },
   {
+    "date": "2026-06-13",
+    "teacher": "Emerald Hills Curriculum",
+    "program": "Junior",
+    "className": "Junior",
+    "topic": "Review of English tenses and The Wild Robot vocabulary / 英语时态复习与《荒野机器人》词汇",
+    "objective": "Students will review major English tenses and apply them more accurately in sentence correction, discussion, and vocabulary use. The lesson also strengthens listening comprehension and contextual vocabulary learning through a continued 30-minute viewing of The Wild Robot.\n\n中文：学生复习主要英语时态，并在句子纠错、讨论和词汇运用中更准确地使用这些时态。本课也通过继续观看30分钟《荒野机器人》，加强听力理解和语境词汇学习。",
+    "iceBreaker": "Quick oral tense challenge: students changed short sentences into different time frames and explained which tense was needed.\n\n中文：快速口头时态挑战：学生把短句改成不同时间语境，并解释需要使用哪一种时态。",
+    "lessonForDay": "The class reviewed present simple, present continuous, past simple, past continuous, present perfect, past perfect, future simple, and future continuous. Students discussed the grammar rules, corrected sample sentences, and then continued The Wild Robot for vocabulary learning, paying attention to how new words were used in context.\n\n中文：课堂复习了一般现在时、现在进行时、一般过去时、过去进行时、现在完成时、过去完成时、一般将来时和将来进行时。学生讨论语法规则、修改例句，并继续观看《荒野机器人》进行词汇学习，重点关注新词在语境中的用法。",
+    "materials": "Tense review notes, grammar correction examples, The Wild Robot video segment, vocabulary notebook, whiteboard examples, and class discussion prompts.\n\n中文：时态复习笔记、语法纠错例句、《荒野机器人》视频片段、词汇笔记本、白板例句和课堂讨论问题。",
+    "homework": "Carefully review the new words learned today and write the best-suited synonym for each word.\n\n中文：认真复习今天学到的新词，并为每个词写出最合适的同义词。",
+    "studentNotes": {},
+    "source": "Teacher lesson update"
+  },
+  {
     "date": "2026-03-04",
     "teacher": "Emerald Hills Curriculum",
     "program": "Primary",
@@ -1062,5 +1076,23 @@ window.seededLessonNotes = [
     "homework": "Read the paragraph and find mistakes in tenses, capital letters, and punctuation.\n\n中文：阅读段落，并找出时态、大小写和标点错误。",
     "studentNotes": {},
     "source": "Seeded bilingual lesson plan"
+  },
+  {
+    "date": "2026-06-17",
+    "teacher": "Emerald Hills Curriculum",
+    "program": "Primary",
+    "className": "Primary Step 2",
+    "topic": "Introduction to TOEFL listening question types / 托福听力题型入门",
+    "objective": "Students will understand four important TOEFL listening question types: main idea questions, detail questions, vocabulary questions, and purpose questions. They will practise watching short conversations and short talks, then answer questions by identifying the overall meaning, key facts, word meaning, and speaker purpose.\n\n中文：学生将理解四类重要托福听力题型：主旨题、细节题、词汇题和目的题。学生通过观看短对话和短讲座，练习判断整体意思、关键信息、词义和说话目的。",
+    "iceBreaker": "Word circle game: one student said a word, and the next student used that word in a sentence. The class continued in a circle to warm up vocabulary recall and sentence production.\n\n中文：词汇圆圈游戏：一名学生说出一个单词，下一名学生用这个单词造句。全班以圆圈形式继续，帮助热身词汇记忆和句子表达。",
+    "lessonForDay": "The class watched short videos on different topics, including conversations and short talks, and answered related listening questions. Students learned how to recognise whether a question is asking for the main idea, a detail, vocabulary meaning, or the speaker's purpose. New words discovered through the lesson included: small talk, copycat, facts, wiggle, foot/feet, measure, sneakers, flavor, narrator, adventure, vocabulary, main idea, detail, loyal, active, faithful, options, confused, and convenient.\n\n中文：课堂观看了不同主题的短视频，包括对话和短讲座，并回答相关听力问题。学生学习如何判断题目是在考主旨、细节、词义，还是说话目的。本课发现并学习的新词包括：small talk、copycat、facts、wiggle、foot/feet、measure、sneakers、flavor、narrator、adventure、vocabulary、main idea、detail、loyal、active、faithful、options、confused、convenient。",
+    "materials": "Short listening videos, conversation clips, short-talk clips, TOEFL listening question-type prompts, vocabulary list, answer discussion, and whiteboard examples.\n\n中文：短听力视频、对话片段、短讲座片段、托福听力题型问题、词汇表、答案讨论和白板例子。",
+    "homework": "Watch a short conversation video and answer the related questions using today's four listening question types: main idea, detail, vocabulary, and purpose.\n\n中文：观看一个短对话视频，并使用今天学习的四类听力题型回答相关问题：主旨、细节、词汇和目的。",
+    "studentNotes": {
+      "Cherry": "Cherry did very well today. She comprehended the content and answered most questions correctly. Her main challenge was several new vocabulary items, which we reviewed together.\n\n中文：Cherry 今天表现很好。她理解了课堂内容，并能正确回答大部分问题。她主要的挑战是遇到了一些新词汇，我们已经一起复习。",
+      "Yann": "Yann did well overall. Some unfamiliar words made parts of the listening task harder, but he understood the lesson focus and was able to grasp the meaning of the new words after class discussion.\n\n中文：Yann 整体表现不错。一些不熟悉的词让部分听力任务更有挑战，但他理解了本课重点，并能在课堂讨论后掌握新词的意思。",
+      "Grace": "Grace did well. She understood the lesson and explained the question types clearly in her own words. She also met some unfamiliar vocabulary, which we learned and practised together.\n\n中文：Grace 表现很好。她理解了本课内容，并能用自己的话清楚解释题型。她也遇到了一些不熟悉的词汇，我们一起学习并练习。"
+    },
+    "source": "Teacher lesson update"
   }
 ];
