@@ -2288,7 +2288,7 @@
         </nav>
         <nav id="adminNav" class="nav hidden">
           <button class="active" data-section="adminDashboard" onclick="activateSection('adminDashboard')">Admin Overview</button>
-          <button data-section="adminAccounts" onclick="activateSection('adminAccounts')">Accounts</button>
+          <button data-section="adminAccounts" onclick="openAdminAccounts('all')">Accounts</button>
           <button data-section="adminStudents" onclick="activateSection('adminStudents')">Students</button>
           <button data-section="adminClassShift" onclick="activateSection('adminClassShift')">Class Shift</button>
           <button data-section="adminRecords" onclick="activateSection('adminRecords')">Student Records</button>
@@ -2560,6 +2560,7 @@
       teacherRecords: "",
       adminRecords: ""
     };
+    let adminAccountRoleFilter = "all";
     let adminShiftFilterProgram = "All";
     let adminShiftFilterClass = "All";
     let adminShiftStudentIndex = "";
@@ -4169,6 +4170,20 @@
           <strong>${escapeHtml(String(value))}</strong>
         </button>
       `;
+    }
+
+    function accountMetric(label, value, roleFilter, detail = "Open accounts") {
+      return `
+        <button class="metric metric-link" type="button" onclick="openAdminAccounts('${roleFilter}')" aria-label="${escapeHtml(label)}: ${escapeHtml(String(value))}. ${escapeHtml(detail)}">
+          <small>${escapeHtml(label)}</small>
+          <strong>${escapeHtml(String(value))}</strong>
+        </button>
+      `;
+    }
+
+    function openAdminAccounts(roleFilter = "all") {
+      adminAccountRoleFilter = roleFilter;
+      activateSection("adminAccounts");
     }
 
     function studentsForProgram(program) {
@@ -6523,14 +6538,14 @@
         ${pageHeader("Admin Overview", "管理员总览", "Oversee students, teachers, tests, comments, and messages across every program.", `<div class="toolbar"><button class="primary-btn" onclick="activateSection('adminRecords')">Student records</button><button class="ghost-btn" onclick="activateSection('adminScores')">Scores & tests</button></div>`)}
         <div class="metric-grid">
           ${dashboardMetric("Students", store.students.length, "adminStudents", "Open student details")}
-          ${dashboardMetric("Teachers", teachers, "adminAccounts", "Open teacher accounts")}
+          ${accountMetric("Teachers", teachers, "teacher", "Open teacher accounts")}
           ${dashboardMetric("Assignments", store.assignments.length, "adminRecords", "Open assignment records by student")}
           ${dashboardMetric("Submissions", store.submissions.length, "adminScores", "Open submitted tests and homework")}
         </div>
         <div class="metric-grid">
           ${dashboardMetric("Needs review", unreviewed, "adminEvaluation", "Open admin evaluation")}
-          ${dashboardMetric("Accounts", store.accounts.length, "adminAccounts", "Open all accounts")}
-          ${dashboardMetric("Admins", store.accounts.filter((account) => account.role === "admin").length, "adminAccounts", "Open admin accounts")}
+          ${accountMetric("Accounts", store.accounts.length, "all", "Open all accounts")}
+          ${accountMetric("Admins", store.accounts.filter((account) => account.role === "admin").length, "admin", "Open admin accounts")}
           ${dashboardMetric("Lesson notes", store.lessonNotes.length, "adminLessonNotes", "Open lesson notes")}
         </div>
         <div class="grid">
@@ -6548,13 +6563,18 @@
     }
 
     function renderAdminAccounts() {
+      const roleLabel = adminAccountRoleFilter === "all" ? "All accounts" : `${adminAccountRoleFilter[0].toUpperCase()}${adminAccountRoleFilter.slice(1)} accounts`;
+      const accountEntries = store.accounts
+        .map((account, index) => ({ account, index }))
+        .filter(({ account }) => adminAccountRoleFilter === "all" || account.role === adminAccountRoleFilter);
       $("#adminAccounts").innerHTML = `
-        ${pageHeader("Account Management", "账号管理", "Only admins can remove student or teacher accounts.")}
+        ${pageHeader("Account Management", "账号管理", "Only admins can remove student or teacher accounts.", `<div class="toolbar"><button class="${adminAccountRoleFilter === "all" ? "primary-btn" : "ghost-btn"}" onclick="openAdminAccounts('all')">All</button><button class="${adminAccountRoleFilter === "student" ? "primary-btn" : "ghost-btn"}" onclick="openAdminAccounts('student')">Students</button><button class="${adminAccountRoleFilter === "teacher" ? "primary-btn" : "ghost-btn"}" onclick="openAdminAccounts('teacher')">Teachers</button><button class="${adminAccountRoleFilter === "admin" ? "primary-btn" : "ghost-btn"}" onclick="openAdminAccounts('admin')">Admins</button></div>`)}
+        <p class="muted">${escapeHtml(roleLabel)} · ${accountEntries.length}</p>
         <div class="table-card">
           <table>
             <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Email</th><th>ID / Class</th><th>Created</th><th>Actions</th></tr></thead>
             <tbody>
-              ${store.accounts.map((account, index) => `
+              ${accountEntries.map(({ account, index }) => `
                 <tr>
                   <td><strong>${account.name}</strong></td>
                   <td>${account.role}</td>
@@ -6564,7 +6584,7 @@
                   <td>${account.createdAt || "-"}</td>
                   <td>${account.role === "admin" ? "Protected" : `<button class="danger-btn" type="button" onclick="deleteAccount(${index})">Delete account</button>`}</td>
                 </tr>
-              `).join("") || `<tr><td colspan="7">No accounts registered yet.</td></tr>`}
+              `).join("") || `<tr><td colspan="7">No ${adminAccountRoleFilter === "all" ? "" : adminAccountRoleFilter + " "}accounts registered yet.</td></tr>`}
             </tbody>
           </table>
         </div>
