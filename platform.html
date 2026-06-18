@@ -4522,7 +4522,7 @@
                 <span class="tag green">Open to all students</span>
                 <span class="tag blue">${game.file}</span>
               </div>
-              <a class="primary-btn" href="${game.file}?student=${encodeURIComponent(currentUser.studentId)}" target="_blank" rel="noopener">Play game</a>
+              <a class="primary-btn" href="${game.file}?student=${encodeURIComponent(currentUser.studentId)}">Play game</a>
             </article>
           `).join("")}
         </div>
@@ -5499,7 +5499,7 @@
 
     function renderStudentLessonNotes() {
       const notes = store.lessonNotes
-        .filter((note) => note.program === currentUser.program && note.className === currentUser.className)
+        .filter((note) => note.program === currentUser.program && note.className === currentUser.className && hasLessonContent(note))
         .sort((a, b) => String(b.date).localeCompare(String(a.date)));
       $("#studentLessonNotes").innerHTML = `
         ${pageHeader("Lesson Notes", "课堂记录", "Read-only class lesson notes. Red calendar dates have a lesson note; open a date to read the details.")}
@@ -5509,7 +5509,7 @@
 
     function renderLessonNoteCalendar(notes, idPrefix) {
       return renderEventCalendar(
-        notes,
+        notes.filter(hasLessonContent),
         {
           idPrefix,
           empty: "No lesson notes have been published for your class yet.",
@@ -5595,7 +5595,7 @@
           ${dashboardMetric("Programs", 4, "programDetails", "Open program outlines and exam structures")}
           ${dashboardMetric("Assignments", assignments.length, "teacherAssignments", "Open create and edit work")}
           ${dashboardMetric("Submissions", submissions.length, "teacherSubmissions", "Open student submissions")}
-          ${dashboardMetric("Lesson notes", store.lessonNotes.length, "teacherLessonNotes", "Open lesson-note calendar")}
+          ${dashboardMetric("Lesson notes", publishedLessonNotes().length, "teacherLessonNotes", "Open lesson-note calendar")}
         </div>
         <div class="grid">
           ${Object.entries(programs).map(([program, detail]) => `
@@ -5965,8 +5965,20 @@
       };
     }
 
+    function hasLessonContent(note) {
+      if (!note) return false;
+      const lessonFields = ["topic", "objective", "iceBreaker", "lessonForDay", "materials", "homework"];
+      const hasMainContent = lessonFields.some((field) => String(note[field] || "").trim());
+      const hasStudentContent = note.studentNotes && Object.values(note.studentNotes).some((value) => String(value || "").trim());
+      return Boolean(hasMainContent || hasStudentContent);
+    }
+
+    function publishedLessonNotes() {
+      return store.lessonNotes.filter(hasLessonContent);
+    }
+
     function lessonNoteFor(date, program = activeLessonProgram, className = activeLessonClass) {
-      return store.lessonNotes.find((note) => note.date === date && note.program === program && note.className === className) || defaultLessonNote(date, program, className);
+      return store.lessonNotes.find((note) => note.date === date && note.program === program && note.className === className && hasLessonContent(note)) || defaultLessonNote(date, program, className);
     }
 
     function upsertLessonNote(note) {
@@ -6007,7 +6019,7 @@
     function openLessonDate(date) {
       activeLessonDate = date;
       lessonCalendarMonth = date.slice(0, 7);
-      const firstNote = store.lessonNotes.find((note) => note.date === date);
+      const firstNote = store.lessonNotes.find((note) => note.date === date && hasLessonContent(note));
       if (firstNote) {
         activeLessonProgram = firstNote.program;
         activeLessonClass = firstNote.className;
@@ -6116,7 +6128,7 @@
       const firstDay = new Date(year, month - 1, 1);
       const daysInMonth = new Date(year, month, 0).getDate();
       const leadingBlanks = firstDay.getDay();
-      const notedDates = new Set(store.lessonNotes.map((note) => note.date));
+      const notedDates = new Set(publishedLessonNotes().map((note) => note.date));
       const cells = [
         ...Array.from({ length: leadingBlanks }, () => `<div class="calendar-blank"></div>`),
         ...Array.from({ length: daysInMonth }, (_, index) => {
@@ -6153,7 +6165,7 @@
       $$(".lesson-student-note").forEach((field) => {
         studentNotes[field.dataset.studentKey] = field.value.trim();
       });
-      upsertLessonNote({
+      const savedNote = {
         ...previous,
         teacher: currentUser.name,
         date: activeLessonDate,
@@ -6170,7 +6182,13 @@
           lessonAuditEntry("Teacher saved lesson note", "Lesson board content and/or student performance notes were updated."),
           ...(previous.editHistory || [])
         ]
-      });
+      };
+      if (hasLessonContent(savedNote)) {
+        upsertLessonNote(savedNote);
+      } else {
+        store.lessonNotes = store.lessonNotes.filter((note) => !(note.date === savedNote.date && note.program === savedNote.program && note.className === savedNote.className));
+        activeLessonDate = "";
+      }
       renderTeacherLessonNotes();
     }
 
@@ -6738,7 +6756,7 @@
           ${dashboardMetric("Needs review", unreviewed, "adminEvaluation", "Open admin evaluation")}
           ${accountMetric("Accounts", store.accounts.length, "all", "Open all accounts")}
           ${accountMetric("Admins", store.accounts.filter((account) => account.role === "admin").length, "admin", "Open admin accounts")}
-          ${dashboardMetric("Lesson notes", store.lessonNotes.length, "adminLessonNotes", "Open lesson notes")}
+          ${dashboardMetric("Lesson notes", publishedLessonNotes().length, "adminLessonNotes", "Open lesson notes")}
         </div>
         <div class="grid">
           ${Object.keys(programs).map((program) => `
@@ -7318,6 +7336,7 @@
     }
 
     function renderAdminLessonNoteCard(note, index) {
+      const storeIndex = store.lessonNotes.findIndex((item) => item.date === note.date && item.program === note.program && item.className === note.className);
       return `
         <article class="card">
           <div class="tag-row">
@@ -7356,10 +7375,10 @@
               ${renderLessonAuditTrail(note) || `<div class="empty">No edit notes yet.</div>`}
             </details>
           </div>
-          <form style="margin-top:14px" onsubmit="saveLessonSuggestion(event, ${index})">
+          <form style="margin-top:14px" onsubmit="saveLessonSuggestion(event, ${storeIndex})">
             <h3>Admin comment / suggestion</h3>
-            <div class="field"><label>Focus</label><input id="lessonSuggestionFocus${index}" placeholder="Teaching quality, pacing, materials, homework, student support"></div>
-            <div class="field"><label>Suggestion</label><textarea id="lessonSuggestionComment${index}" placeholder="Write a helpful comment or next-step suggestion for the teacher."></textarea></div>
+            <div class="field"><label>Focus</label><input id="lessonSuggestionFocus${storeIndex}" placeholder="Teaching quality, pacing, materials, homework, student support"></div>
+            <div class="field"><label>Suggestion</label><textarea id="lessonSuggestionComment${storeIndex}" placeholder="Write a helpful comment or next-step suggestion for the teacher."></textarea></div>
             <button class="primary-btn" type="submit">Send suggestion</button>
           </form>
           <div class="message-list" style="margin-top:14px">${renderLessonSuggestionList(note)}</div>
@@ -7368,7 +7387,7 @@
     }
 
     function renderAdminLessonNotes() {
-      const notes = store.lessonNotes;
+      const notes = publishedLessonNotes();
       $("#adminLessonNotes").innerHTML = `
         ${pageHeader("Teacher Lesson Notes", "教师课堂记录", "Admins can review teacher lesson boards by date, open each saved lesson, and leave comments or suggestions in the same calendar-style flow used by teachers.")}
         ${renderEventCalendar(

@@ -118,8 +118,11 @@ body {
   -webkit-appearance:none; appearance:none;
 }
 .ghost-btn:hover { border-color:var(--c3); color:var(--c3); }
-.home-btn {
+.exit-nav {
   position:fixed; top:18px; left:18px; z-index:90;
+  display:flex; gap:10px; flex-wrap:wrap;
+}
+.home-btn {
   background:rgba(5,0,15,.72);
   border:1px solid rgba(0,255,224,.42);
   color:var(--c);
@@ -313,7 +316,10 @@ body {
 </style>
 </head>
 <body>
-<button class="home-btn" type="button" onclick="goTypingHome()">HOME</button>
+<nav class="exit-nav" aria-label="Game navigation">
+  <button class="home-btn" type="button" onclick="goTypingBack()">← BACK / QUIT</button>
+  <button class="home-btn" type="button" onclick="goTypingHome()">HOME</button>
+</nav>
 
 <!-- BG canvas (Three.js) -->
 <canvas id="bg"></canvas>
@@ -435,7 +441,10 @@ body {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 function goTypingHome(){
-  if(document.referrer && document.referrer.includes('platform.html') && history.length > 1){
+  window.location.href = 'platform.html';
+}
+function goTypingBack(){
+  if(history.length > 1){
     history.back();
     return;
   }
