@@ -2578,9 +2578,9 @@
       "Mock Exam": "Mock Exams",
       "Mock Test": "Mock Exams",
       score: "Overall",
-      exams: "Exams",
-      exercises: "Exercises",
-      homework: "Homework"
+      exams: "Monthly / Mock Tests",
+      exercises: "Class Exercise %",
+      homework: "Homework %"
     };
     const typingGames = [
       {
@@ -3746,6 +3746,70 @@
       return category === "Monthly Test" || category === "Mock Exam" || category === "Mock Test";
     }
 
+    function isCompletionCategory(category) {
+      return category === "Homework" || category === "Exercise";
+    }
+
+    function numericScore(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const percentMatch = String(value).match(/(-?\d+(?:\.\d+)?)\s*%/);
+      if (percentMatch) return Number(percentMatch[1]);
+      const numberMatch = String(value).match(/-?\d+(?:\.\d+)?/);
+      return numberMatch ? Number(numberMatch[0]) : null;
+    }
+
+    function assignmentForSubmission(submission) {
+      return store.assignments.find((item) => item.id === submission.assignmentId) || {};
+    }
+
+    function normalizedWorkStatus(submission) {
+      if (!submission) return "pending";
+      return submission.workStatus || (submission.registerPlaceholder ? "pending" : "completed");
+    }
+
+    function workStatusLabel(submission, category) {
+      const status = normalizedWorkStatus(submission);
+      if (category === "Homework") {
+        return status === "completed" ? "Completed" : "Not completed";
+      }
+      if (category === "Exercise") {
+        if (status === "absent") return "Absent · excluded";
+        return status === "completed" ? "Completed · 100%" : "Not completed";
+      }
+      return "";
+    }
+
+    function workMetricForStudent(student, metric) {
+      if (metric === "score") return Number(student.score) || 0;
+      const assignments = store.assignments.filter((assignment) => assignment.program === student.program && assignment.className === student.className);
+      if (metric === "homework") {
+        const homework = assignments.filter((assignment) => assignment.category === "Homework");
+        if (!homework.length) return 0;
+        const total = homework.reduce((sum, assignment) => {
+          const submission = submissionFor(assignment.id, student.name);
+          if (!submission || normalizedWorkStatus(submission) !== "completed") return sum;
+          return sum + Math.max(0, Math.min(100, numericScore(submission.scorePercent ?? submission.score) || 0));
+        }, 0);
+        return Math.round((total / homework.length) * 10) / 10;
+      }
+      if (metric === "exercises") {
+        const exercises = assignments.filter((assignment) => assignment.category === "Exercise");
+        const eligible = exercises.filter((assignment) => normalizedWorkStatus(submissionFor(assignment.id, student.name)) !== "absent");
+        if (!eligible.length) return 0;
+        const completed = eligible.filter((assignment) => normalizedWorkStatus(submissionFor(assignment.id, student.name)) === "completed").length;
+        return Math.round((completed / eligible.length) * 1000) / 10;
+      }
+      if (metric === "exams") {
+        const assessmentSubmissions = store.submissions.filter((submission) => {
+          const assignment = assignmentForSubmission(submission);
+          return submission.student === student.name && submission.program === student.program && submission.className === student.className && isFormalTimedCategory(assignment.category);
+        });
+        const scores = assessmentSubmissions.map((submission) => numericScore(submission.score)).filter((score) => score !== null);
+        return scores.length ? Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 10) / 10 : 0;
+      }
+      return Number(student[metric]) || 0;
+    }
+
     function isTimedAssignment(assignment) {
       return isFormalTimedCategory(assignment.category) && Number(assignment.durationMinutes) > 0;
     }
@@ -4099,6 +4163,9 @@
     }
 
     function submissionCategoryCount(program, category) {
+      if (isCompletionCategory(category)) {
+        return workRegisterForProgram(program, category).filter((submission) => normalizedWorkStatus(submission) === "pending").length;
+      }
       return submissionsForProgram(program, category).filter((submission) => !submission.score).length;
     }
 
@@ -4198,6 +4265,27 @@
       return store.submissions.filter((submission) => {
         const assignment = store.assignments.find((item) => item.id === submission.assignmentId);
         return submission.program === program && (!category || (assignment && categoryMatches(assignment.category, category)));
+      });
+    }
+
+    function workRegisterForProgram(program, category) {
+      if (!isCompletionCategory(category)) return submissionsForProgram(program, category);
+      const assignments = store.assignments.filter((assignment) => assignment.program === program && categoryMatches(assignment.category, category));
+      return assignments.flatMap((assignment) => {
+        const roster = store.students.filter((student) => student.program === assignment.program && student.className === assignment.className);
+        return roster.map((student) => submissionFor(assignment.id, student.name) || {
+          assignmentId: assignment.id,
+          student: student.name,
+          program: student.program,
+          className: student.className,
+          submittedAt: assignment.due || assignment.posted,
+          completionDate: "",
+          workStatus: "pending",
+          score: "",
+          scorePercent: 0,
+          feedback: "",
+          registerPlaceholder: true
+        });
       });
     }
 
@@ -4370,6 +4458,8 @@
           <div class="metric"><small>Messages</small><strong>${inbox.length}</strong></div>
           <div class="metric"><small>Monthly reviews</small><strong>${ownReviews.length}</strong></div>
           <div class="metric"><small>Class rank</small><strong>#${getRank(currentUser.name, currentUser.className, "score")}</strong></div>
+          <div class="metric"><small>Homework average</small><strong>${workMetricForStudent(currentUser, "homework")}%</strong></div>
+          <div class="metric"><small>Class exercises</small><strong>${workMetricForStudent(currentUser, "exercises")}%</strong></div>
         </div>
         <article class="card" style="margin-bottom:14px">
           <h3>Profile picture</h3>
@@ -4461,18 +4551,19 @@
 
     function renderAssignmentCard(assignment) {
       const submitted = submissionFor(assignment.id);
+      const statusText = submitted && isCompletionCategory(assignment.category) ? workStatusLabel(submitted, assignment.category) : submitted ? "Submitted" : "Open";
       return `
         <article class="card">
           <h3>${assignment.title}</h3>
           <div class="tag-row">
             <span class="tag green">${categoryLabels[assignment.category] || assignment.category}</span>
             <span class="tag blue">${assignment.section}</span>
-            <span class="tag warn">${submitted ? "Submitted" : "Open"}</span>
+            <span class="tag warn">${statusText}</span>
           </div>
           <p>${assignment.instructions}</p>
           <p><strong>Posted:</strong> ${assignment.posted}<br><strong>Due:</strong> ${assignment.due}${assignment.durationMinutes ? `<br><strong>Time limit:</strong> ${assignment.durationMinutes} minutes` : ""}</p>
           <div class="action-row">
-            <button class="primary-btn" onclick="openAssignment('${assignment.id}')">${submitted ? "View submission" : "Take test"}</button>
+            <button class="primary-btn" onclick="openAssignment('${assignment.id}')">${submitted ? "View submission" : isFormalTimedCategory(assignment.category) ? "Take test" : "Open work"}</button>
             ${submitted ? `<button class="ghost-btn" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
           </div>
         </article>
@@ -4822,6 +4913,7 @@
         return recorded || input.value.trim();
       });
       const autoScore = objectiveAutoScore(assignment, answers);
+      const submittedAt = new Date().toISOString().slice(0, 10);
       const submissions = store.submissions.filter((item) => !(item.assignmentId === assignmentId && item.student === currentUser.name));
       submissions.push({
         assignmentId,
@@ -4832,7 +4924,11 @@
         answers,
         recording: speakingLinks.filter(Boolean).join("\n") || ($("#recordingLink") ? $("#recordingLink").value.trim() : ""),
         recordings: speakingLinks,
-        submittedAt: new Date().toISOString().slice(0, 10),
+        submittedAt,
+        workStatus: isCompletionCategory(assignment.category) ? "completed" : "",
+        completionDate: isCompletionCategory(assignment.category) ? submittedAt : "",
+        scorePercent: assignment.category === "Homework" && autoScore ? autoScore.percent : null,
+        completionScore: assignment.category === "Exercise" ? 100 : null,
         autoSubmitted: autoSubmit,
         autoScore,
         score: autoScore ? autoScore.scoreLabel : "",
@@ -4884,7 +4980,7 @@
                 <button class="primary-btn" type="submit">${submitted ? "Update submission" : "Submit work"}</button>
                 ${submitted ? `<button class="ghost-btn" type="button" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
               </div>
-              ${submitted ? `<p style="margin-top:12px;color:var(--muted)">Submitted on ${submitted.submittedAt}. Score: ${submitted.score || "Waiting for teacher"}.</p>${submitted.autoScore ? renderAutoScoreBox(submitted.autoScore) : ""}` : ""}
+              ${submitted ? `<p style="margin-top:12px;color:var(--muted)">${isCompletionCategory(assignment.category) ? escapeHtml(workRecordSummary(submitted, assignment)) : `Submitted on ${escapeHtml(submitted.submittedAt)}. Score: ${escapeHtml(submitted.score || "Waiting for teacher")}.`}</p>${submitted.autoScore ? renderAutoScoreBox(submitted.autoScore) : ""}` : ""}
             </form>
           </div>
         </div>
@@ -5182,9 +5278,9 @@
         "Emerald Hills TOEFL Academy",
         `${submission.student} completed ${assignment.title}`,
         `${assignment.program} · ${assignment.className} · ${categoryLabels[assignment.category] || assignment.category} · ${assignment.section}`,
-        `Submitted: ${submission.submittedAt}`,
+        `${isCompletionCategory(assignment.category) ? workRecordSummary(submission, assignment) : `Submitted: ${submission.submittedAt}`}`,
         `Answer sheet: ${answered}/${total} answered`,
-        `Score: ${submission.score || "Waiting for teacher review"}`,
+        !isCompletionCategory(assignment.category) ? `Score: ${submission.score || "Waiting for teacher review"}` : "",
         submission.feedback ? `Teacher feedback: ${submission.feedback}` : ""
       ].filter(Boolean).join("\n");
     }
@@ -5447,6 +5543,12 @@
       const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
       const answered = (submission.answers || []).filter(Boolean).length;
       const total = assignment.id ? answerSheetItems(assignment).length : (submission.answers || []).length;
+      const completionRecord = isCompletionCategory(assignment.category);
+      const displayedScore = assignment.category === "Exercise"
+        ? (normalizedWorkStatus(submission) === "absent" ? "Excluded" : normalizedWorkStatus(submission) === "completed" ? "100%" : "0%")
+        : assignment.category === "Homework"
+          ? `${numericScore(submission.scorePercent ?? submission.score) || 0}%`
+          : (submission.score || "Waiting for teacher");
       return `
         <article class="result-card">
           <div>
@@ -5455,12 +5557,13 @@
               <span>${escapeHtml(assignment.category || "Work")}</span>
               <span>${escapeHtml(assignment.section || "")}</span>
               <span>${escapeHtml(submission.submittedAt || "")}</span>
+              ${completionRecord ? `<span>${escapeHtml(workStatusLabel(submission, assignment.category))}</span>${submission.completionDate ? `<span>Completed ${escapeHtml(submission.completionDate)}</span>` : ""}` : ""}
               <span>${answered}/${total || answered} answered</span>
             </div>
           </div>
           <div>
             <small>Score</small>
-            <div class="result-score">${escapeHtml(submission.score || "Waiting for teacher")}</div>
+            <div class="result-score">${escapeHtml(displayedScore)}</div>
           </div>
           ${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}
           ${submission.feedback ? `<p><strong>Feedback:</strong> ${escapeHtml(submission.feedback)}</p>` : `<p style="color:var(--muted)">Feedback has not been posted yet.</p>`}
@@ -6072,18 +6175,93 @@
     }
 
     function renderTeacherSubmissions() {
-      const submissions = submissionsForProgram(teacherProgram.teacherSubmissions, teacherCategory.teacherSubmissions);
+      const category = teacherCategory.teacherSubmissions;
+      const submissions = workRegisterForProgram(teacherProgram.teacherSubmissions, category);
       $("#teacherSubmissions").innerHTML = `
-        ${pageHeader("Submissions", "学生提交", "Review student answers by date, score them, and leave feedback. Red dates have submissions.")}
-        ${renderProgramPicker("teacherSubmissions", { badge: (program) => submissionsForProgram(program).filter((item) => !item.score).length })}
+        ${pageHeader("Submissions", "学生提交", "Homework records completion and a 0–100 score. Class exercises record completed (100%) or absent (excluded). Monthly tests and mock exams keep their assessment scores.")}
+        ${renderProgramPicker("teacherSubmissions", { badge: (program) => submissionCategoryCount(program, category) })}
         ${renderCategoryTabs("teacherSubmissions")}
         ${renderEventCalendar(submissions, {
           idPrefix: "teacher-submission-calendar",
-          empty: `No ${categoryLabels[teacherCategory.teacherSubmissions]} submissions yet for ${teacherProgram.teacherSubmissions}.`,
-          date: (submission) => submission.submittedAt,
-          render: (submission) => renderTeacherSubmissionCard(submission)
+          empty: `No ${categoryLabels[category]} records yet for ${teacherProgram.teacherSubmissions}.`,
+          date: (submission) => submission.completionDate || submission.submittedAt,
+          render: (submission) => isCompletionCategory(category) ? renderCompletionRegisterCard(submission, category) : renderTeacherSubmissionCard(submission)
         })}
       `;
+    }
+
+    function registerControlKey(submission) {
+      return `${submission.assignmentId}-${submission.student}`.replace(/[^a-zA-Z0-9_-]/g, "-");
+    }
+
+    function renderCompletionRegisterCard(submission, category) {
+      const assignment = assignmentForSubmission(submission);
+      const key = registerControlKey(submission);
+      const status = normalizedWorkStatus(submission);
+      const statusOptions = category === "Homework"
+        ? [["pending", "Not completed · 0"], ["completed", "Completed"]]
+        : [["pending", "Not completed"], ["completed", "Completed · 100%"], ["absent", "Absent · excluded"]];
+      const homeworkScore = numericScore(submission.scorePercent ?? submission.score) ?? 0;
+      return `
+        <article class="card">
+          <div class="topline compact">
+            <div>
+              <h3>${escapeHtml(submission.student)} · ${escapeHtml(assignment.title || "Deleted assignment")}</h3>
+              <p>${escapeHtml(submission.className)} · Due ${escapeHtml(assignment.due || assignment.posted || "")}</p>
+            </div>
+            <span class="tag ${status === "completed" ? "green" : status === "absent" ? "blue" : "warn"}">${workStatusLabel(submission, category)}</span>
+          </div>
+          <div class="review-form">
+            <div class="field"><label>${category === "Homework" ? "Homework completion" : "Class exercise attendance"}</label><select id="status-${key}">${statusOptions.map(([value, label]) => `<option value="${value}" ${status === value ? "selected" : ""}>${label}</option>`).join("")}</select></div>
+            <div class="field"><label>Completed date</label><input id="date-${key}" type="date" value="${escapeHtml(submission.completionDate || "")}"></div>
+            ${category === "Homework" ? `<div class="field"><label>Homework score (0–100)</label><input id="homework-score-${key}" type="number" min="0" max="100" step="0.1" value="${homeworkScore}"></div>` : `<div class="field"><label>Exercise result</label><input value="${status === "completed" ? "100%" : status === "absent" ? "Excluded" : "0%"}" disabled></div>`}
+            <div class="field"><label>Teacher note</label><textarea id="feedback-${key}" placeholder="Optional note">${escapeHtml(submission.feedback || "")}</textarea></div>
+          </div>
+          <button class="primary-btn" onclick="saveCompletionRegister('${escapeHtml(submission.assignmentId)}', '${encodeURIComponent(submission.student)}', '${category}')">Save ${category === "Homework" ? "homework" : "exercise"} record</button>
+          ${renderSubmissionReviewHistory(submission)}
+        </article>
+      `;
+    }
+
+    function saveCompletionRegister(assignmentId, encodedStudentName, category) {
+      if (stopIfNotAllowed("teacher", "admin")) return;
+      const studentName = decodeURIComponent(encodedStudentName);
+      const assignment = store.assignments.find((item) => item.id === assignmentId);
+      if (!assignment) return;
+      const student = store.students.find((item) => item.name === studentName && item.program === assignment.program && item.className === assignment.className);
+      if (!student) return;
+      const existing = submissionFor(assignmentId, studentName);
+      const key = registerControlKey({ assignmentId, student: studentName });
+      const status = $(`#status-${key}`).value;
+      const completionDate = $(`#date-${key}`).value;
+      const feedback = $(`#feedback-${key}`).value.trim();
+      const scorePercent = category === "Homework" && status === "completed" ? Math.max(0, Math.min(100, Number($(`#homework-score-${key}`).value) || 0)) : 0;
+      const saved = {
+        ...(existing || {}),
+        assignmentId,
+        student: student.name,
+        program: student.program,
+        className: student.className,
+        submittedAt: existing?.submittedAt || assignment.due || assignment.posted,
+        completionDate: status === "completed" ? (completionDate || new Date().toISOString().slice(0, 10)) : "",
+        workStatus: status,
+        scorePercent: category === "Homework" ? scorePercent : null,
+        completionScore: category === "Exercise" && status === "completed" ? 100 : null,
+        score: category === "Homework" ? `${scorePercent}%` : status === "completed" ? "100%" : "",
+        feedback,
+        reviewHistory: [{
+          action: `${category} register updated`,
+          by: currentUser ? currentUser.name : "System",
+          role,
+          date: new Date().toISOString().slice(0, 10),
+          previousScore: existing ? workStatusLabel(existing, category) : "No record",
+          newScore: status === "completed" ? (category === "Homework" ? `Completed · ${scorePercent}%` : "Completed · 100%") : status === "absent" ? "Absent · excluded" : "Not completed · 0",
+          previousFeedback: existing?.feedback || "",
+          newFeedback: feedback
+        }, ...(existing?.reviewHistory || [])]
+      };
+      store.submissions = [...store.submissions.filter((item) => !(item.assignmentId === assignmentId && item.student === studentName)), saved];
+      render();
     }
 
     function renderTeacherSubmissionCard(submission) {
@@ -6201,13 +6379,27 @@
       return { submissions, reviews, assignedWork, notes, latestReview };
     }
 
+    function workRecordSummary(submission, assignment) {
+      if (!submission) return assignment.category === "Homework" ? "Not completed · 0%" : assignment.category === "Exercise" ? "Awaiting attendance" : "Not submitted yet";
+      if (assignment.category === "Homework") {
+        const score = normalizedWorkStatus(submission) === "completed" ? (numericScore(submission.scorePercent ?? submission.score) || 0) : 0;
+        return `${workStatusLabel(submission, assignment.category)}${submission.completionDate ? ` ${submission.completionDate}` : ""} · ${score}%`;
+      }
+      if (assignment.category === "Exercise") {
+        return `${workStatusLabel(submission, assignment.category)}${submission.completionDate ? ` ${submission.completionDate}` : ""}`;
+      }
+      return `Submitted ${submission.submittedAt || ""} · Score: ${submission.score || "Waiting"}`;
+    }
+
     function renderStudentRecordCard(student, options = {}) {
       const { submissions, reviews, assignedWork, notes, latestReview } = studentRecordBundle(student);
       const latestScores = latestReview && latestReview.scores ? latestReview.scores : {};
       const overall = latestScores.overall !== undefined ? latestScores.overall : student.score;
       const sourceLabel = latestReview ? (latestReview.source || latestReview.month || "Monthly review") : "No review yet";
-      const submittedIds = new Set(submissions.map((submission) => submission.assignmentId));
-      const pendingWork = assignedWork.filter((assignment) => !submittedIds.has(assignment.id));
+      const pendingWork = assignedWork.filter((assignment) => {
+        const submission = submissions.find((item) => item.assignmentId === assignment.id);
+        return isCompletionCategory(assignment.category) ? normalizedWorkStatus(submission) === "pending" : !submission;
+      });
       return `
         <article class="card student-record-card">
           <div class="topline compact">
@@ -6252,7 +6444,7 @@
                         <td><strong>${escapeHtml(assignment.title)}</strong><br>${escapeHtml(categoryLabels[assignment.category] || assignment.category)} · Due ${escapeHtml(assignment.due || "-")}</td>
                         <td>${escapeHtml(assignment.section || "-")}<br>${assignment.answerKey && assignment.answerKey.length ? `${assignment.answerKey.length} answer key items` : "Manual scoring / no key"}</td>
                         <td>${assignment.durationMinutes ? `${assignment.durationMinutes} min` : "No timer"}<br>${assignment.answerCount || 0} answer slots</td>
-                        <td>${submitted ? `Submitted ${escapeHtml(submitted.submittedAt || "")}<br>Score: ${escapeHtml(submitted.score || "Waiting")}` : "Not submitted yet"}</td>
+                        <td>${escapeHtml(workRecordSummary(submitted, assignment))}</td>
                       </tr>
                     `;
                   }).join("") || `<tr><td colspan="4">No assigned work for this student's class.</td></tr>`}
@@ -6272,7 +6464,7 @@
                       <tr>
                         <td><strong>${escapeHtml(assignment.title || "Deleted assignment")}</strong><br>${escapeHtml(assignment.category || "")} · ${escapeHtml(assignment.section || "")}<br>${escapeHtml(submission.submittedAt || "")}</td>
                         <td>${escapeHtml(String(submission.answer || "No written answer")).slice(0, 260)}${renderRecordingEvidence(submission)}${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}</td>
-                        <td>${escapeHtml(submission.score || "Waiting")}</td>
+                        <td>${escapeHtml(isCompletionCategory(assignment.category) ? workRecordSummary(submission, assignment) : (submission.score || "Waiting"))}</td>
                         <td>${escapeHtml(submission.feedback || "No teacher feedback yet.")}</td>
                       </tr>
                     `;
@@ -6510,7 +6702,7 @@
             <div class="subhead">
               <div class="eyebrow">Rankings</div>
               <div class="zh">班级排名</div>
-              <div class="en">Rankings can be viewed by class and by exams, exercises, homework, or total performance.</div>
+              <div class="en">Homework is averaged from 0–100 scores; completed class exercises count as 100%, and absences are excluded. Monthly tests and mock exams are scored separately.</div>
             </div>
           </div>
           <div class="toolbar">
@@ -6817,7 +7009,7 @@
                   <td>${escapeHtml(student.studentId || "Assigns at next login")}</td>
                   <td>${escapeHtml(student.program)}</td>
                   <td>${escapeHtml(student.className)}</td>
-                  <td>Overall ${student.score ?? "-"}<br>Homework ${student.homework ?? "-"}<br>Exercises ${student.exercises ?? "-"}<br>Exams ${student.exams ?? "-"}</td>
+                  <td>Overall ${student.score ?? "-"}<br>Homework ${workMetricForStudent(student, "homework")}%<br>Exercises ${workMetricForStudent(student, "exercises")}%<br>Monthly / Mock ${workMetricForStudent(student, "exams")}%</td>
                   <td>${store.submissions.filter((submission) => submission.student === student.name).length}</td>
                   <td><input id="adminPhoto${index}" type="file" accept="image/*" onchange="adminUploadProfilePhoto(${index})"></td>
                   <td>
@@ -7273,23 +7465,24 @@
     }
 
     function getRank(studentName, className, metric) {
-      const ranked = store.students.filter((student) => student.className === className).sort((a, b) => Number(b[metric]) - Number(a[metric]));
+      const ranked = store.students.filter((student) => student.className === className).sort((a, b) => workMetricForStudent(b, metric) - workMetricForStudent(a, metric));
       return ranked.findIndex((student) => student.name === studentName) + 1 || "-";
     }
 
     function renderRankingTable(className, metric) {
-      const ranked = store.students.filter((student) => student.className === className).sort((a, b) => Number(b[metric]) - Number(a[metric]));
+      const ranked = store.students.filter((student) => student.className === className).sort((a, b) => workMetricForStudent(b, metric) - workMetricForStudent(a, metric));
+      const metricHeading = metric === "homework" ? "Homework average" : metric === "exercises" ? "Exercise completion" : metric === "exams" ? "Monthly / mock tests" : "Overall";
       return `
         <div class="table-card">
           <table>
-            <thead><tr><th>Rank</th><th>Student</th><th>Program</th><th>${metric}</th></tr></thead>
+            <thead><tr><th>Rank</th><th>Student</th><th>Program</th><th>${metricHeading}</th></tr></thead>
             <tbody>
               ${ranked.map((student, index) => `
                 <tr>
                   <td>#${index + 1}</td>
                   <td><strong>${student.name}</strong></td>
                   <td>${student.program} · ${student.className}</td>
-                  <td>${student[metric]}</td>
+                  <td>${workMetricForStudent(student, metric)}${metric === "score" ? "" : "%"}</td>
                 </tr>
               `).join("") || `<tr><td colspan="4">No students in this class yet.</td></tr>`}
             </tbody>
