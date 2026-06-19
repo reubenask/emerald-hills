@@ -724,6 +724,9 @@ window.seededLessonNotes = [
     "lessonForDay": "Students reviewed vocabulary and practised finding grammar errors in passages, especially subject-verb agreement and punctuation.\n\n中文：学生复习词汇，并练习在文章中找语法错误，重点包括主谓一致和标点使用。",
     "materials": "Teacher slides, TOEFL-style prompts, class worksheet, whiteboard notes, and student response sheets.\n\n中文：教师课件、托福风格题目、课堂练习纸、白板记录和学生答题纸。",
     "homework": "Rewrite the sentences and correct the grammar issues.\n\n中文：重写句子并改正语法问题。",
+    "attachments": [
+      { "name": "Junior Grammar Detective", "type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "url": "assets/lesson-materials/junior-grammar-detective.pptx" }
+    ],
     "studentNotes": {},
     "source": "Seeded bilingual lesson plan"
   },
@@ -739,6 +742,28 @@ window.seededLessonNotes = [
     "materials": "Tense review notes, grammar correction examples, The Wild Robot video segment, vocabulary notebook, whiteboard examples, and class discussion prompts.\n\n中文：时态复习笔记、语法纠错例句、《荒野机器人》视频片段、词汇笔记本、白板例句和课堂讨论问题。",
     "homework": "Carefully review the new words learned today and write the best-suited synonym for each word.\n\n中文：认真复习今天学到的新词，并为每个词写出最合适的同义词。",
     "studentNotes": {},
+    "source": "Teacher lesson update"
+  },
+  {
+    "date": "2026-06-18",
+    "teacher": "Emerald Hills Curriculum",
+    "program": "Junior",
+    "className": "Junior",
+    "topic": "Comparatives, superlatives, speaking review, and TOEFL question types / 比较级、最高级、口语复习与托福题型",
+    "objective": "Students will accurately distinguish and use comparative and superlative forms, apply them in short exercises, review Speaking Tasks 1-3, and identify main idea, detail, factual information, purpose, and vocabulary questions in listening and reading.\n\n中文：学生能够准确区分并使用比较级和最高级，完成简短练习，复习口语任务1-3，并在听力和阅读中识别主旨题、细节题、事实信息题、目的题和词汇题。",
+    "iceBreaker": "Quick comparison challenge: students compared familiar people, places, and classroom objects using one comparative sentence and one superlative sentence.\n\n中文：快速比较挑战：学生用一个比较级句子和一个最高级句子，对熟悉的人、地点和课堂物品进行比较。",
+    "lessonForDay": "18:30-20:30. The class reviewed comparatives and superlatives and completed short guided exercises. Students then reviewed TOEFL Junior Speaking Tasks 1-3 and practised identifying common listening and reading question types: main idea, detail, factual information, purpose, and vocabulary. Only Ethan Guo, Yaya, and Ran attended. All three participated actively, understood the lesson, and completed the classroom exercises well.\n\n中文：18:30-20:30。课堂复习了比较级和最高级，并完成了简短的引导练习。随后，学生复习了托福Junior口语任务1-3，并练习识别常见的听力和阅读题型：主旨题、细节题、事实信息题、目的题和词汇题。本次课程只有Ethan Guo、Yaya和Ran出席。三位学生都积极参与，理解了课堂内容，并较好地完成了课堂练习。",
+    "materials": "Comparatives and superlatives presentation, short grammar exercises, Speaking Tasks 1-3 prompts, and listening/reading question-type examples.\n\n中文：比较级和最高级课件、简短语法练习、口语任务1-3题目，以及听力和阅读题型示例。",
+    "homework": "Read last week's passage, The False Alarm, aloud. Write down any new words and look up their meanings. If a word is too difficult to find, bring it to class so we can work it out together.\n\n中文：大声朗读上周的文章《The False Alarm》。如果发现新单词，请写下来并查找词义。如果单词太难查找，请带到课堂上，我们一起解决。",
+    "attendees": ["Ethan Guo", "Yaya", "Ran"],
+    "attachments": [
+      { "name": "Junior Comparatives and Superlatives - Grade 5", "type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "url": "assets/lesson-materials/junior-comparatives-superlatives-grade5.pptx" }
+    ],
+    "studentNotes": {
+      "Ethan Guo": "Ethan did well. He understood the comparative and superlative review, followed the TOEFL question-type discussion, and completed the classroom exercises successfully.\n\n中文：Ethan表现良好。他理解了比较级和最高级复习内容，能够跟上托福题型讨论，并顺利完成课堂练习。",
+      "Yaya": "Yaya understood the lesson, participated well, and asked questions whenever clarification was needed. Her questions helped confirm her understanding before she applied the rules in the exercises.\n\n中文：Yaya理解了课堂内容，积极参与，并在需要澄清时主动提问。她通过提问确认理解后，能够把规则运用到练习中。",
+      "Ran": "Ran contributed frequently and demonstrated a clear understanding of the lesson. He also helped explain parts of the work to Yaya, showing both confidence and cooperative learning.\n\n中文：Ran积极参与，并表现出对课堂内容的清晰理解。他还帮助Yaya解释部分练习，展现了自信和良好的合作学习能力。"
+    },
     "source": "Teacher lesson update"
   },
   {
@@ -1060,6 +1085,9 @@ window.seededLessonNotes = [
     "lessonForDay": "Students reviewed vocabulary and searched for errors in sentences and short paragraphs using grammar rules like detectives.\n\n中文：学生复习词汇，并像侦探一样用语法规则寻找句子和短文中的错误。",
     "materials": "Teacher slides, TOEFL-style prompts, class worksheet, whiteboard notes, and student response sheets.\n\n中文：教师课件、托福风格题目、课堂练习纸、白板记录和学生答题纸。",
     "homework": "Rewrite the sentences and correct the grammar issues.\n\n中文：重写句子并改正语法问题。",
+    "attachments": [
+      { "name": "Primary Step 2 Grammar Detective", "type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "url": "assets/lesson-materials/primary-step2-grammar-detective.pptx" }
+    ],
     "studentNotes": {},
     "source": "Seeded bilingual lesson plan"
   },
@@ -1093,6 +1121,9 @@ window.seededLessonNotes = [
       "Yann": "Yann did well overall. Some unfamiliar words made parts of the listening task harder, but he understood the lesson focus and was able to grasp the meaning of the new words after class discussion.\n\n中文：Yann 整体表现不错。一些不熟悉的词让部分听力任务更有挑战，但他理解了本课重点，并能在课堂讨论后掌握新词的意思。",
       "Grace": "Grace did well. She understood the lesson and explained the question types clearly in her own words. She also met some unfamiliar vocabulary, which we learned and practised together.\n\n中文：Grace 表现很好。她理解了本课内容，并能用自己的话清楚解释题型。她也遇到了一些不熟悉的词汇，我们一起学习并练习。"
     },
+    "attachments": [
+      { "name": "TOEFL Primary Step 2 Listening Class", "type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "url": "assets/lesson-materials/primary-step2-listening-question-types.pptx" }
+    ],
     "source": "Teacher lesson update"
   }
 ];

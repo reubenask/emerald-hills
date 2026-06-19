@@ -1922,6 +1922,41 @@
       width: 100%;
     }
 
+    .lesson-material-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .lesson-material {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.035);
+      min-width: 0;
+    }
+
+    .lesson-material iframe,
+    .lesson-material object {
+      width: 100%;
+      height: 420px;
+      border: 0;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .lesson-material-text {
+      max-height: 360px;
+      overflow: auto;
+      white-space: pre-wrap;
+      color: var(--muted);
+      line-height: 1.55;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.18);
+      border-radius: 6px;
+    }
+
     .question strong {
       display: block;
       margin-bottom: 10px;
@@ -2335,6 +2370,7 @@
   </div>
 
   <script src="lesson-notes-seed.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script>
     const programs = {
       Primary: {
@@ -3182,13 +3218,24 @@
         const hasContent = ["topic", "objective", "iceBreaker", "lessonForDay", "materials", "homework"].some((key) => String(note[key] || "").trim());
         const hasStudentNotes = note.studentNotes && Object.values(note.studentNotes).some((value) => String(value || "").trim());
         const hasAdminSuggestions = Array.isArray(note.adminSuggestions) && note.adminSuggestions.length;
-        return !hasContent && !hasStudentNotes && !hasAdminSuggestions;
+        const hasAttachments = Array.isArray(note.attachments) && note.attachments.length;
+        const hasAttendance = Array.isArray(note.attendees) && note.attendees.length;
+        return !hasContent && !hasStudentNotes && !hasAdminSuggestions && !hasAttachments && !hasAttendance;
       };
       const seededKeys = new Set((window.seededLessonNotes || []).map(lessonNoteKey));
       const usefulSavedNotes = savedNotes.filter((note) => !(seededKeys.has(lessonNoteKey(note)) && isBlankSavedNote(note)));
-      const savedKeys = new Set(usefulSavedNotes.map(lessonNoteKey));
+      const mergedSavedNotes = usefulSavedNotes.map((savedNote) => {
+        const seededNote = (window.seededLessonNotes || []).find((note) => lessonNoteKey(note) === lessonNoteKey(savedNote));
+        if (!seededNote) return savedNote;
+        const removedAttachments = new Set(savedNote.removedAttachments || []);
+        const seededAttachments = (seededNote.attachments || []).filter((attachment) => !removedAttachments.has(attachment.url || attachment.name));
+        const attachments = [...seededAttachments, ...(savedNote.attachments || [])]
+          .filter((attachment, index, all) => all.findIndex((item) => (item.url || item.name) === (attachment.url || attachment.name)) === index);
+        return { ...seededNote, ...savedNote, attachments };
+      });
+      const savedKeys = new Set(mergedSavedNotes.map(lessonNoteKey));
       const seededNotes = (window.seededLessonNotes || []).filter((note) => !savedKeys.has(lessonNoteKey(note)));
-      return [...seededNotes, ...usefulSavedNotes];
+      return [...seededNotes, ...mergedSavedNotes];
     }
 
     const store = {
@@ -5534,6 +5581,10 @@
             <details><summary>Teaching and learning materials</summary><p>${escapeHtml(note.materials || "No materials added yet.")}</p></details>
             <details><summary>Homework</summary><p>${escapeHtml(note.homework || "No homework added yet.")}</p></details>
           </div>
+          <details>
+            <summary>Lesson files · Preview only</summary>
+            ${renderLessonAttachments(note, false)}
+          </details>
           ${renderLessonAuditTrail(note)}
         </article>
       `;
@@ -5961,6 +6012,8 @@
         lessonForDay: "",
         materials: "",
         homework: "",
+        attendees: [],
+        attachments: [],
         studentNotes: {}
       };
     }
@@ -5970,11 +6023,126 @@
       const lessonFields = ["topic", "objective", "iceBreaker", "lessonForDay", "materials", "homework"];
       const hasMainContent = lessonFields.some((field) => String(note[field] || "").trim());
       const hasStudentContent = note.studentNotes && Object.values(note.studentNotes).some((value) => String(value || "").trim());
-      return Boolean(hasMainContent || hasStudentContent);
+      const hasAttachments = Array.isArray(note.attachments) && note.attachments.length;
+      const hasAttendance = Array.isArray(note.attendees) && note.attendees.length;
+      return Boolean(hasMainContent || hasStudentContent || hasAttachments || hasAttendance);
     }
 
     function publishedLessonNotes() {
       return store.lessonNotes.filter(hasLessonContent);
+    }
+
+    function lessonAttachmentKey(attachment) {
+      return attachment.url || attachment.name || "lesson-material";
+    }
+
+    function lessonAttachmentExtension(attachment) {
+      const source = String(attachment.url || attachment.name || "").split("?")[0];
+      return source.includes(".") ? source.split(".").pop().toLowerCase() : "";
+    }
+
+    function safeLessonMaterialSource(attachment) {
+      const source = String(attachment.dataUrl || attachment.url || "").trim();
+      if (!source || /^javascript:/i.test(source)) return "";
+      return source;
+    }
+
+    function officeViewerUrl(attachment) {
+      const source = safeLessonMaterialSource(attachment);
+      if (!source || source.startsWith("data:") || window.location.protocol === "file:") return "";
+      try {
+        const absolute = new URL(source, window.location.href);
+        if (!/^https?:$/.test(absolute.protocol)) return "";
+        return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(absolute.href)}`;
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function renderLessonMaterialPreview(attachment) {
+      const source = safeLessonMaterialSource(attachment);
+      const type = String(attachment.type || "").toLowerCase();
+      const extension = lessonAttachmentExtension(attachment);
+      const officeFile = ["ppt", "pptx", "doc", "docx", "xls", "xlsx"].includes(extension);
+      if (attachment.previewText) {
+        return `<div class="lesson-material-text">${escapeHtml(attachment.previewText)}</div>`;
+      }
+      if (officeFile) {
+        const viewer = officeViewerUrl(attachment);
+        return viewer
+          ? `<iframe src="${escapeHtml(viewer)}" sandbox="allow-scripts allow-same-origin allow-forms" title="Preview ${escapeHtml(attachment.name || "lesson material")}"></iframe>`
+          : `<div class="empty">This Office preview is available on the deployed website. Locally uploaded Office files show extracted text when the preview service is unavailable.</div>`;
+      }
+      if (type.startsWith("image/") || ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(extension)) return `<img src="${escapeHtml(source)}" alt="${escapeHtml(attachment.name || "Lesson material")}">`;
+      if (type.startsWith("video/") || ["mp4", "webm", "mov"].includes(extension)) return `<video controls controlsList="nodownload" disablePictureInPicture src="${escapeHtml(source)}"></video>`;
+      if (type.startsWith("audio/") || ["mp3", "wav", "m4a", "ogg"].includes(extension)) return `<audio controls controlsList="nodownload" src="${escapeHtml(source)}"></audio>`;
+      if (extension === "pdf" || type === "application/pdf") return `<iframe src="${escapeHtml(source)}#toolbar=0&navpanes=0" sandbox="allow-same-origin" title="Preview ${escapeHtml(attachment.name || "PDF")}"></iframe>`;
+      if (["html", "htm", "txt", "csv"].includes(extension) || type.startsWith("text/")) return `<iframe src="${escapeHtml(source)}" sandbox title="Preview ${escapeHtml(attachment.name || "lesson material")}"></iframe>`;
+      return `<div class="empty">Preview stored for this file type. Ask the teacher to add a PDF, HTML, or public preview URL if the browser cannot display it.</div>`;
+    }
+
+    function renderLessonAttachments(note, editable = false) {
+      const attachments = note.attachments || [];
+      const storeIndex = store.lessonNotes.findIndex((item) => lessonNoteKey(item) === lessonNoteKey(note));
+      if (!attachments.length) return `<div class="empty">No lesson files uploaded yet.</div>`;
+      return `<div class="lesson-material-grid">${attachments.map((attachment, attachmentIndex) => `
+        <article class="lesson-material">
+          <div class="topline compact">
+            <div><strong>${escapeHtml(attachment.name || `Lesson material ${attachmentIndex + 1}`)}</strong><br><small>Preview only · ${escapeHtml(lessonAttachmentExtension(attachment).toUpperCase() || "FILE")}</small></div>
+            ${editable && storeIndex >= 0 ? `<button class="danger-btn" type="button" onclick="removeLessonAttachment(${storeIndex}, ${attachmentIndex})">Remove</button>` : ""}
+          </div>
+          ${renderLessonMaterialPreview(attachment)}
+        </article>
+      `).join("")}</div>`;
+    }
+
+    async function extractOfficeLessonPreview(file) {
+      const extension = String(file.name || "").split(".").pop().toLowerCase();
+      if (!window.JSZip || !["pptx", "docx", "xlsx"].includes(extension)) return "";
+      const zip = await window.JSZip.loadAsync(await file.arrayBuffer());
+      let paths = [];
+      if (extension === "pptx") paths = Object.keys(zip.files).filter((path) => /^ppt\/slides\/slide\d+\.xml$/.test(path)).sort((a, b) => Number(a.match(/\d+/)?.[0]) - Number(b.match(/\d+/)?.[0]));
+      if (extension === "docx") paths = ["word/document.xml"];
+      if (extension === "xlsx") paths = ["xl/sharedStrings.xml"];
+      const sections = [];
+      for (const [index, path] of paths.entries()) {
+        const entry = zip.file(path);
+        if (!entry) continue;
+        const xml = new DOMParser().parseFromString(await entry.async("string"), "application/xml");
+        const text = Array.from(xml.getElementsByTagNameNS("*", "t")).map((node) => node.textContent.trim()).filter(Boolean).join(" ");
+        if (text) sections.push(extension === "pptx" ? `Slide ${index + 1}\n${text}` : text);
+      }
+      return sections.join("\n\n").slice(0, 30000);
+    }
+
+    async function readLessonMaterial(file) {
+      if (!file) return null;
+      if (file.size > 1500000) throw new Error(`${file.name} is larger than the 1.5 MB limit for this browser-based version.`);
+      const previewText = await extractOfficeLessonPreview(file);
+      const uploaded = await readUploadedMaterial(file);
+      return { ...uploaded, previewText };
+    }
+
+    function lessonMaterialTypeFromUrl(url) {
+      const extension = String(url || "").split("?")[0].split(".").pop().toLowerCase();
+      const types = { pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", pdf: "application/pdf", html: "text/html", mp4: "video/mp4", mp3: "audio/mpeg", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg" };
+      return types[extension] || "application/octet-stream";
+    }
+
+    function removeLessonAttachment(noteIndex, attachmentIndex) {
+      if (stopIfNotAllowed("teacher", "admin")) return;
+      const notes = store.lessonNotes;
+      const note = notes[noteIndex];
+      if (!note || !note.attachments || !note.attachments[attachmentIndex]) return;
+      const removed = note.attachments[attachmentIndex];
+      notes[noteIndex] = {
+        ...note,
+        attachments: note.attachments.filter((_, index) => index !== attachmentIndex),
+        removedAttachments: [...new Set([...(note.removedAttachments || []), lessonAttachmentKey(removed)])],
+        editHistory: [lessonAuditEntry("Lesson material removed", removed.name || "Lesson material"), ...(note.editHistory || [])]
+      };
+      store.lessonNotes = notes;
+      render();
     }
 
     function lessonNoteFor(date, program = activeLessonProgram, className = activeLessonClass) {
@@ -6066,6 +6234,13 @@
             <button class="primary-btn" type="submit">Save lesson note</button>
           </div>
           <div class="lesson-board">
+            <article class="lesson-card full">
+              <h3>Attendance</h3>
+              <p>Select only the students who attended this lesson.</p>
+              <div class="tag-row">
+                ${students.map((student) => `<label class="tag ${note.attendees && note.attendees.includes(student.name) ? "green" : "blue"}"><input class="lesson-attendee" type="checkbox" value="${escapeHtml(student.name)}" ${note.attendees && note.attendees.includes(student.name) ? "checked" : ""}> ${escapeHtml(student.name)}</label>`).join("") || `<span class="muted">No students registered in this class.</span>`}
+              </div>
+            </article>
             <article class="lesson-card">
               <h3>Topic for today</h3>
               <div class="field"><label>Lesson topic</label><input id="lessonTopic" value="${escapeHtml(note.topic)}" placeholder="Main topic for today's lesson"></div>
@@ -6085,6 +6260,16 @@
             <article class="lesson-card">
               <h3>Homework</h3>
               <div class="field"><label>Homework assigned</label><textarea id="lessonHomework" placeholder="Homework, due date notes, and submission expectations">${escapeHtml(note.homework)}</textarea></div>
+            </article>
+            <article class="lesson-card full">
+              <h3>Lesson files for student preview</h3>
+              <p>Upload PPTX, DOCX, PDF, HTML, images, audio, video, text, or another lesson file. Students receive preview-only access.</p>
+              <div class="review-form">
+                <div class="field"><label>Upload files (multiple allowed, 1.5 MB each)</label><input id="lessonFiles" type="file" multiple></div>
+                <div class="field"><label>Public preview URL</label><input id="lessonMaterialUrl" type="url" placeholder="Optional HTTPS file or preview URL"></div>
+                <div class="field"><label>URL display name</label><input id="lessonMaterialName" placeholder="Optional material title"></div>
+              </div>
+              ${renderLessonAttachments(note, true)}
             </article>
             ${note.adminSuggestions && note.adminSuggestions.length ? `
               <article class="lesson-card">
@@ -6108,7 +6293,7 @@
                   return `
                     <div class="student-note-card">
                       <strong>${student.name}</strong>
-                      <div class="field"><label>Performance / challenges</label><textarea class="lesson-student-note" data-student-key="${escapeHtml(key)}" placeholder="Participation, strengths today, challenge noticed, support needed">${escapeHtml(note.studentNotes[key] || "")}</textarea></div>
+                      <div class="field"><label>Performance / challenges</label><textarea class="lesson-student-note" data-student-key="${escapeHtml(key)}" placeholder="Participation, strengths today, challenge noticed, support needed">${escapeHtml((note.studentNotes || {})[key] || (note.studentNotes || {})[student.name] || "")}</textarea></div>
                     </div>
                   `;
                 }).join("") || `<div class="empty">No registered students found for ${note.className}. Students will appear here automatically after signup.</div>`}
@@ -6157,7 +6342,7 @@
       `;
     }
 
-    function saveLessonNote(event) {
+    async function saveLessonNote(event) {
       event.preventDefault();
       if (stopIfNotAllowed("teacher", "admin")) return;
       const previous = lessonNoteFor(activeLessonDate, $("#lessonProgram").value, $("#lessonClass").value);
@@ -6165,6 +6350,19 @@
       $$(".lesson-student-note").forEach((field) => {
         studentNotes[field.dataset.studentKey] = field.value.trim();
       });
+      let uploadedAttachments = [];
+      try {
+        uploadedAttachments = (await Promise.all(Array.from($("#lessonFiles").files || []).map(readLessonMaterial))).filter(Boolean);
+      } catch (error) {
+        window.alert(error.message || "One of the lesson files could not be prepared for preview.");
+        return;
+      }
+      const materialUrl = $("#lessonMaterialUrl").value.trim();
+      const linkedAttachment = materialUrl ? [{
+        name: $("#lessonMaterialName").value.trim() || materialUrl.split("/").pop().split("?")[0] || "Lesson material",
+        type: lessonMaterialTypeFromUrl(materialUrl),
+        url: materialUrl
+      }] : [];
       const savedNote = {
         ...previous,
         teacher: currentUser.name,
@@ -6177,6 +6375,8 @@
         lessonForDay: $("#lessonForDay").value.trim(),
         materials: $("#lessonMaterials").value.trim(),
         homework: $("#lessonHomework").value.trim(),
+        attendees: $$(".lesson-attendee").filter((field) => field.checked).map((field) => field.value),
+        attachments: [...(previous.attachments || []), ...uploadedAttachments, ...linkedAttachment],
         studentNotes,
         editHistory: [
           lessonAuditEntry("Teacher saved lesson note", "Lesson board content and/or student performance notes were updated."),
@@ -7345,6 +7545,7 @@
           </div>
           <h3>${escapeHtml(note.topic || "Untitled lesson")}</h3>
           <p><strong>Teacher:</strong> ${escapeHtml(note.teacher || "Teacher")}</p>
+          <p><strong>Students present:</strong> ${note.attendees && note.attendees.length ? note.attendees.map(escapeHtml).join(", ") : "Not recorded"}</p>
           <div class="review-toggle-grid">
             <details open>
               <summary>Teaching objective</summary>
@@ -7374,7 +7575,20 @@
               <summary>Edit notes</summary>
               ${renderLessonAuditTrail(note) || `<div class="empty">No edit notes yet.</div>`}
             </details>
+            <details>
+              <summary>Lesson files · Preview and manage</summary>
+              ${renderLessonAttachments(note, true)}
+            </details>
           </div>
+          <form style="margin-top:14px" onsubmit="addAdminLessonMaterials(event, ${storeIndex})">
+            <h3>Add lesson files</h3>
+            <div class="review-form">
+              <div class="field"><label>Upload files (1.5 MB each)</label><input id="adminLessonFiles${storeIndex}" type="file" multiple></div>
+              <div class="field"><label>Public preview URL</label><input id="adminLessonMaterialUrl${storeIndex}" type="url" placeholder="Optional HTTPS file or preview URL"></div>
+              <div class="field"><label>URL display name</label><input id="adminLessonMaterialName${storeIndex}" placeholder="Optional material title"></div>
+            </div>
+            <button class="primary-btn" type="submit">Add lesson materials</button>
+          </form>
           <form style="margin-top:14px" onsubmit="saveLessonSuggestion(event, ${storeIndex})">
             <h3>Admin comment / suggestion</h3>
             <div class="field"><label>Focus</label><input id="lessonSuggestionFocus${storeIndex}" placeholder="Teaching quality, pacing, materials, homework, student support"></div>
@@ -7427,6 +7641,38 @@
           lessonAuditEntry("Admin added suggestion", focus || "Admin suggestion"),
           ...(note.editHistory || [])
         ]
+      };
+      store.lessonNotes = notes;
+      render();
+    }
+
+    async function addAdminLessonMaterials(event, index) {
+      event.preventDefault();
+      if (stopIfNotAllowed("admin")) return;
+      const notes = store.lessonNotes;
+      const note = notes[index];
+      if (!note) return;
+      let uploadedAttachments = [];
+      try {
+        uploadedAttachments = (await Promise.all(Array.from($(`#adminLessonFiles${index}`).files || []).map(readLessonMaterial))).filter(Boolean);
+      } catch (error) {
+        window.alert(error.message || "One of the lesson files could not be prepared for preview.");
+        return;
+      }
+      const materialUrl = $(`#adminLessonMaterialUrl${index}`).value.trim();
+      const linkedAttachment = materialUrl ? [{
+        name: $(`#adminLessonMaterialName${index}`).value.trim() || materialUrl.split("/").pop().split("?")[0] || "Lesson material",
+        type: lessonMaterialTypeFromUrl(materialUrl),
+        url: materialUrl
+      }] : [];
+      if (!uploadedAttachments.length && !linkedAttachment.length) {
+        window.alert("Choose at least one file or enter a preview URL.");
+        return;
+      }
+      notes[index] = {
+        ...note,
+        attachments: [...(note.attachments || []), ...uploadedAttachments, ...linkedAttachment],
+        editHistory: [lessonAuditEntry("Admin added lesson material", [...uploadedAttachments, ...linkedAttachment].map((item) => item.name).join(", ")), ...(note.editHistory || [])]
       };
       store.lessonNotes = notes;
       render();
