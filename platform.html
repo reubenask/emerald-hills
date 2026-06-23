@@ -1203,6 +1203,20 @@
       font-family: 'Playfair Display', 'Noto Serif SC', serif;
     }
 
+    .assignment-card.completed {
+      opacity: 0.58;
+      filter: grayscale(0.35);
+      border-color: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .assignment-card.completed .primary-btn {
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.16);
+      box-shadow: none;
+      color: rgba(255, 255, 255, 0.72);
+    }
+
     .exam-paper {
       background: #f9fbf8;
       color: #132019;
@@ -2645,7 +2659,7 @@
         id: "junior-june-2026-listening",
         title: "Junior June Monthly Test — Listening",
         section: "Listening",
-        durationMinutes: 28,
+        durationMinutes: 30,
         answerCount: 26,
         externalExamUrl: "assets/exams/junior-june-2026/TOEFL_listening_Q1-26.html"
       },
@@ -2653,7 +2667,7 @@
         id: "junior-june-2026-reading",
         title: "Junior June Monthly Test — Reading",
         section: "Reading",
-        durationMinutes: 50,
+        durationMinutes: 30,
         answerCount: 42,
         externalExamUrl: "assets/exams/junior-june-2026/TOEFL_Junior_Reading_Test.html"
       },
@@ -2661,7 +2675,7 @@
         id: "junior-june-2026-language",
         title: "Junior June Monthly Test — Language Form & Meaning",
         section: "Language Form & Meaning",
-        durationMinutes: 25,
+        durationMinutes: 30,
         answerCount: 42,
         externalExamUrl: "assets/exams/junior-june-2026/toefl_junior_language_form_meaning_test.html"
       },
@@ -2669,7 +2683,7 @@
         id: "junior-june-2026-speaking",
         title: "Junior June Monthly Test — Speaking",
         section: "Speaking",
-        durationMinutes: 20,
+        durationMinutes: 10,
         answerCount: 4,
         externalExamUrl: "assets/exams/junior-june-2026/toefl_junior_speaking.html"
       },
@@ -2677,7 +2691,7 @@
         id: "junior-june-2026-writing",
         title: "Junior June Monthly Test — Writing",
         section: "Writing",
-        durationMinutes: 45,
+        durationMinutes: 20,
         answerCount: 2,
         externalExamUrl: "assets/exams/junior-june-2026/Writing_Task_1_2_Urban_Green_Spaces.html"
       }
@@ -2707,6 +2721,7 @@
     let authStep = "roles";
     let currentUser = null;
     let activeAssignmentId = null;
+    let studentTestNotice = "";
     let editingAssignmentId = null;
     let activeLessonDate = "";
     let activeLessonProgram = "Primary";
@@ -3868,6 +3883,7 @@
     };
 
     function syncAuthHash() {
+      if (currentUser) return;
       const target = window.location.hash.replace("#", "");
       if (target === "student-login") {
         openRoleAccount("student");
@@ -3906,6 +3922,53 @@
     window.openRoleAccount = openRoleAccount;
     window.showRoleGateway = showRoleGateway;
 
+    function saveActiveSession() {
+      if (!currentUser) return;
+      localStorage.setItem("gm_active_session", JSON.stringify({
+        role,
+        username: currentUser.username
+      }));
+    }
+
+    function clearActiveSession() {
+      localStorage.removeItem("gm_active_session");
+    }
+
+    function enterPlatform(account, nextRole = role, homeSection = "") {
+      role = nextRole;
+      currentUser = { ...account };
+      const accountId = ensureCurrentAccountId();
+      saveActiveSession();
+      $("#loginView").style.display = "none";
+      $("#publicView").classList.add("hidden");
+      $("#appView").style.display = "block";
+      $("#userName").textContent = currentUser.name;
+      $("#userMeta").textContent = role === "admin" ? `${accountId} · Admin` : role === "teacher" ? `${accountId} · Teacher` : `${accountId} · ${currentUser.program} · ${currentUser.className}`;
+      updateUserAvatar();
+      $("#studentNav").classList.toggle("hidden", role !== "student");
+      $("#teacherNav").classList.toggle("hidden", role !== "teacher");
+      $("#adminNav").classList.toggle("hidden", role !== "admin");
+      activateSection(homeSection || (role === "admin" ? "adminDashboard" : role === "teacher" ? "teacherDashboard" : "studentDashboard"));
+      render();
+    }
+
+    function restoreActiveSession() {
+      let session = null;
+      try {
+        session = JSON.parse(localStorage.getItem("gm_active_session") || "null");
+      } catch (error) {
+        session = null;
+      }
+      if (!session || !session.username || !session.role) return false;
+      const account = store.accounts.find((item) => item.role === session.role && item.username === session.username);
+      if (!account) {
+        clearActiveSession();
+        return false;
+      }
+      enterPlatform(account, session.role);
+      return true;
+    }
+
     function login() {
       const loginId = normalizeUsername($("#loginUsername").value);
       const password = $("#loginPassword").value.trim();
@@ -3914,18 +3977,7 @@
         window.alert("No matching account found for this role, username/email, and password.");
         return;
       }
-      currentUser = { ...account };
-      const accountId = ensureCurrentAccountId();
-      $("#loginView").style.display = "none";
-      $("#appView").style.display = "block";
-      $("#userName").textContent = currentUser.name;
-      $("#userMeta").textContent = role === "admin" ? `${accountId} · Admin` : role === "teacher" ? `${accountId} · Teacher` : `${accountId} · ${currentUser.program} · ${currentUser.className}`;
-      updateUserAvatar();
-      $("#studentNav").classList.toggle("hidden", role !== "student");
-      $("#teacherNav").classList.toggle("hidden", role !== "teacher");
-      $("#adminNav").classList.toggle("hidden", role !== "admin");
-      activateSection(role === "admin" ? "adminDashboard" : role === "teacher" ? "teacherDashboard" : "studentDashboard");
-      render();
+      enterPlatform(account, role);
     }
 
     function updateUserAvatar() {
@@ -4016,7 +4068,9 @@
     function logout() {
       clearTimerInterval();
       activeAssignmentId = null;
+      studentTestNotice = "";
       currentUser = null;
+      clearActiveSession();
       $("#loginView").style.display = "grid";
       $("#appView").style.display = "none";
       showRoleGateway();
@@ -4067,9 +4121,14 @@
     function formalExamPackAssignments(assignment) {
       const key = formalExamPackKey(assignment);
       if (!key) return assignment ? [assignment] : [];
+      const seededPack = /^(primary-step2-june-2026|junior-june-2026)$/.test(key);
       return store.assignments
-        .filter((item) => formalExamPackKey(item) === key)
-        .sort((a, b) => sectionSortOrder(a.section) - sectionSortOrder(b.section));
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) => formalExamPackKey(item) === key)
+        .sort((a, b) => seededPack
+          ? a.index - b.index
+          : sectionSortOrder(a.item.section) - sectionSortOrder(b.item.section))
+        .map(({ item }) => item);
     }
 
     function sectionSortOrder(section = "") {
@@ -4100,6 +4159,24 @@
         total: pack.length,
         complete: pack.length > 0 && submittedCount === pack.length
       };
+    }
+
+    function nextUnsubmittedFormalAssignment(assignment, studentName = currentUser ? currentUser.name : "") {
+      const progress = formalExamPackProgress(assignment, studentName);
+      if (!progress.pack.length) return null;
+      const currentIndex = progress.pack.findIndex((item) => item.id === assignment.id);
+      const ordered = [
+        ...progress.pack.slice(currentIndex + 1),
+        ...progress.pack.slice(0, Math.max(0, currentIndex))
+      ];
+      return ordered.find((item) => !submissionFor(item.id, studentName)) || null;
+    }
+
+    function sectionJourneyMessage(doneAssignment, nextAssignment) {
+      if (!nextAssignment) {
+        return `All sections in this ${doneAssignment.category.toLowerCase()} have been submitted. Objective scores will appear in Results; speaking and writing remain pending until the teacher marks them.`;
+      }
+      return `We are done with the ${doneAssignment.section} test. Next is the ${nextAssignment.section} test.`;
     }
 
     function studentScoreStatus(submission, assignment) {
@@ -4932,6 +5009,8 @@
       $("#studentAssignments").innerHTML = `
         ${pageHeader("Work Platforms", "学习任务平台", `Choose an independent platform: Class Exercises, Homework, Monthly Test, or Mock Exams.`)}
         ${renderStudentWorkTabs()}
+        ${studentTestNotice ? `<div class="external-exam-note">${escapeHtml(studentTestNotice)}</div>` : ""}
+        ${renderFormalExamPackScoreCards(filteredAssignments)}
         <div class="grid">
           ${filteredAssignments.map(renderAssignmentCard).join("") || `<div class="empty">No ${categoryLabels[studentWorkCategory]} yet for ${currentUser.className}.</div>`}
         </div>
@@ -4940,13 +5019,15 @@
 
     function renderAssignmentCard(assignment) {
       const submitted = submissionFor(assignment.id);
+      const packComplete = submitted && isFormalTimedCategory(assignment.category) ? formalExamPackProgress(assignment).complete : false;
+      const lockedCompleted = submitted && isFormalTimedCategory(assignment.category) && !packComplete;
       const statusText = submitted && isCompletionCategory(assignment.category)
         ? workStatusLabel(submitted, assignment.category)
         : submitted && isFormalTimedCategory(assignment.category)
           ? studentScoreStatus(submitted, assignment).label
           : submitted ? "Submitted" : "Open";
       return `
-        <article class="card">
+        <article class="card assignment-card ${lockedCompleted ? "completed" : ""}">
           <h3>${assignment.title}</h3>
           <div class="tag-row">
             <span class="tag green">${categoryLabels[assignment.category] || assignment.category}</span>
@@ -4956,11 +5037,48 @@
           <p>${assignment.instructions}</p>
           <p><strong>Posted:</strong> ${assignment.posted}<br><strong>Due:</strong> ${assignment.due}${assignment.durationMinutes ? `<br><strong>Time limit:</strong> ${assignment.durationMinutes} minutes` : ""}</p>
           <div class="action-row">
-            <button class="primary-btn" onclick="openAssignment('${assignment.id}')">${submitted ? "View submission" : isFormalTimedCategory(assignment.category) ? "Take test" : "Open work"}</button>
+            <button class="primary-btn" ${lockedCompleted ? "disabled" : ""} onclick="openAssignment('${assignment.id}')">${lockedCompleted ? "Completed" : submitted && isFormalTimedCategory(assignment.category) ? "Review result" : submitted ? "View submission" : isFormalTimedCategory(assignment.category) ? "Take test" : "Open work"}</button>
             ${submitted && (!isFormalTimedCategory(assignment.category) || formalExamPackProgress(assignment).complete) ? `<button class="ghost-btn" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
           </div>
         </article>
       `;
+    }
+
+    function renderFormalExamPackScoreCards(assignments) {
+      const formal = assignments.filter((assignment) => isFormalTimedCategory(assignment.category));
+      if (!formal.length) return "";
+      const seen = new Set();
+      const cards = formal.map((assignment) => {
+        const key = formalExamPackKey(assignment);
+        if (seen.has(key)) return "";
+        seen.add(key);
+        const progress = formalExamPackProgress(assignment);
+        if (!progress.complete) return "";
+        const objectiveScores = progress.submissions
+          .filter(({ assignment: item, submission }) => submission && !isManualScoredSection(item.section))
+          .map(({ submission }) => numericScore(submission.scorePercent ?? submission.score))
+          .filter((score) => score !== null);
+        const average = objectiveScores.length
+          ? Math.round((objectiveScores.reduce((sum, score) => sum + score, 0) / objectiveScores.length) * 10) / 10
+          : null;
+        return `
+          <article class="card">
+            <h3>${escapeHtml(assignment.program)} ${escapeHtml(assignment.className)} · ${escapeHtml(assignment.category)} score card</h3>
+            <p>All ${progress.total} sections have been submitted. Objective sections are available for review; Speaking and Writing remain pending until teacher marking.</p>
+            <div class="tag-row">
+              <span class="tag green">Submitted ${progress.submittedCount}/${progress.total}</span>
+              ${average !== null ? `<span class="tag warn">Objective average ${average}%</span>` : ""}
+            </div>
+            <div class="review-toggle-grid">
+              ${progress.submissions.map(({ assignment: item, submission }) => {
+                const status = submission ? studentScoreStatus(submission, item).label : "Not submitted";
+                return `<details><summary>${escapeHtml(item.section)} · ${escapeHtml(status)}</summary>${submission ? renderSubmissionAnswerReview(submission, item, true) : "<p>No submission yet.</p>"}</details>`;
+              }).join("")}
+            </div>
+          </article>
+        `;
+      }).join("");
+      return cards ? `<div class="grid">${cards}</div>` : "";
     }
 
     function testSessionKey(assignment) {
@@ -5329,6 +5447,18 @@
       });
       store.submissions = submissions;
       clearTimerInterval();
+      if (isFormalTimedCategory(assignment.category)) {
+        const nextAssignment = nextUnsubmittedFormalAssignment(assignment, currentUser.name);
+        const message = sectionJourneyMessage(assignment, nextAssignment);
+        studentTestNotice = message;
+        if (nextAssignment) {
+          const continueNow = window.confirm(`${message}\n\nContinue now?`);
+          activeAssignmentId = continueNow ? nextAssignment.id : null;
+        } else {
+          activeAssignmentId = null;
+          window.alert(message);
+        }
+      }
       render();
     }
 
@@ -5386,7 +5516,7 @@
           percent: payload.percent ?? null,
           correct: payload.correct ?? null,
           total: payload.total ?? null,
-          marked: []
+          marked: Array.isArray(payload.marked) ? payload.marked : []
         } : null,
         score,
         feedback: payload.section === "Speaking" || payload.section === "Writing" || isManualScoredSection(assignment.section)
@@ -5395,6 +5525,18 @@
       });
       store.submissions = submissions;
       clearTimerInterval();
+      if (isFormalTimedCategory(assignment.category)) {
+        const nextAssignment = nextUnsubmittedFormalAssignment(assignment, currentUser.name);
+        const message = sectionJourneyMessage(assignment, nextAssignment);
+        studentTestNotice = message;
+        if (nextAssignment) {
+          const continueNow = window.confirm(`${message}\n\nContinue now?`);
+          activeAssignmentId = continueNow ? nextAssignment.id : null;
+        } else {
+          activeAssignmentId = null;
+          window.alert(message);
+        }
+      }
       render();
     }
 
@@ -5408,6 +5550,32 @@
       const submitted = submissionFor(assignment.id);
       const scoreStatus = submitted ? studentScoreStatus(submitted, assignment) : null;
       const progress = formalExamPackProgress(assignment);
+      if (submitted && progress.complete) {
+        return `
+          ${pageHeader("Section Review", "试卷回看", `${assignment.title} · ${assignment.program} · ${assignment.className} · ${assignment.category} · ${assignment.section}`, `<button class="ghost-btn" onclick="closeAssignment()">Back to test list</button>`)}
+          <div class="test-frame">
+            <div class="test-header">
+              <strong>${assignment.section} review</strong>
+              <div class="tag-row">
+                <span class="tag green">Submitted</span>
+                <span class="tag blue">Full test complete</span>
+              </div>
+            </div>
+            <div class="external-exam-shell">
+              <div class="external-exam-note">This section is locked for editing. You can review the saved answer evidence and available score details below.</div>
+              ${renderSubmissionAnswerReview(submitted, assignment, true)}
+            </div>
+          </div>
+        `;
+      }
+      if (submitted) {
+        return `
+          ${pageHeader("Section Submitted", "已提交", `${assignment.title} · ${assignment.program} · ${assignment.className} · ${assignment.category} · ${assignment.section}`, `<button class="ghost-btn" onclick="closeAssignment()">Back to test list</button>`)}
+          <div class="test-frame">
+            <div class="external-exam-note">This section was submitted on ${escapeHtml(submitted.submittedAt)}. ${escapeHtml(scoreStatus.label)}.</div>
+          </div>
+        `;
+      }
       return `
         ${pageHeader("Test Player", "答题页面", `${assignment.title} · ${assignment.program} · ${assignment.className} · ${assignment.category} · ${assignment.section}`, `<button class="ghost-btn" onclick="closeAssignment()">Back</button>`)}
         <div class="test-frame">
@@ -5422,9 +5590,7 @@
           </div>
           <div class="external-exam-shell">
             <div class="external-exam-note">
-              ${submitted
-                ? `This section was submitted on ${escapeHtml(submitted.submittedAt)}. ${escapeHtml(scoreStatus.label)}.`
-                : "Enter your name if it is not already filled, click Start Test inside the exam, complete the section, then use the exam's submit/complete button. The platform records the result under your student account. Section scores are not shown until the full monthly test is finished; speaking and writing remain pending for teacher review."}
+              Enter your name if it is not already filled, click Start Test inside the exam, complete the section, then use the exam's submit/complete button. The platform records the result under your student account. Section scores are not shown until the full monthly test is finished; speaking and writing remain pending for teacher review.
             </div>
             <iframe class="external-exam-frame" src="${escapeHtml(externalExamUrlForStudent(assignment))}" title="${escapeHtml(assignment.title)}"></iframe>
           </div>
@@ -5483,12 +5649,60 @@
 
     function renderAutoScoreBox(autoScore) {
       if (!autoScore) return "";
-      const missed = (autoScore.marked || []).filter((item) => !item.correct).slice(0, 8);
+      const marked = Array.isArray(autoScore.marked) ? autoScore.marked : [];
+      const missed = marked.filter((item) => !item.correct).slice(0, 8);
+      const detailText = marked.length
+        ? missed.length
+          ? `<span>Check: ${missed.map((item) => `Q${item.question} ${item.studentAnswer || "-"} -> ${item.correctAnswer}`).join(", ")}</span>`
+          : "<span>All keyed answers correct.</span>"
+        : "<span>Detailed answer review was not captured for this section.</span>";
       return `
         <div class="auto-score-box">
           <strong>Auto score:</strong> ${autoScore.scoreLabel}<br>
-          ${missed.length ? `<span>Check: ${missed.map((item) => `Q${item.question} ${item.studentAnswer || "-"} -> ${item.correctAnswer}`).join(", ")}</span>` : "<span>All keyed answers correct.</span>"}
+          ${detailText}
         </div>
+      `;
+    }
+
+    function renderSubmissionAnswerReview(submission, assignment, canShowDetails = false) {
+      if (!canShowDetails) {
+        return `<p style="color:var(--muted)">Answer review opens after the full test has been submitted.</p>`;
+      }
+      const answers = Array.isArray(submission.answers) ? submission.answers.filter(Boolean) : [];
+      const marked = submission.autoScore && Array.isArray(submission.autoScore.marked) ? submission.autoScore.marked : [];
+      const scoreStatus = studentScoreStatus(submission, assignment);
+      return `
+        <div class="auto-score-box">
+          <strong>${escapeHtml(assignment.section || "Section")} status:</strong> ${escapeHtml(scoreStatus.label)}<br>
+          <span>Submitted ${escapeHtml(submission.submittedAt || "")}. This review is read-only.</span>
+        </div>
+        ${submission.autoScore && scoreStatus.visible ? renderAutoScoreBox(submission.autoScore) : ""}
+        ${marked.length ? `
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Question</th><th>Your answer</th><th>Correct answer</th><th>Result</th></tr></thead>
+              <tbody>
+                ${marked.map((item, index) => `
+                  <tr>
+                    <td>${escapeHtml(item.question || index + 1)}</td>
+                    <td>${escapeHtml(item.studentAnswer || item.answer || "-")}</td>
+                    <td>${escapeHtml(item.correctAnswer || item.correct || "-")}</td>
+                    <td>${item.correct === true || item.result === "Correct" ? "Correct" : item.correct === false || /incorrect|wrong/i.test(String(item.result || "")) ? "Review" : escapeHtml(item.result || "Saved")}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        ` : answers.length ? `
+          <details open>
+            <summary>Saved answer evidence</summary>
+            <ol>
+              ${answers.slice(0, 120).map((answer) => `<li>${escapeHtml(answer)}</li>`).join("")}
+            </ol>
+          </details>
+        ` : `<p style="color:var(--muted)">No answer evidence was captured for this section.</p>`}
+        ${renderRecordingEvidence(submission)}
+        ${submission.feedback ? `<p><strong>Teacher feedback:</strong> ${escapeHtml(submission.feedback)}</p>` : ""}
       `;
     }
 
@@ -5751,9 +5965,16 @@
 
     function openAssignment(id) {
       const assignment = assignmentsForStudent().find((item) => item.id === id);
+      if (assignment && isFormalTimedCategory(assignment.category) && submissionFor(assignment.id) && !formalExamPackProgress(assignment).complete) {
+        studentTestNotice = `${assignment.section} has already been submitted. Please continue with the next unfinished section or check Results when the full test is complete.`;
+        activeAssignmentId = null;
+        renderStudentAssignments();
+        return;
+      }
       if (assignment && isTimedAssignment(assignment) && !submissionFor(assignment.id)) {
         ensureTestSession(assignment);
       }
+      studentTestNotice = "";
       activeAssignmentId = id;
       renderStudentAssignments();
     }
@@ -6067,6 +6288,7 @@
             <div class="result-score">${escapeHtml(displayedScore)}</div>
           </div>
           ${submission.autoScore && (!isFormalTimedCategory(assignment.category) || scoreStatus.visible) ? renderAutoScoreBox(submission.autoScore) : ""}
+          ${isFormalTimedCategory(assignment.category) ? renderSubmissionAnswerReview(submission, assignment, scoreStatus.visible || (formalExamPackProgress(assignment, submission.student).complete && !isManualScoredSection(assignment.section))) : ""}
           ${submission.feedback ? `<p><strong>Feedback:</strong> ${escapeHtml(submission.feedback)}</p>` : `<p style="color:var(--muted)">Feedback has not been posted yet.</p>`}
           ${renderSubmissionReviewHistory(submission)}
           ${renderRecordingEvidence(submission)}
@@ -8241,7 +8463,7 @@
     fillProgramOptions();
     setAuthMode("signin");
     window.addEventListener("hashchange", syncAuthHash);
-    syncAuthHash();
+    if (!restoreActiveSession()) syncAuthHash();
   </script>
 </body>
 </html>

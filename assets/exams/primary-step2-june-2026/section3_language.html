@@ -515,6 +515,16 @@ function submitTest(auto = false) {
     }
   });
   const pct = Math.round((correct / TOTAL_Q) * 100);
+  const marked = clozeIds.map((q, index) => {
+    const checked = document.querySelector(`input[name="${q}"]:checked`);
+    return {
+      question: index + 1,
+      studentAnswer: checked ? checked.value : "",
+      correctAnswer: ANSWER_KEY[q],
+      correct: Boolean(checked && checked.value === ANSWER_KEY[q]),
+      result: checked && checked.value === ANSWER_KEY[q] ? "Correct" : "Incorrect"
+    };
+  });
   document.getElementById('scoreSummary').style.display = 'block';
   document.getElementById('scoreDisplay').textContent = correct + ' / ' + TOTAL_Q;
   document.getElementById('scoreDetail').textContent = `Score: ${pct}%  ·  Correct: ${correct}  ·  Wrong: ${answered - correct}  ·  Unanswered: ${TOTAL_Q - answered}`;
@@ -529,6 +539,7 @@ function submitTest(auto = false) {
     total: TOTAL_Q,
     percent: pct,
     scoreLabel: correct + ' / ' + TOTAL_Q + ' (' + pct + '%)',
+    marked,
     autoSubmitted: auto
   }, '*');
 }

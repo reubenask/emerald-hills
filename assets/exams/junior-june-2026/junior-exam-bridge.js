@@ -54,6 +54,50 @@
     return rows;
   }
 
+  function collectMarkedReview() {
+    var rows = [];
+    document.querySelectorAll("input[type='radio']:checked, input[type='checkbox']:checked, select").forEach(function (el, index) {
+      var question = el.name || el.id || el.getAttribute("data-q") || el.getAttribute("data-qnum") || "Q" + (index + 1);
+      var holder = el.closest("label") || el.closest(".question") || el.closest(".question-card") || el.parentElement;
+      var classText = "";
+      var text = "";
+      if (holder) {
+        classText = holder.className || "";
+        text = (holder.textContent || "").trim().replace(/\s+/g, " ");
+      }
+      var result = /wrong|incorrect|is-wrong|answered-incorrect/i.test(classText)
+        ? "Incorrect"
+        : /correct|is-correct|answered-correct/i.test(classText)
+          ? "Correct"
+          : "Saved";
+      var correctMatch = text.match(/correct answer[:\s-]+([A-D]|\w+)/i);
+      rows.push({
+        question: question,
+        studentAnswer: el.value || "",
+        correctAnswer: correctMatch ? correctMatch[1] : "",
+        correct: result === "Correct" ? true : result === "Incorrect" ? false : null,
+        result: result
+      });
+    });
+    document.querySelectorAll(".is-wrong,.wrong,.answered-incorrect,.is-correct,.correct,.answered-correct").forEach(function (el, index) {
+      var text = (el.textContent || "").trim().replace(/\s+/g, " ");
+      if (!text) return;
+      rows.push({
+        question: el.getAttribute("data-q") || el.getAttribute("data-qnum") || "Marked item " + (index + 1),
+        studentAnswer: text,
+        correctAnswer: "",
+        correct: /wrong|incorrect/i.test(el.className || "") ? false : /correct/i.test(el.className || "") ? true : null,
+        result: /wrong|incorrect/i.test(el.className || "") ? "Incorrect" : /correct/i.test(el.className || "") ? "Correct" : "Saved"
+      });
+    });
+    return rows.filter(function (row, index, all) {
+      var key = row.question + "|" + row.studentAnswer + "|" + row.result;
+      return all.findIndex(function (item) {
+        return (item.question + "|" + item.studentAnswer + "|" + item.result) === key;
+      }) === index;
+    });
+  }
+
   function notify(autoSubmitted) {
     if (!isComplete() || window.__ehExamSubmitted) return;
     window.__ehExamSubmitted = true;
@@ -62,6 +106,7 @@
       type: "eh-exam-submitted",
       section: document.title || "Junior exam",
       answers: collectAnswers(),
+      marked: collectMarkedReview(),
       scoreLabel: scoreText,
       autoSubmitted: Boolean(autoSubmitted)
     }, "*");

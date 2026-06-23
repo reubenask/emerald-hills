@@ -591,6 +591,16 @@ function submitTest(auto = false) {
     if (chosen) { answered++; if (chosen.value === correctVal) correct++; }
   });
   const pct = Math.round((correct / TOTAL_Q) * 100);
+  const marked = qNames.map((q, index) => {
+    const chosen = document.querySelector(`[name="${q}"]:checked`);
+    return {
+      question: index + 1,
+      studentAnswer: chosen ? chosen.value : "",
+      correctAnswer: ANSWER_KEY[q],
+      correct: Boolean(chosen && chosen.value === ANSWER_KEY[q]),
+      result: chosen && chosen.value === ANSWER_KEY[q] ? "Correct" : "Incorrect"
+    };
+  });
   document.getElementById('scoreSummary').style.display = 'block';
   document.getElementById('scoreDisplay').textContent = correct + ' / ' + TOTAL_Q;
   document.getElementById('scoreDetail').textContent =
@@ -607,6 +617,7 @@ function submitTest(auto = false) {
     total: TOTAL_Q,
     percent: pct,
     scoreLabel: correct + ' / ' + TOTAL_Q + ' (' + pct + '%)',
+    marked,
     autoSubmitted: auto
   }, '*');
 }

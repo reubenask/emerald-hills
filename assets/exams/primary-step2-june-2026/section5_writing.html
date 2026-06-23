@@ -535,6 +535,17 @@ function submitTest(auto = false) {
   });
   const TOTAL = emailIds.length;
   const pct = Math.round((correct / TOTAL) * 100);
+  const marked = emailIds.map((q, index) => {
+    const group = document.querySelector(`.email-choices[data-eq="${q}"]`);
+    const selected = group ? group.querySelector('.email-chip.selected') : null;
+    return {
+      question: index + 1,
+      studentAnswer: selected ? selected.dataset.v : "",
+      correctAnswer: EMAIL_ANS[q],
+      correct: Boolean(selected && selected.dataset.v === EMAIL_ANS[q]),
+      result: selected && selected.dataset.v === EMAIL_ANS[q] ? "Correct" : "Incorrect"
+    };
+  });
   document.getElementById('scoreSummary').style.display = 'block';
   document.getElementById('scoreDisplay').textContent = correct + ' / ' + TOTAL;
   document.getElementById('scoreDetail').textContent = `Score: ${pct}%  ·  Correct: ${correct}  ·  Wrong: ${answered - correct}  ·  Unanswered: ${TOTAL - answered}`;
@@ -549,6 +560,7 @@ function submitTest(auto = false) {
     total: TOTAL,
     percent: pct,
     scoreLabel: correct + ' / ' + TOTAL + ' (' + pct + '%)',
+    marked,
     autoSubmitted: auto
   }, '*');
 }
