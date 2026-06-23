@@ -2727,6 +2727,14 @@
       teacherRankings: "Primary",
       adminRecords: "Primary"
     };
+    let teacherClassFilter = {
+      teacherAssignments: "Primary Step 2",
+      teacherSubmissions: "Primary Step 2",
+      teacherRecords: "Primary Step 2",
+      teacherReviews: "Primary Step 2",
+      teacherRankings: "Primary Step 2",
+      adminRecords: "Primary Step 2"
+    };
     let teacherCategory = {
       teacherAssignments: "Exercise",
       teacherSubmissions: "Exercise",
@@ -2804,10 +2812,28 @@
     const seededQaAccounts = [
       {
         role: "student",
-        name: "QA Student",
-        username: "qa.student",
-        email: "qa.student@emeraldhills.local",
-        password: "GM-Test-Student-2026",
+        name: "QA Primary Step 1 Student",
+        username: "qa.primary1",
+        email: "qa.primary1@emeraldhills.local",
+        password: "GM-Test-Primary1-2026",
+        gender: "female",
+        accountId: "EH-STU-9006",
+        studentId: "EH-STU-9006",
+        program: "Primary",
+        className: "Primary Step 1",
+        score: 0,
+        exams: 0,
+        homework: 0,
+        exercises: 0,
+        photo: "",
+        createdAt: "2026-06-23"
+      },
+      {
+        role: "student",
+        name: "QA Primary Step 2 Student",
+        username: "qa.primary2",
+        email: "qa.primary2@emeraldhills.local",
+        password: "GM-Test-Primary2-2026",
         gender: "male",
         accountId: "EH-STU-9001",
         studentId: "EH-STU-9001",
@@ -3372,7 +3398,8 @@
     }
 
     function mergeSeededAccounts(saved) {
-      const accounts = Array.isArray(saved) ? saved : [];
+      const accounts = (Array.isArray(saved) ? saved : [])
+        .filter((account) => !(account.role === "student" && (String(account.username || "").toLowerCase() === "qa.student" || account.name === "QA Student")));
       const merged = accounts.map((account) => {
         const seed = seededAccounts.find((item) => item.role === (account.role || "student") && (item.username.toLowerCase() === String(account.username || "").toLowerCase() || item.name.toLowerCase() === String(account.name || "").toLowerCase()));
         return seed ? { ...seed, ...account, accountId: account.accountId || seed.accountId, studentId: account.studentId || seed.studentId } : account;
@@ -3384,7 +3411,8 @@
 
     function mergeSeededStudents(saved) {
       const seededStudentRecords = seededAccounts.filter((account) => account.role === "student");
-      const registered = Array.isArray(saved) ? saved : [];
+      const registered = (Array.isArray(saved) ? saved : [])
+        .filter((student) => !(student.name === "QA Student" || student.studentId === "EH-STU-9001"));
       const merged = registered.map((student) => {
         const seed = seededStudentRecords.find((account) => account.name.toLowerCase() === String(student.name || "").toLowerCase());
         return seed ? {

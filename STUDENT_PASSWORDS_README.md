@@ -38,7 +38,8 @@ Use these accounts to test each role without using a real student's or teacher's
 
 | Role / Level | Username | Password | Account ID | Class |
 |---|---|---|---|---|
-| Primary student | `qa.student` | `GM-Test-Student-2026` | `EH-STU-9001` | Primary Step 2 |
+| Primary Step 1 student | `qa.primary1` | `GM-Test-Primary1-2026` | `EH-STU-9006` | Primary Step 1 |
+| Primary Step 2 student | `qa.primary2` | `GM-Test-Primary2-2026` | `EH-STU-9001` | Primary Step 2 |
 | Junior student | `qa.junior` | `GM-Test-Junior-2026` | `EH-STU-9002` | Junior |
 | ITP Level 1 student | `qa.itp1` | `GM-Test-ITP1-2026` | `EH-STU-9003` | ITP Level 1 |
 | ITP Level 2 student | `qa.itp2` | `GM-Test-ITP2-2026` | `EH-STU-9004` | ITP Level 2 |
