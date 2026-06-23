@@ -4020,6 +4020,78 @@
       return category === "Monthly Test" || category === "Mock Exam" || category === "Mock Test";
     }
 
+    function formalExamPackKey(assignment) {
+      if (!assignment || !isFormalTimedCategory(assignment.category)) return "";
+      const seededPack = String(assignment.id || "").match(/^(primary-step2-june-2026|junior-june-2026)-/);
+      if (seededPack) return seededPack[1];
+      if (assignment.externalExamUrl) {
+        return [
+          assignment.program,
+          assignment.className,
+          assignment.category,
+          assignment.posted,
+          assignment.due
+        ].join("|");
+      }
+      return assignment.id || "";
+    }
+
+    function formalExamPackAssignments(assignment) {
+      const key = formalExamPackKey(assignment);
+      if (!key) return assignment ? [assignment] : [];
+      return store.assignments
+        .filter((item) => formalExamPackKey(item) === key)
+        .sort((a, b) => sectionSortOrder(a.section) - sectionSortOrder(b.section));
+    }
+
+    function sectionSortOrder(section = "") {
+      const order = ["Speaking", "Listening", "Language Form & Meaning", "Structure and Written Expression", "Reading", "Writing"];
+      const index = order.findIndex((item) => item === section);
+      return index === -1 ? 99 : index;
+    }
+
+    function isManualScoredSection(section = "") {
+      return /speaking|writing/i.test(section);
+    }
+
+    function isTeacherMarkedSubmission(submission, assignment) {
+      if (!submission || !isManualScoredSection(assignment.section)) return false;
+      const scoreText = String(submission.score || "").trim();
+      if (!scoreText || /submitted|waiting|teacher review|pending/i.test(scoreText)) return false;
+      return numericScore(scoreText) !== null || Boolean(submission.feedback && submission.reviewHistory && submission.reviewHistory.length);
+    }
+
+    function formalExamPackProgress(assignment, studentName = currentUser ? currentUser.name : "") {
+      const pack = formalExamPackAssignments(assignment);
+      const submissions = pack.map((item) => ({ assignment: item, submission: submissionFor(item.id, studentName) }));
+      const submittedCount = submissions.filter((item) => item.submission).length;
+      return {
+        pack,
+        submissions,
+        submittedCount,
+        total: pack.length,
+        complete: pack.length > 0 && submittedCount === pack.length
+      };
+    }
+
+    function studentScoreStatus(submission, assignment) {
+      if (!submission) return { label: "Not submitted yet", visible: false, pending: true };
+      if (isFormalTimedCategory(assignment.category)) {
+        const progress = formalExamPackProgress(assignment, submission.student);
+        if (!progress.complete) {
+          return {
+            label: `Submitted · ${progress.submittedCount}/${progress.total} sections complete · scores open after the full test is submitted`,
+            visible: false,
+            pending: true
+          };
+        }
+        if (isManualScoredSection(assignment.section) && !isTeacherMarkedSubmission(submission, assignment)) {
+          return { label: "Pending teacher review", visible: false, pending: true };
+        }
+      }
+      return { label: submission.score || "Waiting for teacher", visible: true, pending: false };
+    }
+
     function isCompletionCategory(category) {
       return category === "Homework" || category === "Exercise";
     }
@@ -4840,7 +4912,11 @@
 
     function renderAssignmentCard(assignment) {
       const submitted = submissionFor(assignment.id);
-      const statusText = submitted && isCompletionCategory(assignment.category) ? workStatusLabel(submitted, assignment.category) : submitted ? "Submitted" : "Open";
+      const statusText = submitted && isCompletionCategory(assignment.category)
+        ? workStatusLabel(submitted, assignment.category)
+        : submitted && isFormalTimedCategory(assignment.category)
+          ? studentScoreStatus(submitted, assignment).label
+          : submitted ? "Submitted" : "Open";
       return `
         <article class="card">
           <h3>${assignment.title}</h3>
@@ -4853,7 +4929,7 @@
           <p><strong>Posted:</strong> ${assignment.posted}<br><strong>Due:</strong> ${assignment.due}${assignment.durationMinutes ? `<br><strong>Time limit:</strong> ${assignment.durationMinutes} minutes` : ""}</p>
           <div class="action-row">
             <button class="primary-btn" onclick="openAssignment('${assignment.id}')">${submitted ? "View submission" : isFormalTimedCategory(assignment.category) ? "Take test" : "Open work"}</button>
-            ${submitted ? `<button class="ghost-btn" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
+            ${submitted && (!isFormalTimedCategory(assignment.category) || formalExamPackProgress(assignment).complete) ? `<button class="ghost-btn" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
           </div>
         </article>
       `;
@@ -5285,9 +5361,9 @@
           marked: []
         } : null,
         score,
-        feedback: payload.section === "Speaking" || payload.section === "Writing"
+        feedback: payload.section === "Speaking" || payload.section === "Writing" || isManualScoredSection(assignment.section)
           ? "Submitted from the embedded exam page. Teacher should review manually."
-          : "Submitted and scored from the embedded exam page."
+          : "Submitted and scored from the embedded exam page. Student scores stay hidden until the full monthly test pack is complete."
       });
       store.submissions = submissions;
       clearTimerInterval();
@@ -5302,6 +5378,8 @@
 
     function renderExternalExamTaking(assignment) {
       const submitted = submissionFor(assignment.id);
+      const scoreStatus = submitted ? studentScoreStatus(submitted, assignment) : null;
+      const progress = formalExamPackProgress(assignment);
       return `
         ${pageHeader("Test Player", "答题页面", `${assignment.title} · ${assignment.program} · ${assignment.className} · ${assignment.category} · ${assignment.section}`, `<button class="ghost-btn" onclick="closeAssignment()">Back</button>`)}
         <div class="test-frame">
@@ -5311,13 +5389,14 @@
               ${assignment.durationMinutes ? `<span class="tag warn">${assignment.durationMinutes} min</span>` : ""}
               <span class="tag warn">Due ${assignment.due}</span>
               ${submitted ? `<span class="tag green">Submitted</span>` : `<span class="tag blue">Ready</span>`}
+              <span class="tag blue">Full test ${progress.submittedCount}/${progress.total}</span>
             </div>
           </div>
           <div class="external-exam-shell">
             <div class="external-exam-note">
               ${submitted
-                ? `This section was submitted on ${escapeHtml(submitted.submittedAt)}. Score: ${escapeHtml(submitted.score || "Waiting for teacher review")}.`
-                : "Enter your name if it is not already filled, click Start Test inside the exam, complete the section, then use the exam's submit/complete button. The platform records the result under your student account."}
+                ? `This section was submitted on ${escapeHtml(submitted.submittedAt)}. ${escapeHtml(scoreStatus.label)}.`
+                : "Enter your name if it is not already filled, click Start Test inside the exam, complete the section, then use the exam's submit/complete button. The platform records the result under your student account. Section scores are not shown until the full monthly test is finished; speaking and writing remain pending for teacher review."}
             </div>
             <iframe class="external-exam-frame" src="${escapeHtml(externalExamUrlForStudent(assignment))}" title="${escapeHtml(assignment.title)}"></iframe>
           </div>
@@ -5367,7 +5446,7 @@
                 <button class="primary-btn" type="submit">${submitted ? "Update submission" : "Submit work"}</button>
                 ${submitted ? `<button class="ghost-btn" type="button" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
               </div>
-              ${submitted ? `<p style="margin-top:12px;color:var(--muted)">${isCompletionCategory(assignment.category) ? escapeHtml(workRecordSummary(submitted, assignment)) : `Submitted on ${escapeHtml(submitted.submittedAt)}. Score: ${escapeHtml(submitted.score || "Waiting for teacher")}.`}</p>${submitted.autoScore ? renderAutoScoreBox(submitted.autoScore) : ""}` : ""}
+              ${submitted ? `<p style="margin-top:12px;color:var(--muted)">${isCompletionCategory(assignment.category) ? escapeHtml(workRecordSummary(submitted, assignment)) : `Submitted on ${escapeHtml(submitted.submittedAt)}. ${escapeHtml(studentScoreStatus(submitted, assignment).label)}.`}</p>${submitted.autoScore && studentScoreStatus(submitted, assignment).visible ? renderAutoScoreBox(submitted.autoScore) : ""}` : ""}
             </form>
           </div>
         </div>
@@ -5667,7 +5746,7 @@
         `${assignment.program} · ${assignment.className} · ${categoryLabels[assignment.category] || assignment.category} · ${assignment.section}`,
         `${isCompletionCategory(assignment.category) ? workRecordSummary(submission, assignment) : `Submitted: ${submission.submittedAt}`}`,
         `Answer sheet: ${answered}/${total} answered`,
-        !isCompletionCategory(assignment.category) ? `Score: ${submission.score || "Waiting for teacher review"}` : "",
+        !isCompletionCategory(assignment.category) ? `Score: ${studentScoreStatus(submission, assignment).label}` : "",
         submission.feedback ? `Teacher feedback: ${submission.feedback}` : ""
       ].filter(Boolean).join("\n");
     }
@@ -5935,7 +6014,10 @@
       const answered = (submission.answers || []).filter(Boolean).length;
       const total = assignment.id ? answerSheetItems(assignment).length : (submission.answers || []).length;
       const completionRecord = isCompletionCategory(assignment.category);
-      const displayedScore = assignment.category === "Exercise"
+      const scoreStatus = studentScoreStatus(submission, assignment);
+      const displayedScore = isFormalTimedCategory(assignment.category)
+        ? scoreStatus.label
+        : assignment.category === "Exercise"
         ? (normalizedWorkStatus(submission) === "absent" ? "Excluded" : normalizedWorkStatus(submission) === "completed" ? "100%" : "0%")
         : assignment.category === "Homework"
           ? `${numericScore(submission.scorePercent ?? submission.score) || 0}%`
@@ -5956,12 +6038,12 @@
             <small>Score</small>
             <div class="result-score">${escapeHtml(displayedScore)}</div>
           </div>
-          ${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}
+          ${submission.autoScore && (!isFormalTimedCategory(assignment.category) || scoreStatus.visible) ? renderAutoScoreBox(submission.autoScore) : ""}
           ${submission.feedback ? `<p><strong>Feedback:</strong> ${escapeHtml(submission.feedback)}</p>` : `<p style="color:var(--muted)">Feedback has not been posted yet.</p>`}
           ${renderSubmissionReviewHistory(submission)}
           ${renderRecordingEvidence(submission)}
           <div class="action-row">
-            <button class="ghost-btn" type="button" onclick="shareSubmissionSummary('${submission.assignmentId}')"><span aria-hidden="true">↗</span> Share summary</button>
+            ${!isFormalTimedCategory(assignment.category) || formalExamPackProgress(assignment, submission.student).complete ? `<button class="ghost-btn" type="button" onclick="shareSubmissionSummary('${submission.assignmentId}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
           </div>
         </article>
       `;
