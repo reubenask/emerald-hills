@@ -49,6 +49,8 @@
   }
 
   function scheduleMask() {
+    window.setTimeout(maskScores, 0);
+    window.setTimeout(maskScores, 150);
     window.setTimeout(maskScores, 900);
     window.setTimeout(maskScores, 1800);
   }
