@@ -4372,9 +4372,24 @@
       return new Date(year, (month || 1) - 1, 1).getDay();
     }
 
+    function closeCalendarGroup(id) {
+      const target = document.getElementById(id);
+      const group = target && target.dataset ? target.dataset.calendarGroup : "";
+      if (!group) return;
+      document.querySelectorAll(`details[data-calendar-group="${CSS.escape(group)}"]`).forEach((detail) => {
+        if (detail.id !== id) detail.open = false;
+      });
+    }
+
+    function handleCalendarDetailsToggle(detail) {
+      if (!detail || !detail.open || !detail.dataset.calendarGroup) return;
+      closeCalendarGroup(detail.id);
+    }
+
     function openCalendarDate(id) {
       const target = document.getElementById(id);
       if (!target) return;
+      closeCalendarGroup(id);
       target.open = true;
       target.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
@@ -4423,7 +4438,7 @@
                 ${Object.keys(byDate).sort().reverse().map((dateKey) => {
                   const detailId = `${options.idPrefix}-${dateKey}`;
                   return `
-                    <details id="${detailId}">
+                    <details id="${detailId}"${options.singleOpen ? ` data-calendar-group="${escapeHtml(options.idPrefix)}" ontoggle="handleCalendarDetailsToggle(this)"` : ""}>
                       <summary>${escapeHtml(dateKey)} · ${byDate[dateKey].length} ${byDate[dateKey].length === 1 ? "record" : "records"}</summary>
                       <div class="grid one-col">
                         ${byDate[dateKey].map(({ item, index }) => options.render(item, index)).join("")}
@@ -6876,6 +6891,7 @@
         {
           idPrefix,
           empty,
+          singleOpen: true,
           date: reviewDateKey,
           render: (review) => renderReviewCard(review)
         }
