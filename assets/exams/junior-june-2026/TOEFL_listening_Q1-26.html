@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEFL Junior Listening — Questions 1–26</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --navy: #1a2744;
+    --gold: #b8952a;
+    --bg: #f5f4f0;
+    --white: #ffffff;
+    --border: #ddd8cc;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --correct: #2d6a4f;
+    --wrong: #c1121f;
+    --selected: #e8f0fe;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .top-banner {
+    background: var(--navy);
+    color: var(--white);
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    border-bottom: 3px solid var(--gold);
+  }
+
+  .logo-bar {
+    background: var(--white);
+    text-align: center;
+    padding: 28px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ets-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    border: 2px solid var(--navy);
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .logo-bar h1 {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.8rem;
+    color: var(--navy);
+    font-weight: 600;
+  }
+  .logo-bar h2 {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .student-form {
+    background: var(--white);
+    max-width: 780px;
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 28px 32px;
+    box-shadow: var(--shadow);
+  }
+  .form-row { margin-bottom: 16px; }
+  .form-row label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .form-row input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: #fafaf8;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-row input:focus { border-color: var(--navy); }
+  .form-row-inline { display: flex; gap: 16px; }
+  .form-row-inline .form-row { flex: 1; margin-bottom: 0; }
+
+  .action-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .btn {
+    padding: 9px 18px;
+    border-radius: 6px;
+    border: none;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-primary  { background: var(--navy); color: white; }
+  .btn-gold     { background: var(--gold); color: white; }
+  .btn-outline  { background: white; color: var(--navy); border: 1.5px solid var(--navy); }
+  .btn-danger   { background: white; color: var(--wrong); border: 1.5px solid var(--wrong); }
+
+  .autosave-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .autosave-badge {
+    background: #e8f0e8;
+    color: #2d6a4f;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .score-summary {
+    background: var(--white);
+    max-width: 780px;
+    margin: 0 auto 24px;
+    border-radius: 8px;
+    padding: 20px 32px;
+    box-shadow: var(--shadow);
+    display: none;
+    text-align: center;
+    border-top: 4px solid var(--gold);
+  }
+  .score-summary h3 { font-family: 'EB Garamond', serif; font-size: 1.4rem; color: var(--navy); }
+  .score-big { font-size: 2.8rem; font-weight: 700; color: var(--navy); margin: 8px 0; }
+  .score-sub { color: var(--muted); font-size: 0.9rem; }
+
+  .section-block { max-width: 780px; margin: 0 auto 32px; }
+
+  .section-header {
+    background: var(--navy);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-header .sec-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+  .section-header .sec-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: var(--gold);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .section-body {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+  }
+
+  .instruction-box {
+    background: #f8f7f3;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--gold);
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-size: 0.88rem;
+    color: #444;
+    margin-bottom: 22px;
+    line-height: 1.6;
+  }
+
+  .audio-wrap {
+    margin-bottom: 24px;
+    background: #f0ede6;
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid var(--border);
+  }
+  .audio-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .audio-icon svg { fill: white; width: 16px; height: 16px; }
+  .audio-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+  .audio-wrap audio { flex: 1; height: 34px; accent-color: var(--navy); }
+
+  .question-block {
+    margin-bottom: 26px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid #eee;
+  }
+  .question-block:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .question-text {
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--navy);
+    font-size: 0.97rem;
+    line-height: 1.55;
+  }
+  .question-num {
+    display: inline-block;
+    background: var(--navy);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .choices { display: flex; flex-direction: column; gap: 8px; }
+
+  .choice-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+  .choice-label:hover { background: #f5f4f0; border-color: #bbb; }
+  .choice-label input[type="radio"] { display: none; }
+  .choice-label.selected { background: var(--selected); border-color: var(--navy); }
+  .choice-label.correct  { background: #e6f4ed; border-color: var(--correct); color: var(--correct); }
+  .choice-label.wrong    { background: #fdecea; border-color: var(--wrong);   color: var(--wrong); }
+
+  .choice-letter {
+    min-width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+    color: var(--navy);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .choice-label.selected .choice-letter { background: var(--navy);    border-color: var(--navy);    color: white; }
+  .choice-label.correct  .choice-letter { background: var(--correct); border-color: var(--correct); color: white; }
+  .choice-label.wrong    .choice-letter { background: var(--wrong);   border-color: var(--wrong);   color: white; }
+
+  .submit-wrap {
+    max-width: 780px;
+    margin: 0 auto 48px;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+  }
+  .btn-submit {
+    padding: 14px 48px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(26,39,68,0.25);
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-submit:hover { background: #0f1a35; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+  .btn-reset {
+    padding: 14px 28px;
+    background: white;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--navy); color: var(--navy); }
+
+  .divider { height: 2px; background: linear-gradient(90deg, var(--gold), transparent); max-width: 780px; margin: 0 auto 24px; }
+
+  /* ── TIMER ── */
+  #timerWidget {
+    position: fixed;
+    top: 18px;
+    right: 22px;
+    background: var(--navy);
+    color: white;
+    border-radius: 12px;
+    padding: 10px 18px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    z-index: 9999;
+    min-width: 110px;
+    display: none;
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+  #timerWidget .t-label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 2px;
+  }
+  #timerDisplay {
+    font-size: 1.6rem;
+    font-weight: 700;
+    font-family: 'EB Garamond', serif;
+    letter-spacing: 1px;
+  }
+  #timerWidget.warn  { background: #b8952a; border-color: rgba(255,255,255,0.2); }
+  #timerWidget.crit  { background: var(--wrong); border-color: rgba(255,255,255,0.3); animation: tpulse 0.9s infinite; }
+  @keyframes tpulse {
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.04); }
+  }
+
+  /* ── BEFORE YOU BEGIN CARD ── */
+  .pre-test-card {
+    max-width: 780px;
+    margin: 0 auto 28px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .pre-test-card .ptc-body {
+    padding: 28px 32px 24px;
+    border-left: 4px solid var(--navy);
+  }
+  .pre-test-card h3 {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--navy);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .pre-test-card ul {
+    margin: 0 0 0 18px;
+    padding: 0;
+    color: var(--text);
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+  .pre-test-card li { margin-bottom: 2px; }
+  .pre-test-card .ptc-footer {
+    padding: 20px 32px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: center;
+  }
+  .btn-start {
+    padding: 13px 52px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.2s, transform 0.1s;
+    box-shadow: 0 4px 14px rgba(26,39,68,0.25);
+  }
+  .btn-start:hover  { background: #0f1a35; transform: translateY(-1px); }
+  .btn-start:disabled { background: #aaa; cursor: default; transform: none; box-shadow: none; }
+</style>
+</head>
+<body>
+
+<!-- TIMER WIDGET (fixed top-right, appears after Start) -->
+<div id="timerWidget">
+  <div class="t-label">Time Remaining</div>
+  <div id="timerDisplay">28:00</div>
+</div>
+
+<div class="top-banner">绿山托福考试 &nbsp;答题纸&nbsp; (Junior 班)</div>
+
+<div class="logo-bar">
+  <div class="ets-badge">ETS</div>
+  <h1>TOEFL Junior</h1>
+  <h2>Listening Comprehension Practice Test &nbsp;|&nbsp; Questions 1–26</h2>
+</div>
+
+<div class="student-form">
+  <div class="form-row-inline">
+    <div class="form-row">
+      <label>Student Name</label>
+      <input type="text" id="studentName" placeholder="Enter student name">
+    </div>
+    <div class="form-row">
+      <label>Class</label>
+      <input type="text" id="studentClass" placeholder="Junior 班" value="Junior 班">
+    </div>
+    <div class="form-row">
+      <label>Date</label>
+      <input type="date" id="studentDate">
+    </div>
+  </div>
+  <div class="action-btns">
+    <button class="btn btn-primary" onclick="saveProgress()">Save Now</button>
+    <button class="btn btn-gold" onclick="downloadHTML()">Download Saved HTML</button>
+    <button class="btn btn-outline" onclick="printPage()">Print</button>
+    <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+  </div>
+  <div class="autosave-bar">
+    <span class="autosave-badge">Autosave Enabled</span>
+    <span id="autosaveStatus">Autosave ready.</span>
+  </div>
+</div>
+
+<!-- BEFORE YOU BEGIN -->
+<div class="pre-test-card">
+  <div class="ptc-body">
+    <h3>Before you begin:</h3>
+    <ul>
+      <li>This test covers Questions 1–26 across 6 audio sections.</li>
+      <li>Enter your name above, then click <strong>Start Test</strong> to begin — the 28-minute timer starts immediately.</li>
+      <li>The timer cannot be paused. Listen carefully and answer each question during the audio.</li>
+      <li>You may navigate between sections at any time while the test is running.</li>
+      <li>If time runs out, the test will submit automatically with whatever you have completed.</li>
+    </ul>
+  </div>
+  <div class="ptc-footer">
+    <button class="btn-start" id="startBtn" onclick="startTimer()">Start Test →</button>
+  </div>
+</div>
+
+<div class="score-summary" id="scoreSummary">
+  <h3>Test Complete</h3>
+  <div class="score-big" id="scoreDisplay">–</div>
+  <div class="score-sub" id="scoreDetail"></div>
+</div>
+
+<div id="testContent" style="display:none">
+
+<div class="divider"></div>
+
+<!-- DIRECTIONS -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">Listening Comprehension — Directions</span>
+    <span class="sec-badge">Part 1</span>
+  </div>
+  <div class="section-body">
+    <div class="instruction-box">
+      The listening section has 42 questions. Follow along as you listen to the directions to the listening section.
+      <br><br>
+      In this section of the test, you will hear a teacher or other school staff member talking to students. Each talk is followed by one question. Choose the best answer to each question and mark the letter of the correct answer on your answer sheet. You will hear each talk only one time.
+    </div>
+    <div class="audio-wrap">
+      <div class="audio-icon"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></div>
+      <div style="flex:1">
+        <div class="audio-label">Directions Audio</div>
+        <audio controls src="audio/01_directions.mp3" style="width:100%;height:34px;"></audio>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q1–6 -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">TOEFL Junior Listening — Questions 1–6</span>
+    <span class="sec-badge">Short Talks</span>
+  </div>
+  <div class="section-body">
+    <div class="instruction-box">
+      You will hear a teacher or other school staff member talking to students. Each talk is followed by one question. Choose the best answer to each question. You will hear each talk only one time.
+    </div>
+    <div class="audio-wrap">
+      <div class="audio-icon"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></div>
+      <div style="flex:1">
+        <div class="audio-label">Questions 1–6 Audio</div>
+        <audio controls src="audio/02_q01-06.mp3" style="width:100%;height:34px;"></audio>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">1</span> What is the purpose of the talk?</div>
+      <div class="choices" data-q="q1">
+        <label class="choice-label"><input type="radio" name="q1" value="A"><span class="choice-letter">A</span> To promote a new book</label>
+        <label class="choice-label"><input type="radio" name="q1" value="B"><span class="choice-letter">B</span> To locate a missing item</label>
+        <label class="choice-label"><input type="radio" name="q1" value="C"><span class="choice-letter">C</span> To explain a new library policy</label>
+        <label class="choice-label"><input type="radio" name="q1" value="D"><span class="choice-letter">D</span> To announce a schedule change</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">2</span> What does the teacher request that the students do?</div>
+      <div class="choices" data-q="q2">
+        <label class="choice-label"><input type="radio" name="q2" value="A"><span class="choice-letter">A</span> Prepare paper material for an art class</label>
+        <label class="choice-label"><input type="radio" name="q2" value="B"><span class="choice-letter">B</span> Organize an after-school meeting</label>
+        <label class="choice-label"><input type="radio" name="q2" value="C"><span class="choice-letter">C</span> Submit completed projects</label>
+        <label class="choice-label"><input type="radio" name="q2" value="D"><span class="choice-letter">D</span> Clean the classroom</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">3</span> What will the students probably do next?</div>
+      <div class="choices" data-q="q3">
+        <label class="choice-label"><input type="radio" name="q3" value="A"><span class="choice-letter">A</span> Learn to pass the ball</label>
+        <label class="choice-label"><input type="radio" name="q3" value="B"><span class="choice-letter">B</span> Separate into two teams</label>
+        <label class="choice-label"><input type="radio" name="q3" value="C"><span class="choice-letter">C</span> Practice shooting the ball</label>
+        <label class="choice-label"><input type="radio" name="q3" value="D"><span class="choice-letter">D</span> Begin stretching exercises</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">4</span> What is the purpose of the announcement?</div>
+      <div class="choices" data-q="q4">
+        <label class="choice-label"><input type="radio" name="q4" value="A"><span class="choice-letter">A</span> To apologize for interrupting a class</label>
+        <label class="choice-label"><input type="radio" name="q4" value="B"><span class="choice-letter">B</span> To ask all students to go to the main office as soon as possible</label>
+        <label class="choice-label"><input type="radio" name="q4" value="C"><span class="choice-letter">C</span> To create a list of students in a class</label>
+        <label class="choice-label"><input type="radio" name="q4" value="D"><span class="choice-letter">D</span> To remind students to return the contact information form</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">5</span> What is probably true about the video?</div>
+      <div class="choices" data-q="q5">
+        <label class="choice-label"><input type="radio" name="q5" value="A"><span class="choice-letter">A</span> It is very old.</label>
+        <label class="choice-label"><input type="radio" name="q5" value="B"><span class="choice-letter">B</span> It is very long.</label>
+        <label class="choice-label"><input type="radio" name="q5" value="C"><span class="choice-letter">C</span> It talks about cats in ancient Egypt.</label>
+        <label class="choice-label"><input type="radio" name="q5" value="D"><span class="choice-letter">D</span> It shows how animals survive in the desert.</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">6</span> What does the speaker imply about most students?</div>
+      <div class="choices" data-q="q6">
+        <label class="choice-label"><input type="radio" name="q6" value="A"><span class="choice-letter">A</span> They usually visit the library after school hours.</label>
+        <label class="choice-label"><input type="radio" name="q6" value="B"><span class="choice-letter">B</span> They do not know that the library provides a lot of resources.</label>
+        <label class="choice-label"><input type="radio" name="q6" value="C"><span class="choice-letter">C</span> They do not receive a tour of the library their first year.</label>
+        <label class="choice-label"><input type="radio" name="q6" value="D"><span class="choice-letter">D</span> They come to the school library for most of their research.</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q7–10 -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">TOEFL Junior Listening — Questions 7–10</span>
+    <span class="sec-badge">Short Talks</span>
+  </div>
+  <div class="section-body">
+    <div class="audio-wrap">
+      <div class="audio-icon"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></div>
+      <div style="flex:1">
+        <div class="audio-label">Questions 7–10 Audio</div>
+        <audio controls src="audio/03_q07-10.mp3" style="width:100%;height:34px;"></audio>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">7</span> What is the purpose of the talk?</div>
+      <div class="choices" data-q="q7">
+        <label class="choice-label"><input type="radio" name="q7" value="A"><span class="choice-letter">A</span> To remind students about the review sessions before an exam</label>
+        <label class="choice-label"><input type="radio" name="q7" value="B"><span class="choice-letter">B</span> To tell students the location of the final exam</label>
+        <label class="choice-label"><input type="radio" name="q7" value="C"><span class="choice-letter">C</span> To outline for students what will be discussed in class</label>
+        <label class="choice-label"><input type="radio" name="q7" value="D"><span class="choice-letter">D</span> To inform students of the results of an exam</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">8</span> Why is the principal apologizing?</div>
+      <div class="choices" data-q="q8">
+        <label class="choice-label"><input type="radio" name="q8" value="A"><span class="choice-letter">A</span> A basketball game has been rescheduled.</label>
+        <label class="choice-label"><input type="radio" name="q8" value="B"><span class="choice-letter">B</span> The cafeteria has been closed.</label>
+        <label class="choice-label"><input type="radio" name="q8" value="C"><span class="choice-letter">C</span> The location of the science fair has been changed.</label>
+        <label class="choice-label"><input type="radio" name="q8" value="D"><span class="choice-letter">D</span> A science lecture has been cancelled.</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">9</span> What is probably true about the ceramic bowl?</div>
+      <div class="choices" data-q="q9">
+        <label class="choice-label"><input type="radio" name="q9" value="A"><span class="choice-letter">A</span> It is very rare.</label>
+        <label class="choice-label"><input type="radio" name="q9" value="B"><span class="choice-letter">B</span> It is very small.</label>
+        <label class="choice-label"><input type="radio" name="q9" value="C"><span class="choice-letter">C</span> It is similar to modern bowls.</label>
+        <label class="choice-label"><input type="radio" name="q9" value="D"><span class="choice-letter">D</span> It is borrowed from another museum.</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">10</span> What is the teacher explaining?</div>
+      <div class="choices" data-q="q10">
+        <label class="choice-label"><input type="radio" name="q10" value="A"><span class="choice-letter">A</span> New facts about birds</label>
+        <label class="choice-label"><input type="radio" name="q10" value="B"><span class="choice-letter">B</span> The previous test the class took</label>
+        <label class="choice-label"><input type="radio" name="q10" value="C"><span class="choice-letter">C</span> Why they are studying about birds</label>
+        <label class="choice-label"><input type="radio" name="q10" value="D"><span class="choice-letter">D</span> Information about tomorrow's test</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q11–14 -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">TOEFL Junior Listening — Questions 11–14</span>
+    <span class="sec-badge">Conversations</span>
+  </div>
+  <div class="section-body">
+    <div class="instruction-box">
+      Now you will hear some conversations. Each conversation is followed by three or more questions. Choose the best answer to each question and mark the letter of the correct answer on your answer sheet. You will hear each conversation only one time.
+    </div>
+    <div class="audio-wrap">
+      <div class="audio-icon"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></div>
+      <div style="flex:1">
+        <div class="audio-label">Questions 11–14 Audio</div>
+        <audio controls src="audio/04_q11-14.mp3" style="width:100%;height:34px;"></audio>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">11</span> Where does the conversation probably take place?</div>
+      <div class="choices" data-q="q11">
+        <label class="choice-label"><input type="radio" name="q11" value="A"><span class="choice-letter">A</span> In a hallway</label>
+        <label class="choice-label"><input type="radio" name="q11" value="B"><span class="choice-letter">B</span> In the schoolyard</label>
+        <label class="choice-label"><input type="radio" name="q11" value="C"><span class="choice-letter">C</span> In the gymnasium</label>
+        <label class="choice-label"><input type="radio" name="q11" value="D"><span class="choice-letter">D</span> In the school cafeteria</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">12</span> What is the girl's problem?</div>
+      <div class="choices" data-q="q12">
+        <label class="choice-label"><input type="radio" name="q12" value="A"><span class="choice-letter">A</span> She cannot find her teacher.</label>
+        <label class="choice-label"><input type="radio" name="q12" value="B"><span class="choice-letter">B</span> She is late for her gym class.</label>
+        <label class="choice-label"><input type="radio" name="q12" value="C"><span class="choice-letter">C</span> She cannot find a drink she wants.</label>
+        <label class="choice-label"><input type="radio" name="q12" value="D"><span class="choice-letter">D</span> She does not like lemonade at school.</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">13</span> How does the girl probably feel when she says, "I did, and she told me she doesn't know"?</div>
+      <div class="choices" data-q="q13">
+        <label class="choice-label"><input type="radio" name="q13" value="A"><span class="choice-letter">A</span> Frustrated</label>
+        <label class="choice-label"><input type="radio" name="q13" value="B"><span class="choice-letter">B</span> Surprised</label>
+        <label class="choice-label"><input type="radio" name="q13" value="C"><span class="choice-letter">C</span> Relieved</label>
+        <label class="choice-label"><input type="radio" name="q13" value="D"><span class="choice-letter">D</span> Proud</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">14</span> What will the girl probably do next?</div>
+      <div class="choices" data-q="q14">
+        <label class="choice-label"><input type="radio" name="q14" value="A"><span class="choice-letter">A</span> Go to gym class</label>
+        <label class="choice-label"><input type="radio" name="q14" value="B"><span class="choice-letter">B</span> Look for a teacher</label>
+        <label class="choice-label"><input type="radio" name="q14" value="C"><span class="choice-letter">C</span> Buy a bottle of lemonade</label>
+        <label class="choice-label"><input type="radio" name="q14" value="D"><span class="choice-letter">D</span> Speak with another student</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q15–18 -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">TOEFL Junior Listening — Questions 15–18</span>
+    <span class="sec-badge">Conversations</span>
+  </div>
+  <div class="section-body">
+    <div class="audio-wrap">
+      <div class="audio-icon"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></div>
+      <div style="flex:1">
+        <div class="audio-label">Questions 15–18 Audio</div>
+        <audio controls src="audio/05_q15-18.mp3" style="width:100%;height:34px;"></audio>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">15</span> What must the students do for their history projects?</div>
+      <div class="choices" data-q="q15">
+        <label class="choice-label"><input type="radio" name="q15" value="A"><span class="choice-letter">A</span> Research one method of studying history</label>
+        <label class="choice-label"><input type="radio" name="q15" value="B"><span class="choice-letter">B</span> Report on a historical event in their town</label>
+        <label class="choice-label"><input type="radio" name="q15" value="C"><span class="choice-letter">C</span> Write to newspapers and magazines</label>
+        <label class="choice-label"><input type="radio" name="q15" value="D"><span class="choice-letter">D</span> Compare historical information in personal letters and newspapers</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">16</span> Why does the boy mention his teacher, Ms. Wilson?</div>
+      <div class="choices" data-q="q16">
+        <label class="choice-label"><input type="radio" name="q16" value="A"><span class="choice-letter">A</span> To explain the topic he has been working on</label>
+        <label class="choice-label"><input type="radio" name="q16" value="B"><span class="choice-letter">B</span> To suggest that Ms. Wilson is one of his favorite teachers</label>
+        <label class="choice-label"><input type="radio" name="q16" value="C"><span class="choice-letter">C</span> To inform the girl that he saw Ms. Wilson at the library</label>
+        <label class="choice-label"><input type="radio" name="q16" value="D"><span class="choice-letter">D</span> To describe the book he was looking for</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">17</span> What does the girl suggest that the boy do regarding the book?</div>
+      <div class="choices" data-q="q17">
+        <label class="choice-label"><input type="radio" name="q17" value="A"><span class="choice-letter">A</span> Ask Jason where he found it</label>
+        <label class="choice-label"><input type="radio" name="q17" value="B"><span class="choice-letter">B</span> See if the teacher has another copy</label>
+        <label class="choice-label"><input type="radio" name="q17" value="C"><span class="choice-letter">C</span> Borrow it from Jason for a few hours</label>
+        <label class="choice-label"><input type="radio" name="q17" value="D"><span class="choice-letter">D</span> Look for it at the library in a few weeks</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">18</span> What will the boy and girl probably do later?</div>
+      <div class="choices" data-q="q18">
+        <label class="choice-label"><input type="radio" name="q18" value="A"><span class="choice-letter">A</span> Read each other's history projects</label>
+        <label class="choice-label"><input type="radio" name="q18" value="B"><span class="choice-letter">B</span> Trade library books with each other</label>
+        <label class="choice-label"><input type="radio" name="q18" value="C"><span class="choice-letter">C</span> Return their books to the library together</label>
+        <label class="choice-label"><input type="radio" name="q18" value="D"><span class="choice-letter">D</span> Look together for historical letters and newspapers</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q19–26 -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">TOEFL Junior Listening — Questions 19–26</span>
+    <span class="sec-badge">Conversations</span>
+  </div>
+  <div class="section-body">
+    <div class="audio-wrap">
+      <div class="audio-icon"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></div>
+      <div style="flex:1">
+        <div class="audio-label">Questions 19–26 Audio</div>
+        <audio controls src="audio/06_q19-26.mp3" style="width:100%;height:34px;"></audio>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">19</span> What is being celebrated?</div>
+      <div class="choices" data-q="q19">
+        <label class="choice-label"><input type="radio" name="q19" value="A"><span class="choice-letter">A</span> A student's birthday</label>
+        <label class="choice-label"><input type="radio" name="q19" value="B"><span class="choice-letter">B</span> A student's award</label>
+        <label class="choice-label"><input type="radio" name="q19" value="C"><span class="choice-letter">C</span> A student's return to class</label>
+        <label class="choice-label"><input type="radio" name="q19" value="D"><span class="choice-letter">D</span> The end of the school year</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">20</span> Where is the party being held?</div>
+      <div class="choices" data-q="q20">
+        <label class="choice-label"><input type="radio" name="q20" value="A"><span class="choice-letter">A</span> In a classroom</label>
+        <label class="choice-label"><input type="radio" name="q20" value="B"><span class="choice-letter">B</span> In the cafeteria</label>
+        <label class="choice-label"><input type="radio" name="q20" value="C"><span class="choice-letter">C</span> At a student's home</label>
+        <label class="choice-label"><input type="radio" name="q20" value="D"><span class="choice-letter">D</span> At the teacher's home</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">21</span> What is the teacher doing when she says, "All right, let's see. The decorations are up—they look great—and we've put a tablecloth on the table. We have cups, napkins, paper plates"?</div>
+      <div class="choices" data-q="q21">
+        <label class="choice-label"><input type="radio" name="q21" value="A"><span class="choice-letter">A</span> Telling the student what to go ask for</label>
+        <label class="choice-label"><input type="radio" name="q21" value="B"><span class="choice-letter">B</span> Noting things that she and the student have accomplished</label>
+        <label class="choice-label"><input type="radio" name="q21" value="C"><span class="choice-letter">C</span> Suggesting a way to make the room look nicer</label>
+        <label class="choice-label"><input type="radio" name="q21" value="D"><span class="choice-letter">D</span> Making a list of things she needs to buy</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">22</span> What is the teacher going to do next?</div>
+      <div class="choices" data-q="q22">
+        <label class="choice-label"><input type="radio" name="q22" value="A"><span class="choice-letter">A</span> Look for cups</label>
+        <label class="choice-label"><input type="radio" name="q22" value="B"><span class="choice-letter">B</span> Pick up the cake</label>
+        <label class="choice-label"><input type="radio" name="q22" value="C"><span class="choice-letter">C</span> Get some ice cream</label>
+        <label class="choice-label"><input type="radio" name="q22" value="D"><span class="choice-letter">D</span> Call a student's parent</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">23</span> Why does the girl not want to miss the choir concert?</div>
+      <div class="choices" data-q="q23">
+        <label class="choice-label"><input type="radio" name="q23" value="A"><span class="choice-letter">A</span> She loves to sing.</label>
+        <label class="choice-label"><input type="radio" name="q23" value="B"><span class="choice-letter">B</span> Her brother is in the concert.</label>
+        <label class="choice-label"><input type="radio" name="q23" value="C"><span class="choice-letter">C</span> She is playing the piano with the choir.</label>
+        <label class="choice-label"><input type="radio" name="q23" value="D"><span class="choice-letter">D</span> Her mother told her to be there.</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">24</span> Why is the girl worried about canceling her piano lesson?</div>
+      <div class="choices" data-q="q24">
+        <label class="choice-label"><input type="radio" name="q24" value="A"><span class="choice-letter">A</span> She is afraid her teacher will be angry with her.</label>
+        <label class="choice-label"><input type="radio" name="q24" value="B"><span class="choice-letter">B</span> She will be behind schedule.</label>
+        <label class="choice-label"><input type="radio" name="q24" value="C"><span class="choice-letter">C</span> Her mother does not allow canceling lessons.</label>
+        <label class="choice-label"><input type="radio" name="q24" value="D"><span class="choice-letter">D</span> She does not want to waste money.</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">25</span> What does the boy suggest that the girl should do?</div>
+      <div class="choices" data-q="q25">
+        <label class="choice-label"><input type="radio" name="q25" value="A"><span class="choice-letter">A</span> Find out if her mother is coming</label>
+        <label class="choice-label"><input type="radio" name="q25" value="B"><span class="choice-letter">B</span> Perform in the concert</label>
+        <label class="choice-label"><input type="radio" name="q25" value="C"><span class="choice-letter">C</span> Miss the choir practice once</label>
+        <label class="choice-label"><input type="radio" name="q25" value="D"><span class="choice-letter">D</span> Move the piano lesson to another day</label>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">26</span> What does the girl mean when she says, "What would I do if you weren't here to remind me of everything"?</div>
+      <div class="choices" data-q="q26">
+        <label class="choice-label"><input type="radio" name="q26" value="A"><span class="choice-letter">A</span> She is grateful the boy helped her.</label>
+        <label class="choice-label"><input type="radio" name="q26" value="B"><span class="choice-letter">B</span> She is worried that she has forgotten the boy.</label>
+        <label class="choice-label"><input type="radio" name="q26" value="C"><span class="choice-letter">C</span> She wants to know how she could help the boy.</label>
+        <label class="choice-label"><input type="radio" name="q26" value="D"><span class="choice-letter">D</span> She does not know what she should do next.</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT -->
+<div class="submit-wrap">
+  <button class="btn-reset" onclick="clearAll()">Reset Answers</button>
+  <button class="btn-submit" id="btnSubmit" onclick="submitTest()" disabled title="Click Begin Test first to start the timer">Submit Answers</button>
+</div>
+
+</div><!-- end #testContent -->
+
+<script>
+const TOTAL_Q = 26;
+const qNames = Array.from({length: TOTAL_Q}, (_, i) => 'q' + (i+1));
+let autosaveTimer;
+
+// ── Timer (28 minutes for Q1-26 Junior test) ──
+const TOTAL_TIME = 28 * 60; // seconds
+let timeLeft = TOTAL_TIME;
+let timerInterval = null;
+let testStarted = false;
+
+function startTimer() {
+  const name = document.getElementById('studentName').value.trim();
+  if (!name) {
+    alert('Please enter your student name before starting the test.');
+    document.getElementById('studentName').focus();
+    return;
+  }
+  if (testStarted) return;
+  testStarted = true;
+
+  // Lock student form
+  ['studentName','studentClass','studentDate'].forEach(id => {
+    const el = document.getElementById(id);
+    el.readOnly = true;
+    el.style.background = '#f0f0f0';
+    el.style.color = '#555';
+  });
+
+  // Enable submit, update start button
+  document.getElementById('btnSubmit').disabled = false;
+  document.getElementById('btnSubmit').removeAttribute('title');
+  const startBtn = document.getElementById('startBtn');
+  startBtn.disabled = true;
+  startBtn.textContent = 'Test in Progress';
+
+  // Reveal test content and scroll to it
+  const content = document.getElementById('testContent');
+  content.style.display = 'block';
+  setTimeout(() => content.scrollIntoView({behavior: 'smooth', block: 'start'}), 100);
+
+  // Show timer
+  const widget = document.getElementById('timerWidget');
+  widget.style.display = 'block';
+  updateTimerDisplay();
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      autoSubmit();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  document.getElementById('timerDisplay').textContent =
+    mins + ':' + String(secs).padStart(2, '0');
+  const widget = document.getElementById('timerWidget');
+  widget.classList.remove('warn', 'crit');
+  if (timeLeft <= 60)       widget.classList.add('crit');
+  else if (timeLeft <= 300) widget.classList.add('warn');
+}
+
+function autoSubmit() {
+  document.getElementById('timerDisplay').textContent = '0:00';
+  document.getElementById('timerWidget').classList.add('crit');
+  alert('Time is up! Your answers are being submitted now.');
+  submitTest(true);
+}
+
+const ANSWER_KEY = {
+  q1:'C', q2:'D', q3:'D', q4:'D', q5:'B', q6:'B',
+  q7:'A', q8:'C', q9:'A', q10:'D',
+  q11:'D', q12:'C', q13:'A', q14:'D',
+  q15:'A', q16:'D', q17:'C', q18:'B',
+  q19:'C', q20:'A', q21:'B', q22:'C', q23:'B', q24:'B', q25:'D', q26:'A'
+};
+
+// Radio button visual feedback
+document.querySelectorAll('.choices').forEach(group => {
+  group.querySelectorAll('.choice-label').forEach(lbl => {
+    lbl.addEventListener('click', () => {
+      const name = lbl.querySelector('input').name;
+      document.querySelectorAll(`[name="${name}"]`).forEach(inp => {
+        inp.closest('.choice-label').classList.remove('selected');
+      });
+      lbl.querySelector('input').checked = true;
+      lbl.classList.add('selected');
+      scheduleAutosave();
+    });
+  });
+});
+
+function submitTest(auto = false) {
+  // Stop timer if still running
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+
+  let answered = 0;
+  qNames.forEach(q => {
+    if (document.querySelector(`[name="${q}"]:checked`)) answered++;
+  });
+  if (!auto && answered < TOTAL_Q) {
+    const missing = TOTAL_Q - answered;
+    if (!confirm(`You have ${missing} unanswered question(s). Submit anyway?`)) return;
+  }
+
+  let correct = 0;
+  qNames.forEach(q => {
+    const correctVal = ANSWER_KEY[q];
+    document.querySelectorAll(`[name="${q}"]`).forEach(inp => {
+      const lbl = inp.closest('.choice-label');
+      lbl.classList.remove('selected');
+      if (inp.value === correctVal) lbl.classList.add('correct');
+      else if (inp.checked)        lbl.classList.add('wrong');
+    });
+    const chosen = document.querySelector(`[name="${q}"]:checked`);
+    if (chosen && chosen.value === correctVal) correct++;
+  });
+
+  const pct = Math.round((correct / TOTAL_Q) * 100);
+  document.getElementById('scoreSummary').style.display = 'block';
+  document.getElementById('scoreDisplay').textContent = correct + ' / ' + TOTAL_Q;
+  document.getElementById('scoreDetail').textContent =
+    `Score: ${pct}%  ·  Correct: ${correct}  ·  Wrong: ${answered - correct}  ·  Unanswered: ${TOTAL_Q - answered}`;
+  document.getElementById('scoreSummary').scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.choice-label').forEach(lbl => lbl.style.pointerEvents = 'none');
+  document.getElementById('btnSubmit').disabled = true;
+  saveProgress();
+}
+
+function getAnswers() {
+  const data = {
+    name: document.getElementById('studentName').value,
+    cls:  document.getElementById('studentClass').value,
+    date: document.getElementById('studentDate').value,
+    answers: {}
+  };
+  qNames.forEach(q => {
+    const checked = document.querySelector(`[name="${q}"]:checked`);
+    if (checked) data.answers[q] = checked.value;
+  });
+  return data;
+}
+
+function restoreAnswers(data) {
+  if (data.name) document.getElementById('studentName').value = data.name;
+  if (data.cls)  document.getElementById('studentClass').value = data.cls;
+  if (data.date) document.getElementById('studentDate').value = data.date;
+  if (data.answers) {
+    Object.entries(data.answers).forEach(([q, val]) => {
+      const inp = document.querySelector(`[name="${q}"][value="${val}"]`);
+      if (inp) { inp.checked = true; inp.closest('.choice-label').classList.add('selected'); }
+    });
+  }
+}
+
+function saveProgress() {
+  try {
+    sessionStorage.setItem('toefl_q1_26', JSON.stringify(getAnswers()));
+    document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString();
+  } catch(e) {}
+}
+
+function scheduleAutosave() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(saveProgress, 2000);
+}
+
+function clearAll() {
+  if (!confirm('Clear all answers? This cannot be undone.')) return;
+  qNames.forEach(q => {
+    document.querySelectorAll(`[name="${q}"]`).forEach(inp => {
+      inp.checked = false;
+      inp.closest('.choice-label').classList.remove('selected','correct','wrong');
+    });
+  });
+  document.querySelectorAll('.choice-label').forEach(lbl => lbl.style.pointerEvents = '');
+  if (testStarted) document.getElementById('btnSubmit').disabled = false;
+  document.getElementById('scoreSummary').style.display = 'none';
+  saveProgress();
+}
+
+function printPage() { window.print(); }
+
+function downloadHTML() {
+  const data = getAnswers();
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'TOEFL_Listening_Q1-26_' + (data.name || 'student').replace(/\s+/g,'_') + '.html';
+  a.click();
+}
+
+window.addEventListener('load', () => {
+  try {
+    const saved = sessionStorage.getItem('toefl_q1_26');
+    if (saved) restoreAnswers(JSON.parse(saved));
+  } catch(e) {}
+  if (!document.getElementById('studentDate').value)
+    document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];
+});
+</script>
+<script src="junior-exam-bridge.js"></script>
+</body>
+</html>

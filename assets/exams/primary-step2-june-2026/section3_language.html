@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEFL Primary Step 2 — Language Form &amp; Meaning</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --navy: #1a2744;
+    --gold: #b8952a;
+    --bg: #f5f4f0;
+    --white: #ffffff;
+    --border: #ddd8cc;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --correct: #2d6a4f;
+    --wrong: #c1121f;
+    --selected: #e8f0fe;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; }
+
+  .top-banner { background: var(--navy); color: var(--white); text-align: center; padding: 10px 20px; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.5px; border-bottom: 3px solid var(--gold); }
+  .logo-bar { background: var(--white); text-align: center; padding: 28px 20px 20px; border-bottom: 1px solid var(--border); }
+  .ets-badge { display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--navy); font-family: 'EB Garamond', serif; font-size: 1rem; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+  .logo-bar h1 { font-family: 'EB Garamond', serif; font-size: 1.8rem; color: var(--navy); font-weight: 600; }
+  .logo-bar h2 { font-size: 1.05rem; font-weight: 500; color: var(--muted); margin-top: 4px; }
+
+  .student-form { background: var(--white); max-width: 780px; margin: 24px auto; border-radius: 8px; padding: 28px 32px; box-shadow: var(--shadow); }
+  .form-row { margin-bottom: 16px; }
+  .form-row label { display: block; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .form-row input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.95rem; background: #fafaf8; outline: none; transition: border-color 0.2s; }
+  .form-row input:focus { border-color: var(--navy); }
+  .form-row-inline { display: flex; gap: 16px; }
+  .form-row-inline .form-row { flex: 1; margin-bottom: 0; }
+  .action-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .btn { padding: 9px 18px; border-radius: 6px; border: none; font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+  .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-primary  { background: var(--navy); color: white; }
+  .btn-gold     { background: var(--gold); color: white; }
+  .btn-outline  { background: white; color: var(--navy); border: 1.5px solid var(--navy); }
+  .btn-danger   { background: white; color: var(--wrong); border: 1.5px solid var(--wrong); }
+  .autosave-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 0.8rem; color: var(--muted); }
+  .autosave-badge { background: #e8f0e8; color: #2d6a4f; font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+  #timerWidget { position: fixed; top: 18px; right: 22px; background: var(--navy); color: white; border-radius: 12px; padding: 10px 18px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999; min-width: 110px; display: none; border: 2px solid rgba(255,255,255,0.15); }
+  #timerWidget .t-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.55); margin-bottom: 2px; }
+  #timerDisplay { font-size: 1.6rem; font-weight: 700; font-family: 'EB Garamond', serif; letter-spacing: 1px; }
+  #timerWidget.warn { background: #b8952a; }
+  #timerWidget.crit { background: var(--wrong); animation: tpulse 0.9s infinite; }
+  @keyframes tpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+
+  .pre-test-card { max-width: 780px; margin: 0 auto 28px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
+  .pre-test-card .ptc-body { padding: 28px 32px 24px; border-left: 4px solid var(--navy); }
+  .pre-test-card h3 { font-family: 'EB Garamond', serif; font-size: 1.1rem; color: var(--navy); margin-bottom: 14px; font-weight: 600; }
+  .pre-test-card ul { margin: 0 0 0 18px; padding: 0; color: var(--text); font-size: 0.9rem; line-height: 1.8; }
+  .pre-test-card .ptc-footer { padding: 20px 32px; background: var(--bg); border-top: 1px solid var(--border); display: flex; justify-content: center; }
+  .btn-start { padding: 13px 52px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 14px rgba(26,39,68,0.25); }
+  .btn-start:hover { background: #0f1a35; transform: translateY(-1px); }
+  .btn-start:disabled { background: #aaa; cursor: default; transform: none; box-shadow: none; }
+
+  .score-summary { background: var(--white); max-width: 780px; margin: 0 auto 24px; border-radius: 8px; padding: 20px 32px; box-shadow: var(--shadow); display: none; text-align: center; border-top: 4px solid var(--gold); }
+  .score-summary h3 { font-family: 'EB Garamond', serif; font-size: 1.4rem; color: var(--navy); }
+  .score-big { font-size: 2.8rem; font-weight: 700; color: var(--navy); margin: 8px 0; }
+  .score-sub { color: var(--muted); font-size: 0.9rem; }
+
+  .section-block { max-width: 780px; margin: 0 auto 32px; }
+  .section-header { background: var(--navy); color: white; padding: 14px 24px; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: space-between; }
+  .sec-title { font-family: 'EB Garamond', serif; font-size: 1.15rem; font-weight: 600; }
+  .sec-badge { font-size: 0.72rem; font-weight: 600; background: var(--gold); color: white; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.8px; }
+  .section-body { background: var(--white); border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 24px 28px; box-shadow: var(--shadow); }
+
+  .instruction-box { background: #f8f7f3; border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 4px; padding: 14px 18px; font-size: 0.88rem; color: #444; margin-bottom: 22px; line-height: 1.6; }
+
+  /* CLOZE PASSAGE */
+  .cloze-passage {
+    font-size: 0.96rem;
+    line-height: 2.9;
+    color: var(--text);
+    margin-bottom: 28px;
+  }
+  .inline-q {
+    display: inline-block;
+    vertical-align: middle;
+    border: 1.5px solid #555;
+    border-radius: 4px;
+    padding: 10px 14px 8px 12px;
+    margin: 2px 6px;
+    position: relative;
+    background: #fff;
+    min-width: 172px;
+    line-height: 1.6;
+  }
+  .inline-q-num {
+    position: absolute;
+    top: 0;
+    left: 8px;
+    transform: translateY(-50%);
+    background: white;
+    border: 1.5px solid #555;
+    border-radius: 3px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    color: #333;
+    line-height: 1.5;
+  }
+  .inline-q label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.86rem;
+    cursor: pointer;
+    padding: 2px 0;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .inline-q input[type="radio"] {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 0;
+    accent-color: var(--navy);
+  }
+  .inline-q label.c-correct { color: var(--correct); font-weight: 600; }
+  .inline-q label.c-wrong   { color: var(--wrong);   font-weight: 600; }
+
+  /* PROOFREADING */
+  .error-passage {
+    background: #fafaf8;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-size: 0.97rem;
+    line-height: 1.9;
+    margin-bottom: 24px;
+    font-style: italic;
+    color: #333;
+  }
+  .error-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+  .error-table th { background: var(--navy); color: white; padding: 10px 14px; text-align: left; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; }
+  .error-table td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+  .error-num { font-weight: 700; color: var(--navy); font-size: 0.85rem; }
+  .error-table input[type="text"] {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    background: #fafaf8;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .error-table input[type="text"]:focus { border-color: var(--navy); }
+  .error-table tr:hover td { background: #fafaf8; }
+
+  .reveal-btn {
+    padding: 10px 24px;
+    background: var(--gold);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: opacity 0.15s;
+  }
+  .reveal-btn:hover { opacity: 0.85; }
+
+  .answer-key-box {
+    background: #e6f4ed;
+    border: 1px solid #a0d8b8;
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin-top: 16px;
+    display: none;
+  }
+  .answer-key-box h4 { font-family: 'EB Garamond', serif; color: var(--correct); margin-bottom: 12px; font-size: 1rem; }
+  .answer-key-box table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .answer-key-box td { padding: 5px 10px; border-bottom: 1px solid #c0e8d0; }
+  .answer-key-box td:first-child { font-weight: 700; color: var(--correct); width: 30px; }
+
+  .submit-wrap { max-width: 780px; margin: 0 auto 48px; display: flex; justify-content: center; gap: 14px; }
+  .btn-submit { padding: 14px 48px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(26,39,68,0.25); transition: background 0.2s, transform 0.1s; }
+  .btn-submit:hover { background: #0f1a35; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.5; cursor: default; transform: none; }
+  .btn-reset { padding: 14px 28px; background: white; color: var(--muted); border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 1rem; cursor: pointer; transition: border-color 0.2s; }
+  .btn-reset:hover { border-color: var(--navy); color: var(--navy); }
+  .divider { height: 2px; background: linear-gradient(90deg, var(--gold), transparent); max-width: 780px; margin: 0 auto 24px; }
+  .task-panel { display: block; }
+  .panel-topbar { max-width: 780px; margin: 0 auto; background: #e6eaf0; border-radius: 0 0 8px 8px; padding: 7px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .panel-nav { max-width: 780px; margin: 0 auto 48px; display: flex; justify-content: space-between; align-items: center; padding: 0 4px; gap: 12px; }
+  .btn-nav-next { padding: 12px 28px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: .95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(26,39,68,.2); transition: background .2s, transform .1s; }
+  .btn-nav-next:hover { background: #0f1a35; transform: translateY(-1px); }
+  .btn-nav-back { padding: 12px 24px; background: white; color: var(--navy); border: 1.5px solid var(--navy); border-radius: 8px; font-family: inherit; font-size: .95rem; font-weight: 600; cursor: pointer; }
+  .btn-nav-back:hover { background: #f0f0f8; }
+</style>
+</head>
+<body>
+
+<div id="timerWidget">
+  <div class="t-label">Time Remaining</div>
+  <div id="timerDisplay">20:00</div>
+</div>
+
+<div class="top-banner">绿山托福考试 &nbsp;答题纸&nbsp; (Primary Step 2 班)</div>
+
+<div class="logo-bar">
+  <div class="ets-badge">ETS</div>
+  <h1>TOEFL Primary Step 2</h1>
+  <h2>Language Form &amp; Meaning &nbsp;|&nbsp; Section 3 of 5 &nbsp;|&nbsp; 10 Questions + Proofreading</h2>
+</div>
+
+<div class="student-form">
+  <div class="form-row-inline">
+    <div class="form-row"><label>Student Name</label><input type="text" id="studentName" placeholder="Enter student name"></div>
+    <div class="form-row"><label>Class</label><input type="text" id="studentClass" value="Primary Step 2 班"></div>
+    <div class="form-row"><label>Date</label><input type="date" id="studentDate"></div>
+  </div>
+  <div class="action-btns">
+    <button class="btn btn-primary" onclick="saveProgress()">Save Now</button>
+    <button class="btn btn-gold" onclick="downloadHTML()">Download Saved HTML</button>
+    <button class="btn btn-outline" onclick="printPage()">Print</button>
+    <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+  </div>
+  <div class="autosave-bar">
+    <span class="autosave-badge">Autosave Enabled</span>
+    <span id="autosaveStatus">Autosave ready.</span>
+  </div>
+</div>
+
+<div class="pre-test-card">
+  <div class="ptc-body">
+    <h3>Before you begin — Language Form &amp; Meaning:</h3>
+    <ul>
+      <li>This section has two parts: 10 grammar questions in a story + a proofreading challenge.</li>
+      <li>Enter your name above, then click <strong>Start Test</strong> — the 20-minute timer starts immediately.</li>
+      <li><strong>Part 1:</strong> Read the story. Click the best word or phrase to complete each blank (1–10).</li>
+      <li><strong>Part 2:</strong> Read the passage and find 10 errors. Write the error and the correction in each row.</li>
+      <li>Click <strong>Submit Answers</strong> at the end to see your score for Part 1.</li>
+    </ul>
+  </div>
+  <div class="ptc-footer">
+    <button class="btn-start" id="startBtn" onclick="startTimer()">Start Test →</button>
+  </div>
+</div>
+
+<div class="score-summary" id="scoreSummary">
+  <h3>Part 1 Score</h3>
+  <div class="score-big" id="scoreDisplay">–</div>
+  <div class="score-sub" id="scoreDetail"></div>
+</div>
+
+<div id="testContent" style="display:none">
+<div class="task-panel" id="panel1">
+<div class="panel-topbar"><span style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--navy)">Part 1 of 2 — Language Form &amp; Meaning</span><span style="font-size:.75rem;color:var(--muted)">Questions 1–10 · then click Next</span></div>
+<div class="divider" style="margin-top:10px;"></div>
+
+<!-- PART 1: LANGUAGE FORM & MEANING -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">Part 1 — Language Form &amp; Meaning: Sarah's Farm</span>
+    <span class="sec-badge">Questions 1–10</span>
+  </div>
+  <div class="section-body">
+    <div class="instruction-box">
+      Read the story below. For each numbered blank, click the word or phrase that correctly completes the sentence. Choose the best answer based on the grammar and meaning of the story.
+    </div>
+
+    <div class="cloze-passage">
+      Last weekend, Sarah
+      <span class="inline-q">
+        <span class="inline-q-num">1</span>
+        <label><input type="radio" name="c1" value="A"> (A) visit</label>
+        <label><input type="radio" name="c1" value="B"> (B) visits</label>
+        <label><input type="radio" name="c1" value="C"> (C) visited</label>
+        <label><input type="radio" name="c1" value="D"> (D) is visiting</label>
+      </span>
+      her grandmother's farm. While she was there, she saw many animals. Right now, she
+      <span class="inline-q">
+        <span class="inline-q-num">2</span>
+        <label><input type="radio" name="c2" value="A"> (A) write</label>
+        <label><input type="radio" name="c2" value="B"> (B) wrote</label>
+        <label><input type="radio" name="c2" value="C"> (C) is writing</label>
+        <label><input type="radio" name="c2" value="D"> (D) writes</label>
+      </span>
+      a story about her trip in class. Usually, the cows
+      <span class="inline-q">
+        <span class="inline-q-num">3</span>
+        <label><input type="radio" name="c3" value="A"> (A) eat</label>
+        <label><input type="radio" name="c3" value="B"> (B) ate</label>
+        <label><input type="radio" name="c3" value="C"> (C) are eating</label>
+        <label><input type="radio" name="c3" value="D"> (D) eaten</label>
+      </span>
+      grass in the field, but yesterday they
+      <span class="inline-q">
+        <span class="inline-q-num">4</span>
+        <label><input type="radio" name="c4" value="A"> (A) sleep</label>
+        <label><input type="radio" name="c4" value="B"> (B) slept</label>
+        <label><input type="radio" name="c4" value="C"> (C) are sleeping</label>
+        <label><input type="radio" name="c4" value="D"> (D) will sleep</label>
+      </span>
+      in the barn because it was raining. While the cows
+      <span class="inline-q">
+        <span class="inline-q-num">5</span>
+        <label><input type="radio" name="c5" value="A"> (A) rest</label>
+        <label><input type="radio" name="c5" value="B"> (B) rested</label>
+        <label><input type="radio" name="c5" value="C"> (C) were resting</label>
+        <label><input type="radio" name="c5" value="D"> (D) will rest</label>
+      </span>,
+      Sarah took pictures. Every day, the farmer
+      <span class="inline-q">
+        <span class="inline-q-num">6</span>
+        <label><input type="radio" name="c6" value="A"> (A) milk</label>
+        <label><input type="radio" name="c6" value="B"> (B) milks</label>
+        <label><input type="radio" name="c6" value="C"> (C) is milking</label>
+        <label><input type="radio" name="c6" value="D"> (D) milked</label>
+      </span>
+      the cows at sunrise. Yesterday, Sarah watched him while he
+      <span class="inline-q">
+        <span class="inline-q-num">7</span>
+        <label><input type="radio" name="c7" value="A"> (A) work</label>
+        <label><input type="radio" name="c7" value="B"> (B) works</label>
+        <label><input type="radio" name="c7" value="C"> (C) was working</label>
+        <label><input type="radio" name="c7" value="D"> (D) will work</label>
+      </span>.
+      Today, the sun is shining brightly, and the birds
+      <span class="inline-q">
+        <span class="inline-q-num">8</span>
+        <label><input type="radio" name="c8" value="A"> (A) sing</label>
+        <label><input type="radio" name="c8" value="B"> (B) sang</label>
+        <label><input type="radio" name="c8" value="C"> (C) are singing</label>
+        <label><input type="radio" name="c8" value="D"> (D) sung</label>
+      </span>
+      in the trees. Sarah
+      <span class="inline-q">
+        <span class="inline-q-num">9</span>
+        <label><input type="radio" name="c9" value="A"> (A) learn</label>
+        <label><input type="radio" name="c9" value="B"> (B) learned</label>
+        <label><input type="radio" name="c9" value="C"> (C) is learning</label>
+        <label><input type="radio" name="c9" value="D"> (D) learns</label>
+      </span>
+      how to take care of animals last year, and she still
+      <span class="inline-q">
+        <span class="inline-q-num">10</span>
+        <label><input type="radio" name="c10" value="A"> (A) love</label>
+        <label><input type="radio" name="c10" value="B"> (B) loved</label>
+        <label><input type="radio" name="c10" value="C"> (C) is loving</label>
+        <label><input type="radio" name="c10" value="D"> (D) loves</label>
+      </span>
+      it today!
+    </div>
+  </div>
+</div>
+
+<div class="panel-nav">
+  <div></div>
+  <button class="btn-nav-next" onclick="goPanel(2)">Next: Part 2 →</button>
+</div>
+</div><!-- end panel1 -->
+
+<div class="task-panel" id="panel2" style="display:none">
+<div class="panel-topbar"><span style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--navy)">Part 2 of 2 — Proofreading</span><span style="font-size:.75rem;color:var(--muted)">10 errors to find · then Submit</span></div>
+<div class="divider" style="margin-top:10px;"></div>
+
+<!-- PART 2: PROOFREADING -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">Part 2 — Proofreading Challenge: Sam's Big Race</span>
+    <span class="sec-badge">10 Errors</span>
+  </div>
+  <div class="section-body">
+    <div class="instruction-box">
+      Read the story below carefully. There are <strong>10 errors</strong> hidden in the text (capitalization, verb tense, plural forms, and punctuation). Find each error and write it in the table below, then write the correct version.
+    </div>
+
+    <div class="error-passage">
+      "every saturday, sam goes to the park to run. He love to race with his two dog. Today, he brought three water bottle to the park. Did he win? Last week, he run fast but he trip and fell. He hurt his foot, but he is brave. Now, he play with his friend carefully. He like to jump, run, and climb on the playground. It is a fun place to be. Sam feels happy when he visits the park. He thinks it is the best place in the city. Sam plan to win the next big race."
+    </div>
+
+    <table class="error-table">
+      <tr>
+        <th style="width:40px">#</th>
+        <th>Error (write the wrong word/phrase)</th>
+        <th>Correction (write the correct version)</th>
+      </tr>
+      <tr><td class="error-num">1</td><td><input type="text" id="err1" placeholder="e.g. every" oninput="scheduleAutosave()"></td><td><input type="text" id="cor1" placeholder="e.g. Every" oninput="scheduleAutosave()"></td></tr>
+      <tr><td class="error-num">2</td><td><input type="text" id="err2" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor2" placeholder="" oninput="scheduleAutosave()"></td></tr>
+      <tr><td class="error-num">3</td><td><input type="text" id="err3" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor3" placeholder="" oninput="scheduleAutosave()"></td></tr>
+      <tr><td class="error-num">4</td><td><input type="text" id="err4" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor4" placeholder="" oninput="scheduleAutosave()"></td></tr>
+      <tr><td class="error-num">5</td><td><input type="text" id="err5" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor5" placeholder="" oninput="scheduleAutosave()"></td></tr>
+      <tr><td class="error-num">6</td><td><input type="text" id="err6" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor6" placeholder="" oninput="scheduleAutosave()"></td></tr>
+      <tr><td class="error-num">7</td><td><input type="text" id="err7" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor7" placeholder="" oninput="scheduleAutosave()"></td></tr>
+      <tr><td class="error-num">8</td><td><input type="text" id="err8" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor8" placeholder="" oninput="scheduleAutosave()"></td></tr>
+      <tr><td class="error-num">9</td><td><input type="text" id="err9" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor9" placeholder="" oninput="scheduleAutosave()"></td></tr>
+      <tr><td class="error-num">10</td><td><input type="text" id="err10" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor10" placeholder="" oninput="scheduleAutosave()"></td></tr>
+    </table>
+
+    <button class="reveal-btn" onclick="revealProofAnswers()">Reveal Answer Key (Teacher)</button>
+
+    <div class="answer-key-box" id="proofAnswerKey">
+      <h4>Answer Key — 10 Errors in Sam's Big Race</h4>
+      <table>
+        <tr><td>1</td><td><strong>every</strong> → <strong>Every</strong> <em>(Capitalization — starts a sentence)</em></td></tr>
+        <tr><td>2</td><td><strong>saturday</strong> → <strong>Saturday</strong> <em>(Capitalization — proper noun / day of week)</em></td></tr>
+        <tr><td>3</td><td><strong>sam</strong> → <strong>Sam</strong> <em>(Capitalization — proper name)</em></td></tr>
+        <tr><td>4</td><td><strong>love</strong> → <strong>loves</strong> <em>(Subject-verb agreement — He loves)</em></td></tr>
+        <tr><td>5</td><td><strong>dog</strong> → <strong>dogs</strong> <em>(Plural — two dogs)</em></td></tr>
+        <tr><td>6</td><td><strong>bottle</strong> → <strong>bottles</strong> <em>(Plural — three bottles)</em></td></tr>
+        <tr><td>7</td><td><strong>win?</strong> → <strong>win.</strong> <em>(Punctuation — statement, not question)</em></td></tr>
+        <tr><td>8</td><td><strong>run</strong> → <strong>ran</strong> <em>(Past tense — Last week)</em></td></tr>
+        <tr><td>9</td><td><strong>trip</strong> → <strong>tripped</strong> <em>(Past tense — Last week)</em></td></tr>
+        <tr><td>10</td><td><strong>play</strong> → <strong>plays</strong> <em>(Subject-verb agreement — He plays)</em></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="panel-nav">
+  <button class="btn-nav-back" onclick="goPanel(1)">← Back to Part 1</button>
+  <button class="btn-submit" id="btnSubmit" onclick="submitTest()" disabled>Submit Part 1</button>
+</div>
+</div><!-- end panel2 -->
+
+</div><!-- end #testContent -->
+
+<script>
+const TOTAL_Q = 10;
+const TOTAL_TIME = 20 * 60;
+let timeLeft = TOTAL_TIME;
+let timerInterval = null;
+let testStarted = false;
+let autosaveTimer;
+
+const ANSWER_KEY = { c1:'C', c2:'C', c3:'A', c4:'B', c5:'C', c6:'B', c7:'C', c8:'C', c9:'B', c10:'D' };
+const clozeIds = ['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10'];
+
+function goPanel(n) {
+  document.querySelectorAll('.task-panel').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('panel' + n);
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+}
+
+function startTimer() {
+  const name = document.getElementById('studentName').value.trim();
+  if (!name) { alert('Please enter your student name before starting.'); document.getElementById('studentName').focus(); return; }
+  if (testStarted) return;
+  testStarted = true;
+  ['studentName','studentClass','studentDate'].forEach(id => {
+    const el = document.getElementById(id);
+    el.readOnly = true; el.style.background = '#f0f0f0'; el.style.color = '#555';
+  });
+  document.getElementById('btnSubmit').disabled = false;
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true; btn.textContent = 'Test in Progress';
+  const content = document.getElementById('testContent');
+  content.style.display = 'block';
+  document.getElementById('panel1').style.display = 'block';
+  document.getElementById('panel2').style.display = 'none';
+  setTimeout(() => content.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+  document.getElementById('timerWidget').style.display = 'block';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timerInterval); autoSubmit(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+  document.getElementById('timerDisplay').textContent = m + ':' + String(s).padStart(2,'0');
+  const w = document.getElementById('timerWidget');
+  w.classList.remove('warn','crit');
+  if (timeLeft <= 60) w.classList.add('crit');
+  else if (timeLeft <= 300) w.classList.add('warn');
+}
+
+function autoSubmit() {
+  document.getElementById('timerDisplay').textContent = '0:00';
+  document.getElementById('timerWidget').classList.add('crit');
+  alert('Time is up!');
+  submitTest(true);
+}
+
+// Radio inputs handle selection natively; just autosave on change
+document.querySelectorAll('.inline-q input[type="radio"]').forEach(inp => {
+  inp.addEventListener('change', scheduleAutosave);
+});
+
+function submitTest(auto = false) {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  let answered = 0, correct = 0;
+  clozeIds.forEach(q => {
+    const correctVal = ANSWER_KEY[q];
+    const checked = document.querySelector(`input[name="${q}"]:checked`);
+    document.querySelectorAll(`input[name="${q}"]`).forEach(inp => {
+      inp.disabled = true;
+      const lbl = inp.closest('label');
+      if (inp.value === correctVal) lbl.classList.add('c-correct');
+      else if (inp.checked) lbl.classList.add('c-wrong');
+    });
+    if (checked) {
+      answered++;
+      if (checked.value === correctVal) correct++;
+    }
+  });
+  const pct = Math.round((correct / TOTAL_Q) * 100);
+  document.getElementById('scoreSummary').style.display = 'block';
+  document.getElementById('scoreDisplay').textContent = correct + ' / ' + TOTAL_Q;
+  document.getElementById('scoreDetail').textContent = `Score: ${pct}%  ·  Correct: ${correct}  ·  Wrong: ${answered - correct}  ·  Unanswered: ${TOTAL_Q - answered}`;
+  document.getElementById('scoreSummary').scrollIntoView({behavior:'smooth'});
+  document.getElementById('btnSubmit').disabled = true;
+  saveProgress();
+  window.parent.postMessage({
+    type: 'eh-exam-submitted',
+    section: 'Language Form & Meaning',
+    answers: getState(),
+    correct,
+    total: TOTAL_Q,
+    percent: pct,
+    scoreLabel: correct + ' / ' + TOTAL_Q + ' (' + pct + '%)',
+    autoSubmitted: auto
+  }, '*');
+}
+
+function revealProofAnswers() {
+  const box = document.getElementById('proofAnswerKey');
+  box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+function getState() {
+  const state = {
+    name: document.getElementById('studentName').value,
+    cls:  document.getElementById('studentClass').value,
+    date: document.getElementById('studentDate').value,
+    cloze: {},
+    errors: {}
+  };
+  clozeIds.forEach(q => {
+    const checked = document.querySelector(`input[name="${q}"]:checked`);
+    if (checked) state.cloze[q] = checked.value;
+  });
+  for (let i = 1; i <= 10; i++) {
+    state.errors['err'+i] = document.getElementById('err'+i).value;
+    state.errors['cor'+i] = document.getElementById('cor'+i).value;
+  }
+  return state;
+}
+
+function restoreState(state) {
+  if (state.name) document.getElementById('studentName').value = state.name;
+  if (state.cls)  document.getElementById('studentClass').value = state.cls;
+  if (state.date) document.getElementById('studentDate').value = state.date;
+  if (state.cloze) {
+    Object.entries(state.cloze).forEach(([q, v]) => {
+      const chip = document.querySelector(`.blank-choices[data-q="${q}"] .blank-choice[data-v="${v}"]`);
+      if (chip) chip.classList.add('selected');
+    });
+  }
+  if (state.errors) {
+    for (let i = 1; i <= 10; i++) {
+      if (state.errors['err'+i]) document.getElementById('err'+i).value = state.errors['err'+i];
+      if (state.errors['cor'+i]) document.getElementById('cor'+i).value = state.errors['cor'+i];
+    }
+  }
+}
+
+function saveProgress() {
+  try {
+    sessionStorage.setItem('toefl_p2_language', JSON.stringify(getState()));
+    document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString();
+  } catch(e) {}
+}
+
+function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(saveProgress, 2000); }
+
+function clearAll() {
+  if (!confirm('Clear all answers? This cannot be undone.')) return;
+  clozeIds.forEach(q => {
+    document.querySelectorAll(`.blank-choices[data-q="${q}"] .blank-choice`).forEach(c => {
+      c.classList.remove('selected','correct','wrong');
+      c.style.pointerEvents = '';
+    });
+  });
+  for (let i = 1; i <= 10; i++) {
+    document.getElementById('err'+i).value = '';
+    document.getElementById('cor'+i).value = '';
+  }
+  document.getElementById('scoreSummary').style.display = 'none';
+  if (testStarted) document.getElementById('btnSubmit').disabled = false;
+  saveProgress();
+}
+
+function printPage() { window.print(); }
+
+function downloadHTML() {
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+  const a = document.createElement('a');
+  const name = document.getElementById('studentName').value || 'student';
+  a.href = URL.createObjectURL(blob);
+  a.download = 'TOEFL_P2_Language_' + name.replace(/\s+/g,'_') + '.html';
+  a.click();
+}
+
+function applyStudentFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get("student");
+  const className = params.get("className");
+  const date = params.get("date");
+  if (name) document.getElementById("studentName").value = name;
+  if (className) document.getElementById("studentClass").value = className;
+  if (date) document.getElementById("studentDate").value = date;
+}
+
+window.addEventListener("load", () => {
+  try { const s = sessionStorage.getItem('toefl_p2_language'); if (s) restoreState(JSON.parse(s)); } catch(e) {}
+  applyStudentFromQuery();
+  if (!document.getElementById('studentDate').value)
+    document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];
+});
+</script>
+</body>
+</html>

@@ -1894,6 +1894,28 @@
       overflow: auto;
     }
 
+    .external-exam-shell {
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .external-exam-note {
+      margin-bottom: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .external-exam-frame {
+      width: 100%;
+      min-height: 780px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f5f4f0;
+    }
+
     .question {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -2558,6 +2580,128 @@
       }
     ];
 
+    const seededPrimaryStep2JuneExamAssignments = [
+      {
+        id: "primary-step2-june-2026-speaking",
+        title: "Primary Step 2 June Monthly Test — Speaking",
+        section: "Speaking",
+        durationMinutes: 7,
+        answerCount: 2,
+        externalExamUrl: "assets/exams/primary-step2-june-2026/section1_speaking.html"
+      },
+      {
+        id: "primary-step2-june-2026-listening",
+        title: "Primary Step 2 June Monthly Test — Listening",
+        section: "Listening",
+        durationMinutes: 25,
+        answerCount: 20,
+        externalExamUrl: "assets/exams/primary-step2-june-2026/section2_listening.html"
+      },
+      {
+        id: "primary-step2-june-2026-language",
+        title: "Primary Step 2 June Monthly Test — Language Form & Meaning",
+        section: "Language Form & Meaning",
+        durationMinutes: 20,
+        answerCount: 10,
+        externalExamUrl: "assets/exams/primary-step2-june-2026/section3_language.html"
+      },
+      {
+        id: "primary-step2-june-2026-reading",
+        title: "Primary Step 2 June Monthly Test — Reading",
+        section: "Reading",
+        durationMinutes: 25,
+        answerCount: 20,
+        externalExamUrl: "assets/exams/primary-step2-june-2026/section4_reading.html"
+      },
+      {
+        id: "primary-step2-june-2026-writing",
+        title: "Primary Step 2 June Monthly Test — Writing",
+        section: "Writing",
+        durationMinutes: 30,
+        answerCount: 2,
+        externalExamUrl: "assets/exams/primary-step2-june-2026/section5_writing.html"
+      }
+    ].map((assignment) => ({
+      ...assignment,
+      program: "Primary",
+      className: "Primary Step 2",
+      category: "Monthly Test",
+      posted: "2026-06-23",
+      due: "2026-06-30",
+      instructions: "Open this June monthly exam section, enter your name, complete the test, and submit from inside the exam page. The platform records completion under your account.",
+      media: null,
+      mediaUrl: "",
+      sourceMaterial: "",
+      sectionBlocks: "",
+      timingPlan: "",
+      questions: [],
+      answerKey: [],
+      seeded: true,
+      editable: false
+    }));
+
+    const seededJuniorJuneExamAssignments = [
+      {
+        id: "junior-june-2026-listening",
+        title: "Junior June Monthly Test — Listening",
+        section: "Listening",
+        durationMinutes: 28,
+        answerCount: 26,
+        externalExamUrl: "assets/exams/junior-june-2026/TOEFL_listening_Q1-26.html"
+      },
+      {
+        id: "junior-june-2026-reading",
+        title: "Junior June Monthly Test — Reading",
+        section: "Reading",
+        durationMinutes: 50,
+        answerCount: 42,
+        externalExamUrl: "assets/exams/junior-june-2026/TOEFL_Junior_Reading_Test.html"
+      },
+      {
+        id: "junior-june-2026-language",
+        title: "Junior June Monthly Test — Language Form & Meaning",
+        section: "Language Form & Meaning",
+        durationMinutes: 25,
+        answerCount: 42,
+        externalExamUrl: "assets/exams/junior-june-2026/toefl_junior_language_form_meaning_test.html"
+      },
+      {
+        id: "junior-june-2026-speaking",
+        title: "Junior June Monthly Test — Speaking",
+        section: "Speaking",
+        durationMinutes: 20,
+        answerCount: 4,
+        externalExamUrl: "assets/exams/junior-june-2026/toefl_junior_speaking.html"
+      },
+      {
+        id: "junior-june-2026-writing",
+        title: "Junior June Monthly Test — Writing",
+        section: "Writing",
+        durationMinutes: 45,
+        answerCount: 2,
+        externalExamUrl: "assets/exams/junior-june-2026/Writing_Task_1_2_Urban_Green_Spaces.html"
+      }
+    ].map((assignment) => ({
+      ...assignment,
+      program: "Junior",
+      className: "Junior",
+      category: "Monthly Test",
+      posted: "2026-06-23",
+      due: "2026-06-30",
+      instructions: "Open this June monthly exam section, enter your name, complete the test, and submit from inside the exam page. The platform records completion under your account.",
+      media: null,
+      mediaUrl: "",
+      sourceMaterial: "",
+      sectionBlocks: "",
+      timingPlan: "",
+      questions: [],
+      answerKey: [],
+      seeded: true,
+      editable: false
+    }));
+
+    const seededAssignments = [...starterAssignments, ...seededPrimaryStep2JuneExamAssignments, ...seededJuniorJuneExamAssignments];
+
     let role = "student";
     let authMode = "signin";
     let authStep = "roles";
@@ -2675,6 +2819,78 @@
         exercises: 0,
         photo: "",
         createdAt: "2026-06-12"
+      },
+      {
+        role: "student",
+        name: "QA Junior Student",
+        username: "qa.junior",
+        email: "qa.junior@emeraldhills.local",
+        password: "GM-Test-Junior-2026",
+        gender: "male",
+        accountId: "EH-STU-9002",
+        studentId: "EH-STU-9002",
+        program: "Junior",
+        className: "Junior",
+        score: 0,
+        exams: 0,
+        homework: 0,
+        exercises: 0,
+        photo: "",
+        createdAt: "2026-06-23"
+      },
+      {
+        role: "student",
+        name: "QA ITP Level 1 Student",
+        username: "qa.itp1",
+        email: "qa.itp1@emeraldhills.local",
+        password: "GM-Test-ITP1-2026",
+        gender: "female",
+        accountId: "EH-STU-9003",
+        studentId: "EH-STU-9003",
+        program: "ITP",
+        className: "ITP Level 1",
+        score: 0,
+        exams: 0,
+        homework: 0,
+        exercises: 0,
+        photo: "",
+        createdAt: "2026-06-23"
+      },
+      {
+        role: "student",
+        name: "QA ITP Level 2 Student",
+        username: "qa.itp2",
+        email: "qa.itp2@emeraldhills.local",
+        password: "GM-Test-ITP2-2026",
+        gender: "male",
+        accountId: "EH-STU-9004",
+        studentId: "EH-STU-9004",
+        program: "ITP",
+        className: "ITP Level 2",
+        score: 0,
+        exams: 0,
+        homework: 0,
+        exercises: 0,
+        photo: "",
+        createdAt: "2026-06-23"
+      },
+      {
+        role: "student",
+        name: "QA iBT Student",
+        username: "qa.ibt",
+        email: "qa.ibt@emeraldhills.local",
+        password: "GM-Test-iBT-2026",
+        gender: "female",
+        accountId: "EH-STU-9005",
+        studentId: "EH-STU-9005",
+        program: "iBT",
+        className: "iBT",
+        score: 0,
+        exams: 0,
+        homework: 0,
+        exercises: 0,
+        photo: "",
+        createdAt: "2026-06-23"
       },
       {
         role: "teacher",
@@ -3208,6 +3424,17 @@
       return [...seededScoreReviewsWithGuidance, ...otherReviews];
     }
 
+    function mergeSeededAssignments(saved) {
+      const savedAssignments = Array.isArray(saved) ? saved : [];
+      const savedIds = new Set(savedAssignments.map((assignment) => assignment.id));
+      const missingSeeded = seededAssignments.filter((assignment) => !savedIds.has(assignment.id));
+      const mergedSaved = savedAssignments.map((assignment) => {
+        const seed = seededAssignments.find((item) => item.id === assignment.id);
+        return seed && seed.seeded ? { ...seed, ...assignment, editable: false, seeded: true } : assignment;
+      });
+      return [...missingSeeded, ...mergedSaved];
+    }
+
     function lessonNoteKey(note) {
       return `${note.date}|${note.program}|${note.className}`;
     }
@@ -3252,7 +3479,7 @@
         localStorage.setItem("gm_accounts", JSON.stringify(value));
       },
       get assignments() {
-        return JSON.parse(localStorage.getItem("gm_assignments") || "null") || starterAssignments;
+        return mergeSeededAssignments(JSON.parse(localStorage.getItem("gm_assignments") || "null") || starterAssignments);
       },
       set assignments(value) {
         localStorage.setItem("gm_assignments", JSON.stringify(value));
@@ -5001,9 +5228,107 @@
       render();
     }
 
+    function externalExamUrlForStudent(assignment) {
+      const params = new URLSearchParams({
+        assignmentId: assignment.id,
+        student: currentUser.name || "",
+        className: currentUser.className || assignment.className || "",
+        date: new Date().toISOString().slice(0, 10)
+      });
+      return `${assignment.externalExamUrl}?${params.toString()}`;
+    }
+
+    function flattenExternalAnswers(value, prefix = "") {
+      if (Array.isArray(value)) return value.flatMap((item, index) => flattenExternalAnswers(item, `${prefix}${index + 1}`));
+      if (value && typeof value === "object") {
+        return Object.entries(value).flatMap(([key, item]) => {
+          if (["name", "cls", "date"].includes(key)) return [];
+          const label = prefix ? `${prefix}.${key}` : key;
+          return flattenExternalAnswers(item, label);
+        });
+      }
+      const text = String(value ?? "").trim();
+      return text ? [`${prefix}: ${text}`] : [];
+    }
+
+    function recordExternalExamSubmission(assignmentId, payload = {}) {
+      if (!currentUser) return;
+      const assignment = assignmentsForStudent().find((item) => item.id === assignmentId);
+      if (!assignment || !assignment.externalExamUrl) return;
+      const submittedAt = new Date().toISOString().slice(0, 10);
+      const answersObject = payload.answers && typeof payload.answers === "object" ? payload.answers : {};
+      const answers = Array.isArray(payload.answerList)
+        ? payload.answerList
+        : flattenExternalAnswers(answersObject);
+      const score = payload.scoreLabel || (payload.correct !== undefined && payload.total ? `${payload.correct} / ${payload.total}${payload.percent !== undefined ? ` (${payload.percent}%)` : ""}` : "");
+      const submissions = store.submissions.filter((item) => !(item.assignmentId === assignmentId && item.student === currentUser.name));
+      submissions.push({
+        assignmentId,
+        student: currentUser.name,
+        program: currentUser.program,
+        className: currentUser.className,
+        answer: answers.filter(Boolean).join("\n"),
+        answers,
+        recording: payload.recording || "",
+        recordings: payload.recordings || [],
+        submittedAt,
+        workStatus: "",
+        completionDate: "",
+        scorePercent: payload.percent ?? null,
+        completionScore: null,
+        autoSubmitted: Boolean(payload.autoSubmitted),
+        autoScore: payload.scoreLabel ? {
+          scoreLabel: payload.scoreLabel,
+          percent: payload.percent ?? null,
+          correct: payload.correct ?? null,
+          total: payload.total ?? null,
+          marked: []
+        } : null,
+        score,
+        feedback: payload.section === "Speaking" || payload.section === "Writing"
+          ? "Submitted from the embedded exam page. Teacher should review manually."
+          : "Submitted and scored from the embedded exam page."
+      });
+      store.submissions = submissions;
+      clearTimerInterval();
+      render();
+    }
+
+    window.addEventListener("message", (event) => {
+      const data = event.data || {};
+      if (!data || data.type !== "eh-exam-submitted" || !activeAssignmentId) return;
+      recordExternalExamSubmission(activeAssignmentId, data);
+    });
+
+    function renderExternalExamTaking(assignment) {
+      const submitted = submissionFor(assignment.id);
+      return `
+        ${pageHeader("Test Player", "答题页面", `${assignment.title} · ${assignment.program} · ${assignment.className} · ${assignment.category} · ${assignment.section}`, `<button class="ghost-btn" onclick="closeAssignment()">Back</button>`)}
+        <div class="test-frame">
+          <div class="test-header">
+            <strong>${assignment.section} embedded exam</strong>
+            <div class="tag-row">
+              ${assignment.durationMinutes ? `<span class="tag warn">${assignment.durationMinutes} min</span>` : ""}
+              <span class="tag warn">Due ${assignment.due}</span>
+              ${submitted ? `<span class="tag green">Submitted</span>` : `<span class="tag blue">Ready</span>`}
+            </div>
+          </div>
+          <div class="external-exam-shell">
+            <div class="external-exam-note">
+              ${submitted
+                ? `This section was submitted on ${escapeHtml(submitted.submittedAt)}. Score: ${escapeHtml(submitted.score || "Waiting for teacher review")}.`
+                : "Enter your name if it is not already filled, click Start Test inside the exam, complete the section, then use the exam's submit/complete button. The platform records the result under your student account."}
+            </div>
+            <iframe class="external-exam-frame" src="${escapeHtml(externalExamUrlForStudent(assignment))}" title="${escapeHtml(assignment.title)}"></iframe>
+          </div>
+        </div>
+      `;
+    }
+
     function renderTestTaking(assignment) {
       const submitted = submissionFor(assignment.id);
       const answerItems = answerSheetItems(assignment);
+      if (assignment.externalExamUrl) return renderExternalExamTaking(assignment);
       if (isTimedAssignment(assignment) && !submitted) ensureTestSession(assignment);
       return `
         ${pageHeader("Test Player", "答题页面", `${assignment.title} · ${assignment.program} · ${assignment.className} · ${assignment.category} · ${assignment.section}`, `<button class="ghost-btn" onclick="closeAssignment()">Back</button>`)}
@@ -5724,7 +6049,11 @@
                     <td><strong>${item.title}</strong><br>${item.category} · ${item.section}</td>
                     <td>${item.program}<br>${item.className}</td>
                     <td>${item.posted}<br>${item.due}${item.durationMinutes ? `<br>${item.durationMinutes} min` : ""}</td>
-                    <td><div class="toolbar"><button class="ghost-btn" onclick="editAssignment('${item.id}')">Edit</button><button class="danger-btn" onclick="deleteAssignment('${item.id}')">Delete</button></div></td>
+                    <td>
+                      ${item.seeded && item.editable === false
+                        ? `<span class="tag blue">Seeded exam</span>`
+                        : `<div class="toolbar"><button class="ghost-btn" onclick="editAssignment('${item.id}')">Edit</button><button class="danger-btn" onclick="deleteAssignment('${item.id}')">Delete</button></div>`}
+                    </td>
                   </tr>
                 `).join("") || `<tr><td colspan="4">No ${categoryLabels[teacherCategory.teacherAssignments]} yet for ${teacherProgram.teacherAssignments}.</td></tr>`}
               </tbody>
@@ -5991,6 +6320,11 @@
 
     function editAssignment(id) {
       if (stopIfNotAllowed("teacher", "admin")) return;
+      const assignment = store.assignments.find((item) => item.id === id);
+      if (assignment && assignment.seeded && assignment.editable === false) {
+        window.alert("This seeded exam is locked. Admin/teacher can create a copy if changes are needed.");
+        return;
+      }
       editingAssignmentId = id;
       renderTeacherAssignments();
     }
@@ -6002,6 +6336,11 @@
 
     function deleteAssignment(id) {
       if (stopIfNotAllowed("teacher", "admin")) return;
+      const assignment = store.assignments.find((item) => item.id === id);
+      if (assignment && assignment.seeded && assignment.editable === false) {
+        window.alert("This seeded exam is locked and cannot be deleted from the platform.");
+        return;
+      }
       store.assignments = store.assignments.filter((item) => item.id !== id);
       store.submissions = store.submissions.filter((item) => item.assignmentId !== id);
       render();

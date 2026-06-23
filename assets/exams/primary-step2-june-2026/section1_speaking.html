@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEFL Primary Step 2 — Speaking Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+  :root {
+    --navy:#1a2744; --gold:#b8952a; --bg:#f5f4f0; --white:#ffffff;
+    --border:#ddd8cc; --text:#1a1a1a; --muted:#6b6b6b; --shadow:0 2px 12px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;}
+
+  .top-banner{background:var(--navy);color:#fff;text-align:center;padding:10px 20px;font-size:.95rem;font-weight:500;letter-spacing:.5px;border-bottom:3px solid var(--gold);}
+  .logo-bar{background:#fff;text-align:center;padding:28px 20px 20px;border-bottom:1px solid var(--border);}
+  .ets-badge{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;border:2px solid var(--navy);font-family:'EB Garamond',serif;font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:10px;}
+  .logo-bar h1{font-family:'EB Garamond',serif;font-size:1.8rem;color:var(--navy);font-weight:600;}
+  .logo-bar h2{font-size:1.05rem;font-weight:500;color:var(--muted);margin-top:4px;}
+
+  .student-form{background:#fff;max-width:780px;margin:24px auto;border-radius:8px;padding:28px 32px;box-shadow:var(--shadow);}
+  .form-row{margin-bottom:16px;}
+  .form-row label{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
+  .form-row input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:.95rem;background:#fafaf8;outline:none;transition:border-color .2s;}
+  .form-row input:focus{border-color:var(--navy);}
+  .form-row-inline{display:flex;gap:16px;}
+  .form-row-inline .form-row{flex:1;margin-bottom:0;}
+  .action-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+  .btn{padding:9px 18px;border-radius:6px;border:none;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .btn-primary{background:var(--navy);color:white;}
+  .btn-gold{background:var(--gold);color:white;}
+  .btn-outline{background:white;color:var(--navy);border:1.5px solid var(--navy);}
+  .btn-danger{background:white;color:#c1121f;border:1.5px solid #c1121f;}
+  .autosave-bar{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:.8rem;color:var(--muted);}
+  .autosave-badge{background:#e8f0e8;color:#2d6a4f;font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.8px;}
+
+  #timerWidget{position:fixed;top:18px;right:22px;background:var(--navy);color:white;border-radius:12px;padding:10px 18px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.35);z-index:9999;min-width:110px;display:none;border:2px solid rgba(255,255,255,.15);}
+  #timerWidget .t-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.55);margin-bottom:2px;}
+  #timerDisplay{font-size:1.6rem;font-weight:700;font-family:'EB Garamond',serif;letter-spacing:1px;}
+  #timerWidget.warn{background:#b8952a;}
+  #timerWidget.crit{background:#c1121f;animation:tpulse .9s infinite;}
+  @keyframes tpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+  .pre-test-card{max-width:780px;margin:0 auto 28px;background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);}
+  .pre-test-card .ptc-body{padding:28px 32px 24px;border-left:4px solid var(--navy);}
+  .pre-test-card h3{font-family:'EB Garamond',serif;font-size:1.1rem;color:var(--navy);margin-bottom:14px;font-weight:600;}
+  .pre-test-card ul{margin:0 0 0 18px;padding:0;color:var(--text);font-size:.9rem;line-height:1.8;}
+  .pre-test-card .ptc-footer{padding:20px 32px;background:var(--bg);border-top:1px solid var(--border);display:flex;justify-content:center;}
+  .btn-start{padding:13px 52px;background:var(--navy);color:white;border:none;border-radius:8px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s,transform .1s;box-shadow:0 4px 14px rgba(26,39,68,.25);}
+  .btn-start:hover{background:#0f1a35;transform:translateY(-1px);}
+  .btn-start:disabled{background:#aaa;cursor:default;transform:none;box-shadow:none;}
+
+  .section-block{max-width:780px;margin:0 auto 32px;}
+  .section-header{background:var(--navy);color:white;padding:14px 24px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;}
+  .sec-title{font-family:'EB Garamond',serif;font-size:1.15rem;font-weight:600;}
+  .sec-badge{font-size:.72rem;font-weight:600;background:var(--gold);color:white;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.8px;}
+  .section-body{background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:24px 28px;box-shadow:var(--shadow);}
+
+  .instruction-box{background:#f8f7f3;border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:4px;padding:14px 18px;font-size:.88rem;color:#444;margin-bottom:22px;line-height:1.6;}
+
+  .image-wrap{margin:20px 0;text-align:center;}
+  .image-wrap img{max-width:100%;border-radius:8px;box-shadow:var(--shadow);border:1px solid var(--border);}
+  .image-caption{font-size:.78rem;color:var(--muted);margin-top:8px;font-style:italic;}
+
+  .task-label{font-family:'EB Garamond',serif;font-size:1.05rem;font-weight:600;color:var(--navy);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--gold);display:inline-block;}
+
+  /* LINE-NUMBERED PASSAGE */
+  .passage-numbered{background:#fafaf8;border:1px solid var(--border);border-radius:6px;padding:18px 0;margin-bottom:20px;}
+  .pl{display:flex;min-height:1.75em;}
+  .pln{width:46px;min-width:46px;text-align:right;padding-right:13px;color:#bbb;font-size:.72rem;font-family:monospace;user-select:none;line-height:1.75;flex-shrink:0;}
+  .plt{flex:1;padding-right:22px;line-height:1.75;color:var(--text);font-size:.94rem;}
+  .pl-gap{height:.65em;}
+
+  /* RECORDING WIDGET */
+  .record-widget{background:#090e1d;border-radius:8px;padding:14px 16px;margin:16px 0;}
+  .record-controls{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .btn-record{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;background:#c1121f;color:white;border:none;border-radius:6px;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s;}
+  .btn-record:hover{background:#a00f1a;}
+  .btn-stop{display:none;align-items:center;gap:6px;padding:8px 18px;background:#444;color:white;border:none;border-radius:6px;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;}
+  .btn-stop:hover{background:#555;}
+  .btn-dl{display:none;padding:7px 13px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2);border-radius:6px;font-family:inherit;font-size:.78rem;cursor:pointer;}
+  .btn-dl:hover{background:rgba(255,255,255,.18);}
+  .rec-dot{width:9px;height:9px;background:white;border-radius:50%;display:inline-block;animation:rdot .8s infinite;flex-shrink:0;}
+  @keyframes rdot{0%,100%{opacity:1}50%{opacity:.1}}
+  .rec-status{font-size:.8rem;color:rgba(255,255,255,.55);}
+  .rec-status.live{color:#ff8080;}
+  .waveform-canvas{width:100%;height:60px;display:block;border-radius:4px;}
+  .rec-player{width:100%;margin-top:8px;display:none;}
+  .rec-note{color:rgba(255,255,255,.28);font-size:.68rem;margin-top:8px;font-style:italic;}
+
+  .speaking-tip{background:#fffbf0;border:1px solid #e8d88a;border-radius:6px;padding:12px 16px;font-size:.83rem;color:#7a6000;margin:14px 0;}
+  .speaking-tip strong{color:#5a4500;}
+
+  .response-area{margin-top:16px;}
+  .response-area label{display:block;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px;}
+  .response-area textarea{width:100%;min-height:90px;padding:12px 14px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:.93rem;resize:vertical;background:#fafaf8;outline:none;transition:border-color .2s;line-height:1.6;}
+  .response-area textarea:focus{border-color:var(--navy);}
+
+  /* PANEL NAVIGATION */
+  .task-panel{display:block;}
+  .panel-topbar{max-width:780px;margin:0 auto 0;background:#e6eaf0;border-radius:0 0 8px 8px;padding:7px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .panel-prog{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--navy);}
+  .panel-nav{max-width:780px;margin:0 auto 48px;display:flex;justify-content:space-between;align-items:center;padding:0 4px;gap:12px;}
+  .btn-nav-next{padding:12px 28px;background:var(--navy);color:white;border:none;border-radius:8px;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,39,68,.2);transition:background .2s,transform .1s;}
+  .btn-nav-next:hover{background:#0f1a35;transform:translateY(-1px);}
+  .btn-nav-back{padding:12px 24px;background:white;color:var(--navy);border:1.5px solid var(--navy);border-radius:8px;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;transition:background .15s;}
+  .btn-nav-back:hover{background:#f0f0f8;}
+  .btn-complete{padding:14px 44px;background:var(--gold);color:white;border:none;border-radius:8px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(184,149,42,.3);transition:background .2s,transform .1s;}
+  .btn-complete:hover{background:#9e7e22;transform:translateY(-1px);}
+
+  .divider{height:2px;background:linear-gradient(90deg,var(--gold),transparent);max-width:780px;margin:0 auto 24px;}
+</style>
+</head>
+<body>
+
+<div id="timerWidget">
+  <div class="t-label">Time Remaining</div>
+  <div id="timerDisplay">15:00</div>
+</div>
+
+<div class="top-banner">绿山托福考试 &nbsp;答题纸&nbsp; (Primary Step 2 班)</div>
+
+<div class="logo-bar">
+  <div class="ets-badge">ETS</div>
+  <h1>TOEFL Primary Step 2</h1>
+  <h2>Speaking Test &nbsp;|&nbsp; Section 1 of 5</h2>
+</div>
+
+<div class="student-form">
+  <div class="form-row-inline">
+    <div class="form-row"><label>Student Name</label><input type="text" id="studentName" placeholder="Enter student name"></div>
+    <div class="form-row"><label>Class</label><input type="text" id="studentClass" value="Primary Step 2 班"></div>
+    <div class="form-row"><label>Date</label><input type="date" id="studentDate"></div>
+  </div>
+  <div class="action-btns">
+    <button class="btn btn-primary" onclick="saveProgress()">Save Now</button>
+    <button class="btn btn-gold" onclick="downloadHTML()">Download Saved HTML</button>
+    <button class="btn btn-outline" onclick="printPage()">Print</button>
+    <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+  </div>
+  <div class="autosave-bar">
+    <span class="autosave-badge">Autosave Enabled</span>
+    <span id="autosaveStatus">Autosave ready.</span>
+  </div>
+</div>
+
+<div class="pre-test-card">
+  <div class="ptc-body">
+    <h3>Before you begin — Speaking Test:</h3>
+    <ul>
+      <li>This section has 2 tasks. Enter your name, then click <strong>Start Test</strong> — the 15-minute timer begins.</li>
+      <li><strong>Task 1:</strong> Read the passage aloud. Press <em>Start Recording</em> before you begin. Your teacher will also evaluate you.</li>
+      <li><strong>Task 2:</strong> Look at the 6-panel picture story and tell it in your own words. Record your answer.</li>
+      <li>Use sequence words: <em>First… Next… Then… After that… Finally…</em></li>
+    </ul>
+  </div>
+  <div class="ptc-footer">
+    <button class="btn-start" id="startBtn" onclick="startTimer()">Start Test →</button>
+  </div>
+</div>
+
+<div id="testContent" style="display:none">
+
+<!-- ═══════════════ PANEL 1: TASK 1 ═══════════════ -->
+<div class="task-panel" id="panel1">
+  <div class="panel-topbar">
+    <span class="panel-prog">Task 1 of 2 — Read Aloud</span>
+    <span style="font-size:.75rem;color:var(--muted);">Complete Task 1, then click Next</span>
+  </div>
+  <div class="divider" style="margin-top:12px;"></div>
+
+  <div class="section-block">
+    <div class="section-header">
+      <span class="sec-title">Task 1 — Read This Passage Aloud</span>
+      <span class="sec-badge">Speaking</span>
+    </div>
+    <div class="section-body">
+      <div class="instruction-box">
+        Read the passage below aloud to your teacher. Speak clearly, at a natural pace, and with expression. Press <strong>Start Recording</strong> before you begin — your waveform will show while you speak.
+      </div>
+
+      <div class="image-wrap">
+        <img src="../Gemini_Generated_Image_3ei63z3ei63z3ei6.png" alt="Portorosso Cup bicycle race scene">
+        <div class="image-caption">Illustration: The Portorosso Cup — Luca and Alberto's big bicycle race</div>
+      </div>
+
+      <div class="task-label">Reading Passage</div>
+
+      <div class="passage-numbered">
+        <div class="pl"><span class="pln"> 1</span><span class="plt">Two friends, Luca and Alberto, are sea monsters but are curious</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">and want to explore the human world. To survive on land, they</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">must follow one strict rule: don't get wet! If water touches</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">them, their true sea monster forms will show. They decide to</span></div>
+        <div class="pl"><span class="pln"> 5</span><span class="plt">enter a big bicycle competition in an Italian town.</span></div>
+        <div class="pl-gap"></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">"We need to win the prize money for a scooter!" Alberto said.</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">"But we are the underdogs," Luca replied, feeling nervous.</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">"What is our plan?" They find a brave teammate named Giulia.</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">Every day, they start training hard up and down the steep</span></div>
+        <div class="pl"><span class="pln">10</span><span class="plt">hills. Whenever Luca feels afraid, Alberto tells him,</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">"Think about it, we will figure it out."</span></div>
+        <div class="pl-gap"></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">On the day of the race, the loud crowd feels a little weird</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">but also amazing. They protect each other, pedal fast, and</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">learn that friendship is the real win.</span></div>
+      </div>
+
+      <!-- Recording Widget Task 1 -->
+      <div class="record-widget">
+        <div class="record-controls">
+          <button id="recBtn1" class="btn-record" onclick="startRec(1)">
+            <span class="rec-dot"></span> Start Recording
+          </button>
+          <button id="stopBtn1" class="btn-stop" onclick="stopRec(1)">■ Stop</button>
+          <span id="recStatus1" class="rec-status">Press Start Recording to begin.</span>
+          <button id="dlBtn1" class="btn-dl" onclick="downloadRec(1)">⬇ Save Recording</button>
+        </div>
+        <canvas id="wave1" class="waveform-canvas" height="60"></canvas>
+        <audio id="player1" class="rec-player" controls></audio>
+        <div class="rec-note">Recording is session-only. Use "Save Recording" to download the audio file before closing.</div>
+      </div>
+
+      <div class="speaking-tip">
+        <strong>Teacher's Checklist:</strong> Pronunciation &nbsp;|&nbsp; Fluency &nbsp;|&nbsp; Intonation &nbsp;|&nbsp; Expression &nbsp;|&nbsp; Confidence
+      </div>
+      <div class="response-area">
+        <label>Teacher's Notes (optional)</label>
+        <textarea id="task1notes" placeholder="Write feedback or score notes here..." oninput="scheduleAutosave()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-nav">
+    <div></div>
+    <button class="btn-nav-next" onclick="goPanel(2)">Next: Task 2 →</button>
+  </div>
+</div><!-- end panel1 -->
+
+<!-- ═══════════════ PANEL 2: TASK 2 ═══════════════ -->
+<div class="task-panel" id="panel2" style="display:none">
+  <div class="panel-topbar">
+    <span class="panel-prog">Task 2 of 2 — Tell a Story</span>
+    <span style="font-size:.75rem;color:var(--muted);">Record your answer, then Mark Complete</span>
+  </div>
+  <div class="divider" style="margin-top:12px;"></div>
+
+  <div class="section-block">
+    <div class="section-header">
+      <span class="sec-title">Task 2 — Tell a Story Using the Pictures</span>
+      <span class="sec-badge">Speaking</span>
+    </div>
+    <div class="section-body">
+      <div class="instruction-box">
+        Look at the 6 pictures below. They show a story from beginning to end. Tell the story in your own words. Press <strong>Start Recording</strong>, then speak for at least 1–2 minutes.
+        <br><br>
+        Use sequence words: <strong>First… Next… Then… After that… Finally…</strong>
+      </div>
+
+      <div class="image-wrap">
+        <img src="../Gemini_Generated_Image_1d92uc1d92uc1d92.png" alt="6-panel sequence story: girl and grandparents at a public library">
+        <div class="image-caption">Sequence Story: A Visit to the Library — describe what happens in each of the 6 panels in order</div>
+      </div>
+
+      <div class="speaking-tip">
+        <strong>Helpful words:</strong> library, children's room, reading garden, grandparents, book, pond, fish, dropped, returned &nbsp;|&nbsp;
+        <strong>Tip:</strong> Start with Panel 1 (top-left) and end with Panel 6 (bottom-right).
+      </div>
+
+      <!-- Recording Widget Task 2 -->
+      <div class="record-widget">
+        <div class="record-controls">
+          <button id="recBtn2" class="btn-record" onclick="startRec(2)">
+            <span class="rec-dot"></span> Start Recording
+          </button>
+          <button id="stopBtn2" class="btn-stop" onclick="stopRec(2)">■ Stop</button>
+          <span id="recStatus2" class="rec-status">Press Start Recording to begin.</span>
+          <button id="dlBtn2" class="btn-dl" onclick="downloadRec(2)">⬇ Save Recording</button>
+        </div>
+        <canvas id="wave2" class="waveform-canvas" height="60"></canvas>
+        <audio id="player2" class="rec-player" controls></audio>
+        <div class="rec-note">Recording is session-only. Use "Save Recording" to download the audio file before closing.</div>
+      </div>
+
+      <div class="response-area">
+        <label>Student's Story Notes / Outline (optional)</label>
+        <textarea id="task2notes" placeholder="Write your story outline or key words before speaking..." oninput="scheduleAutosave()"></textarea>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin:22px 0;"></div>
+
+      <div class="speaking-tip">
+        <strong>Teacher's Checklist:</strong> Story sequence &nbsp;|&nbsp; Vocabulary &nbsp;|&nbsp; Grammar &nbsp;|&nbsp; Fluency &nbsp;|&nbsp; Detail &amp; description
+      </div>
+      <div class="response-area">
+        <label>Teacher's Notes (optional)</label>
+        <textarea id="task2teacher" placeholder="Write feedback or score notes here..." oninput="scheduleAutosave()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(1)">← Back to Task 1</button>
+    <button class="btn-complete" onclick="completeTest()">Mark Complete &amp; Save</button>
+  </div>
+</div><!-- end panel2 -->
+
+</div><!-- end #testContent -->
+
+<script>
+const TOTAL_TIME = 7 * 60;
+let timeLeft = TOTAL_TIME;
+let timerInterval = null;
+let testStarted = false;
+let autosaveTimer;
+
+// ─── Panel navigation ───────────────────────────────────────
+function goPanel(n) {
+  document.querySelectorAll('.task-panel').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('panel' + n);
+  panel.style.display = 'block';
+  // Initialise canvas for this panel after it's visible
+  setTimeout(() => { initCanvas(n); }, 80);
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+}
+
+// ─── Recording ─────────────────────────────────────────────
+const recState = { 1:{recorder:null,stream:null,chunks:[],animId:null,blob:null},
+                   2:{recorder:null,stream:null,chunks:[],animId:null,blob:null} };
+
+function initCanvas(n) {
+  const canvas = document.getElementById('wave' + n);
+  if (!canvas) return;
+  canvas.width = canvas.clientWidth || 700;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#060d1a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = 'rgba(184,149,42,0.22)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, canvas.height / 2);
+  ctx.lineTo(canvas.width, canvas.height / 2);
+  ctx.stroke();
+}
+
+async function startRec(n) {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioCtx();
+    const source = audioCtx.createMediaStreamSource(stream);
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    source.connect(analyser);
+
+    const s = recState[n];
+    s.stream = stream; s.chunks = [];
+    const canvas = document.getElementById('wave' + n);
+    canvas.width = canvas.clientWidth || 700;
+    const ctx = canvas.getContext('2d');
+    const bufLen = analyser.frequencyBinCount;
+    const data = new Uint8Array(bufLen);
+
+    function draw() {
+      s.animId = requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(data);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#060d1a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const bw = (canvas.width / bufLen) * 2.2;
+      let x = 0;
+      for (let i = 0; i < bufLen; i++) {
+        const h = Math.max(2, (data[i] / 255) * canvas.height);
+        const r = Math.min(230, 50 + data[i]);
+        const g = Math.floor(42 + data[i] * 0.45);
+        ctx.fillStyle = `rgb(${r},${g},42)`;
+        ctx.fillRect(x, canvas.height - h, Math.max(1, bw - 1), h);
+        x += bw;
+      }
+    }
+    draw();
+
+    s.recorder = new MediaRecorder(stream);
+    s.recorder.ondataavailable = e => { if (e.data.size > 0) s.chunks.push(e.data); };
+    s.recorder.onstop = () => {
+      s.blob = new Blob(s.chunks, {type: 'audio/webm'});
+      const url = URL.createObjectURL(s.blob);
+      const player = document.getElementById('player' + n);
+      player.src = url; player.style.display = 'block';
+      const dlBtn = document.getElementById('dlBtn' + n);
+      dlBtn.style.display = 'inline-block';
+
+      cancelAnimationFrame(s.animId);
+      const c2 = document.getElementById('wave' + n);
+      const cx = c2.getContext('2d');
+      cx.fillStyle = '#060d1a'; cx.fillRect(0, 0, c2.width, c2.height);
+      cx.strokeStyle = 'rgba(45,106,79,0.5)'; cx.lineWidth = 1.5;
+      cx.beginPath(); cx.moveTo(0, c2.height/2); cx.lineTo(c2.width, c2.height/2); cx.stroke();
+
+      const st = document.getElementById('recStatus' + n);
+      st.textContent = '✓ Recording complete — play back below';
+      st.classList.remove('live');
+    };
+    s.recorder.start(100);
+
+    document.getElementById('recBtn' + n).style.display = 'none';
+    document.getElementById('stopBtn' + n).style.display = 'inline-flex';
+    document.getElementById('player' + n).style.display = 'none';
+    document.getElementById('dlBtn' + n).style.display = 'none';
+    const st = document.getElementById('recStatus' + n);
+    st.innerHTML = '<span class="rec-dot"></span> Recording…';
+    st.classList.add('live');
+  } catch(err) {
+    alert('Microphone access is required to record. Please allow it in your browser settings and try again.');
+  }
+}
+
+function stopRec(n) {
+  const s = recState[n];
+  if (s.recorder && s.recorder.state !== 'inactive') {
+    s.recorder.stop();
+    s.stream.getTracks().forEach(t => t.stop());
+    document.getElementById('recBtn' + n).style.display = 'inline-flex';
+    document.getElementById('stopBtn' + n).style.display = 'none';
+  }
+}
+
+function downloadRec(n) {
+  const s = recState[n];
+  if (!s.blob) return;
+  const name = document.getElementById('studentName').value || 'student';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(s.blob);
+  a.download = 'TOEFL_Speaking_Task' + n + '_' + name.replace(/\s+/g,'_') + '.webm';
+  a.click();
+}
+
+// ─── Timer ─────────────────────────────────────────────────
+function startTimer() {
+  const name = document.getElementById('studentName').value.trim();
+  if (!name) { alert('Please enter your student name before starting.'); document.getElementById('studentName').focus(); return; }
+  if (testStarted) return;
+  testStarted = true;
+  ['studentName','studentClass','studentDate'].forEach(id => {
+    const el = document.getElementById(id);
+    el.readOnly = true; el.style.background = '#f0f0f0'; el.style.color = '#555';
+  });
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('startBtn').textContent = 'Test in Progress';
+  const content = document.getElementById('testContent');
+  content.style.display = 'block';
+  // Show only panel 1 to start
+  document.getElementById('panel1').style.display = 'block';
+  document.getElementById('panel2').style.display = 'none';
+  setTimeout(() => { content.scrollIntoView({behavior:'smooth',block:'start'}); initCanvas(1); }, 100);
+  document.getElementById('timerWidget').style.display = 'block';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timerInterval); document.getElementById('timerDisplay').textContent = '0:00'; document.getElementById('timerWidget').classList.add('crit'); alert('Time is up! Please finish your current task.'); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft/60), s = timeLeft%60;
+  document.getElementById('timerDisplay').textContent = m + ':' + String(s).padStart(2,'0');
+  const w = document.getElementById('timerWidget');
+  w.classList.remove('warn','crit');
+  if (timeLeft <= 60) w.classList.add('crit');
+  else if (timeLeft <= 300) w.classList.add('warn');
+}
+
+// ─── Complete / Save ────────────────────────────────────────
+function completeTest() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  saveProgress();
+  const answers = getAnswers();
+  window.parent.postMessage({
+    type: 'eh-exam-submitted',
+    section: 'Speaking',
+    answers,
+    answerList: [answers.task1notes || '', answers.task2notes || '', answers.task2teacher || ''],
+    scoreLabel: 'Submitted for teacher review',
+    autoSubmitted: false
+  }, '*');
+  alert('Speaking test marked complete! Remember to save or download your page.');
+}
+
+function getAnswers() {
+  return {
+    name:  document.getElementById('studentName').value,
+    cls:   document.getElementById('studentClass').value,
+    date:  document.getElementById('studentDate').value,
+    task1notes:   document.getElementById('task1notes').value,
+    task2notes:   document.getElementById('task2notes').value,
+    task2teacher: document.getElementById('task2teacher').value,
+  };
+}
+function restoreAnswers(data) {
+  if (data.name)  document.getElementById('studentName').value = data.name;
+  if (data.cls)   document.getElementById('studentClass').value = data.cls;
+  if (data.date)  document.getElementById('studentDate').value = data.date;
+  if (data.task1notes)   document.getElementById('task1notes').value = data.task1notes;
+  if (data.task2notes)   document.getElementById('task2notes').value = data.task2notes;
+  if (data.task2teacher) document.getElementById('task2teacher').value = data.task2teacher;
+}
+function saveProgress() {
+  try { sessionStorage.setItem('toefl_p2_speaking', JSON.stringify(getAnswers())); document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString(); } catch(e) {}
+}
+function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(saveProgress, 2000); }
+function clearAll() {
+  if (!confirm('Clear all notes? This cannot be undone.')) return;
+  ['task1notes','task2notes','task2teacher'].forEach(id => document.getElementById(id).value = '');
+  saveProgress();
+}
+function printPage() { window.print(); }
+function downloadHTML() {
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'TOEFL_P2_Speaking_' + (document.getElementById('studentName').value || 'student').replace(/\s+/g,'_') + '.html';
+  a.click();
+}
+function applyStudentFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get("student");
+  const className = params.get("className");
+  const date = params.get("date");
+  if (name) document.getElementById("studentName").value = name;
+  if (className) document.getElementById("studentClass").value = className;
+  if (date) document.getElementById("studentDate").value = date;
+}
+
+window.addEventListener("load", () => {
+  try { const s = sessionStorage.getItem('toefl_p2_speaking'); if (s) restoreAnswers(JSON.parse(s)); } catch(e) {}
+  applyStudentFromQuery();
+  if (!document.getElementById('studentDate').value)
+    document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];
+});
+</script>
+</body>
+</html>

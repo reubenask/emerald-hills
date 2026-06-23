@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEFL Primary Step 2 — Writing Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --navy: #1a2744;
+    --gold: #b8952a;
+    --bg: #f5f4f0;
+    --white: #ffffff;
+    --border: #ddd8cc;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --correct: #2d6a4f;
+    --wrong: #c1121f;
+    --selected: #e8f0fe;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; }
+
+  .top-banner { background: var(--navy); color: var(--white); text-align: center; padding: 10px 20px; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.5px; border-bottom: 3px solid var(--gold); }
+  .logo-bar { background: var(--white); text-align: center; padding: 28px 20px 20px; border-bottom: 1px solid var(--border); }
+  .ets-badge { display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--navy); font-family: 'EB Garamond', serif; font-size: 1rem; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+  .logo-bar h1 { font-family: 'EB Garamond', serif; font-size: 1.8rem; color: var(--navy); font-weight: 600; }
+  .logo-bar h2 { font-size: 1.05rem; font-weight: 500; color: var(--muted); margin-top: 4px; }
+
+  .student-form { background: var(--white); max-width: 780px; margin: 24px auto; border-radius: 8px; padding: 28px 32px; box-shadow: var(--shadow); }
+  .form-row { margin-bottom: 16px; }
+  .form-row label { display: block; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .form-row input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.95rem; background: #fafaf8; outline: none; transition: border-color 0.2s; }
+  .form-row input:focus { border-color: var(--navy); }
+  .form-row-inline { display: flex; gap: 16px; }
+  .form-row-inline .form-row { flex: 1; margin-bottom: 0; }
+  .action-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .btn { padding: 9px 18px; border-radius: 6px; border: none; font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+  .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-primary  { background: var(--navy); color: white; }
+  .btn-gold     { background: var(--gold); color: white; }
+  .btn-outline  { background: white; color: var(--navy); border: 1.5px solid var(--navy); }
+  .btn-danger   { background: white; color: var(--wrong); border: 1.5px solid var(--wrong); }
+  .autosave-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 0.8rem; color: var(--muted); }
+  .autosave-badge { background: #e8f0e8; color: #2d6a4f; font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+  #timerWidget { position: fixed; top: 18px; right: 22px; background: var(--navy); color: white; border-radius: 12px; padding: 10px 18px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999; min-width: 110px; display: none; border: 2px solid rgba(255,255,255,0.15); }
+  #timerWidget .t-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.55); margin-bottom: 2px; }
+  #timerDisplay { font-size: 1.6rem; font-weight: 700; font-family: 'EB Garamond', serif; letter-spacing: 1px; }
+  #timerWidget.warn { background: #b8952a; }
+  #timerWidget.crit { background: var(--wrong); animation: tpulse 0.9s infinite; }
+  @keyframes tpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+
+  .pre-test-card { max-width: 780px; margin: 0 auto 28px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
+  .pre-test-card .ptc-body { padding: 28px 32px 24px; border-left: 4px solid var(--navy); }
+  .pre-test-card h3 { font-family: 'EB Garamond', serif; font-size: 1.1rem; color: var(--navy); margin-bottom: 14px; font-weight: 600; }
+  .pre-test-card ul { margin: 0 0 0 18px; padding: 0; color: var(--text); font-size: 0.9rem; line-height: 1.8; }
+  .pre-test-card .ptc-footer { padding: 20px 32px; background: var(--bg); border-top: 1px solid var(--border); display: flex; justify-content: center; }
+  .btn-start { padding: 13px 52px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 14px rgba(26,39,68,0.25); }
+  .btn-start:hover { background: #0f1a35; transform: translateY(-1px); }
+  .btn-start:disabled { background: #aaa; cursor: default; transform: none; box-shadow: none; }
+
+  .score-summary { background: var(--white); max-width: 780px; margin: 0 auto 24px; border-radius: 8px; padding: 20px 32px; box-shadow: var(--shadow); display: none; text-align: center; border-top: 4px solid var(--gold); }
+  .score-summary h3 { font-family: 'EB Garamond', serif; font-size: 1.4rem; color: var(--navy); }
+  .score-big { font-size: 2.8rem; font-weight: 700; color: var(--navy); margin: 8px 0; }
+  .score-sub { color: var(--muted); font-size: 0.9rem; }
+
+  .section-block { max-width: 780px; margin: 0 auto 32px; }
+  .section-header { background: var(--navy); color: white; padding: 14px 24px; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: space-between; }
+  .sec-title { font-family: 'EB Garamond', serif; font-size: 1.15rem; font-weight: 600; }
+  .sec-badge { font-size: 0.72rem; font-weight: 600; background: var(--gold); color: white; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.8px; }
+  .section-body { background: var(--white); border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 24px 28px; box-shadow: var(--shadow); }
+
+  .instruction-box { background: #f8f7f3; border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 4px; padding: 14px 18px; font-size: 0.88rem; color: #444; margin-bottom: 22px; line-height: 1.6; }
+
+  /* TASK 1 - SENTENCE WRITING */
+  .word-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .word-chip { background: var(--navy); color: white; padding: 5px 14px; border-radius: 20px; font-size: 0.83rem; font-weight: 600; }
+
+  .sentence-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+  .sentence-num { width: 32px; height: 32px; background: var(--navy); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; margin-top: 4px; }
+  .sentence-label { font-weight: 600; color: var(--navy); font-size: 0.88rem; min-width: 110px; padding-top: 8px; }
+  .sentence-input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.9rem; background: #fafaf8; outline: none; transition: border-color 0.2s; min-height: 40px; resize: vertical; }
+  .sentence-input:focus { border-color: var(--navy); }
+
+  /* TASK 2 - EMAIL */
+  .email-box { background: #fafaf8; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
+  .email-header { background: #eaeae0; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+  .email-header .email-subject { font-weight: 600; font-size: 0.9rem; color: var(--navy); }
+  .email-header .email-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .email-body { padding: 18px 22px; font-size: 0.94rem; line-height: 1.9; color: var(--text); }
+  .email-blank { display: inline-flex; align-items: center; gap: 4px; margin: 0 2px; vertical-align: middle; }
+  .email-blank-num { display: inline-block; background: var(--navy); color: white; font-size: 0.65rem; font-weight: 700; padding: 1px 5px; border-radius: 8px; }
+  .email-choices { display: inline-flex; gap: 4px; flex-wrap: wrap; vertical-align: middle; }
+  .email-chip { display: inline-block; padding: 2px 9px; border: 1.5px solid var(--border); border-radius: 16px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: background 0.15s, border-color 0.15s; background: white; }
+  .email-chip:hover { background: #f0ede6; border-color: #bbb; }
+  .email-chip.selected { background: var(--selected); border-color: var(--navy); color: var(--navy); font-weight: 600; }
+  .email-chip.correct  { background: #e6f4ed; border-color: var(--correct); color: var(--correct); font-weight: 600; }
+  .email-chip.wrong    { background: #fdecea; border-color: var(--wrong);   color: var(--wrong); font-weight: 600; }
+
+  /* TASK 3 - PICTURE STORY */
+  .image-wrap { margin: 0 0 20px 0; text-align: center; }
+  .image-wrap img { max-width: 100%; border-radius: 8px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .image-caption { font-size: 0.78rem; color: var(--muted); margin-top: 8px; font-style: italic; }
+
+  .picture-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+  @media (max-width: 580px) { .picture-grid { grid-template-columns: 1fr; } }
+  .picture-panel { background: #fafaf8; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .panel-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .panel-num { background: var(--navy); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+  .panel-title { font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .panel-input { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 5px; font-family: inherit; font-size: 0.87rem; resize: vertical; min-height: 60px; background: white; outline: none; transition: border-color 0.2s; line-height: 1.5; }
+  .panel-input:focus { border-color: var(--navy); }
+  .panel-input + .panel-input { margin-top: 6px; }
+
+  /* ANSWER KEY */
+  .reveal-btn { padding: 10px 24px; background: var(--gold); color: white; border: none; border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer; margin-top: 16px; transition: opacity 0.15s; }
+  .reveal-btn:hover { opacity: 0.85; }
+  .answer-key-box { background: #e6f4ed; border: 1px solid #a0d8b8; border-radius: 6px; padding: 18px 22px; margin-top: 16px; display: none; }
+  .answer-key-box h4 { font-family: 'EB Garamond', serif; color: var(--correct); margin-bottom: 10px; font-size: 1rem; }
+  .answer-key-box p { font-size: 0.88rem; color: #1a4a33; line-height: 1.8; }
+
+  .submit-wrap { max-width: 780px; margin: 0 auto 48px; display: flex; justify-content: center; gap: 14px; }
+  .btn-submit { padding: 14px 48px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(26,39,68,0.25); transition: background 0.2s, transform 0.1s; }
+  .btn-submit:hover { background: #0f1a35; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.5; cursor: default; transform: none; }
+  .btn-reset { padding: 14px 28px; background: white; color: var(--muted); border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 1rem; cursor: pointer; transition: border-color 0.2s; }
+  .btn-reset:hover { border-color: var(--navy); color: var(--navy); }
+  .divider { height: 2px; background: linear-gradient(90deg, var(--gold), transparent); max-width: 780px; margin: 0 auto 24px; }
+  .task-panel { display: block; }
+  .panel-topbar { max-width: 780px; margin: 0 auto; background: #e6eaf0; border-radius: 0 0 8px 8px; padding: 7px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .panel-nav { max-width: 780px; margin: 0 auto 48px; display: flex; justify-content: space-between; align-items: center; padding: 0 4px; gap: 12px; }
+  .btn-nav-next { padding: 12px 28px; background: var(--navy); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: .95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(26,39,68,.2); transition: background .2s, transform .1s; }
+  .btn-nav-next:hover { background: #0f1a35; transform: translateY(-1px); }
+  .btn-nav-back { padding: 12px 24px; background: white; color: var(--navy); border: 1.5px solid var(--navy); border-radius: 8px; font-family: inherit; font-size: .95rem; font-weight: 600; cursor: pointer; }
+  .btn-nav-back:hover { background: #f0f0f8; }
+</style>
+</head>
+<body>
+
+<div id="timerWidget">
+  <div class="t-label">Time Remaining</div>
+  <div id="timerDisplay">30:00</div>
+</div>
+
+<div class="top-banner">绿山托福考试 &nbsp;答题纸&nbsp; (Primary Step 2 班)</div>
+
+<div class="logo-bar">
+  <div class="ets-badge">ETS</div>
+  <h1>TOEFL Primary Step 2</h1>
+  <h2>Writing Test &nbsp;|&nbsp; Section 5 of 5 &nbsp;|&nbsp; 3 Tasks</h2>
+</div>
+
+<div class="student-form">
+  <div class="form-row-inline">
+    <div class="form-row"><label>Student Name</label><input type="text" id="studentName" placeholder="Enter student name"></div>
+    <div class="form-row"><label>Class</label><input type="text" id="studentClass" value="Primary Step 2 班"></div>
+    <div class="form-row"><label>Date</label><input type="date" id="studentDate"></div>
+  </div>
+  <div class="action-btns">
+    <button class="btn btn-primary" onclick="saveProgress()">Save Now</button>
+    <button class="btn btn-gold" onclick="downloadHTML()">Download Saved HTML</button>
+    <button class="btn btn-outline" onclick="printPage()">Print</button>
+    <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+  </div>
+  <div class="autosave-bar">
+    <span class="autosave-badge">Autosave Enabled</span>
+    <span id="autosaveStatus">Autosave ready.</span>
+  </div>
+</div>
+
+<div class="pre-test-card">
+  <div class="ptc-body">
+    <h3>Before you begin — Writing Test:</h3>
+    <ul>
+      <li>This section has 3 writing tasks. Read all instructions carefully.</li>
+      <li>Enter your name above, then click <strong>Start Test</strong> — the 30-minute timer starts immediately.</li>
+      <li><strong>Task 1:</strong> Choose 10 words from the list and write one complete sentence for each word.</li>
+      <li><strong>Task 2:</strong> Read Leo's email and choose the correct verb tense (A, B, C, or D) for each blank.</li>
+      <li><strong>Task 3:</strong> Look at the 6 pictures of a daily routine and write 2 complete sentences for each picture.</li>
+      <li>Task 2 answers are auto-graded on Submit. Tasks 1 and 3 are marked by your teacher.</li>
+    </ul>
+  </div>
+  <div class="ptc-footer">
+    <button class="btn-start" id="startBtn" onclick="startTimer()">Start Test →</button>
+  </div>
+</div>
+
+<div class="score-summary" id="scoreSummary">
+  <h3>Task 2 — Verb Tense Score</h3>
+  <div class="score-big" id="scoreDisplay">–</div>
+  <div class="score-sub" id="scoreDetail"></div>
+</div>
+
+<div id="testContent" style="display:none">
+<div class="task-panel" id="panel1">
+<div class="panel-topbar"><span style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--navy)">Task 1 of 3 — Sentence Writing</span><span style="font-size:.75rem;color:var(--muted)">Complete Task 1 · then click Next</span></div>
+<div class="divider" style="margin-top:10px;"></div>
+
+<!-- TASK 1: SENTENCE WRITING -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">Task 1 — Sentence Writing</span>
+    <span class="sec-badge">10 Words</span>
+  </div>
+  <div class="section-body">
+    <div class="instruction-box">
+      Choose exactly <strong>10 words</strong> from the list below. For each word you choose, write one complete sentence that shows you understand what it means. Each sentence must use the word correctly in context.
+    </div>
+
+    <div class="word-list">
+      <span class="word-chip">1. Protect</span>
+      <span class="word-chip">2. Lost</span>
+      <span class="word-chip">3. Win</span>
+      <span class="word-chip">4. Season</span>
+      <span class="word-chip">5. Competition</span>
+      <span class="word-chip">6. Teammate</span>
+      <span class="word-chip">7. Incredible</span>
+      <span class="word-chip">8. Extra</span>
+      <span class="word-chip">9. Rules</span>
+      <span class="word-chip">10. Weird</span>
+    </div>
+
+    <div class="sentence-row">
+      <div class="sentence-num">1</div>
+      <span class="sentence-label">Word: <input type="text" id="sw1_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="e.g. Protect" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw1" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+    <div class="sentence-row">
+      <div class="sentence-num">2</div>
+      <span class="sentence-label">Word: <input type="text" id="sw2_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw2" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+    <div class="sentence-row">
+      <div class="sentence-num">3</div>
+      <span class="sentence-label">Word: <input type="text" id="sw3_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw3" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+    <div class="sentence-row">
+      <div class="sentence-num">4</div>
+      <span class="sentence-label">Word: <input type="text" id="sw4_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw4" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+    <div class="sentence-row">
+      <div class="sentence-num">5</div>
+      <span class="sentence-label">Word: <input type="text" id="sw5_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw5" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+    <div class="sentence-row">
+      <div class="sentence-num">6</div>
+      <span class="sentence-label">Word: <input type="text" id="sw6_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw6" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+    <div class="sentence-row">
+      <div class="sentence-num">7</div>
+      <span class="sentence-label">Word: <input type="text" id="sw7_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw7" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+    <div class="sentence-row">
+      <div class="sentence-num">8</div>
+      <span class="sentence-label">Word: <input type="text" id="sw8_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw8" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+    <div class="sentence-row">
+      <div class="sentence-num">9</div>
+      <span class="sentence-label">Word: <input type="text" id="sw9_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw9" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+    <div class="sentence-row">
+      <div class="sentence-num">10</div>
+      <span class="sentence-label">Word: <input type="text" id="sw10_word" style="width:120px;display:inline;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;" placeholder="" oninput="scheduleAutosave()"></span>
+      <textarea class="sentence-input" id="sw10" placeholder="Write your sentence here..." oninput="scheduleAutosave()"></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="panel-nav">
+  <div></div>
+  <button class="btn-nav-next" onclick="goPanel(2)">Next: Task 2 →</button>
+</div>
+</div><!-- end panel1 -->
+
+<div class="task-panel" id="panel2" style="display:none">
+<div class="panel-topbar"><span style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--navy)">Task 2 of 3 — Verb Tense</span><span style="font-size:.75rem;color:var(--muted)">Complete Task 2 · then click Next</span></div>
+<div class="divider" style="margin-top:10px;"></div>
+
+<!-- TASK 2: VERB TENSE EMAIL -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">Task 2 — Choose the Correct Verb Tense</span>
+    <span class="sec-badge">Questions 1–5</span>
+  </div>
+  <div class="section-body">
+    <div class="instruction-box">
+      Read the email from Leo to his friend Sam. Click the correct verb tense — (A), (B), (C), or (D) — to fill in each blank. Use the time clues in the email to help you.
+    </div>
+
+    <div class="email-box">
+      <div class="email-header">
+        <div class="email-subject">Subject: My busy weekend!</div>
+        <div class="email-meta">From: Leo &nbsp;|&nbsp; To: Sam</div>
+      </div>
+      <div class="email-body">
+        Hi Sam,<br><br>
+        I
+        <span class="email-blank">
+          <span class="email-blank-num">1</span>
+          <span class="email-choices" data-eq="e1">
+            <span class="email-chip" data-v="A">(A) go</span>
+            <span class="email-chip" data-v="B">(B) went</span>
+            <span class="email-chip" data-v="C">(C) will go</span>
+            <span class="email-chip" data-v="D">(D) going</span>
+          </span>
+        </span>
+        to the park with my family <em>yesterday</em>. We
+        <span class="email-blank">
+          <span class="email-blank-num">2</span>
+          <span class="email-choices" data-eq="e2">
+            <span class="email-chip" data-v="A">(A) has</span>
+            <span class="email-chip" data-v="B">(B) having</span>
+            <span class="email-chip" data-v="C">(C) have</span>
+            <span class="email-chip" data-v="D">(D) had</span>
+          </span>
+        </span>
+        a really great time playing soccer. <em>Right now</em>, I
+        <span class="email-blank">
+          <span class="email-blank-num">3</span>
+          <span class="email-choices" data-eq="e3">
+            <span class="email-chip" data-v="A">(A) am doing</span>
+            <span class="email-chip" data-v="B">(B) did</span>
+            <span class="email-chip" data-v="C">(C) does</span>
+            <span class="email-chip" data-v="D">(D) done</span>
+          </span>
+        </span>
+        my English homework in my bedroom. <em>Tomorrow</em>, my dad and I
+        <span class="email-blank">
+          <span class="email-blank-num">4</span>
+          <span class="email-choices" data-eq="e4">
+            <span class="email-chip" data-v="A">(A) fixed</span>
+            <span class="email-chip" data-v="B">(B) fixes</span>
+            <span class="email-chip" data-v="C">(C) are going to fix</span>
+            <span class="email-chip" data-v="D">(D) fix</span>
+          </span>
+        </span>
+        my bicycle. I hope we
+        <span class="email-blank">
+          <span class="email-blank-num">5</span>
+          <span class="email-choices" data-eq="e5">
+            <span class="email-chip" data-v="A">(A) finishing</span>
+            <span class="email-chip" data-v="B">(B) finish</span>
+            <span class="email-chip" data-v="C">(C) finished</span>
+            <span class="email-chip" data-v="D">(D) finishes</span>
+          </span>
+        </span>
+        it before the big race this weekend!<br><br>
+        See you soon,<br>Leo
+      </div>
+    </div>
+
+    <button class="reveal-btn" onclick="revealEmailKey()">Reveal Answer Key (Teacher)</button>
+    <div class="answer-key-box" id="emailAnswerKey">
+      <h4>Answer Key — Task 2 Verb Tense</h4>
+      <p>
+        1. <strong>(B) went</strong> — past tense cue: <em>"yesterday"</em><br>
+        2. <strong>(D) had</strong> — past tense continuing from previous sentence<br>
+        3. <strong>(A) am doing</strong> — present continuous cue: <em>"Right now"</em><br>
+        4. <strong>(C) are going to fix</strong> — future tense cue: <em>"Tomorrow"</em><br>
+        5. <strong>(B) finish</strong> — present tense used with <em>"hope"</em> for a future outcome
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="panel-nav">
+  <button class="btn-nav-back" onclick="goPanel(1)">← Back to Task 1</button>
+  <button class="btn-nav-next" onclick="goPanel(3)">Next: Task 3 →</button>
+</div>
+</div><!-- end panel2 -->
+
+<div class="task-panel" id="panel3" style="display:none">
+<div class="panel-topbar"><span style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--navy)">Task 3 of 3 — Picture Story</span><span style="font-size:.75rem;color:var(--muted)">Complete Task 3 · then Submit</span></div>
+<div class="divider" style="margin-top:10px;"></div>
+
+<!-- TASK 3: PICTURE STORY -->
+<div class="section-block">
+  <div class="section-header">
+    <span class="sec-title">Task 3 — Saturday Routine Picture Story</span>
+    <span class="sec-badge">6 Pictures</span>
+  </div>
+  <div class="section-body">
+    <div class="instruction-box">
+      Look at the 6 pictures below showing a daily routine. For each picture, write exactly <strong>2 complete sentences</strong> describing what the child and the mother are doing in that step.
+      <br><br>
+      Use these words to help you: <strong>stained, washing machine, detergent, laundry basket, hang, iron, dry</strong>
+    </div>
+
+    <div class="image-wrap">
+      <img src="../4ca4a16671534cd535cc94258ebf7767.jpg" alt="6-panel sequence story: child and mother doing laundry">
+      <div class="image-caption">Saturday Routine — look at each panel carefully and describe what is happening</div>
+    </div>
+
+    <div class="picture-grid">
+      <div class="picture-panel">
+        <div class="panel-header"><div class="panel-num">1</div><span class="panel-title">Picture 1 — The stained shirt</span></div>
+        <textarea class="panel-input" id="pic1s1" placeholder="Sentence 1: ..." oninput="scheduleAutosave()"></textarea>
+        <textarea class="panel-input" id="pic1s2" placeholder="Sentence 2: ..." oninput="scheduleAutosave()"></textarea>
+      </div>
+      <div class="picture-panel">
+        <div class="panel-header"><div class="panel-num">2</div><span class="panel-title">Picture 2 — Loading the machine</span></div>
+        <textarea class="panel-input" id="pic2s1" placeholder="Sentence 1: ..." oninput="scheduleAutosave()"></textarea>
+        <textarea class="panel-input" id="pic2s2" placeholder="Sentence 2: ..." oninput="scheduleAutosave()"></textarea>
+      </div>
+      <div class="picture-panel">
+        <div class="panel-header"><div class="panel-num">3</div><span class="panel-title">Picture 3 — Adding detergent</span></div>
+        <textarea class="panel-input" id="pic3s1" placeholder="Sentence 1: ..." oninput="scheduleAutosave()"></textarea>
+        <textarea class="panel-input" id="pic3s2" placeholder="Sentence 2: ..." oninput="scheduleAutosave()"></textarea>
+      </div>
+      <div class="picture-panel">
+        <div class="panel-header"><div class="panel-num">4</div><span class="panel-title">Picture 4 — Watching the machine</span></div>
+        <textarea class="panel-input" id="pic4s1" placeholder="Sentence 1: ..." oninput="scheduleAutosave()"></textarea>
+        <textarea class="panel-input" id="pic4s2" placeholder="Sentence 2: ..." oninput="scheduleAutosave()"></textarea>
+      </div>
+      <div class="picture-panel">
+        <div class="panel-header"><div class="panel-num">5</div><span class="panel-title">Picture 5 — Hanging the clothes</span></div>
+        <textarea class="panel-input" id="pic5s1" placeholder="Sentence 1: ..." oninput="scheduleAutosave()"></textarea>
+        <textarea class="panel-input" id="pic5s2" placeholder="Sentence 2: ..." oninput="scheduleAutosave()"></textarea>
+      </div>
+      <div class="picture-panel">
+        <div class="panel-header"><div class="panel-num">6</div><span class="panel-title">Picture 6 — Ironing</span></div>
+        <textarea class="panel-input" id="pic6s1" placeholder="Sentence 1: ..." oninput="scheduleAutosave()"></textarea>
+        <textarea class="panel-input" id="pic6s2" placeholder="Sentence 2: ..." oninput="scheduleAutosave()"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel-nav">
+  <button class="btn-nav-back" onclick="goPanel(2)">← Back to Task 2</button>
+  <button class="btn-submit" id="btnSubmit" onclick="submitTest()" disabled>Submit &amp; Grade Task 2</button>
+</div>
+</div><!-- end panel3 -->
+
+</div><!-- end #testContent -->
+
+<script>
+const EMAIL_ANS = { e1:'B', e2:'D', e3:'A', e4:'C', e5:'B' };
+const emailIds = ['e1','e2','e3','e4','e5'];
+const TOTAL_TIME = 30 * 60;
+let timeLeft = TOTAL_TIME;
+let timerInterval = null;
+let testStarted = false;
+let autosaveTimer;
+
+function goPanel(n) {
+  document.querySelectorAll('.task-panel').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('panel' + n);
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+}
+
+function startTimer() {
+  const name = document.getElementById('studentName').value.trim();
+  if (!name) { alert('Please enter your student name before starting.'); document.getElementById('studentName').focus(); return; }
+  if (testStarted) return;
+  testStarted = true;
+  ['studentName','studentClass','studentDate'].forEach(id => {
+    const el = document.getElementById(id);
+    el.readOnly = true; el.style.background = '#f0f0f0'; el.style.color = '#555';
+  });
+  document.getElementById('btnSubmit').disabled = false;
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true; btn.textContent = 'Test in Progress';
+  const content = document.getElementById('testContent');
+  content.style.display = 'block';
+  document.getElementById('panel1').style.display = 'block';
+  document.getElementById('panel2').style.display = 'none';
+  document.getElementById('panel3').style.display = 'none';
+  setTimeout(() => content.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+  document.getElementById('timerWidget').style.display = 'block';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timerInterval); autoSubmit(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+  document.getElementById('timerDisplay').textContent = m + ':' + String(s).padStart(2,'0');
+  const w = document.getElementById('timerWidget');
+  w.classList.remove('warn','crit');
+  if (timeLeft <= 60) w.classList.add('crit');
+  else if (timeLeft <= 300) w.classList.add('warn');
+}
+
+function autoSubmit() {
+  document.getElementById('timerDisplay').textContent = '0:00';
+  document.getElementById('timerWidget').classList.add('crit');
+  alert('Time is up!');
+  submitTest(true);
+}
+
+// Email chip clicks
+document.querySelectorAll('.email-choices').forEach(group => {
+  group.querySelectorAll('.email-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      group.querySelectorAll('.email-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      scheduleAutosave();
+    });
+  });
+});
+
+function submitTest(auto = false) {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  let answered = 0, correct = 0;
+  emailIds.forEach(q => {
+    const group = document.querySelector(`.email-choices[data-eq="${q}"]`);
+    const selected = group.querySelector('.email-chip.selected');
+    const correctVal = EMAIL_ANS[q];
+    group.querySelectorAll('.email-chip').forEach(chip => {
+      chip.classList.remove('selected','correct','wrong');
+      chip.style.pointerEvents = 'none';
+      if (chip.dataset.v === correctVal) chip.classList.add('correct');
+    });
+    if (selected) {
+      answered++;
+      if (selected.dataset.v === correctVal) correct++;
+      else selected.classList.add('wrong');
+    }
+  });
+  const TOTAL = emailIds.length;
+  const pct = Math.round((correct / TOTAL) * 100);
+  document.getElementById('scoreSummary').style.display = 'block';
+  document.getElementById('scoreDisplay').textContent = correct + ' / ' + TOTAL;
+  document.getElementById('scoreDetail').textContent = `Score: ${pct}%  ·  Correct: ${correct}  ·  Wrong: ${answered - correct}  ·  Unanswered: ${TOTAL - answered}`;
+  document.getElementById('scoreSummary').scrollIntoView({behavior:'smooth'});
+  document.getElementById('btnSubmit').disabled = true;
+  saveProgress();
+  window.parent.postMessage({
+    type: 'eh-exam-submitted',
+    section: 'Writing',
+    answers: getState(),
+    correct,
+    total: TOTAL,
+    percent: pct,
+    scoreLabel: correct + ' / ' + TOTAL + ' (' + pct + '%)',
+    autoSubmitted: auto
+  }, '*');
+}
+
+function revealEmailKey() {
+  const box = document.getElementById('emailAnswerKey');
+  box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+const sentenceIds = Array.from({length:10}, (_,i) => ['sw'+(i+1)+'_word','sw'+(i+1)]).flat();
+const pictureIds = [];
+for (let p = 1; p <= 6; p++) { pictureIds.push('pic'+p+'s1', 'pic'+p+'s2'); }
+
+function getState() {
+  const state = {
+    name: document.getElementById('studentName').value,
+    cls:  document.getElementById('studentClass').value,
+    date: document.getElementById('studentDate').value,
+    email: {},
+    sentences: {},
+    pictures: {}
+  };
+  emailIds.forEach(q => {
+    const s = document.querySelector(`.email-choices[data-eq="${q}"] .email-chip.selected`);
+    if (s) state.email[q] = s.dataset.v;
+  });
+  for (let i = 1; i <= 10; i++) {
+    state.sentences['sw'+i+'_word'] = document.getElementById('sw'+i+'_word').value;
+    state.sentences['sw'+i] = document.getElementById('sw'+i).value;
+  }
+  for (let p = 1; p <= 6; p++) {
+    state.pictures['pic'+p+'s1'] = document.getElementById('pic'+p+'s1').value;
+    state.pictures['pic'+p+'s2'] = document.getElementById('pic'+p+'s2').value;
+  }
+  return state;
+}
+
+function restoreState(state) {
+  if (state.name) document.getElementById('studentName').value = state.name;
+  if (state.cls)  document.getElementById('studentClass').value = state.cls;
+  if (state.date) document.getElementById('studentDate').value = state.date;
+  if (state.email) {
+    Object.entries(state.email).forEach(([q, v]) => {
+      const chip = document.querySelector(`.email-choices[data-eq="${q}"] .email-chip[data-v="${v}"]`);
+      if (chip) chip.classList.add('selected');
+    });
+  }
+  if (state.sentences) {
+    for (let i = 1; i <= 10; i++) {
+      const wv = state.sentences['sw'+i+'_word'];
+      const sv = state.sentences['sw'+i];
+      if (wv) document.getElementById('sw'+i+'_word').value = wv;
+      if (sv) document.getElementById('sw'+i).value = sv;
+    }
+  }
+  if (state.pictures) {
+    for (let p = 1; p <= 6; p++) {
+      const s1 = state.pictures['pic'+p+'s1'];
+      const s2 = state.pictures['pic'+p+'s2'];
+      if (s1) document.getElementById('pic'+p+'s1').value = s1;
+      if (s2) document.getElementById('pic'+p+'s2').value = s2;
+    }
+  }
+}
+
+function saveProgress() {
+  try {
+    sessionStorage.setItem('toefl_p2_writing', JSON.stringify(getState()));
+    document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString();
+  } catch(e) {}
+}
+
+function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(saveProgress, 2000); }
+
+function clearAll() {
+  if (!confirm('Clear all answers? This cannot be undone.')) return;
+  emailIds.forEach(q => {
+    document.querySelectorAll(`.email-choices[data-eq="${q}"] .email-chip`).forEach(c => {
+      c.classList.remove('selected','correct','wrong');
+      c.style.pointerEvents = '';
+    });
+  });
+  for (let i = 1; i <= 10; i++) {
+    document.getElementById('sw'+i+'_word').value = '';
+    document.getElementById('sw'+i).value = '';
+  }
+  for (let p = 1; p <= 6; p++) {
+    document.getElementById('pic'+p+'s1').value = '';
+    document.getElementById('pic'+p+'s2').value = '';
+  }
+  document.getElementById('scoreSummary').style.display = 'none';
+  if (testStarted) document.getElementById('btnSubmit').disabled = false;
+  saveProgress();
+}
+
+function printPage() { window.print(); }
+
+function downloadHTML() {
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+  const a = document.createElement('a');
+  const name = document.getElementById('studentName').value || 'student';
+  a.href = URL.createObjectURL(blob);
+  a.download = 'TOEFL_P2_Writing_' + name.replace(/\s+/g,'_') + '.html';
+  a.click();
+}
+
+function applyStudentFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get("student");
+  const className = params.get("className");
+  const date = params.get("date");
+  if (name) document.getElementById("studentName").value = name;
+  if (className) document.getElementById("studentClass").value = className;
+  if (date) document.getElementById("studentDate").value = date;
+}
+
+window.addEventListener("load", () => {
+  try { const s = sessionStorage.getItem('toefl_p2_writing'); if (s) restoreState(JSON.parse(s)); } catch(e) {}
+  applyStudentFromQuery();
+  if (!document.getElementById('studentDate').value)
+    document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];
+});
+</script>
+</body>
+</html>

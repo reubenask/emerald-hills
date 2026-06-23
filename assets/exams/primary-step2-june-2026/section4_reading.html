@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEFL Primary Step 2 — Reading</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+  :root{--navy:#1a2744;--gold:#b8952a;--bg:#f5f4f0;--white:#ffffff;--border:#ddd8cc;--text:#1a1a1a;--muted:#6b6b6b;--correct:#2d6a4f;--wrong:#c1121f;--selected:#e8f0fe;--shadow:0 2px 12px rgba(0,0,0,.08);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;}
+
+  .top-banner{background:var(--navy);color:#fff;text-align:center;padding:10px 20px;font-size:.95rem;font-weight:500;letter-spacing:.5px;border-bottom:3px solid var(--gold);}
+  .logo-bar{background:#fff;text-align:center;padding:28px 20px 20px;border-bottom:1px solid var(--border);}
+  .ets-badge{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;border:2px solid var(--navy);font-family:'EB Garamond',serif;font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:10px;}
+  .logo-bar h1{font-family:'EB Garamond',serif;font-size:1.8rem;color:var(--navy);font-weight:600;}
+  .logo-bar h2{font-size:1.05rem;font-weight:500;color:var(--muted);margin-top:4px;}
+
+  .student-form{background:#fff;max-width:780px;margin:24px auto;border-radius:8px;padding:28px 32px;box-shadow:var(--shadow);}
+  .form-row{margin-bottom:16px;}
+  .form-row label{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
+  .form-row input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:.95rem;background:#fafaf8;outline:none;transition:border-color .2s;}
+  .form-row input:focus{border-color:var(--navy);}
+  .form-row-inline{display:flex;gap:16px;}
+  .form-row-inline .form-row{flex:1;margin-bottom:0;}
+  .action-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+  .btn{padding:9px 18px;border-radius:6px;border:none;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .btn-primary{background:var(--navy);color:white;}
+  .btn-gold{background:var(--gold);color:white;}
+  .btn-outline{background:white;color:var(--navy);border:1.5px solid var(--navy);}
+  .btn-danger{background:white;color:var(--wrong);border:1.5px solid var(--wrong);}
+  .autosave-bar{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:.8rem;color:var(--muted);}
+  .autosave-badge{background:#e8f0e8;color:#2d6a4f;font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.8px;}
+
+  #timerWidget{position:fixed;top:18px;right:22px;background:var(--navy);color:white;border-radius:12px;padding:10px 18px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.35);z-index:9999;min-width:110px;display:none;border:2px solid rgba(255,255,255,.15);}
+  #timerWidget .t-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.55);margin-bottom:2px;}
+  #timerDisplay{font-size:1.6rem;font-weight:700;font-family:'EB Garamond',serif;letter-spacing:1px;}
+  #timerWidget.warn{background:#b8952a;}
+  #timerWidget.crit{background:var(--wrong);animation:tpulse .9s infinite;}
+  @keyframes tpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+  .pre-test-card{max-width:780px;margin:0 auto 28px;background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);}
+  .pre-test-card .ptc-body{padding:28px 32px 24px;border-left:4px solid var(--navy);}
+  .pre-test-card h3{font-family:'EB Garamond',serif;font-size:1.1rem;color:var(--navy);margin-bottom:14px;font-weight:600;}
+  .pre-test-card ul{margin:0 0 0 18px;padding:0;color:var(--text);font-size:.9rem;line-height:1.8;}
+  .pre-test-card .ptc-footer{padding:20px 32px;background:var(--bg);border-top:1px solid var(--border);display:flex;justify-content:center;}
+  .btn-start{padding:13px 52px;background:var(--navy);color:white;border:none;border-radius:8px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s,transform .1s;box-shadow:0 4px 14px rgba(26,39,68,.25);}
+  .btn-start:hover{background:#0f1a35;transform:translateY(-1px);}
+  .btn-start:disabled{background:#aaa;cursor:default;transform:none;box-shadow:none;}
+
+  .score-summary{background:#fff;max-width:780px;margin:0 auto 24px;border-radius:8px;padding:20px 32px;box-shadow:var(--shadow);display:none;text-align:center;border-top:4px solid var(--gold);}
+  .score-summary h3{font-family:'EB Garamond',serif;font-size:1.4rem;color:var(--navy);}
+  .score-big{font-size:2.8rem;font-weight:700;color:var(--navy);margin:8px 0;}
+  .score-sub{color:var(--muted);font-size:.9rem;}
+
+  .section-block{max-width:780px;margin:0 auto 32px;}
+  .section-header{background:var(--navy);color:white;padding:14px 24px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;}
+  .sec-title{font-family:'EB Garamond',serif;font-size:1.15rem;font-weight:600;}
+  .sec-badge{font-size:.72rem;font-weight:600;background:var(--gold);color:white;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.8px;}
+  .section-body{background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:24px 28px;box-shadow:var(--shadow);}
+
+  .instruction-box{background:#f8f7f3;border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:4px;padding:14px 18px;font-size:.88rem;color:#444;margin-bottom:22px;line-height:1.6;}
+
+  .image-wrap{margin:0 0 20px;text-align:center;}
+  .image-wrap img{max-width:100%;border-radius:8px;box-shadow:var(--shadow);border:1px solid var(--border);}
+  .image-caption{font-size:.78rem;color:var(--muted);margin-top:8px;font-style:italic;}
+
+  /* LINE-NUMBERED PASSAGE */
+  .passage-numbered{background:#fafaf8;border:1px solid var(--border);border-radius:6px;padding:18px 0;margin-bottom:28px;}
+  .pl{display:flex;min-height:1.75em;}
+  .pln{width:46px;min-width:46px;text-align:right;padding-right:13px;color:#bbb;font-size:.72rem;font-family:monospace;user-select:none;line-height:1.75;flex-shrink:0;}
+  .plt{flex:1;padding-right:22px;line-height:1.75;color:var(--text);font-size:.94rem;}
+  .pl-gap{height:.65em;}
+
+  /* QUESTIONS */
+  .question-block{margin-bottom:24px;padding-bottom:22px;border-bottom:1px solid #eee;}
+  .question-block:last-child{border-bottom:none;padding-bottom:0;}
+  .question-text{font-weight:600;margin-bottom:12px;color:var(--navy);font-size:.97rem;line-height:1.55;}
+  .question-num{display:inline-block;background:var(--navy);color:white;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:12px;margin-right:8px;vertical-align:middle;}
+  .choices{display:flex;flex-direction:column;gap:8px;}
+  .choice-label{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;transition:background .15s,border-color .15s;font-size:.92rem;line-height:1.45;}
+  .choice-label:hover{background:#f5f4f0;border-color:#bbb;}
+  .choice-label input[type=radio]{display:none;}
+  .choice-label.selected{background:var(--selected);border-color:var(--navy);}
+  .choice-label.correct{background:#e6f4ed;border-color:var(--correct);color:var(--correct);}
+  .choice-label.wrong{background:#fdecea;border-color:var(--wrong);color:var(--wrong);}
+  .choice-letter{min-width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;flex-shrink:0;color:var(--navy);transition:background .15s,border-color .15s;}
+  .choice-label.selected .choice-letter{background:var(--navy);border-color:var(--navy);color:white;}
+  .choice-label.correct .choice-letter{background:var(--correct);border-color:var(--correct);color:white;}
+  .choice-label.wrong .choice-letter{background:var(--wrong);border-color:var(--wrong);color:white;}
+
+  /* PANEL NAVIGATION */
+  .task-panel{display:block;}
+  .panel-topbar{max-width:780px;margin:0 auto;background:#e6eaf0;border-radius:0 0 8px 8px;padding:7px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .panel-prog{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--navy);}
+  .panel-nav{max-width:780px;margin:0 auto 48px;display:flex;justify-content:space-between;align-items:center;padding:0 4px;gap:12px;}
+  .btn-nav-next{padding:12px 28px;background:var(--navy);color:white;border:none;border-radius:8px;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,39,68,.2);transition:background .2s,transform .1s;}
+  .btn-nav-next:hover{background:#0f1a35;transform:translateY(-1px);}
+  .btn-nav-back{padding:12px 24px;background:white;color:var(--navy);border:1.5px solid var(--navy);border-radius:8px;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;}
+  .btn-nav-back:hover{background:#f0f0f8;}
+  .btn-submit-final{padding:14px 48px;background:var(--navy);color:white;border:none;border-radius:8px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,39,68,.25);transition:background .2s,transform .1s;}
+  .btn-submit-final:hover{background:#0f1a35;transform:translateY(-1px);}
+  .btn-submit-final:disabled{opacity:.5;cursor:default;transform:none;}
+
+  .divider{height:2px;background:linear-gradient(90deg,var(--gold),transparent);max-width:780px;margin:0 auto 24px;}
+</style>
+</head>
+<body>
+
+<div id="timerWidget">
+  <div class="t-label">Time Remaining</div>
+  <div id="timerDisplay">25:00</div>
+</div>
+
+<div class="top-banner">绿山托福考试 &nbsp;答题纸&nbsp; (Primary Step 2 班)</div>
+<div class="logo-bar">
+  <div class="ets-badge">ETS</div>
+  <h1>TOEFL Primary Step 2</h1>
+  <h2>Reading &nbsp;|&nbsp; Section 4 of 5 &nbsp;|&nbsp; 20 Questions</h2>
+</div>
+
+<div class="student-form">
+  <div class="form-row-inline">
+    <div class="form-row"><label>Student Name</label><input type="text" id="studentName" placeholder="Enter student name"></div>
+    <div class="form-row"><label>Class</label><input type="text" id="studentClass" value="Primary Step 2 班"></div>
+    <div class="form-row"><label>Date</label><input type="date" id="studentDate"></div>
+  </div>
+  <div class="action-btns">
+    <button class="btn btn-primary" onclick="saveProgress()">Save Now</button>
+    <button class="btn btn-gold" onclick="downloadHTML()">Download Saved HTML</button>
+    <button class="btn btn-outline" onclick="printPage()">Print</button>
+    <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+  </div>
+  <div class="autosave-bar">
+    <span class="autosave-badge">Autosave Enabled</span>
+    <span id="autosaveStatus">Autosave ready.</span>
+  </div>
+</div>
+
+<div class="pre-test-card">
+  <div class="ptc-body">
+    <h3>Before you begin — Reading Test:</h3>
+    <ul>
+      <li>This section has 2 reading passages, 10 comprehension questions each (20 total).</li>
+      <li>Enter your name, then click <strong>Start Test</strong> — the 25-minute timer starts immediately.</li>
+      <li>Line numbers on the left help you find information quickly. Read carefully before answering.</li>
+      <li>Choose (a), (b), (c), or (d) for each question. Results appear instantly when you submit.</li>
+    </ul>
+  </div>
+  <div class="ptc-footer">
+    <button class="btn-start" id="startBtn" onclick="startTimer()">Start Test →</button>
+  </div>
+</div>
+
+<div class="score-summary" id="scoreSummary">
+  <h3>Reading Test Complete</h3>
+  <div class="score-big" id="scoreDisplay">–</div>
+  <div class="score-sub" id="scoreDetail"></div>
+</div>
+
+<div id="testContent" style="display:none">
+
+<!-- ═══════════════ PANEL 1: PASSAGE 1 ═══════════════ -->
+<div class="task-panel" id="panel1">
+  <div class="panel-topbar">
+    <span class="panel-prog">Passage 1 of 2 — The Sea Monster's Secret</span>
+    <span style="font-size:.75rem;color:var(--muted);">Questions 1–10 · then click Next</span>
+  </div>
+  <div class="divider" style="margin-top:12px;"></div>
+
+  <div class="section-block">
+    <div class="section-header">
+      <span class="sec-title">Passage 1 — The Sea Monster's Secret</span>
+      <span class="sec-badge">Questions 1–10</span>
+    </div>
+    <div class="section-body">
+      <div class="instruction-box">
+        Read the passage carefully. Line numbers on the left help you find information quickly. Then answer Questions 1–10 by choosing the best answer — (a), (b), (c), or (d).
+      </div>
+
+      <div class="image-wrap">
+        <img src="../Gemini_Generated_Image_3ei63z3ei63z3ei6.png" alt="Luca and Alberto racing at the Portorosso Cup">
+        <div class="image-caption">The Portorosso Cup — Luca, Alberto, and Giulia race through the Italian town</div>
+      </div>
+
+      <div class="passage-numbered">
+        <div class="pl"><span class="pln"> 1</span><span class="plt">Luca, a young sea monster, lived under the waves, but he</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">was fascinated by the human world above. He knew he had to</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">be careful; he had to stay dry to protect his secret. One</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">day, he met Alberto, who told him, "Follow my lead." Alberto</span></div>
+        <div class="pl"><span class="pln"> 5</span><span class="plt">was amazing and taught Luca how to walk on land.</span></div>
+        <div class="pl-gap"></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">They decided to enter the local Portorosso race. They were</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">definitely underdogs compared to the town champion, Ercole,</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">but they were determined to win in their own way. They</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">started training, working hard even when things felt</span></div>
+        <div class="pl"><span class="pln">10</span><span class="plt">miserable. They knew that even if they didn't win the prize</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">money, they would succeed as a team.</span></div>
+        <div class="pl-gap"></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">Sometimes, Luca felt afraid and lacked confidence, worrying</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">that his true form would be revealed. "Just ignore Ercole,"</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">Alberto would say. "He is just trying to make you feel</span></div>
+        <div class="pl"><span class="pln">15</span><span class="plt">embarrassed." One afternoon, while practicing riding a</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">makeshift bike, Luca felt unsure. "Maybe we should just go</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">home," he said. Alberto laughed, "I am kidding! We are</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">going to do this."</span></div>
+        <div class="pl-gap"></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">They realized that although the race was a tough competition,</span></div>
+        <div class="pl"><span class="pln">20</span><span class="plt">their friendship was the real prize. They didn't let their</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">fears hold them back. When people started looking for the</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">mysterious sea monsters, Luca realized he didn't need to</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">hide. His life on land was incredible. He learned that it</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">didn't matter what others thought; he was ready to face the</span></div>
+        <div class="pl"><span class="pln">25</span><span class="plt">world. He took a deep breath, looked at the finish line,</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">and realized he was no longer afraid of the water or the</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">land. He was ready to be himself.</span></div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">1</span> What is the main idea of this story?</div>
+        <div class="choices" data-q="q1">
+          <label class="choice-label"><input type="radio" name="q1" value="a"><span class="choice-letter">a</span> How to swim in the deep ocean.</label>
+          <label class="choice-label"><input type="radio" name="q1" value="b"><span class="choice-letter">b</span> How Luca learns to be brave and be himself on land.</label>
+          <label class="choice-label"><input type="radio" name="q1" value="c"><span class="choice-letter">c</span> Why Ercole is the fastest runner in town.</label>
+          <label class="choice-label"><input type="radio" name="q1" value="d"><span class="choice-letter">d</span> Where sea monsters hide during the day.</label>
+        </div>
+      </div>
+      <!-- Q2 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">2</span> According to lines 1–5, why does Luca need to be careful?</div>
+        <div class="choices" data-q="q2">
+          <label class="choice-label"><input type="radio" name="q2" value="a"><span class="choice-letter">a</span> Because he is afraid of the deep ocean.</label>
+          <label class="choice-label"><input type="radio" name="q2" value="b"><span class="choice-letter">b</span> Because he wants to protect his secret as a sea monster.</label>
+          <label class="choice-label"><input type="radio" name="q2" value="c"><span class="choice-letter">c</span> Because Alberto told him to run away.</label>
+          <label class="choice-label"><input type="radio" name="q2" value="d"><span class="choice-letter">d</span> Because he does not like to walk on land.</label>
+        </div>
+      </div>
+      <!-- Q3 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">3</span> In line 7, what does the word <em>"underdogs"</em> mean?</div>
+        <div class="choices" data-q="q3">
+          <label class="choice-label"><input type="radio" name="q3" value="a"><span class="choice-letter">a</span> The team that everyone expects to win easily.</label>
+          <label class="choice-label"><input type="radio" name="q3" value="b"><span class="choice-letter">b</span> The team that has the most money.</label>
+          <label class="choice-label"><input type="radio" name="q3" value="c"><span class="choice-letter">c</span> The team that is least expected to win.</label>
+          <label class="choice-label"><input type="radio" name="q3" value="d"><span class="choice-letter">d</span> A team made up of dogs.</label>
+        </div>
+      </div>
+      <!-- Q4 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">4</span> Why does the author include the quote "Just ignore Ercole" in lines 13–14?</div>
+        <div class="choices" data-q="q4">
+          <label class="choice-label"><input type="radio" name="q4" value="a"><span class="choice-letter">a</span> To show that Alberto is trying to help Luca feel more confident.</label>
+          <label class="choice-label"><input type="radio" name="q4" value="b"><span class="choice-letter">b</span> To explain how Ercole wins every race.</label>
+          <label class="choice-label"><input type="radio" name="q4" value="c"><span class="choice-letter">c</span> To show that Luca is the fastest sea monster.</label>
+          <label class="choice-label"><input type="radio" name="q4" value="d"><span class="choice-letter">d</span> To tell the reader that Ercole is a kind person.</label>
+        </div>
+      </div>
+      <!-- Q5 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">5</span> Where does the race take place?</div>
+        <div class="choices" data-q="q5">
+          <label class="choice-label"><input type="radio" name="q5" value="a"><span class="choice-letter">a</span> Under the deep blue waves.</label>
+          <label class="choice-label"><input type="radio" name="q5" value="b"><span class="choice-letter">b</span> In a secret cave.</label>
+          <label class="choice-label"><input type="radio" name="q5" value="c"><span class="choice-letter">c</span> In the local human town.</label>
+          <label class="choice-label"><input type="radio" name="q5" value="d"><span class="choice-letter">d</span> At the bottom of the ocean.</label>
+        </div>
+      </div>
+      <!-- Q6 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">6</span> What makes Alberto "amazing" according to the passage?</div>
+        <div class="choices" data-q="q6">
+          <label class="choice-label"><input type="radio" name="q6" value="a"><span class="choice-letter">a</span> He helps Luca learn to walk on land.</label>
+          <label class="choice-label"><input type="radio" name="q6" value="b"><span class="choice-letter">b</span> He is the town champion.</label>
+          <label class="choice-label"><input type="radio" name="q6" value="c"><span class="choice-letter">c</span> He owns the bike they use.</label>
+          <label class="choice-label"><input type="radio" name="q6" value="d"><span class="choice-letter">d</span> He is a professional trainer.</label>
+        </div>
+      </div>
+      <!-- Q7 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">7</span> How did Luca and Alberto feel during their training (lines 8–11)?</div>
+        <div class="choices" data-q="q7">
+          <label class="choice-label"><input type="radio" name="q7" value="a"><span class="choice-letter">a</span> They felt bored and tired.</label>
+          <label class="choice-label"><input type="radio" name="q7" value="b"><span class="choice-letter">b</span> They felt confident and never had doubts.</label>
+          <label class="choice-label"><input type="radio" name="q7" value="c"><span class="choice-letter">c</span> They worked hard even when things felt miserable.</label>
+          <label class="choice-label"><input type="radio" name="q7" value="d"><span class="choice-letter">d</span> They only worked hard when others were watching.</label>
+        </div>
+      </div>
+      <!-- Q8 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">8</span> What does Luca realize about his friendship with Alberto?</div>
+        <div class="choices" data-q="q8">
+          <label class="choice-label"><input type="radio" name="q8" value="a"><span class="choice-letter">a</span> It is not as important as the prize money.</label>
+          <label class="choice-label"><input type="radio" name="q8" value="b"><span class="choice-letter">b</span> It is the real prize of the competition.</label>
+          <label class="choice-label"><input type="radio" name="q8" value="c"><span class="choice-letter">c</span> It is a secret they must never share.</label>
+          <label class="choice-label"><input type="radio" name="q8" value="d"><span class="choice-letter">d</span> It makes them weaker in the race.</label>
+        </div>
+      </div>
+      <!-- Q9 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">9</span> Why does Luca decide he doesn't need to hide anymore (lines 21–23)?</div>
+        <div class="choices" data-q="q9">
+          <label class="choice-label"><input type="radio" name="q9" value="a"><span class="choice-letter">a</span> Because Ercole moved away.</label>
+          <label class="choice-label"><input type="radio" name="q9" value="b"><span class="choice-letter">b</span> Because he realized his life on land was incredible.</label>
+          <label class="choice-label"><input type="radio" name="q9" value="c"><span class="choice-letter">c</span> Because he found a better place to hide.</label>
+          <label class="choice-label"><input type="radio" name="q9" value="d"><span class="choice-letter">d</span> Because he wants to swim back to the ocean.</label>
+        </div>
+      </div>
+      <!-- Q10 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">10</span> What does the story imply about bravery?</div>
+        <div class="choices" data-q="q10">
+          <label class="choice-label"><input type="radio" name="q10" value="a"><span class="choice-letter">a</span> Being brave means never feeling fear.</label>
+          <label class="choice-label"><input type="radio" name="q10" value="b"><span class="choice-letter">b</span> Being brave is about ignoring fears and being yourself.</label>
+          <label class="choice-label"><input type="radio" name="q10" value="c"><span class="choice-letter">c</span> You can only be brave if you win the race.</label>
+          <label class="choice-label"><input type="radio" name="q10" value="d"><span class="choice-letter">d</span> Being brave means hiding who you really are.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-nav">
+    <div></div>
+    <button class="btn-nav-next" onclick="goPanel(2)">Next: Passage 2 →</button>
+  </div>
+</div><!-- end panel1 -->
+
+<!-- ═══════════════ PANEL 2: PASSAGE 2 ═══════════════ -->
+<div class="task-panel" id="panel2" style="display:none">
+  <div class="panel-topbar">
+    <span class="panel-prog">Passage 2 of 2 — The Juice Wizard</span>
+    <span style="font-size:.75rem;color:var(--muted);">Questions 11–20 · then Submit</span>
+  </div>
+  <div class="divider" style="margin-top:12px;"></div>
+
+  <div class="section-block">
+    <div class="section-header">
+      <span class="sec-title">Passage 2 — The Juice Wizard</span>
+      <span class="sec-badge">Questions 11–20</span>
+    </div>
+    <div class="section-body">
+      <div class="instruction-box">
+        Read the second passage carefully, then answer Questions 11–20 by choosing the best answer — (a), (b), (c), or (d).
+      </div>
+
+      <div class="passage-numbered">
+        <div class="pl"><span class="pln"> 1</span><span class="plt">Leo loved school, but not just for math or reading. Leo</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">loved the lunch hour because that was when he became the</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">"Juice Wizard." Every morning, his kitchen looked like a</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">colorful laboratory. Leo would slice juicy oranges, sweet</span></div>
+        <div class="pl"><span class="pln"> 5</span><span class="plt">strawberries, and tart green apples to create his famous</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">blends. He carefully packed his creations into little</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">bottles to protect them from spilling.</span></div>
+        <div class="pl-gap"></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">When the lunch bell rang, his friends would line up.</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">"What is our plan for today?" his best friend, Maya,</span></div>
+        <div class="pl"><span class="pln">10</span><span class="plt">asked with a grin. "I have a better idea," Leo whispered,</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">holding up a bottle that glowed bright purple. "It is a</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">mixture of blueberry and lime!"</span></div>
+        <div class="pl-gap"></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">Leo had so much confidence in his recipes. He didn't care</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">if others thought his hobby was weird; he knew his juice</span></div>
+        <div class="pl"><span class="pln">15</span><span class="plt">was incredible. Some kids asked, "Why don't you just buy a</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">soda?" but Leo would ignore them and keep pouring. He</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">wanted his friends to be happy and healthy.</span></div>
+        <div class="pl-gap"></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">One day, a new student named Sam felt miserable because he</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">had forgotten his lunch. Leo didn't hesitate. "Don't be</span></div>
+        <div class="pl"><span class="pln">20</span><span class="plt">afraid," Leo said, handing him a bottle of sunshine-yellow</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">pineapple juice. "It does not matter that you don't have</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">food; you can have this on me." Sam took a sip and his</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">eyes went wide. "This is amazing!" Leo felt proud. He</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">realized he wasn't just making juice; he was making sure</span></div>
+        <div class="pl"><span class="pln">25</span><span class="plt">his friends felt cared for. He knew that if he continued</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">his training in the kitchen, he could keep making people</span></div>
+        <div class="pl"><span class="pln">  </span><span class="plt">smile, one sip at a time.</span></div>
+      </div>
+
+      <!-- Q11 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">11</span> What is the main idea of this story?</div>
+        <div class="choices" data-q="q11">
+          <label class="choice-label"><input type="radio" name="q11" value="a"><span class="choice-letter">a</span> How to make soda at home.</label>
+          <label class="choice-label"><input type="radio" name="q11" value="b"><span class="choice-letter">b</span> Leo's secret dream of becoming a chef.</label>
+          <label class="choice-label"><input type="radio" name="q11" value="c"><span class="choice-letter">c</span> How Leo shares his passion and kindness through his homemade juice.</label>
+          <label class="choice-label"><input type="radio" name="q11" value="d"><span class="choice-letter">d</span> Why Maya is the best friend at school.</label>
+        </div>
+      </div>
+      <!-- Q12 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">12</span> Why does Leo call himself the "Juice Wizard"?</div>
+        <div class="choices" data-q="q12">
+          <label class="choice-label"><input type="radio" name="q12" value="a"><span class="choice-letter">a</span> Because he is a professional magician.</label>
+          <label class="choice-label"><input type="radio" name="q12" value="b"><span class="choice-letter">b</span> Because he creates special and colorful juice blends.</label>
+          <label class="choice-label"><input type="radio" name="q12" value="c"><span class="choice-letter">c</span> Because he is the only student who likes fruit.</label>
+          <label class="choice-label"><input type="radio" name="q12" value="d"><span class="choice-letter">d</span> Because he hides his juice in a laboratory.</label>
+        </div>
+      </div>
+      <!-- Q13 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">13</span> According to lines 6–7, why does Leo pack his juice in little bottles?</div>
+        <div class="choices" data-q="q13">
+          <label class="choice-label"><input type="radio" name="q13" value="a"><span class="choice-letter">a</span> To sell them for a lot of money.</label>
+          <label class="choice-label"><input type="radio" name="q13" value="b"><span class="choice-letter">b</span> To protect them from spilling.</label>
+          <label class="choice-label"><input type="radio" name="q13" value="c"><span class="choice-letter">c</span> To make them look like soda bottles.</label>
+          <label class="choice-label"><input type="radio" name="q13" value="d"><span class="choice-letter">d</span> To hide them from the teachers.</label>
+        </div>
+      </div>
+      <!-- Q14 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">14</span> How do Leo's friends react when the lunch bell rings (line 8)?</div>
+        <div class="choices" data-q="q14">
+          <label class="choice-label"><input type="radio" name="q14" value="a"><span class="choice-letter">a</span> They ignore him.</label>
+          <label class="choice-label"><input type="radio" name="q14" value="b"><span class="choice-letter">b</span> They line up for his juice.</label>
+          <label class="choice-label"><input type="radio" name="q14" value="c"><span class="choice-letter">c</span> They tell him to buy a soda instead.</label>
+          <label class="choice-label"><input type="radio" name="q14" value="d"><span class="choice-letter">d</span> They run away.</label>
+        </div>
+      </div>
+      <!-- Q15 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">15</span> What does Leo do when other kids question his hobby (lines 15–17)?</div>
+        <div class="choices" data-q="q15">
+          <label class="choice-label"><input type="radio" name="q15" value="a"><span class="choice-letter">a</span> He argues with them about health.</label>
+          <label class="choice-label"><input type="radio" name="q15" value="b"><span class="choice-letter">b</span> He stops making juice.</label>
+          <label class="choice-label"><input type="radio" name="q15" value="c"><span class="choice-letter">c</span> He ignores them and keeps pouring.</label>
+          <label class="choice-label"><input type="radio" name="q15" value="d"><span class="choice-letter">d</span> He offers them a soda.</label>
+        </div>
+      </div>
+      <!-- Q16 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">16</span> Why was Sam feeling miserable (line 18)?</div>
+        <div class="choices" data-q="q16">
+          <label class="choice-label"><input type="radio" name="q16" value="a"><span class="choice-letter">a</span> He failed his math test.</label>
+          <label class="choice-label"><input type="radio" name="q16" value="b"><span class="choice-letter">b</span> He didn't have any friends.</label>
+          <label class="choice-label"><input type="radio" name="q16" value="c"><span class="choice-letter">c</span> He forgot his lunch.</label>
+          <label class="choice-label"><input type="radio" name="q16" value="d"><span class="choice-letter">d</span> He didn't like Leo's juice.</label>
+        </div>
+      </div>
+      <!-- Q17 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">17</span> How does Leo respond when Sam is in need (lines 19–22)?</div>
+        <div class="choices" data-q="q17">
+          <label class="choice-label"><input type="radio" name="q17" value="a"><span class="choice-letter">a</span> He ignores him to focus on his other friends.</label>
+          <label class="choice-label"><input type="radio" name="q17" value="b"><span class="choice-letter">b</span> He gives him a bottle of juice for free.</label>
+          <label class="choice-label"><input type="radio" name="q17" value="c"><span class="choice-letter">c</span> He tells him to go to the cafeteria.</label>
+          <label class="choice-label"><input type="radio" name="q17" value="d"><span class="choice-letter">d</span> He explains that he only shares with Maya.</label>
+        </div>
+      </div>
+      <!-- Q18 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">18</span> How does Sam feel after drinking the pineapple juice (line 23)?</div>
+        <div class="choices" data-q="q18">
+          <label class="choice-label"><input type="radio" name="q18" value="a"><span class="choice-letter">a</span> He is surprised and thinks it is amazing.</label>
+          <label class="choice-label"><input type="radio" name="q18" value="b"><span class="choice-letter">b</span> He thinks it is weird.</label>
+          <label class="choice-label"><input type="radio" name="q18" value="c"><span class="choice-letter">c</span> He wishes he had brought a soda instead.</label>
+          <label class="choice-label"><input type="radio" name="q18" value="d"><span class="choice-letter">d</span> He is still sad.</label>
+        </div>
+      </div>
+      <!-- Q19 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">19</span> What does Leo realize by the end of the story (lines 23–27)?</div>
+        <div class="choices" data-q="q19">
+          <label class="choice-label"><input type="radio" name="q19" value="a"><span class="choice-letter">a</span> That he should stop making juice.</label>
+          <label class="choice-label"><input type="radio" name="q19" value="b"><span class="choice-letter">b</span> That his juice makes people feel cared for and happy.</label>
+          <label class="choice-label"><input type="radio" name="q19" value="c"><span class="choice-letter">c</span> That he is only good at making juice, not schoolwork.</label>
+          <label class="choice-label"><input type="radio" name="q19" value="d"><span class="choice-letter">d</span> That he should only give juice to new students.</label>
+        </div>
+      </div>
+      <!-- Q20 -->
+      <div class="question-block">
+        <div class="question-text"><span class="question-num">20</span> What is a "laboratory" in the context of this story (line 4)?</div>
+        <div class="choices" data-q="q20">
+          <label class="choice-label"><input type="radio" name="q20" value="a"><span class="choice-letter">a</span> A room for scientific experiments.</label>
+          <label class="choice-label"><input type="radio" name="q20" value="b"><span class="choice-letter">b</span> The place where Leo creatively mixes his juices.</label>
+          <label class="choice-label"><input type="radio" name="q20" value="c"><span class="choice-letter">c</span> A place where people buy lunch.</label>
+          <label class="choice-label"><input type="radio" name="q20" value="d"><span class="choice-letter">d</span> A school subject that Leo enjoys.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(1)">← Back to Passage 1</button>
+    <button class="btn-submit-final" id="btnSubmit" onclick="submitTest()" disabled>Submit All Answers</button>
+  </div>
+</div><!-- end panel2 -->
+
+</div><!-- end #testContent -->
+
+<script>
+const TOTAL_Q = 20;
+const TOTAL_TIME = 25 * 60;
+let timeLeft = TOTAL_TIME;
+let timerInterval = null;
+let testStarted = false;
+let autosaveTimer;
+
+// Answer key: Passage 1 (b,b,c,a,c,a,c,b,b,b) · Passage 2 (c,b,b,b,c,c,b,a,b,b)
+const ANSWER_KEY = {
+  q1:'b',  q2:'b',  q3:'c',  q4:'a',  q5:'c',
+  q6:'a',  q7:'c',  q8:'b',  q9:'b',  q10:'b',
+  q11:'c', q12:'b', q13:'b', q14:'b', q15:'c',
+  q16:'c', q17:'b', q18:'a', q19:'b', q20:'b'
+};
+const qNames = Array.from({length:TOTAL_Q}, (_,i) => 'q'+(i+1));
+
+// ─── Panel navigation ───────────────────────────────────────
+function goPanel(n) {
+  document.querySelectorAll('.task-panel').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('panel' + n);
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+}
+
+// ─── Timer ─────────────────────────────────────────────────
+function startTimer() {
+  const name = document.getElementById('studentName').value.trim();
+  if (!name) { alert('Please enter your student name before starting.'); document.getElementById('studentName').focus(); return; }
+  if (testStarted) return;
+  testStarted = true;
+  ['studentName','studentClass','studentDate'].forEach(id => {
+    const el = document.getElementById(id);
+    el.readOnly = true; el.style.background = '#f0f0f0'; el.style.color = '#555';
+  });
+  document.getElementById('btnSubmit').disabled = false;
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true; btn.textContent = 'Test in Progress';
+  const content = document.getElementById('testContent');
+  content.style.display = 'block';
+  // Show only panel 1 initially
+  document.getElementById('panel1').style.display = 'block';
+  document.getElementById('panel2').style.display = 'none';
+  setTimeout(() => content.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+  document.getElementById('timerWidget').style.display = 'block';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timerInterval); autoSubmit(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft/60), s = timeLeft%60;
+  document.getElementById('timerDisplay').textContent = m + ':' + String(s).padStart(2,'0');
+  const w = document.getElementById('timerWidget');
+  w.classList.remove('warn','crit');
+  if (timeLeft <= 60) w.classList.add('crit');
+  else if (timeLeft <= 300) w.classList.add('warn');
+}
+
+function autoSubmit() {
+  document.getElementById('timerDisplay').textContent = '0:00';
+  document.getElementById('timerWidget').classList.add('crit');
+  alert('Time is up! Your answers are being submitted now.');
+  // Ensure both panels visible for grading
+  document.querySelectorAll('.task-panel').forEach(p => p.style.display = 'block');
+  submitTest(true);
+}
+
+// ─── Choice selection ───────────────────────────────────────
+document.querySelectorAll('.choices').forEach(group => {
+  group.querySelectorAll('.choice-label').forEach(lbl => {
+    lbl.addEventListener('click', () => {
+      const name = lbl.querySelector('input').name;
+      document.querySelectorAll(`[name="${name}"]`).forEach(inp => inp.closest('.choice-label').classList.remove('selected'));
+      lbl.querySelector('input').checked = true;
+      lbl.classList.add('selected');
+      scheduleAutosave();
+    });
+  });
+});
+
+// ─── Submit / Grade ─────────────────────────────────────────
+function submitTest(auto = false) {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  // Show all panels so results are visible
+  document.querySelectorAll('.task-panel').forEach(p => p.style.display = 'block');
+
+  let answered = 0, correct = 0;
+  qNames.forEach(q => {
+    const correctVal = ANSWER_KEY[q];
+    document.querySelectorAll(`[name="${q}"]`).forEach(inp => {
+      const lbl = inp.closest('.choice-label');
+      lbl.classList.remove('selected');
+      if (inp.value === correctVal) lbl.classList.add('correct');
+      else if (inp.checked) lbl.classList.add('wrong');
+    });
+    const chosen = document.querySelector(`[name="${q}"]:checked`);
+    if (chosen) { answered++; if (chosen.value === correctVal) correct++; }
+  });
+  const pct = Math.round((correct / TOTAL_Q) * 100);
+  document.getElementById('scoreSummary').style.display = 'block';
+  document.getElementById('scoreDisplay').textContent = correct + ' / ' + TOTAL_Q;
+  document.getElementById('scoreDetail').textContent =
+    `Score: ${pct}%  ·  Correct: ${correct}  ·  Wrong: ${answered - correct}  ·  Unanswered: ${TOTAL_Q - answered}`;
+  document.getElementById('scoreSummary').scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.choice-label').forEach(lbl => lbl.style.pointerEvents = 'none');
+  document.getElementById('btnSubmit').disabled = true;
+  saveProgress();
+  window.parent.postMessage({
+    type: 'eh-exam-submitted',
+    section: 'Reading',
+    answers: getAnswers().answers,
+    correct,
+    total: TOTAL_Q,
+    percent: pct,
+    scoreLabel: correct + ' / ' + TOTAL_Q + ' (' + pct + '%)',
+    autoSubmitted: auto
+  }, '*');
+}
+
+// ─── Autosave / Storage ─────────────────────────────────────
+function getAnswers() {
+  const data = { name:document.getElementById('studentName').value, cls:document.getElementById('studentClass').value, date:document.getElementById('studentDate').value, answers:{} };
+  qNames.forEach(q => { const c = document.querySelector(`[name="${q}"]:checked`); if (c) data.answers[q] = c.value; });
+  return data;
+}
+function restoreAnswers(data) {
+  if (data.name) document.getElementById('studentName').value = data.name;
+  if (data.cls)  document.getElementById('studentClass').value = data.cls;
+  if (data.date) document.getElementById('studentDate').value = data.date;
+  if (data.answers) {
+    Object.entries(data.answers).forEach(([q,val]) => {
+      const inp = document.querySelector(`[name="${q}"][value="${val}"]`);
+      if (inp) { inp.checked = true; inp.closest('.choice-label').classList.add('selected'); }
+    });
+  }
+}
+function saveProgress() {
+  try { sessionStorage.setItem('toefl_p2_reading', JSON.stringify(getAnswers())); document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString(); } catch(e) {}
+}
+function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(saveProgress, 2000); }
+function clearAll() {
+  if (!confirm('Clear all answers? This cannot be undone.')) return;
+  qNames.forEach(q => {
+    document.querySelectorAll(`[name="${q}"]`).forEach(inp => {
+      inp.checked = false;
+      const lbl = inp.closest('.choice-label');
+      lbl.classList.remove('selected','correct','wrong');
+      lbl.style.pointerEvents = '';
+    });
+  });
+  if (testStarted) document.getElementById('btnSubmit').disabled = false;
+  document.getElementById('scoreSummary').style.display = 'none';
+  saveProgress();
+}
+function printPage() { window.print(); }
+function downloadHTML() {
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'TOEFL_P2_Reading_' + (document.getElementById('studentName').value || 'student').replace(/\s+/g,'_') + '.html';
+  a.click();
+}
+function applyStudentFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get("student");
+  const className = params.get("className");
+  const date = params.get("date");
+  if (name) document.getElementById("studentName").value = name;
+  if (className) document.getElementById("studentClass").value = className;
+  if (date) document.getElementById("studentDate").value = date;
+}
+
+window.addEventListener("load", () => {
+  try { const s = sessionStorage.getItem('toefl_p2_reading'); if (s) restoreAnswers(JSON.parse(s)); } catch(e) {}
+  applyStudentFromQuery();
+  if (!document.getElementById('studentDate').value)
+    document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];
+});
+</script>
+</body>
+</html>
