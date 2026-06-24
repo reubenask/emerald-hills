@@ -1440,10 +1440,12 @@ document.getElementById("submitBtn").addEventListener("click", () => {
   if (unanswered.length > 0) {
     const nums = unanswered.map(m => m.qNum).join(", ");
     document.getElementById("unansweredNote").textContent =
-      `Please answer all questions before submitting. Missing: ${nums}`;
+      `Missing: ${nums}`;
     const first = document.getElementById(`q-${unanswered[0].qNum}`);
-    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
-    return;
+    if (!confirm(`You have ${unanswered.length} unanswered question(s). Submit anyway?`)) {
+      if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
   }
 
   document.getElementById("unansweredNote").textContent = "";
