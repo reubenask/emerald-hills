@@ -574,11 +574,16 @@ document.querySelectorAll('.choices').forEach(group => {
 
 // ─── Submit / Grade ─────────────────────────────────────────
 function submitTest(auto = false) {
+  let answered = 0;
+  qNames.forEach(q => { if (document.querySelector(`[name="${q}"]:checked`)) answered++; });
+  if (!auto && answered < TOTAL_Q) {
+    if (!confirm(`You have ${TOTAL_Q - answered} unanswered question(s). Submit anyway?`)) return;
+  }
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
   // Show all panels so results are visible
   document.querySelectorAll('.task-panel').forEach(p => p.style.display = 'block');
 
-  let answered = 0, correct = 0;
+  let correct = 0;
   qNames.forEach(q => {
     const correctVal = ANSWER_KEY[q];
     document.querySelectorAll(`[name="${q}"]`).forEach(inp => {
@@ -588,7 +593,7 @@ function submitTest(auto = false) {
       else if (inp.checked) lbl.classList.add('wrong');
     });
     const chosen = document.querySelector(`[name="${q}"]:checked`);
-    if (chosen) { answered++; if (chosen.value === correctVal) correct++; }
+    if (chosen && chosen.value === correctVal) correct++;
   });
   const pct = Math.round((correct / TOTAL_Q) * 100);
   const marked = qNames.map((q, index) => {
@@ -640,7 +645,7 @@ function restoreAnswers(data) {
   }
 }
 function saveProgress() {
-  try { sessionStorage.setItem('toefl_p2_reading', JSON.stringify(getAnswers())); document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString(); } catch(e) {}
+  try { localStorage.setItem('toefl_p2_reading', JSON.stringify(getAnswers())); document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString(); } catch(e) {}
 }
 function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(saveProgress, 2000); }
 function clearAll() {
@@ -676,7 +681,7 @@ function applyStudentFromQuery() {
 }
 
 window.addEventListener("load", () => {
-  try { const s = sessionStorage.getItem('toefl_p2_reading'); if (s) restoreAnswers(JSON.parse(s)); } catch(e) {}
+  try { const s = localStorage.getItem('toefl_p2_reading') || sessionStorage.getItem('toefl_p2_reading'); if (s) restoreAnswers(JSON.parse(s)); } catch(e) {}
   applyStudentFromQuery();
   if (!document.getElementById('studentDate').value)
     document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];

@@ -659,6 +659,15 @@ function updateTimerDisplay() {
 
 function gradeQuiz(timeExpired) {
   if (hasSubmitted) return;
+  if (!timeExpired) {
+    const missing = Array.from(document.querySelectorAll('fieldset[data-q]'))
+      .filter(fs => {
+        const qNum = fs.getAttribute('data-q');
+        return !fs.querySelector('input[name="q' + qNum + '"]:checked');
+      })
+      .map(fs => fs.getAttribute('data-q'));
+    if (missing.length && !confirm('You have ' + missing.length + ' unanswered question(s). Submit anyway?')) return;
+  }
   hasSubmitted = true;
   if (timerInterval) clearInterval(timerInterval);
 

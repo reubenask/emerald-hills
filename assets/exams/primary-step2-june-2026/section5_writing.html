@@ -538,8 +538,13 @@ document.querySelectorAll('.email-body input[type="radio"]').forEach(inp => {
 });
 
 function submitTest(auto = false) {
+  let answered = 0;
+  emailIds.forEach(q => { if (document.querySelector(`input[name="${q}"]:checked`)) answered++; });
+  if (!auto && answered < emailIds.length) {
+    if (!confirm(`You have ${emailIds.length - answered} unanswered question(s). Submit anyway?`)) return;
+  }
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-  let answered = 0, correct = 0;
+  let correct = 0;
   emailIds.forEach(q => {
     const correctVal = EMAIL_ANS[q];
     const checked = document.querySelector(`input[name="${q}"]:checked`);
@@ -549,10 +554,7 @@ function submitTest(auto = false) {
       if (inp.value === correctVal) lbl.classList.add('c-correct');
       else if (inp.checked) lbl.classList.add('c-wrong');
     });
-    if (checked) {
-      answered++;
-      if (checked.value === correctVal) correct++;
-    }
+    if (checked && checked.value === correctVal) correct++;
   });
   const TOTAL = emailIds.length;
   const pct = Math.round((correct / TOTAL) * 100);
@@ -649,7 +651,7 @@ function restoreState(state) {
 
 function saveProgress() {
   try {
-    sessionStorage.setItem('toefl_p2_writing', JSON.stringify(getState()));
+    localStorage.setItem('toefl_p2_writing', JSON.stringify(getState()));
     document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString();
   } catch(e) {}
 }
@@ -691,7 +693,7 @@ function downloadHTML() {
 }
 
 window.addEventListener('load', () => {
-  try { const s = sessionStorage.getItem('toefl_p2_writing'); if (s) restoreState(JSON.parse(s)); } catch(e) {}
+  try { const s = localStorage.getItem('toefl_p2_writing') || sessionStorage.getItem('toefl_p2_writing'); if (s) restoreState(JSON.parse(s)); } catch(e) {}
   if (!document.getElementById('studentDate').value)
     document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];
 });

@@ -31,10 +31,16 @@
   function isComplete() {
     if (document.querySelector(".test-complete.show")) return true;
     if (visibleText("#scoreSummary") || visibleText("#results")) return true;
-    if (document.getElementById("submitBtn") && document.getElementById("submitBtn").disabled) return true;
-    if (document.getElementById("btnSubmit") && document.getElementById("btnSubmit").disabled) return true;
-    if (document.getElementById("submitTestBtn") && document.getElementById("submitTestBtn").disabled) return true;
     return /Answer Review|Speaking Practice Complete|Score:/i.test(document.body ? document.body.textContent || "" : "");
+  }
+
+  function pauseAllMedia() {
+    document.querySelectorAll("audio, video").forEach(function (media) {
+      try {
+        media.pause();
+        if (media.fastSeek) media.fastSeek(media.currentTime || 0);
+      } catch (error) {}
+    });
   }
 
   function collectAnswers() {
@@ -100,6 +106,7 @@
 
   function notify(autoSubmitted) {
     if (!isComplete() || window.__ehExamSubmitted) return;
+    pauseAllMedia();
     window.__ehExamSubmitted = true;
     var scoreText = visibleText("#scoreDetail") || visibleText("#scoreDisplay") || visibleText("#results") || "Submitted for teacher review";
     window.parent.postMessage({
@@ -134,4 +141,8 @@
   install();
   document.addEventListener("DOMContentLoaded", install);
   window.addEventListener("load", install);
+  window.addEventListener("pagehide", pauseAllMedia);
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) pauseAllMedia();
+  });
 })();

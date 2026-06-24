@@ -485,7 +485,14 @@ const ANSWER_KEY = {
 };
 const qNames = Array.from({length: TOTAL_Q}, (_, i) => 'q' + (i+1));
 
+function pauseAllMedia() {
+  document.querySelectorAll('audio, video').forEach(media => {
+    try { media.pause(); } catch(e) {}
+  });
+}
+
 function goPanel(n) {
+  pauseAllMedia();
   document.querySelectorAll('.task-panel').forEach(p => p.style.display = 'none');
   const panel = document.getElementById('panel' + n);
   panel.style.display = 'block';
@@ -548,12 +555,13 @@ document.querySelectorAll('.choices').forEach(group => {
 });
 
 function submitTest(auto = false) {
-  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
   let answered = 0;
   qNames.forEach(q => { if (document.querySelector(`[name="${q}"]:checked`)) answered++; });
   if (!auto && answered < TOTAL_Q) {
     if (!confirm(`You have ${TOTAL_Q - answered} unanswered question(s). Submit anyway?`)) return;
   }
+  pauseAllMedia();
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
   let correct = 0;
   qNames.forEach(q => {
     const correctVal = ANSWER_KEY[q];
@@ -617,7 +625,7 @@ function restoreAnswers(data) {
 
 function saveProgress() {
   try {
-    sessionStorage.setItem('toefl_p2_listening', JSON.stringify(getAnswers()));
+    localStorage.setItem('toefl_p2_listening', JSON.stringify(getAnswers()));
     document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString();
   } catch(e) {}
 }
@@ -650,10 +658,12 @@ function downloadHTML() {
 }
 
 window.addEventListener('load', () => {
-  try { const s = sessionStorage.getItem('toefl_p2_listening'); if (s) restoreAnswers(JSON.parse(s)); } catch(e) {}
+  try { const s = localStorage.getItem('toefl_p2_listening') || sessionStorage.getItem('toefl_p2_listening'); if (s) restoreAnswers(JSON.parse(s)); } catch(e) {}
   if (!document.getElementById('studentDate').value)
     document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];
 });
+window.addEventListener('pagehide', pauseAllMedia);
+document.addEventListener('visibilitychange', () => { if (document.hidden) pauseAllMedia(); });
 </script>
 <script src="../exam-score-privacy.js"></script>
 </body>

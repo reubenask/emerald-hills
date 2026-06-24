@@ -884,7 +884,7 @@ buildRecorderWidget(document.getElementById('task3Widget'), 'task3', 45, 60);
 /* ---------- locked task-by-task navigation ---------- */
 const wizardTasks = ['task1', 'task2', 'task3'];
 const wizardStorageKey = 'toefl_speaking_forward_task_v1';
-let currentWizardIndex = Math.min(3, Math.max(0, Number(sessionStorage.getItem(wizardStorageKey) || 0)));
+let currentWizardIndex = Math.min(3, Math.max(0, Number(localStorage.getItem(wizardStorageKey) || sessionStorage.getItem(wizardStorageKey) || 0)));
 const firstTaskBanner = document.querySelector('.task-banner');
 const progress = document.createElement('div');
 progress.className = 'wizard-progress';
@@ -930,7 +930,7 @@ function lockNext(taskId){
 
 function resetWizard(){
   currentWizardIndex = 0;
-  sessionStorage.setItem(wizardStorageKey, '0');
+  localStorage.setItem(wizardStorageKey, '0');
   wizardScreens.forEach(screen => lockNext(screen.dataset.taskId));
   renderWizard();
 }
@@ -938,7 +938,7 @@ function resetWizard(){
 function advanceWizard(fromIndex){
   if(fromIndex !== currentWizardIndex || !recordings[wizardTasks[fromIndex]]) return;
   currentWizardIndex = Math.min(3, currentWizardIndex + 1);
-  sessionStorage.setItem(wizardStorageKey, String(currentWizardIndex));
+  localStorage.setItem(wizardStorageKey, String(currentWizardIndex));
   renderWizard();
   window.scrollTo({top: progress.offsetTop - 20, behavior: 'smooth'});
 }

@@ -498,8 +498,13 @@ document.querySelectorAll('.inline-q input[type="radio"]').forEach(inp => {
 });
 
 function submitTest(auto = false) {
+  let answered = 0;
+  clozeIds.forEach(q => { if (document.querySelector(`input[name="${q}"]:checked`)) answered++; });
+  if (!auto && answered < TOTAL_Q) {
+    if (!confirm(`You have ${TOTAL_Q - answered} unanswered question(s). Submit anyway?`)) return;
+  }
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-  let answered = 0, correct = 0;
+  let correct = 0;
   clozeIds.forEach(q => {
     const correctVal = ANSWER_KEY[q];
     const checked = document.querySelector(`input[name="${q}"]:checked`);
@@ -509,10 +514,7 @@ function submitTest(auto = false) {
       if (inp.value === correctVal) lbl.classList.add('c-correct');
       else if (inp.checked) lbl.classList.add('c-wrong');
     });
-    if (checked) {
-      answered++;
-      if (checked.value === correctVal) correct++;
-    }
+    if (checked && checked.value === correctVal) correct++;
   });
   const pct = Math.round((correct / TOTAL_Q) * 100);
   const marked = clozeIds.map((q, index) => {
@@ -588,7 +590,7 @@ function restoreState(state) {
 
 function saveProgress() {
   try {
-    sessionStorage.setItem('toefl_p2_language', JSON.stringify(getState()));
+    localStorage.setItem('toefl_p2_language', JSON.stringify(getState()));
     document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString();
   } catch(e) {}
 }
@@ -634,7 +636,7 @@ function applyStudentFromQuery() {
 }
 
 window.addEventListener("load", () => {
-  try { const s = sessionStorage.getItem('toefl_p2_language'); if (s) restoreState(JSON.parse(s)); } catch(e) {}
+  try { const s = localStorage.getItem('toefl_p2_language') || sessionStorage.getItem('toefl_p2_language'); if (s) restoreState(JSON.parse(s)); } catch(e) {}
   applyStudentFromQuery();
   if (!document.getElementById('studentDate').value)
     document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];

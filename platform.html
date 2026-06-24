@@ -5037,7 +5037,7 @@
           <p>${assignment.instructions}</p>
           <p><strong>Posted:</strong> ${assignment.posted}<br><strong>Due:</strong> ${assignment.due}${assignment.durationMinutes ? `<br><strong>Time limit:</strong> ${assignment.durationMinutes} minutes` : ""}</p>
           <div class="action-row">
-            <button class="primary-btn" ${lockedCompleted ? "disabled" : ""} onclick="openAssignment('${assignment.id}')">${lockedCompleted ? "Completed" : submitted && isFormalTimedCategory(assignment.category) ? "Review result" : submitted ? "View submission" : isFormalTimedCategory(assignment.category) ? "Take test" : "Open work"}</button>
+            <button class="primary-btn" onclick="openAssignment('${assignment.id}')">${lockedCompleted ? "View submission" : submitted && isFormalTimedCategory(assignment.category) ? "Review result" : submitted ? "View submission" : isFormalTimedCategory(assignment.category) ? "Take test" : "Open work"}</button>
             ${submitted && (!isFormalTimedCategory(assignment.category) || formalExamPackProgress(assignment).complete) ? `<button class="ghost-btn" onclick="shareSubmissionSummary('${assignment.id}')"><span aria-hidden="true">↗</span> Share summary</button>` : ""}
           </div>
         </article>
@@ -5572,7 +5572,10 @@
         return `
           ${pageHeader("Section Submitted", "已提交", `${assignment.title} · ${assignment.program} · ${assignment.className} · ${assignment.category} · ${assignment.section}`, `<button class="ghost-btn" onclick="closeAssignment()">Back to test list</button>`)}
           <div class="test-frame">
-            <div class="external-exam-note">This section was submitted on ${escapeHtml(submitted.submittedAt)}. ${escapeHtml(scoreStatus.label)}.</div>
+            <div class="external-exam-note">This section was submitted on ${escapeHtml(submitted.submittedAt)}. ${escapeHtml(scoreStatus.label)}. Your saved answers are locked below; correctness and score review open after every section in this test has been submitted.</div>
+            <div class="external-exam-shell">
+              ${renderSubmissionAnswerReview(submitted, assignment, false)}
+            </div>
           </div>
         `;
       }
@@ -5665,12 +5668,28 @@
     }
 
     function renderSubmissionAnswerReview(submission, assignment, canShowDetails = false) {
-      if (!canShowDetails) {
-        return `<p style="color:var(--muted)">Answer review opens after the full test has been submitted.</p>`;
-      }
       const answers = Array.isArray(submission.answers) ? submission.answers.filter(Boolean) : [];
       const marked = submission.autoScore && Array.isArray(submission.autoScore.marked) ? submission.autoScore.marked : [];
       const scoreStatus = studentScoreStatus(submission, assignment);
+      const savedEvidence = answers.length ? `
+        <details open>
+          <summary>Saved answer evidence</summary>
+          <ol>
+            ${answers.slice(0, 120).map((answer) => `<li>${escapeHtml(answer)}</li>`).join("")}
+          </ol>
+        </details>
+      ` : `<p style="color:var(--muted)">No answer evidence was captured for this section.</p>`;
+      if (!canShowDetails) {
+        return `
+          <div class="auto-score-box">
+            <strong>${escapeHtml(assignment.section || "Section")} status:</strong> Saved and locked<br>
+            <span>Submitted ${escapeHtml(submission.submittedAt || "")}. Correct/wrong review opens after the full test has been submitted.</span>
+          </div>
+          ${savedEvidence}
+          ${renderRecordingEvidence(submission)}
+          ${submission.feedback ? `<p><strong>Teacher feedback:</strong> ${escapeHtml(submission.feedback)}</p>` : ""}
+        `;
+      }
       return `
         <div class="auto-score-box">
           <strong>${escapeHtml(assignment.section || "Section")} status:</strong> ${escapeHtml(scoreStatus.label)}<br>
@@ -5693,14 +5712,7 @@
               </tbody>
             </table>
           </div>
-        ` : answers.length ? `
-          <details open>
-            <summary>Saved answer evidence</summary>
-            <ol>
-              ${answers.slice(0, 120).map((answer) => `<li>${escapeHtml(answer)}</li>`).join("")}
-            </ol>
-          </details>
-        ` : `<p style="color:var(--muted)">No answer evidence was captured for this section.</p>`}
+        ` : savedEvidence}
         ${renderRecordingEvidence(submission)}
         ${submission.feedback ? `<p><strong>Teacher feedback:</strong> ${escapeHtml(submission.feedback)}</p>` : ""}
       `;
@@ -5965,12 +5977,6 @@
 
     function openAssignment(id) {
       const assignment = assignmentsForStudent().find((item) => item.id === id);
-      if (assignment && isFormalTimedCategory(assignment.category) && submissionFor(assignment.id) && !formalExamPackProgress(assignment).complete) {
-        studentTestNotice = `${assignment.section} has already been submitted. Please continue with the next unfinished section or check Results when the full test is complete.`;
-        activeAssignmentId = null;
-        renderStudentAssignments();
-        return;
-      }
       if (assignment && isTimedAssignment(assignment) && !submissionFor(assignment.id)) {
         ensureTestSession(assignment);
       }
