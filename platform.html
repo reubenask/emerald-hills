@@ -1504,6 +1504,189 @@
       font-family: 'Playfair Display', 'Noto Serif SC', serif;
     }
 
+    .monthly-score-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(185, 146, 90, 0.52);
+      border-radius: 10px;
+      background:
+        linear-gradient(135deg, rgba(7, 29, 22, 0.96), rgba(15, 72, 52, 0.9)),
+        #071D16;
+      color: #fff8dd;
+      padding: 28px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+      margin-bottom: 22px;
+    }
+
+    .monthly-score-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 54px 54px;
+      opacity: 0.35;
+    }
+
+    .monthly-score-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 20px;
+    }
+
+    .monthly-score-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .monthly-score-title small {
+      color: var(--accent);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .monthly-score-title h2 {
+      margin: 6px 0 0;
+      color: #ffe0a3;
+      font-size: clamp(38px, 5vw, 62px);
+      letter-spacing: 0.08em;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-weight: 700;
+    }
+
+    .score-card-meta {
+      display: grid;
+      gap: 10px;
+      color: #f7e9c5;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
+    .score-card-meta div {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 12px;
+      align-items: end;
+    }
+
+    .score-card-meta span {
+      border-bottom: 1px solid rgba(255, 224, 163, 0.62);
+      min-height: 22px;
+      color: #fff8dd;
+    }
+
+    .score-card-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid rgba(185, 146, 90, 0.35);
+      background: rgba(2, 24, 17, 0.42);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .score-card-table-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+    }
+
+    .score-card-table th,
+    .score-card-table td {
+      border: 1px solid rgba(185, 146, 90, 0.24);
+      padding: 12px 14px;
+      text-align: left;
+      color: #fff8dd;
+    }
+
+    .score-card-table th {
+      color: #ffe0a3;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    .score-card-table td:nth-child(2),
+    .score-card-table td:nth-child(3),
+    .score-card-table td:nth-child(4),
+    .score-card-table td:nth-child(5) {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .score-card-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .score-card-total,
+    .score-card-scale {
+      border: 1px solid rgba(185, 146, 90, 0.36);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.14);
+      padding: 16px;
+    }
+
+    .score-card-total {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      text-align: center;
+    }
+
+    .score-card-total small,
+    .score-card-scale small {
+      color: #ffe0a3;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .score-card-total strong {
+      display: block;
+      color: #ffe0a3;
+      font-size: 30px;
+      margin-top: 8px;
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
+    .score-card-scale table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .score-card-scale td {
+      padding: 5px 8px;
+      border-bottom: 1px solid rgba(185, 146, 90, 0.18);
+      color: #fff8dd;
+    }
+
+    @media (max-width: 760px) {
+      .monthly-score-card {
+        padding: 18px;
+      }
+
+      .monthly-score-top,
+      .score-card-bottom {
+        grid-template-columns: 1fr;
+      }
+
+      .score-card-total {
+        grid-template-columns: 1fr;
+      }
+
+      .score-card-table {
+        min-width: 720px;
+        font-size: 12px;
+      }
+    }
+
     .message-list {
       display: grid;
       gap: 10px;
@@ -2733,6 +2916,7 @@
     const speakingRecordings = {};
     const speakingDraftLinks = {};
     let studentWorkCategory = "Exercise";
+    let studentResultMonth = "";
     let programDetailsLanguage = "english";
     let teacherProgram = {
       teacherAssignments: "Primary",
@@ -6207,11 +6391,176 @@
       );
     }
 
+    function monthLabel(month = "") {
+      if (!month) return "";
+      const [year, monthNumber] = month.split("-");
+      const date = new Date(Number(year), Number(monthNumber) - 1, 1);
+      if (Number.isNaN(date.getTime())) return month;
+      return date.toLocaleString("en", { month: "long", year: "numeric" });
+    }
+
+    function gradeForPercent(score) {
+      if (score === null || score === undefined || score === "") return { grade: "-", remark: "Pending" };
+      const value = Number(score);
+      if (!Number.isFinite(value)) return { grade: "-", remark: "Pending" };
+      if (value >= 90) return { grade: "A", remark: "Excellent" };
+      if (value >= 75) return { grade: "B", remark: "Good" };
+      if (value >= 60) return { grade: "C", remark: "Satisfactory" };
+      if (value >= 40) return { grade: "D", remark: "Needs improvement" };
+      return { grade: "F", remark: "Needs support" };
+    }
+
+    function formatPercentScore(value) {
+      if (value === null || value === undefined || value === "") return "-";
+      const number = Number(value);
+      return Number.isFinite(number) ? `${Math.round(number * 10) / 10}%` : escapeHtml(String(value));
+    }
+
+    function averageValues(values) {
+      const valid = values.map(Number).filter((value) => Number.isFinite(value));
+      if (!valid.length) return null;
+      return Math.round((valid.reduce((sum, value) => sum + value, 0) / valid.length) * 10) / 10;
+    }
+
+    function monthFromSubmission(submission) {
+      return String(submission.completionDate || submission.submittedAt || "").slice(0, 7);
+    }
+
+    function monthlyScoreMonths(studentName = currentUser ? currentUser.name : "") {
+      const months = new Set();
+      store.reviews.filter((review) => review.student === studentName).forEach((review) => {
+        if (review.month) months.add(review.month);
+        else if (review.sourceDate) months.add(String(review.sourceDate).slice(0, 7));
+      });
+      store.submissions.filter((submission) => submission.student === studentName).forEach((submission) => {
+        const month = monthFromSubmission(submission);
+        if (month) months.add(month);
+      });
+      return [...months].sort().reverse();
+    }
+
+    function renderScoreCardRow(label, score, remark = "") {
+      const grade = gradeForPercent(score);
+      const number = Number(score);
+      const scoreText = Number.isFinite(number) ? Math.round(number * 10) / 10 : "-";
+      return `
+        <tr>
+          <td>${escapeHtml(label)}</td>
+          <td>100</td>
+          <td>${scoreText}</td>
+          <td>${formatPercentScore(score)}</td>
+          <td>${escapeHtml(grade.grade)}</td>
+          <td>${escapeHtml(remark || grade.remark)}</td>
+        </tr>
+      `;
+    }
+
+    function monthlyScoreCardRows(studentName, month) {
+      const review = store.reviews
+        .filter((item) => item.student === studentName && (item.month === month || String(item.sourceDate || "").slice(0, 7) === month))
+        .sort((a, b) => String(b.sourceDate || b.month).localeCompare(String(a.sourceDate || a.month)))[0];
+      const rows = [];
+      if (review && review.scores) {
+        [
+          ["Speaking", review.scores.speaking],
+          ["Listening", review.scores.listening],
+          ["Reading", review.scores.reading],
+          ["Language Form & Meaning", review.scores.language],
+          ["Writing", review.scores.writing]
+        ].filter(([, value]) => value !== undefined).forEach(([label, score]) => rows.push({ label, score, remark: "Monthly skill score" }));
+      }
+      const monthSubmissions = store.submissions.filter((submission) => submission.student === studentName && monthFromSubmission(submission) === month);
+      const homeworkScores = monthSubmissions
+        .filter((submission) => assignmentForSubmission(submission).category === "Homework")
+        .map((submission) => normalizedWorkStatus(submission) === "completed" ? numericScore(submission.scorePercent ?? submission.score) || 0 : 0);
+      const exerciseScores = monthSubmissions
+        .filter((submission) => assignmentForSubmission(submission).category === "Exercise" && normalizedWorkStatus(submission) !== "absent")
+        .map((submission) => normalizedWorkStatus(submission) === "completed" ? 100 : 0);
+      const monthlyTestScores = monthSubmissions
+        .filter((submission) => assignmentForSubmission(submission).category === "Monthly Test")
+        .map((submission) => numericScore(submission.scorePercent ?? submission.score))
+        .filter((score) => score !== null);
+      const mockScores = monthSubmissions
+        .filter((submission) => isFormalTimedCategory(assignmentForSubmission(submission).category) && assignmentForSubmission(submission).category !== "Monthly Test")
+        .map((submission) => numericScore(submission.scorePercent ?? submission.score))
+        .filter((score) => score !== null);
+      const homeworkAverage = averageValues(homeworkScores);
+      const exerciseAverage = averageValues(exerciseScores);
+      const monthlyAverage = averageValues(monthlyTestScores);
+      const mockAverage = averageValues(mockScores);
+      if (homeworkAverage !== null) rows.push({ label: "Homework", score: homeworkAverage, remark: `${homeworkScores.length} record${homeworkScores.length === 1 ? "" : "s"}` });
+      if (exerciseAverage !== null) rows.push({ label: "Class Exercises", score: exerciseAverage, remark: `${exerciseScores.length} attended record${exerciseScores.length === 1 ? "" : "s"}` });
+      if (monthlyAverage !== null) rows.push({ label: "Monthly Tests", score: monthlyAverage, remark: "Objective sections only until teacher marks speaking/writing" });
+      if (mockAverage !== null) rows.push({ label: "Mock Exams", score: mockAverage, remark: "Mock assessment average" });
+      return rows;
+    }
+
+    function renderMonthlyScoreCard(studentName = currentUser.name) {
+      const months = monthlyScoreMonths(studentName);
+      if (!months.length) return `<div class="empty">No score card is available yet.</div>`;
+      if (!studentResultMonth || !months.includes(studentResultMonth)) studentResultMonth = months[0];
+      const student = store.students.find((item) => item.name === studentName) || currentStudentRecord() || {};
+      const rows = monthlyScoreCardRows(studentName, studentResultMonth);
+      const overall = averageValues(rows.map((row) => row.score));
+      const grade = gradeForPercent(overall);
+      return `
+        <div class="toolbar" style="justify-content:flex-end;margin-bottom:12px">
+          <select onchange="studentResultMonth=this.value; renderStudentResults();">
+            ${months.map((month) => `<option value="${month}" ${month === studentResultMonth ? "selected" : ""}>${monthLabel(month)}</option>`).join("")}
+          </select>
+        </div>
+        <article class="monthly-score-card">
+          <div class="monthly-score-content">
+            <div class="monthly-score-top">
+              <div class="monthly-score-title">
+                <small>Score Card</small>
+                <h2>REPORT CARD</h2>
+              </div>
+              <div class="score-card-meta">
+                <div><strong>Student Name</strong><span>${escapeHtml(studentName)}</span></div>
+                <div><strong>Class / Grade</strong><span>${escapeHtml(student.className || currentUser.className || "")}</span></div>
+                <div><strong>Academic Month</strong><span>${escapeHtml(monthLabel(studentResultMonth))}</span></div>
+                <div><strong>Date</strong><span>${escapeHtml(studentResultMonth)}</span></div>
+              </div>
+            </div>
+            <div class="score-card-table-wrap">
+              <table class="score-card-table">
+                <thead><tr><th>Subject</th><th>Max Score</th><th>Score Obtained</th><th>Percentage</th><th>Grade</th><th>Remarks</th></tr></thead>
+                <tbody>
+                  ${rows.length ? rows.map((row) => renderScoreCardRow(row.label, row.score, row.remark)).join("") : `<tr><td colspan="6">No score rows for this month yet.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+            <div class="score-card-bottom">
+              <div class="score-card-total">
+                <div><small>Total Score</small><strong>${overall === null ? "-" : `${Math.round(overall * rows.length * 10) / 10}/${rows.length * 100}`}</strong></div>
+                <div><small>Overall Grade</small><strong>${escapeHtml(grade.grade)}</strong></div>
+                <div><small>Average</small><strong>${formatPercentScore(overall)}</strong></div>
+              </div>
+              <div class="score-card-scale">
+                <small>Grading Scale</small>
+                <table>
+                  <tbody>
+                    <tr><td>A</td><td>90-100</td><td>Excellent</td></tr>
+                    <tr><td>B</td><td>75-89</td><td>Good</td></tr>
+                    <tr><td>C</td><td>60-74</td><td>Satisfactory</td></tr>
+                    <tr><td>D</td><td>40-59</td><td>Needs improvement</td></tr>
+                    <tr><td>F</td><td>0-39</td><td>Needs support</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
     function renderStudentResults() {
       const submissions = studentSubmissions().sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)));
       const historicalScores = store.reviews.filter((item) => item.student === currentUser.name && item.source === "Old score import");
       $("#studentResults").innerHTML = `
         ${pageHeader("Results Portal", "成绩中心", "Check scores by date. Red dates have available score records or submitted work.")}
+        ${renderMonthlyScoreCard(currentUser.name)}
         ${historicalScores.length ? `<h3>Imported / monthly scores</h3>${renderReviewCalendar(historicalScores, "student-result-score")}` : ""}
         <h3>Submitted work</h3>
         ${renderSubmissionCalendar(submissions, "student-submission-result")}
