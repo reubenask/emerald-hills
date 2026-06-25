@@ -8110,60 +8110,56 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             <div class="score-pill"><small>Writing</small><strong>${latestScores.writing ?? "-"}</strong></div>
           </div>
           <p class="muted">Latest record: ${escapeHtml(sourceLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</p>
-          ${reviews.length ? renderPerformanceGraph(reviews) : ""}
-          <details>
-            <summary>Scores and monthly reviews</summary>
-            ${reviews.length ? renderPerformanceGraph(reviews) : ""}
-            ${renderReviewCalendar(reviews, `record-review-${student.studentId || student.name.replace(/\W+/g, "-")}`, "No score or monthly review has been recorded yet.")}
-          </details>
-          <details ${options.openTests ? "open" : ""}>
-            <summary>Assigned tests, homework, and exercises</summary>
-            <div class="table-card compact-table">
-              <table>
-                <thead><tr><th>Work</th><th>Section</th><th>Timing / answers</th><th>Status</th></tr></thead>
-                <tbody>
-                  ${assignedWork.map((assignment) => {
-                    const submitted = submissions.find((submission) => submission.assignmentId === assignment.id);
-                    return `
-                      <tr>
-                        <td><strong>${escapeHtml(assignment.title)}</strong><br>${escapeHtml(categoryLabels[assignment.category] || assignment.category)} · Due ${escapeHtml(assignment.due || "-")}</td>
-                        <td>${escapeHtml(assignment.section || "-")}<br>${assignment.answerKey && assignment.answerKey.length ? `${assignment.answerKey.length} answer key items` : "Manual scoring / no key"}</td>
-                        <td>${assignment.durationMinutes ? `${assignment.durationMinutes} min` : "No timer"}<br>${assignment.answerCount || 0} answer slots</td>
-                        <td>${escapeHtml(workRecordSummary(submitted, assignment))}</td>
-                      </tr>
-                    `;
-                  }).join("") || `<tr><td colspan="4">No assigned work for this student's class.</td></tr>`}
-                </tbody>
-              </table>
-            </div>
-          </details>
-          <details ${options.openSubmissions ? "open" : ""}>
-            <summary>Submitted answers and teacher feedback</summary>
-            <div class="table-card compact-table">
-              <table>
-                <thead><tr><th>Submission</th><th>Answer evidence</th><th>Score</th><th>Feedback</th></tr></thead>
-                <tbody>
-                  ${submissions.map((submission) => {
-                    const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
-                    return `
-                      <tr>
-                        <td><strong>${escapeHtml(assignment.title || "Deleted assignment")}</strong><br>${escapeHtml(assignment.category || "")} · ${escapeHtml(assignment.section || "")}<br>${escapeHtml(submission.submittedAt || "")}</td>
-                        <td>${escapeHtml(String(submission.answer || "No written answer")).slice(0, 260)}${renderRecordingEvidence(submission)}${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}</td>
-                        <td>${escapeHtml(isCompletionCategory(assignment.category) ? workRecordSummary(submission, assignment) : (submission.score || "Waiting"))}</td>
-                        <td>${escapeHtml(submission.feedback || "No teacher feedback yet.")}</td>
-                      </tr>
-                    `;
-                  }).join("") || `<tr><td colspan="4">No submissions yet.</td></tr>`}
-                </tbody>
-              </table>
-            </div>
-          </details>
-          <details>
-            <summary>Admin annotations</summary>
-            <div class="message-list">
-              ${notes.map(renderAdminNote).join("") || `<div class="empty">No admin annotations for this student yet.</div>`}
-            </div>
-          </details>
+          <div class="review-toggle-grid">
+            <details ${options.openTests ? "open" : ""}>
+              <summary>Scores and monthly reviews · ${reviews.length}</summary>
+              <p class="muted">Open this block to see the monthly review history and graph for this one student only.</p>
+              ${reviews.length ? renderPerformanceGraph(reviews) : ""}
+              ${renderReviewCalendar(reviews, `record-review-${student.studentId || student.name.replace(/\W+/g, "-")}`, "No score or monthly review has been recorded yet.")}
+            </details>
+            <details>
+              <summary>Assigned tests, homework, and exercises · ${assignedWork.length}</summary>
+              <div class="grid one-col">
+                ${assignedWork.map((assignment) => {
+                  const submitted = submissions.find((submission) => submission.assignmentId === assignment.id);
+                  return `
+                    <article class="message-item">
+                      <small>${escapeHtml(categoryLabels[assignment.category] || assignment.category)} · Due ${escapeHtml(assignment.due || "-")}</small>
+                      <strong>${escapeHtml(assignment.title)}</strong>
+                      <p>Section: ${escapeHtml(assignment.section || "-")}</p>
+                      <p>Timing / answers: ${assignment.durationMinutes ? `${assignment.durationMinutes} min` : "No timer"} · ${assignment.answerCount || 0} answer slots</p>
+                      <p>Status: ${escapeHtml(workRecordSummary(submitted, assignment))}</p>
+                    </article>
+                  `;
+                }).join("") || `<div class="empty">No assigned work for this student's class.</div>`}
+              </div>
+            </details>
+            <details ${options.openSubmissions ? "open" : ""}>
+              <summary>Submitted answers and teacher feedback · ${submissions.length}</summary>
+              <div class="grid one-col">
+                ${submissions.map((submission) => {
+                  const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
+                  return `
+                    <article class="message-item">
+                      <small>${escapeHtml(assignment.category || "")} · ${escapeHtml(assignment.section || "")} · ${escapeHtml(submission.submittedAt || "")}</small>
+                      <strong>${escapeHtml(assignment.title || "Deleted assignment")}</strong>
+                      <p>${escapeHtml(String(submission.answer || "No written answer")).slice(0, 260)}</p>
+                      ${renderRecordingEvidence(submission)}
+                      ${submission.autoScore ? renderAutoScoreBox(submission.autoScore) : ""}
+                      <p><strong>Score:</strong> ${escapeHtml(isCompletionCategory(assignment.category) ? workRecordSummary(submission, assignment) : (submission.score || "Waiting"))}</p>
+                      <p><strong>Feedback:</strong> ${escapeHtml(submission.feedback || "No teacher feedback yet.")}</p>
+                    </article>
+                  `;
+                }).join("") || `<div class="empty">No submissions yet.</div>`}
+              </div>
+            </details>
+            <details>
+              <summary>Admin annotations · ${notes.length}</summary>
+              <div class="message-list">
+                ${notes.map(renderAdminNote).join("") || `<div class="empty">No admin annotations for this student yet.</div>`}
+              </div>
+            </details>
+          </div>
         </article>
       `;
     }
@@ -8195,7 +8191,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderTeacherRecords() {
-      renderStudentRecords("teacherRecords", "teacherRecords", "Student Records", "学生完整记录", "Teachers can see each student's assigned work, submissions, scores, reviews, recordings, feedback, and progress graph.", { openTests: true });
+      renderStudentRecords("teacherRecords", "teacherRecords", "Student Records", "学生完整记录", "Teachers can open one class, then one student, and expand only the record blocks they need.");
     }
 
     function renderTeacherReviews() {
@@ -8750,9 +8746,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               ${classStudents.map((student) => `<option value="${escapeHtml(studentFocusKey(student))}" ${selectedStudentKey === studentFocusKey(student) ? "selected" : ""}>${escapeHtml(student.name)} · ${escapeHtml(student.studentId || "No ID")}</option>`).join("")}
             </select></label>
           </div>
-          <p class="muted">Only the selected student's record will open below. This keeps the admin view focused and easier to read.</p>
+          <p class="muted">Pick the class first, then one student. Only that student's record opens below, and the details stay in expandable blocks.</p>
         </div>
-        ${selectedStudent ? renderStudentRecordCard(selectedStudent, { openTests: true, openSubmissions: true }) : `<div class="empty">Choose a class and student to view records.</div>`}
+        ${selectedStudent ? renderStudentRecordCard(selectedStudent) : `<div class="empty">Choose a class and student to view records.</div>`}
       `;
     }
 
