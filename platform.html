@@ -1733,6 +1733,25 @@
       font-family: 'Playfair Display', 'Noto Serif SC', serif;
     }
 
+    .student-snapshot {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin: 8px 0 12px;
+    }
+
+    .student-snapshot .message-item {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    .student-snapshot .message-item p {
+      margin: 0;
+      color: var(--ink);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
     .performance-graph {
       width: 100%;
       height: 220px;
@@ -2206,6 +2225,74 @@
       border-radius: 6px;
     }
 
+    .semester-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .semester-sections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .semester-section-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      min-width: 0;
+    }
+
+    .semester-section-card h4 {
+      margin: 0 0 10px;
+      color: var(--white);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 19px;
+    }
+
+    .semester-section-card p {
+      margin-bottom: 10px;
+    }
+
+    .semester-bullet-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .semester-bullet-list li + li {
+      margin-top: 4px;
+    }
+
+    .semester-editor-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .semester-editor-grid.two-col {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .semester-outline-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .semester-outline-card h4 {
+      margin: 0 0 10px;
+      color: var(--white);
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: 18px;
+    }
+
     .question strong {
       display: block;
       margin-bottom: 10px;
@@ -2552,6 +2639,7 @@
         <nav id="studentNav" class="nav">
           <button class="active" data-section="studentDashboard" onclick="activateSection('studentDashboard')">Dashboard</button>
           <button data-section="programDetails" onclick="activateSection('programDetails')">Program Details</button>
+          <button data-section="studentSemesterOverview" onclick="activateSection('studentSemesterOverview')">Semester Overview</button>
           <button data-section="studentAssignments" onclick="activateSection('studentAssignments')">Work Platforms</button>
           <button data-section="typingCentre" onclick="activateSection('typingCentre')">Typing Centre</button>
           <button data-section="studentResults" onclick="activateSection('studentResults')">Results Portal</button>
@@ -2563,6 +2651,7 @@
         <nav id="teacherNav" class="nav hidden">
           <button class="active" data-section="teacherDashboard" onclick="activateSection('teacherDashboard')">Dashboard</button>
           <button data-section="programDetails" onclick="activateSection('programDetails')">Program Details</button>
+          <button data-section="teacherSemesterOverview" onclick="activateSection('teacherSemesterOverview')">Semester Overview</button>
           <button data-section="teacherAssignments" onclick="activateSection('teacherAssignments')">Create & Edit Work</button>
           <button data-section="teacherLessonNotes" onclick="activateSection('teacherLessonNotes')">Lesson Notes</button>
           <button data-section="teacherSubmissions" onclick="activateSection('teacherSubmissions')">Submissions</button>
@@ -2575,6 +2664,7 @@
           <button data-section="adminAccounts" onclick="openAdminAccounts('all')">Accounts</button>
           <button data-section="adminStudents" onclick="activateSection('adminStudents')">Students</button>
           <button data-section="adminClassShift" onclick="activateSection('adminClassShift')">Class Shift</button>
+          <button data-section="adminSemesterOverview" onclick="activateSection('adminSemesterOverview')">Semester Overview</button>
           <button data-section="adminRecords" onclick="activateSection('adminRecords')">Student Records</button>
           <button data-section="adminScores" onclick="activateSection('adminScores')">Scores & Tests</button>
           <button data-section="adminEvaluation" onclick="activateSection('adminEvaluation')">Evaluate</button>
@@ -2589,6 +2679,7 @@
       <main class="main">
         <section id="studentDashboard" class="section active"></section>
         <section id="programDetails" class="section"></section>
+        <section id="studentSemesterOverview" class="section"></section>
         <section id="studentAssignments" class="section"></section>
         <section id="typingCentre" class="section"></section>
         <section id="studentResults" class="section"></section>
@@ -2597,6 +2688,7 @@
         <section id="studentRanking" class="section"></section>
         <section id="studentReviews" class="section"></section>
         <section id="teacherDashboard" class="section"></section>
+        <section id="teacherSemesterOverview" class="section"></section>
         <section id="teacherAssignments" class="section"></section>
         <section id="teacherLessonNotes" class="section"></section>
         <section id="teacherSubmissions" class="section"></section>
@@ -2607,6 +2699,7 @@
         <section id="adminAccounts" class="section"></section>
         <section id="adminStudents" class="section"></section>
         <section id="adminClassShift" class="section"></section>
+        <section id="adminSemesterOverview" class="section"></section>
         <section id="adminRecords" class="section"></section>
         <section id="adminScores" class="section"></section>
         <section id="adminEvaluation" class="section"></section>
@@ -2954,6 +3047,7 @@
       teacherRecords: "Primary",
       teacherReviews: "Primary",
       teacherRankings: "Primary",
+      teacherSemesterOverview: "Primary",
       adminRecords: "Primary"
     };
     let teacherClassFilter = {
@@ -2962,6 +3056,7 @@
       teacherRecords: "Primary Step 2",
       teacherReviews: "Primary Step 2",
       teacherRankings: "Primary Step 2",
+      teacherSemesterOverview: "Primary Step 2",
       adminRecords: "Primary Step 2"
     };
     let teacherCategory = {
@@ -2994,6 +3089,10 @@
     let adminLessonProgram = "Primary";
     let adminLessonClass = "Primary Step 2";
     let adminLessonMonth = "";
+    let adminSemesterProgram = "Primary";
+    let adminSemesterClass = "Primary Step 2";
+    let teacherSemesterEditId = "";
+    let adminSemesterEditId = "";
     const workCategories = ["Exercise", "Homework", "Monthly Test", "Mock Exam"];
     const categoryLabels = {
       Exercise: "Class Exercises",
@@ -3030,9 +3129,9 @@
       { name: "Yaya", username: "yaya", email: "yaya@emeraldhills.local", password: "EH-Yaya-3672", gender: "female", accountId: "EH-STU-2005", program: "Junior", className: "Junior", score: 59.7, exams: 59.7, workMetrics: { homework: 80, exercises: 75 } },
       { name: "Ethan Guo", username: "ethan.guo", email: "ethanguo@emeraldhills.local", password: "EH-EthanG-4821", gender: "male", accountId: "EH-STU-2001", program: "Junior", className: "Junior", score: 63.6, exams: 63.6, workMetrics: { homework: 0, exercises: 85 } },
       { name: "Ethan Yang", username: "ethan.yang", email: "ethanyang@emeraldhills.local", password: "EH-EthanY-7394", gender: "male", accountId: "EH-STU-2002", program: "Junior", className: "Junior", score: 74.6, exams: 74.6, workMetrics: { homework: 50, exercises: 80 } },
-      { name: "Leonardo", username: "leonardo", email: "leonardo@emeraldhills.local", password: "EH-Leonardo-5819", gender: "male", accountId: "EH-STU-2006", program: "iBT", className: "iBT", score: 69.2, exams: 69.2 },
-      { name: "Isaac", username: "isaac", email: "isaac@emeraldhills.local", password: "EH-Isaac-6403", gender: "male", accountId: "EH-STU-2007", program: "iBT", className: "iBT", score: 47.2, exams: 47.2 },
-      { name: "Wilson", username: "wilson", email: "wilson@emeraldhills.local", password: "EH-Wilson-1287", gender: "male", accountId: "EH-STU-2008", program: "iBT", className: "iBT", score: 68.7, exams: 68.7 }
+      { name: "Leonardo", username: "leonardo", email: "leonardo@emeraldhills.local", password: "EH-Leonardo-5819", gender: "male", accountId: "EH-STU-2006", program: "iBT", className: "iBT", score: 69.2, exams: 69.2, workMetrics: { homework: 75, exercises: 80 } },
+      { name: "Isaac", username: "isaac", email: "isaac@emeraldhills.local", password: "EH-Isaac-6403", gender: "male", accountId: "EH-STU-2007", program: "iBT", className: "iBT", score: 47.2, exams: 47.2, workMetrics: { homework: 82.5, exercises: 55 } },
+      { name: "Wilson", username: "wilson", email: "wilson@emeraldhills.local", password: "EH-Wilson-1287", gender: "male", accountId: "EH-STU-2008", program: "iBT", className: "iBT", score: 68.7, exams: 68.7, workMetrics: { homework: 12.5, exercises: 85 } }
     ].map((account) => ({
       ...account,
       role: "student",
@@ -3213,9 +3312,21 @@
       { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
       { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
       { student: "Yaya", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
+      { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
+      { student: "Isaac", program: "iBT", className: "iBT", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
+      { student: "Wilson", program: "iBT", className: "iBT", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
       { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-31", overall: 69.2, scores: { speaking: 57.5, listening: 76, reading: 80, writing: 63.3 } },
       { student: "Isaac", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-31", overall: 47.2, scores: { speaking: 40, listening: 52.1, reading: 50, writing: 46.6 } },
       { student: "Wilson", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-31", overall: 68.7, scores: { speaking: 50, listening: 89.1, reading: 72.5, writing: 63.3 } }
+    ];
+
+    const seededMonthlyWorkMetrics = [
+      { student: "Isaac", program: "iBT", className: "iBT", month: "2026-05", homework: 80, exercises: 50 },
+      { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-05", homework: 80, exercises: 80 },
+      { student: "Wilson", program: "iBT", className: "iBT", month: "2026-05", homework: 25, exercises: 80 },
+      { student: "Isaac", program: "iBT", className: "iBT", month: "2026-06", homework: 85, exercises: 60 },
+      { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-06", homework: 70, exercises: 80 },
+      { student: "Wilson", program: "iBT", className: "iBT", month: "2026-06", homework: 0, exercises: 90 }
     ];
 
     const aprilReviewGuidance = {
@@ -3450,6 +3561,51 @@
         how: `How we will support Ran: We will use animation imitation, read-aloud practice, and sentence frames so his ideas can become complete English sentences. In class, the teacher will give him wait-turn routines and ask him to explain one answer after classmates try first. At home, parents can support short computer practice and one favourite movie line repeated clearly, followed by one original sentence.
 中文：我们将这样支持 Ran：我们会使用动画模仿、朗读练习和句型框架，帮助他把想法变成完整英文句子。课堂上，老师会设置“等待轮次”的规则，并让他在同学先尝试后解释一个答案。家庭中，家长可以支持短时间电脑练习，以及清楚重复一句喜欢的电影台词后，再造一个原创句子。`
       },
+      "iBT|iBT|Wilson|2026-06": {
+        strong: `Strengths: Wilson continues to do very well in listening and reading. His comprehension in both areas is strong, and he handles class input with much more ease now. In June, he also showed small but meaningful progress in speaking when we used simple examples and classroom discussion to develop ideas for writing.
+中文：优势：Wilson 在听力和阅读方面继续表现得很好，这两个领域的理解力都很强，现在处理课堂输入也比以前轻松得多。六月里，当我们使用简单例子和课堂讨论来帮助发展写作思路时，他的口语也出现了细小但有意义的进步。`,
+        improving: `June class summary: 1. The iBT class continued working on speaking response structure, idea development, and support for writing Task 3 style discussion questions. 2. We practised building clearer reasons before answering. 3. Students were asked to connect reading/listening knowledge to speaking and writing more directly.
+中文：六月课堂概况：1. iBT 班继续训练口语回答结构、观点发展，以及针对写作 Task 3 类讨论题的支撑表达。2. 我们练习了在作答前先建立更清楚的理由。3. 学生需要更直接地把阅读和听力中的知识连接到口语和写作中。
+
+Currently improving: Wilson is making minimal but real progress in speaking. He is beginning to respond better when the examples are clear and the discussion path is structured.
+中文：目前正在提升：Wilson 的口语虽然进步幅度不大，但是真实存在。他在例子清楚、讨论路径明确时，已经能更好地回应问题。`,
+        weakness: `Weaknesses: His main challenge remains idea development for speaking and writing, especially for writing Task 3 style responses. He needs wider exposure to reading materials so that he has more reasons, examples, and background knowledge available. Another clear writing challenge is sentence expansion: he often stays with short SVO sentences. Although they are grammatically acceptable, they can sound flat and repetitive because they do not yet use enough adverbs, adjectives, and other sentence-building tools.
+中文：弱项：他最主要的挑战仍然是口语和写作中的观点发展，尤其是写作 Task 3 风格的回答。他需要接触更多阅读材料，这样才会有更多理由、例子和背景知识可以调用。另一个明显的写作问题是句子扩展：他经常停留在简短的 SVO 句型上。虽然这些句子语法上可以成立，但因为缺少副词、形容词和其他扩句手段，整体表达会显得单调。`,
+        areas: `Areas to improve: We will continue strengthening speaking output, idea development, and richer sentence construction so that his strong reading and listening can feed more expressive writing and speaking.
+中文：提升方向：我们会继续加强口语输出、观点发展和更丰富的句子结构，让他较强的阅读和听力能力能够更好地转化为更有表现力的写作和口语。`,
+        how: `How we will support Wilson: We will keep using guided classroom discussion, but now we will ask him to expand one short answer into a fuller answer with one reason, one example, and one describing phrase. In class, the teacher will model how to grow a simple SVO sentence by adding adjectives, adverbs, and supporting detail. At home, Wilson can read or watch short English materials on different topics, then retell one idea and one reason aloud. The goal is to help him build an idea bank and a more interesting sentence style step by step.
+中文：我们将这样支持 Wilson：我们会继续使用有引导的课堂讨论，但现在会要求他把一个简短答案扩展成一个更完整的回答，包括一个理由、一个例子和一个描述性短语。课堂上，老师会示范如何通过加入形容词、副词和支持细节，把简单的 SVO 句子扩展起来。家庭中，Wilson 可以阅读或观看不同主题的短英语材料，然后大声复述一个观点和一个理由。目标是帮助他逐步建立观点库和更有变化的句子风格。`
+      },
+      "iBT|iBT|Leonardo|2026-06": {
+        strong: `Strengths: Leonardo is continuing to make progress, especially in Speaking Task 1 compared with earlier months. His Task 2 response structure is also developing: he is becoming better at organising ideas and giving clearer reasons. His reading and listening are still moving in a positive direction, and this continues to support his overall academic growth.
+中文：优势：Leonardo 仍在持续进步，尤其是口语 Task 1 相比前几个月有了明显提升。他在 Task 2 的回答结构上也有发展：越来越能把观点组织起来，并给出更清楚的理由。阅读和听力仍在朝好的方向前进，这也持续支撑着他的整体学术成长。`,
+        improving: `June class summary: 1. The iBT class focused on clearer response structure in speaking and stronger control of reasons in writing. 2. We revisited how topic sentences should come before explanation. 3. Students were also guided to tighten grammar and punctuation when turning ideas into longer written responses.
+中文：六月课堂概况：1. iBT 班重点训练了口语中更清楚的回答结构，以及写作中更有控制力的理由展开。2. 我们再次复习了主题句应先于解释出现。3. 同时也指导学生在把观点写成较长答案时，更注意语法和标点控制。
+
+Currently improving: Leonardo's idea development is improving, and there are now more moments when he can organise a better answer before he explains it. The improvement is visible, but it still needs more consistency.
+中文：目前正在提升：Leonardo 的观点发展正在进步，现在越来越多时候他能先把答案组织好，再展开解释。这种进步已经看得到，但仍需要更稳定。`,
+        weakness: `Weaknesses: The most important challenge is still punctuation and grammar in writing. He often writes one sentence across several lines, and the reading experience becomes tiring because the sentence is too long and not clearly controlled. Topic sentence development is another area that still needs work: sometimes he does it well, but at other times he begins explaining before clearly stating the main point.
+中文：弱项：最重要的挑战仍然是写作中的标点和语法控制。他经常把一个句子写成好几行，读起来会很累，因为句子太长，而且控制不够清楚。主题句的发展也是仍需加强的部分：有时他做得很好，但有时会在主旨还不够清楚时就开始解释。`,
+        areas: `Areas to improve: We will keep working on sentence control, punctuation, topic sentence writing, and steady consistency so that his improving ideas can be presented in a clearer written form.
+中文：提升方向：我们会继续加强句子控制、标点使用、主题句写作以及整体稳定性，让他正在进步的观点表达能以更清楚的书面形式呈现出来。`,
+        how: `How we will support Leonardo: We will ask him to return regularly to the new sentence structure we learned in the most recent class and practise it until it becomes natural. In class, the teacher will help him break long sentences into manageable parts and check whether the topic sentence is strong enough before explanation begins. At home, Leonardo can write one short paragraph on a chosen topic, then reread it only for punctuation and sentence length before revising. This will help consistency catch up with his growing ideas.
+中文：我们将这样支持 Leonardo：我们会要求他经常回到最近一节课学到的新句型结构，并持续练习，直到能够自然使用。课堂上，老师会帮助他把长句拆成更容易控制的小部分，并在开始解释前先检查主题句是否足够明确。家庭中，Leonardo 可以围绕一个自选话题写一小段，然后只从标点和句子长度两个角度重新检查，再进行修改。这样能帮助他的稳定性跟上他不断增长的思考能力。`
+      },
+      "iBT|iBT|Isaac|2026-06": {
+        strong: `Strengths: Isaac's listening continues to be a clear strength. He understands lectures and conversations well, and his speaking is also moving in a good direction because he is becoming more able to develop ideas. His vocabulary level is improving too, and his grammar over the past two weeks has shown better signs than before.
+中文：优势：Isaac 的听力依然是一个很明显的强项。他对讲座和对话的理解很好，而他的口语也在朝好的方向发展，因为他越来越能够展开自己的观点。他的词汇水平也在进步，过去两周的语法表现也比以前有了更好的迹象。`,
+        improving: `June class summary: 1. The iBT class kept practising how to turn ideas into speaking and writing responses with clearer organisation. 2. We reviewed how vocabulary should be learned together with its part of speech and real usage. 3. Students were also encouraged to connect lecture understanding to stronger spoken explanations.
+中文：六月课堂概况：1. iBT 班继续练习如何把观点转化为更有组织的口语和写作回答。2. 我们复习了词汇学习不能只记意思，还要同时记住词性和真实用法。3. 同时也鼓励学生把对讲座的理解转化为更完整的口头解释。
+
+Currently improving: Isaac is showing more signs of growth in speaking because he can now develop ideas more readily. His grammar is also beginning to stabilise more than before, especially in class-guided practice.
+中文：目前正在提升：Isaac 在口语方面显示出更多进步迹象，因为他现在更能顺利地展开观点。他的语法也开始比以前更稳定，尤其是在课堂引导练习中。`,
+        weakness: `Weaknesses: The main issue is that vocabulary ownership is still shallow. He may know a word, but he does not always remember its part of speech or how it was used, so he cannot use it naturally in a sentence. This affects both writing and speaking. His spoken and written sentences still contain many grammatical and spelling errors, and his reading and personal writing need more independent work.
+中文：弱项：主要问题是词汇掌握还不够深入。他可能认识一个单词，但不一定记得它的词性或具体用法，因此无法自然地把它用进句子里。这会同时影响写作和口语。他的口语和写作句子中仍然有较多语法和拼写错误，而阅读和个人写作也需要更多独立练习。`,
+        areas: `Areas to improve: We will focus on deeper vocabulary use, more accurate sentence building, regular personal writing, and continued reading so that his good listening and developing speaking can become more polished output.
+中文：提升方向：我们会重点加强更深入的词汇使用、更准确的句子构建、规律性的个人写作和持续阅读，让他较好的听力和正在进步的口语逐步转化为更成熟的输出。`,
+        how: `How we will support Isaac: We will keep training him not only to learn the word, but also to imitate how it was used, identify its part of speech, and use it again in his own sentence. In class, the teacher will continue correcting the grammar patterns that appear most often in his speaking and writing. At home, Isaac can do regular short writing on his own life, school, or interests, then review spelling and grammar before rewriting once. The goal is to turn his growing ideas into cleaner English, not just more English.
+中文：我们将这样支持 Isaac：我们会继续训练他不仅记住单词，还要模仿这个词是怎样被使用的、判断它的词性，并再次把它用到自己的句子里。课堂上，老师会继续纠正他在口语和写作中最常出现的语法模式。家庭中，Isaac 可以围绕自己的生活、学校或兴趣进行规律性的短写作，然后先检查拼写和语法，再重写一次。目标不是让他“说得更多”，而是把他正在增长的想法转化为更干净、更准确的英语。`
+      },
       "iBT|iBT|Wilson|2026-05": {
         strong: `Strengths: Wilson's reading and listening continue to improve, and his vocabulary range is expanding through our domain-knowledge learning approach. He is now able to form simple reasons and short supporting sentences, which gives us a useful foundation for both iBT speaking and writing.
 中文：优势：Wilson 的阅读和听力持续进步，随着我们采用领域知识学习的方法，他的词汇范围也在扩大。现在他已经能够提出简单理由，并写出简短的支持句子，这为 iBT 口语和写作打下了有用基础。`,
@@ -3679,6 +3835,241 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       }
     ];
 
+    const seededLessonNotes = [
+      {
+        date: "2026-06-24",
+        teacher: "System",
+        program: "Primary",
+        className: "Primary Step 2",
+        topic: "June Monthly Test",
+        objective: "Students complete the Primary Step 2 monthly test under the planned test conditions and demonstrate what they can do independently across the target skills.",
+        iceBreaker: "Short test readiness check: settle in, prepare materials, review instructions, and remind students to manage time calmly.",
+        lessonForDay: "Primary Step 2 monthly test day. Students complete the scheduled June test sections for this class.",
+        materials: "Primary Step 2 June monthly test papers, answer sheets, listening/speaking materials as assigned, pencils, and classroom test instructions.",
+        homework: "No new homework today. Students should rest after the test and wait for teacher feedback and score review.",
+        attendees: [],
+        attachments: [],
+        studentNotes: {},
+        editHistory: [
+          {
+            action: "Seeded lesson note published",
+            note: "Primary Step 2 monthly test day",
+            by: "System",
+            role: "admin",
+            date: "2026-06-24"
+          }
+        ]
+      },
+      {
+        date: "2026-06-25",
+        teacher: "System",
+        program: "Junior",
+        className: "Junior",
+        topic: "June Monthly Test",
+        objective: "Students complete the Junior monthly test under timed classroom conditions and show their current level across the June assessment sections.",
+        iceBreaker: "Quiet test check-in: confirm materials, review timing, and help students focus before the assessment begins.",
+        lessonForDay: "Junior monthly test day. Students complete the scheduled June monthly test sections for the Junior class.",
+        materials: "Junior June monthly test papers, answer sheets, listening/speaking materials as assigned, pencils, and classroom timing instructions.",
+        homework: "No new homework today. Students should review only if needed and wait for teacher feedback after marking.",
+        attendees: [],
+        attachments: [],
+        studentNotes: {},
+        editHistory: [
+          {
+            action: "Seeded lesson note published",
+            note: "Junior monthly test day",
+            by: "System",
+            role: "admin",
+            date: "2026-06-25"
+          }
+        ]
+      },
+      {
+        date: "2026-06-26",
+        teacher: "System",
+        program: "iBT",
+        className: "iBT",
+        topic: "June Monthly Test",
+        objective: "Students complete the iBT monthly test in the planned sequence and demonstrate their current progress under formal test-style conditions.",
+        iceBreaker: "Test readiness reminder: settle in, prepare materials, confirm timing rules, and begin only when instructed.",
+        lessonForDay: "iBT monthly test day. Students complete the scheduled June monthly test sections for the iBT class.",
+        materials: "iBT June monthly test sections, answer sheets, audio/speaking materials as assigned, pencils, and timing instructions.",
+        homework: "No new homework today. Students should wait for teacher marking and later review the feedback carefully.",
+        attendees: [],
+        attachments: [],
+        studentNotes: {},
+        editHistory: [
+          {
+            action: "Seeded lesson note published",
+            note: "iBT monthly test day",
+            by: "System",
+            role: "admin",
+            date: "2026-06-26"
+          }
+        ]
+      }
+    ];
+    window.seededLessonNotes = seededLessonNotes;
+
+    const seededSemesterOverviews = [
+      {
+        id: "semester-primary-step2-2026-spring",
+        program: "Primary",
+        className: "Primary Step 2",
+        semesterLabel: "Spring Semester 2026",
+        startMonth: "2026-03",
+        endMonth: "2026-06",
+        summary: "From March to June, Primary Step 2 moved from strong phonics and sentence foundations into more guided TOEFL-style learning. The class worked with videos, stories, role play, grammar detective tasks, short reading passages, and simple writing so students could connect vocabulary, meaning, and confidence step by step.",
+        summaryZh: "2026年3月至6月，Primary Step 2 从较扎实的自然拼读和基础句型逐步过渡到更有引导性的托福风格学习。班级通过视频、故事、角色扮演、语法侦探任务、短篇阅读和简短写作，把词汇、理解和表达信心一步一步连接起来。",
+        parentFocus: [
+          "Students learned through visual-first and story-based input before moving into more formal question types.",
+          "The class steadily linked speaking, listening, reading, grammar, and writing instead of treating each skill separately.",
+          "June introduced TOEFL listening question types more directly so students can transition toward Junior with less pressure."
+        ],
+        parentFocusZh: [
+          "学生先通过“视觉优先”和故事化输入学习，再逐步过渡到更正式的题型。",
+          "课堂持续把口语、听力、阅读、语法和写作连接起来，而不是完全分开训练。",
+          "六月开始更直接地引入托福听力题型，为今后衔接 Junior 做准备，同时保持学习压力不过重。"
+        ],
+        homeSupport: "Families can support this semester plan by keeping reading aloud, short listening retells, vocabulary notebooks, and simple English diaries as part of a light but steady weekly rhythm.",
+        homeSupportZh: "家庭可以通过持续进行英文朗读、简短听力复述、词汇本和简单英语日记来支持本学期的学习计划，让练习保持轻量但稳定的节奏。",
+        sections: [
+          {
+            name: "Listening",
+            overview: "Students listened to short real-life and story-based videos, including hospital and daily-life themes, then answered guided questions. By June, they began identifying main idea, detail, vocabulary, and purpose questions in short TOEFL-style listening tasks.",
+            overviewZh: "学生通过医院主题、日常生活主题和故事类短视频进行听力学习，并回答引导性问题。到六月，学生开始在简短的托福风格听力任务中识别主旨题、细节题、词汇题和目的题。",
+            focus: ["Video-supported listening", "Main idea", "Detail questions", "Vocabulary in context", "Purpose questions"]
+          },
+          {
+            name: "Reading",
+            overview: "Reading lessons started with VCV rules, syllables, spelling, and fluency, then moved into longer passages, rhyme-based reading, reading structure, and evidence-based comprehension. Students learned to slow down, notice clues, and explain answers from the text.",
+            overviewZh: "阅读课从VCV规则、音节、拼写和朗读流利度开始，逐步进入更长的文章、押韵阅读、篇章结构和基于证据的理解训练。学生学习放慢速度、留意线索，并根据文章内容解释答案。",
+            focus: ["VCV decoding", "Syllable reading", "Fluency", "Passage structure", "Text evidence"]
+          },
+          {
+            name: "Language Form & Meaning",
+            overview: "Grammar work covered pronouns, nouns, verbs, tense review, subject-verb agreement, punctuation, capitalization, and sentence correction. The later grammar detective lessons helped students notice mistakes inside both single sentences and short paragraphs.",
+            overviewZh: "语法部分涵盖了代词、名词、动词、时态复习、主谓一致、标点、大写规则和句子改错。后期的“语法侦探”课程帮助学生在单句和短段落中发现错误。",
+            focus: ["Parts of speech", "Tense review", "Subject-verb agreement", "Punctuation", "Error detection"]
+          },
+          {
+            name: "Speaking",
+            overview: "Students practised self-introduction, role play, picture-based speaking, drama, and practical speaking in class routines. The aim was to help them speak in simple complete sentences with more confidence before moving to harder Junior-style responses.",
+            overviewZh: "学生练习了自我介绍、角色扮演、看图口语、短剧表达以及课堂中的实用口语。目标是在进入更难的 Junior 风格回答前，先帮助他们更有信心地用简单完整句表达。",
+            focus: ["Self-introduction", "Role play", "Picture description", "Drama expression", "Sentence confidence"]
+          },
+          {
+            name: "Writing",
+            overview: "Writing grew from tense-based sentence practice into picture-panel stories, process writing, and short guided descriptions. Students learned to use sequence words, write from visuals, and connect vocabulary to practical sentence production.",
+            overviewZh: "写作从基于时态的句子练习逐步发展到四格图故事、过程写作和简短引导描述。学生学习使用顺序词、根据图片写作，并把新词汇应用到实际造句中。",
+            focus: ["Sentence building", "Picture stories", "Sequence words", "Process writing", "Guided descriptions"]
+          }
+        ]
+      },
+      {
+        id: "semester-junior-2026-spring",
+        program: "Junior",
+        className: "Junior",
+        semesterLabel: "Spring Semester 2026",
+        startMonth: "2026-03",
+        endMonth: "2026-06",
+        summary: "From March to June, the Junior class built a bridge into more formal TOEFL Junior thinking. Lessons combined essay logic, picture storytelling, map-based reading, grammar review, email writing, movie-based vocabulary, paragraph summaries, and TOEFL-style question types so students could move from general English into structured academic performance.",
+        summaryZh: "2026年3月至6月，Junior 班逐步建立起通往更正式 TOEFL Junior 思维方式的桥梁。课程把作文逻辑、看图讲故事、地图主题阅读、语法复习、邮件写作、电影词汇、段落概括和托福风格题型结合起来，帮助学生从一般英语过渡到更有结构的学术表现。",
+        parentFocus: [
+          "Students learned how to explain why an answer is correct, not only choose it.",
+          "Vocabulary learning was repeatedly connected to films, maps, reading passages, and classroom discussion.",
+          "By June, grammar review and TOEFL question-type practice were more direct to prepare students for monthly tests and the next learning stage."
+        ],
+        parentFocusZh: [
+          "学生不仅学习选出正确答案，也学习解释为什么答案正确。",
+          "词汇学习不断与电影、地图、阅读文章和课堂讨论连接起来。",
+          "到六月，语法复习和托福题型训练更加直接，以帮助学生准备月考和下一阶段学习。"
+        ],
+        homeSupport: "Families can support this semester plan by encouraging steady reading, short paragraph summaries, vocabulary notebooks, and short oral retells after listening or reading practice.",
+        homeSupportZh: "家庭可以通过鼓励规律阅读、简短段落总结、词汇本，以及在听力或阅读练习后做简短口头复述来支持本学期学习。",
+        sections: [
+          {
+            name: "Listening",
+            overview: "Listening lessons moved from story and clip-based understanding into review of TOEFL-style question types, especially main idea, detail, factual information, purpose, and vocabulary questions. Students also practised rebuilding note-taking after test review.",
+            overviewZh: "听力课程从故事和短视频理解逐步过渡到托福风格题型复习，重点包括主旨题、细节题、事实信息题、目的题和词汇题。学生也在测试复盘后练习重建听力笔记方法。",
+            focus: ["Main idea", "Detail questions", "Factual information", "Purpose", "Listening review"]
+          },
+          {
+            name: "Reading",
+            overview: "Students worked with short passages, geography and world-map texts, paragraph main ideas, evidence finding, and reading summaries. The class practised slowing down, finding support in the text, and recognising what each paragraph is doing.",
+            overviewZh: "学生练习了短篇文章、地理与世界地图类文本、段落主旨、找证据和阅读总结。课堂持续训练学生放慢速度、从原文中找依据，并识别每一段的作用。",
+            focus: ["Map-based reading", "Paragraph summary", "Text evidence", "Question types", "Vocabulary in reading"]
+          },
+          {
+            name: "Language Form & Meaning",
+            overview: "Grammar and language work included sentence correction, tense review, comparatives and superlatives, subject-verb agreement, punctuation, and grammar detective tasks. Students were asked to understand not just the right form, but why the other choices were wrong.",
+            overviewZh: "语法与语言形式训练涵盖了句子改错、时态复习、比较级和最高级、主谓一致、标点以及“语法侦探”任务。学生不仅要知道正确形式，还要理解其他选项为什么不对。",
+            focus: ["Tense review", "Comparatives", "Superlatives", "Grammar correction", "Error explanation"]
+          },
+          {
+            name: "Speaking",
+            overview: "Junior speaking covered picture storytelling, speaking Tasks 1-3, and discussion-based responses linked to class knowledge. Students learned to organise answers with linking words and move from short phrases toward fuller spoken reasoning.",
+            overviewZh: "Junior 口语涵盖了看图讲故事、口语任务1-3，以及与课堂知识相关的讨论式回答。学生学习用连接词组织答案，并逐步从短语表达过渡到更完整的口头推理。",
+            focus: ["Picture storytelling", "Speaking Tasks 1-3", "Linking words", "Reasoned answers", "Confidence building"]
+          },
+          {
+            name: "Writing",
+            overview: "Writing lessons began with W/H planning and essay logic, then moved into fuller paragraphs, email writing, typing-supported writing, and short summaries. Students practised turning ideas into organised sentences with clearer support.",
+            overviewZh: "写作课程从W/H构思和作文逻辑开始，逐步进入完整段落、邮件写作、打字辅助写作和简短总结。学生练习把想法转化为更有组织、支撑更清楚的句子。",
+            focus: ["W/H planning", "Essay logic", "Email writing", "Typing fluency", "Paragraph summaries"]
+          }
+        ]
+      },
+      {
+        id: "semester-ibt-2026-spring",
+        program: "iBT",
+        className: "iBT",
+        semesterLabel: "Spring Semester 2026",
+        startMonth: "2026-03",
+        endMonth: "2026-06",
+        summary: "From March to June, the iBT class focused on test structure, academic reading, lecture listening, integrated speaking, and increasingly organised writing. The semester combined mock testing, error analysis, background knowledge building, and repeated work on timed responses so students could understand not only the language, but also the logic of the test.",
+        summaryZh: "2026年3月至6月，iBT 班重点训练了考试结构、学术阅读、讲座听力、综合口语和更有组织的写作。本学期把模拟测试、错题分析、背景知识建立和限时回答训练结合起来，帮助学生不仅理解语言本身，也理解考试逻辑。",
+        parentFocus: [
+          "Students learned how to plan before speaking and writing, not only answer immediately.",
+          "Reading and listening were taught with an evidence-first approach so students could justify answers more clearly.",
+          "The class repeatedly connected vocabulary and background knowledge to academic topics, which is essential for iBT growth."
+        ],
+        parentFocusZh: [
+          "学生学习在口语和写作前先进行构思，而不是马上作答。",
+          "阅读和听力以“先找证据”为核心进行教学，帮助学生更清楚地说明答案依据。",
+          "课堂持续把词汇和背景知识连接到学术主题上，这对 iBT 的成长非常关键。"
+        ],
+        homeSupport: "Families can support this semester plan by encouraging topic reading, vocabulary review with example sentences, short speaking recordings, and regular reflection after mock or timed practice.",
+        homeSupportZh: "家庭可以通过鼓励主题阅读、带例句的词汇复习、简短口语录音和模拟练习后的定期反思来支持本学期学习。",
+        sections: [
+          {
+            name: "Reading",
+            overview: "Students studied reading question types, evidence location, vocabulary in context, inference, and long-passage handling. They were trained to explain why an answer fits the text and to read with a more academic purpose.",
+            overviewZh: "学生学习了阅读题型、证据定位、语境词汇、推理题以及长篇文章处理方法。课堂训练学生解释为什么答案符合原文，并以更学术化的方式进行阅读。",
+            focus: ["Evidence location", "Inference", "Vocabulary in context", "Long passages", "Academic reading logic"]
+          },
+          {
+            name: "Listening",
+            overview: "Listening covered question types, note-taking priorities, lecture organisation, speaker purpose, and how examples support main ideas. Students also linked listening details to later speaking output.",
+            overviewZh: "听力部分涵盖了题型、笔记重点、讲座结构、说话者目的以及例子如何支撑主旨。学生也练习把听力细节连接到后续口语输出中。",
+            focus: ["Lecture notes", "Speaker purpose", "Organisation", "Examples and support", "Integrated response"]
+          },
+          {
+            name: "Speaking",
+            overview: "Speaking practice included timed response planning, integrated listening-speaking tasks, imitation of stronger response models, and clearer sentence chunking. Students were trained to listen, prepare quickly, and respond within time limits with better structure.",
+            overviewZh: "口语训练包括限时回答构思、综合听说任务、优秀回答示范模仿以及更清晰的句群表达。学生练习在有限时间内听题、快速准备，并用更有结构的方式回答。",
+            focus: ["Timed response", "Integrated speaking", "Model imitation", "Sentence chunks", "Task organisation"]
+          },
+          {
+            name: "Writing",
+            overview: "Writing moved through task structure, short quizzes, grammar review, sentence order, email responses, longer academic writing, and idea generation. Students practised building clearer paragraphs with stronger reasons, examples, and topic control.",
+            overviewZh: "写作部分依次训练了任务结构、短测、语法复习、句子顺序、邮件回复、较长学术写作以及构思方法。学生练习构建更清晰的段落，并加强理由、例子和主题控制。",
+            focus: ["Task structure", "Grammar accuracy", "Email writing", "Academic paragraphs", "Idea generation"]
+          }
+        ]
+      }
+    ];
+
     function entranceLevels() {
       return [
         { key: "Primary Step 1", program: "Primary", className: "Primary Step 1", label: "Primary Step 1" },
@@ -3894,6 +4285,65 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return [...seededNotes, ...mergedSavedNotes];
     }
 
+    function semesterOverviewKey(overview) {
+      return `${overview.program}|${overview.className}|${overview.startMonth}|${overview.endMonth}|${overview.semesterLabel}`;
+    }
+
+    function normalizedSemesterSections(program, className, sections = []) {
+      const requiredSections = sectionsFor(program, className);
+      const savedByName = (Array.isArray(sections) ? sections : []).reduce((map, section) => {
+        if (section && section.name) map[section.name] = section;
+        return map;
+      }, {});
+      return requiredSections.map((name) => ({
+        name,
+        overview: String(savedByName[name] && savedByName[name].overview || "").trim(),
+        overviewZh: String(savedByName[name] && savedByName[name].overviewZh || "").trim(),
+        focus: Array.isArray(savedByName[name] && savedByName[name].focus)
+          ? savedByName[name].focus.filter(Boolean)
+          : []
+      }));
+    }
+
+    function normalizeSemesterOverview(overview) {
+      const program = overview.program in programs ? overview.program : "Primary";
+      const classes = classesFor(program);
+      const className = classes.includes(overview.className) ? overview.className : classes[0];
+      return {
+        ...overview,
+        id: overview.id || `${program.toLowerCase()}-${className.toLowerCase().replace(/\s+/g, "-")}-${overview.startMonth || "semester"}-${overview.endMonth || "term"}`,
+        program,
+        className,
+        semesterLabel: String(overview.semesterLabel || "").trim() || `${program} Semester Overview`,
+        startMonth: String(overview.startMonth || "").trim(),
+        endMonth: String(overview.endMonth || "").trim(),
+        summary: String(overview.summary || "").trim(),
+        summaryZh: String(overview.summaryZh || "").trim(),
+        parentFocus: Array.isArray(overview.parentFocus) ? overview.parentFocus.filter(Boolean) : [],
+        parentFocusZh: Array.isArray(overview.parentFocusZh) ? overview.parentFocusZh.filter(Boolean) : [],
+        homeSupport: String(overview.homeSupport || "").trim(),
+        homeSupportZh: String(overview.homeSupportZh || "").trim(),
+        sections: normalizedSemesterSections(program, className, overview.sections),
+        editHistory: Array.isArray(overview.editHistory) ? overview.editHistory : []
+      };
+    }
+
+    function mergeSeededSemesterOverviews(saved) {
+      const savedOverviews = Array.isArray(saved) ? saved : [];
+      const normalizedSaved = savedOverviews.map(normalizeSemesterOverview);
+      const savedKeys = new Set(normalizedSaved.map(semesterOverviewKey));
+      const mergedSaved = normalizedSaved.map((savedOverview) => {
+        const seededOverview = seededSemesterOverviews
+          .map(normalizeSemesterOverview)
+          .find((overview) => semesterOverviewKey(overview) === semesterOverviewKey(savedOverview));
+        return seededOverview ? normalizeSemesterOverview({ ...seededOverview, ...savedOverview }) : savedOverview;
+      });
+      const seeded = seededSemesterOverviews
+        .map(normalizeSemesterOverview)
+        .filter((overview) => !savedKeys.has(semesterOverviewKey(overview)));
+      return [...seeded, ...mergedSaved].sort((a, b) => String(b.endMonth || "").localeCompare(String(a.endMonth || "")) || String(b.startMonth || "").localeCompare(String(a.startMonth || "")));
+    }
+
     const store = {
       get students() {
         return mergeSeededStudents(JSON.parse(localStorage.getItem("gm_students") || "null") || students);
@@ -3948,6 +4398,12 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       },
       set lessonNotes(value) {
         localStorage.setItem("gm_lesson_notes", JSON.stringify(value));
+      },
+      get semesterOverviews() {
+        return mergeSeededSemesterOverviews(JSON.parse(localStorage.getItem("gm_semester_overviews") || "[]"));
+      },
+      set semesterOverviews(value) {
+        localStorage.setItem("gm_semester_overviews", JSON.stringify(value));
       },
       get guestExam() {
         return normalizeGuestExamBank(JSON.parse(localStorage.getItem("gm_guest_exam") || "null")) || defaultGuestExam;
@@ -5063,6 +5519,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       render();
     }
 
+    function selectRecordStudent(sectionId, studentKey) {
+      if (recordStudentFocus[sectionId] !== undefined) recordStudentFocus[sectionId] = studentKey;
+      render();
+    }
+
     function selectAdminRecordStudent(studentKey) {
       const student = store.students.find((item) => studentFocusKey(item) === studentKey);
       if (student) {
@@ -5199,7 +5660,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function reviewsForProgram(program) {
-      return store.reviews.filter((review) => review.program === program);
+      return uniqueMonthlyReviews(store.reviews.filter((review) => review.program === program));
     }
 
     function activeSectionId() {
@@ -5215,6 +5676,28 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       if (!raw) return "";
       if (/^\d{4}-\d{2}$/.test(raw)) return `${raw}-01`;
       return raw.slice(0, 10);
+    }
+
+    function reviewMonthKey(review) {
+      return String(review && (review.month || review.sourceDate || review.publishedAt || "")).slice(0, 7);
+    }
+
+    function uniqueMonthlyReviews(reviews = []) {
+      const sorted = [...reviews]
+        .filter(Boolean)
+        .sort((a, b) => String(reviewDateKey(b)).localeCompare(String(reviewDateKey(a))));
+      const seen = new Set();
+      const deduped = [];
+      sorted.forEach((review) => {
+        const monthKey = reviewMonthKey(review);
+        const studentName = String(review.student || "").trim();
+        if (!studentName || !monthKey) return;
+        const key = `${studentName}|${monthKey}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        deduped.push(review);
+      });
+      return deduped;
     }
 
     function monthLabel(monthKey = "") {
@@ -5466,6 +5949,172 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       `;
     }
 
+    function semesterWindowLabel(overview) {
+      const start = String(overview.startMonth || "").trim();
+      const end = String(overview.endMonth || "").trim();
+      if (start && end) return `${monthLabel(start)} - ${monthLabel(end)}`;
+      if (start) return monthLabel(start);
+      if (end) return monthLabel(end);
+      return "Semester window not set";
+    }
+
+    function semesterOverviewsFor(program, className) {
+      return store.semesterOverviews
+        .filter((overview) => overview.program === program && overview.className === className)
+        .sort((a, b) => String(b.endMonth || "").localeCompare(String(a.endMonth || "")) || String(b.startMonth || "").localeCompare(String(a.startMonth || "")));
+    }
+
+    function semesterOverviewById(id = "") {
+      return store.semesterOverviews.find((overview) => overview.id === id) || null;
+    }
+
+    function semesterListToTextarea(items) {
+      return (Array.isArray(items) ? items : []).filter(Boolean).join("\n");
+    }
+
+    function semesterTextareaToList(value = "") {
+      return String(value || "")
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function semesterHistoryEntry(action, note = "") {
+      return {
+        action,
+        note,
+        by: currentUser ? currentUser.name : "System",
+        role,
+        date: new Date().toISOString().slice(0, 10)
+      };
+    }
+
+    function defaultSemesterOverview(program, className) {
+      return normalizeSemesterOverview({
+        program,
+        className,
+        semesterLabel: `${program} Semester Overview`,
+        startMonth: "",
+        endMonth: "",
+        summary: "",
+        summaryZh: "",
+        parentFocus: [],
+        parentFocusZh: [],
+        homeSupport: "",
+        homeSupportZh: "",
+        sections: sectionsFor(program, className).map((name) => ({
+          name,
+          overview: "",
+          overviewZh: "",
+          focus: []
+        })),
+        editHistory: []
+      });
+    }
+
+    function setTeacherSemesterProgram(program) {
+      teacherProgram.teacherSemesterOverview = program;
+      teacherClassFilter.teacherSemesterOverview = classesFor(program)[0] || "";
+      teacherSemesterEditId = "";
+      renderTeacherSemesterOverview();
+    }
+
+    function setTeacherSemesterClass(className) {
+      teacherClassFilter.teacherSemesterOverview = className;
+      teacherSemesterEditId = "";
+      renderTeacherSemesterOverview();
+    }
+
+    function setAdminSemesterProgram(program) {
+      adminSemesterProgram = program;
+      adminSemesterClass = classesFor(program)[0] || "";
+      adminSemesterEditId = "";
+      renderAdminSemesterOverview();
+    }
+
+    function setAdminSemesterClass(className) {
+      adminSemesterClass = className;
+      adminSemesterEditId = "";
+      renderAdminSemesterOverview();
+    }
+
+    function editTeacherSemesterOverview(id = "") {
+      teacherSemesterEditId = id;
+      renderTeacherSemesterOverview();
+    }
+
+    function editAdminSemesterOverview(id = "") {
+      adminSemesterEditId = id;
+      renderAdminSemesterOverview();
+    }
+
+    function cancelTeacherSemesterOverviewEdit() {
+      teacherSemesterEditId = "";
+      renderTeacherSemesterOverview();
+    }
+
+    function cancelAdminSemesterOverviewEdit() {
+      adminSemesterEditId = "";
+      renderAdminSemesterOverview();
+    }
+
+    function saveSemesterOverview(event, scope) {
+      event.preventDefault();
+      if (scope === "teacher" && stopIfNotAllowed("teacher", "admin")) return;
+      if (scope === "admin" && stopIfNotAllowed("admin")) return;
+      const prefix = scope === "teacher" ? "teacherSemester" : "adminSemester";
+      const program = $(`#${prefix}Program`).value;
+      const className = $(`#${prefix}Class`).value;
+      const editingId = scope === "teacher" ? teacherSemesterEditId : adminSemesterEditId;
+      const current = editingId ? semesterOverviewById(editingId) : null;
+      const sections = sectionsFor(program, className).map((name, index) => ({
+        name,
+        overview: $(`#${prefix}SectionOverview${index}`).value.trim(),
+        overviewZh: $(`#${prefix}SectionOverviewZh${index}`).value.trim(),
+        focus: $(`#${prefix}SectionFocus${index}`).value
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+      }));
+      const overview = normalizeSemesterOverview({
+        ...current,
+        id: current && current.id ? current.id : `${program.toLowerCase()}-${className.toLowerCase().replace(/\s+/g, "-")}-${$(`#${prefix}StartMonth`).value || "semester"}-${$(`#${prefix}EndMonth`).value || "overview"}`,
+        program,
+        className,
+        semesterLabel: $(`#${prefix}Label`).value.trim(),
+        startMonth: $(`#${prefix}StartMonth`).value,
+        endMonth: $(`#${prefix}EndMonth`).value,
+        summary: $(`#${prefix}Summary`).value.trim(),
+        summaryZh: $(`#${prefix}SummaryZh`).value.trim(),
+        parentFocus: semesterTextareaToList($(`#${prefix}ParentFocus`).value),
+        parentFocusZh: semesterTextareaToList($(`#${prefix}ParentFocusZh`).value),
+        homeSupport: $(`#${prefix}HomeSupport`).value.trim(),
+        homeSupportZh: $(`#${prefix}HomeSupportZh`).value.trim(),
+        sections,
+        updatedBy: currentUser ? currentUser.name : "",
+        updatedRole: role,
+        updatedAt: new Date().toISOString().slice(0, 10),
+        editHistory: [
+          semesterHistoryEntry(current ? "Semester overview updated" : "Semester overview created", `${program} · ${className} · ${$(`#${prefix}Label`).value.trim()}`),
+          ...((current && current.editHistory) || [])
+        ]
+      });
+      const others = store.semesterOverviews.filter((item) => item.id !== overview.id && semesterOverviewKey(item) !== semesterOverviewKey(overview));
+      store.semesterOverviews = [overview, ...others];
+      if (scope === "teacher") {
+        teacherProgram.teacherSemesterOverview = program;
+        teacherClassFilter.teacherSemesterOverview = className;
+        teacherSemesterEditId = "";
+        renderTeacherSemesterOverview();
+      } else {
+        adminSemesterProgram = program;
+        adminSemesterClass = className;
+        adminSemesterEditId = "";
+        renderAdminSemesterOverview();
+      }
+      renderStudentSemesterOverview();
+    }
+
     function setProgramDetailsLanguage(language) {
       programDetailsLanguage = language;
       renderProgramDetails();
@@ -5482,6 +6131,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       if (role === "student") {
         renderStudentDashboard();
         renderProgramDetails();
+        renderStudentSemesterOverview();
         renderStudentAssignments();
         renderTypingCentre();
         renderStudentResults();
@@ -5492,6 +6142,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       } else if (role === "teacher") {
         renderTeacherDashboard();
         renderProgramDetails();
+        renderTeacherSemesterOverview();
         renderTeacherAssignments();
         renderTeacherLessonNotes();
         renderTeacherSubmissions();
@@ -5504,6 +6155,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         renderAdminStudents();
         renderAdminClassShift();
         renderAdminRecords();
+        renderAdminSemesterOverview();
         renderAdminScores();
         renderAdminEvaluation();
         renderAdminGuest();
@@ -5511,6 +6163,246 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         renderAdminLessonNotes();
         renderAdminMessages();
       }
+    }
+
+    function renderSemesterOverviewHistory(overview) {
+      const history = Array.isArray(overview.editHistory) ? overview.editHistory : [];
+      if (!history.length) return "";
+      return `
+        <details>
+          <summary>Edit notes</summary>
+          <div class="message-list">
+            ${history.map((entry) => `
+              <article class="message-item">
+                <small>${escapeHtml(entry.date || "")} · ${escapeHtml(entry.by || "User")} · ${escapeHtml(entry.role || "")}</small>
+                <strong>${escapeHtml(entry.action || "Updated")}</strong>
+                ${entry.note ? `<p>${escapeHtml(entry.note)}</p>` : ""}
+              </article>
+            `).join("")}
+          </div>
+        </details>
+      `;
+    }
+
+    function renderSemesterOverviewBody(overview, options = {}) {
+      return `
+        <div class="semester-meta">
+          <span class="tag green">${escapeHtml(overview.semesterLabel)}</span>
+          <span class="tag blue">${escapeHtml(semesterWindowLabel(overview))}</span>
+          <span class="tag blue">${escapeHtml(overview.program)} · ${escapeHtml(overview.className)}</span>
+        </div>
+        <article class="card semester-outline-card" style="margin-top:14px">
+          <h3>Semester summary</h3>
+          <p>${escapeHtml(overview.summary || "No English summary added yet.")}</p>
+          <p class="muted">${escapeHtml(overview.summaryZh || "尚未添加中文概述。")}</p>
+        </article>
+        <div class="split" style="margin-top:14px">
+          <article class="card">
+            <h3>Parent-facing learning focus</h3>
+            <ul class="semester-bullet-list">
+              ${(overview.parentFocus || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("") || `<li>No English parent overview added yet.</li>`}
+            </ul>
+            <ul class="semester-bullet-list muted" style="margin-top:10px">
+              ${(overview.parentFocusZh || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("") || `<li>尚未添加中文家长说明。</li>`}
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Home support</h3>
+            <p>${escapeHtml(overview.homeSupport || "No English home-support guidance added yet.")}</p>
+            <p class="muted">${escapeHtml(overview.homeSupportZh || "尚未添加中文家庭支持建议。")}</p>
+          </article>
+        </div>
+        <div class="semester-sections-grid" style="margin-top:14px">
+          ${(overview.sections || []).map((section) => `
+            <article class="card semester-section-card">
+              <h3>${escapeHtml(section.name)}</h3>
+              <p>${escapeHtml(section.overview || "No English section overview added yet.")}</p>
+              <p class="muted">${escapeHtml(section.overviewZh || "尚未添加中文分项概述。")}</p>
+              <div class="tag-row">
+                ${(section.focus || []).map((item) => `<span class="tag blue">${escapeHtml(item)}</span>`).join("") || `<span class="tag">Focus details pending</span>`}
+              </div>
+            </article>
+          `).join("")}
+        </div>
+        ${options.showHistory ? `<article class="card" style="margin-top:14px"><h3>Edit notes</h3>${renderSemesterOverviewHistory(overview) || `<div class="empty">No edit notes yet.</div>`}</article>` : ""}
+      `;
+    }
+
+    function renderSemesterOverviewCard(overview, options = {}) {
+      const summaryLine = options.summaryLine || `${overview.program} · ${overview.className}`;
+      const action = options.action || "";
+      return `
+        <details class="card"${options.open ? " open" : ""}>
+          <summary>
+            <span class="calendar-month-summary">
+              <span>
+                <strong>${escapeHtml(overview.semesterLabel)}</strong>
+                <small style="display:block; margin-top:4px; color:var(--muted)">${escapeHtml(summaryLine)} · ${escapeHtml(semesterWindowLabel(overview))}</small>
+              </span>
+              <span class="tag blue">${escapeHtml(String(overview.endMonth || "").slice(0, 4) || "Semester")}</span>
+            </span>
+          </summary>
+          <div style="margin-top:14px">
+            ${action ? `<div class="toolbar" style="justify-content:flex-end; margin-bottom:10px">${action}</div>` : ""}
+            ${renderSemesterOverviewBody(overview, options)}
+          </div>
+        </details>
+      `;
+    }
+
+    function renderSemesterOverviewForm(scope, program, className, editingId) {
+      const prefix = scope === "teacher" ? "teacherSemester" : "adminSemester";
+      const current = editingId ? semesterOverviewById(editingId) : null;
+      const draft = current ? normalizeSemesterOverview(current) : defaultSemesterOverview(program, className);
+      const classes = classesFor(program);
+      const summary = current ? "Edit semester overview" : "Create semester overview";
+      return `
+        <details class="card"${editingId || !semesterOverviewsFor(program, className).length ? " open" : ""}>
+          <summary>${escapeHtml(summary)}</summary>
+          <form onsubmit="saveSemesterOverview(event, '${scope}')" style="margin-top:14px">
+            <div class="semester-editor-grid">
+              <div class="field">
+                <label>Program</label>
+                <select id="${prefix}Program" onchange="${scope === "teacher" ? "setTeacherSemesterProgram(this.value)" : "setAdminSemesterProgram(this.value)"}">
+                  ${Object.keys(programs).map((item) => `<option value="${escapeHtml(item)}" ${item === program ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="field">
+                <label>Class</label>
+                <select id="${prefix}Class" onchange="${scope === "teacher" ? "setTeacherSemesterClass(this.value)" : "setAdminSemesterClass(this.value)"}">
+                  ${classes.map((item) => `<option value="${escapeHtml(item)}" ${item === className ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="field">
+                <label>Semester label</label>
+                <input id="${prefix}Label" value="${escapeHtml(draft.semesterLabel)}" placeholder="Spring Semester 2026">
+              </div>
+              <div class="field">
+                <label>Start month</label>
+                <input id="${prefix}StartMonth" type="month" value="${escapeHtml(draft.startMonth)}">
+              </div>
+              <div class="field">
+                <label>End month</label>
+                <input id="${prefix}EndMonth" type="month" value="${escapeHtml(draft.endMonth)}">
+              </div>
+            </div>
+            <div class="field">
+              <label>Semester summary (English)</label>
+              <textarea id="${prefix}Summary" placeholder="Parent-facing overview of what the class learned during this semester.">${escapeHtml(draft.summary)}</textarea>
+            </div>
+            <div class="field">
+              <label>Semester summary (中文)</label>
+              <textarea id="${prefix}SummaryZh" placeholder="本学期总体学习概述。">${escapeHtml(draft.summaryZh)}</textarea>
+            </div>
+            <div class="split">
+              <article class="card">
+                <h3>Parent-facing focus (English)</h3>
+                <div class="field"><label>One point per line</label><textarea id="${prefix}ParentFocus" placeholder="Students learned to...\nThe class moved into...\nParents can expect...">${escapeHtml(semesterListToTextarea(draft.parentFocus))}</textarea></div>
+              </article>
+              <article class="card">
+                <h3>Parent-facing focus (中文)</h3>
+                <div class="field"><label>每行一点</label><textarea id="${prefix}ParentFocusZh" placeholder="学生学习了……\n课堂逐步进入……\n家长可以看到……">${escapeHtml(semesterListToTextarea(draft.parentFocusZh))}</textarea></div>
+              </article>
+            </div>
+            <div class="split">
+              <article class="card">
+                <h3>Home support (English)</h3>
+                <div class="field"><label>Guidance for families</label><textarea id="${prefix}HomeSupport" placeholder="How families can support this semester at home.">${escapeHtml(draft.homeSupport)}</textarea></div>
+              </article>
+              <article class="card">
+                <h3>Home support (中文)</h3>
+                <div class="field"><label>家庭支持建议</label><textarea id="${prefix}HomeSupportZh" placeholder="家长在家如何支持本学期学习。">${escapeHtml(draft.homeSupportZh)}</textarea></div>
+              </article>
+            </div>
+            <div class="semester-sections-grid">
+              ${draft.sections.map((section, index) => `
+                <article class="card semester-section-card">
+                  <h3>${escapeHtml(section.name)}</h3>
+                  <div class="field"><label>Overview (English)</label><textarea id="${prefix}SectionOverview${index}" placeholder="What students studied in ${escapeHtml(section.name)} during this semester.">${escapeHtml(section.overview)}</textarea></div>
+                  <div class="field"><label>Overview (中文)</label><textarea id="${prefix}SectionOverviewZh${index}" placeholder="${escapeHtml(section.name)} 本学期学习概述。">${escapeHtml(section.overviewZh)}</textarea></div>
+                  <div class="field"><label>Focus tags (comma-separated)</label><input id="${prefix}SectionFocus${index}" value="${escapeHtml((section.focus || []).join(", "))}" placeholder="Main idea, evidence, picture speaking"></div>
+                </article>
+              `).join("")}
+            </div>
+            <div class="toolbar" style="margin-top:14px">
+              <button class="primary-btn" type="submit">${current ? "Save changes" : "Create semester overview"}</button>
+              ${current ? `<button class="ghost-btn" type="button" onclick="${scope === "teacher" ? "cancelTeacherSemesterOverviewEdit()" : "cancelAdminSemesterOverviewEdit()"}">Cancel edit</button>` : ""}
+            </div>
+          </form>
+        </details>
+      `;
+    }
+
+    function renderStudentSemesterOverview() {
+      const overviews = semesterOverviewsFor(currentUser.program, currentUser.className);
+      $("#studentSemesterOverview").innerHTML = `
+        ${pageHeader("Semester Overview", "学期课程总览", `${currentUser.program} · ${currentUser.className} · Parent-friendly overview of what this class learned across the semester.`)}
+        ${overviews.length
+          ? `<div class="grid">${overviews.map((overview, index) => renderSemesterOverviewCard(overview, { open: index === 0 })).join("")}</div>`
+          : `<div class="empty">No semester overview has been published for ${currentUser.className} yet.</div>`}
+      `;
+    }
+
+    function renderTeacherSemesterOverview() {
+      const program = teacherProgram.teacherSemesterOverview in programs ? teacherProgram.teacherSemesterOverview : "Primary";
+      const classNames = classesFor(program);
+      if (!classNames.includes(teacherClassFilter.teacherSemesterOverview)) teacherClassFilter.teacherSemesterOverview = classNames[0] || "";
+      const className = teacherClassFilter.teacherSemesterOverview;
+      const overviews = semesterOverviewsFor(program, className);
+      $("#teacherSemesterOverview").innerHTML = `
+        ${pageHeader("Semester Overview", "学期课程总览", "Build a parent-facing semester outline for the selected class. These overviews describe the general learning arc, not daily lesson notes.")}
+        <div class="card" style="margin-bottom:16px">
+          <h3>Program and class</h3>
+          <div class="toolbar" style="gap:10px; flex-wrap:wrap">
+            <select onchange="setTeacherSemesterProgram(this.value)">
+              ${Object.keys(programs).map((item) => `<option value="${escapeHtml(item)}" ${item === program ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
+            </select>
+            <select onchange="setTeacherSemesterClass(this.value)">
+              ${classNames.map((item) => `<option value="${escapeHtml(item)}" ${item === className ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
+            </select>
+          </div>
+          <p class="muted">Choose the class first, then add or edit the semester outline parents and students will read.</p>
+        </div>
+        ${renderSemesterOverviewForm("teacher", program, className, teacherSemesterEditId)}
+        <div class="grid" style="margin-top:16px">
+          ${overviews.map((overview, index) => renderSemesterOverviewCard(overview, {
+            open: index === 0,
+            showHistory: true,
+            action: `<button class="ghost-btn" type="button" onclick="editTeacherSemesterOverview('${escapeHtml(overview.id)}')">Edit overview</button>`
+          })).join("") || `<div class="empty">No semester overview saved for ${className} yet.</div>`}
+        </div>
+      `;
+    }
+
+    function renderAdminSemesterOverview() {
+      const program = adminSemesterProgram in programs ? adminSemesterProgram : "Primary";
+      const classNames = classesFor(program);
+      if (!classNames.includes(adminSemesterClass)) adminSemesterClass = classNames[0] || "";
+      const className = adminSemesterClass;
+      const overviews = semesterOverviewsFor(program, className);
+      $("#adminSemesterOverview").innerHTML = `
+        ${pageHeader("Semester Overview", "学期课程总览", "Admins can review or edit the same parent-facing semester overviews, check audit notes, and publish class-level learning summaries by term.")}
+        <div class="card" style="margin-bottom:16px">
+          <h3>Program and class</h3>
+          <div class="toolbar" style="gap:10px; flex-wrap:wrap">
+            <select onchange="setAdminSemesterProgram(this.value)">
+              ${Object.keys(programs).map((item) => `<option value="${escapeHtml(item)}" ${item === program ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
+            </select>
+            <select onchange="setAdminSemesterClass(this.value)">
+              ${classNames.map((item) => `<option value="${escapeHtml(item)}" ${item === className ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
+            </select>
+          </div>
+          <p class="muted">Use the same semester view as teachers, but with admin oversight and edit tracking.</p>
+        </div>
+        ${renderSemesterOverviewForm("admin", program, className, adminSemesterEditId)}
+        <div class="grid" style="margin-top:16px">
+          ${overviews.map((overview, index) => renderSemesterOverviewCard(overview, {
+            open: index === 0,
+            showHistory: true,
+            action: `<button class="ghost-btn" type="button" onclick="editAdminSemesterOverview('${escapeHtml(overview.id)}')">Edit overview</button>`
+          })).join("") || `<div class="empty">No semester overview saved for ${className} yet.</div>`}
+        </div>
+      `;
     }
 
     function renderStudentDashboard() {
@@ -6834,7 +7726,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderStudentReviews() {
-      const reviews = store.reviews.filter((item) => item.student === currentUser.name);
+      const reviews = uniqueMonthlyReviews(store.reviews.filter((item) => item.student === currentUser.name));
       $("#studentReviews").innerHTML = `
         ${pageHeader("Monthly Review", "月度学习反馈", "Open a month or date to read strengths, improvement, weaknesses, and next steps.")}
         ${reviews.length ? renderPerformanceGraph(reviews) : ""}
@@ -6889,6 +7781,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return String(submission.completionDate || submission.submittedAt || "").slice(0, 7);
     }
 
+    function seededMonthlyWorkMetric(studentName, month) {
+      return seededMonthlyWorkMetrics.find((item) => item.student === studentName && item.month === month) || null;
+    }
+
     function monthlyScoreMonths(studentName = currentUser ? currentUser.name : "") {
       const months = new Set();
       store.reviews.filter((review) => review.student === studentName).forEach((review) => {
@@ -6898,6 +7794,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       store.submissions.filter((submission) => submission.student === studentName).forEach((submission) => {
         const month = monthFromSubmission(submission);
         if (month) months.add(month);
+      });
+      seededMonthlyWorkMetrics.filter((item) => item.student === studentName).forEach((item) => {
+        if (item.month) months.add(item.month);
       });
       return [...months].sort().reverse();
     }
@@ -6951,8 +7850,23 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const exerciseAverage = averageValues(exerciseScores);
       const monthlyAverage = averageValues(monthlyTestScores);
       const mockAverage = averageValues(mockScores);
-      if (homeworkAverage !== null) rows.push({ label: "Homework", score: homeworkAverage, remark: `${homeworkScores.length} record${homeworkScores.length === 1 ? "" : "s"}` });
-      if (exerciseAverage !== null) rows.push({ label: "Class Exercises", score: exerciseAverage, remark: `${exerciseScores.length} attended record${exerciseScores.length === 1 ? "" : "s"}` });
+      const seededWorkMetrics = seededMonthlyWorkMetric(studentName, month);
+      const homeworkValue = homeworkAverage !== null ? homeworkAverage : (seededWorkMetrics && Number.isFinite(Number(seededWorkMetrics.homework)) ? Number(seededWorkMetrics.homework) : null);
+      const exerciseValue = exerciseAverage !== null ? exerciseAverage : (seededWorkMetrics && Number.isFinite(Number(seededWorkMetrics.exercises)) ? Number(seededWorkMetrics.exercises) : null);
+      if (homeworkValue !== null) {
+        rows.push({
+          label: "Homework",
+          score: homeworkValue,
+          remark: homeworkAverage !== null ? `${homeworkScores.length} record${homeworkScores.length === 1 ? "" : "s"}` : "Monthly imported work record"
+        });
+      }
+      if (exerciseValue !== null) {
+        rows.push({
+          label: "Class Exercises",
+          score: exerciseValue,
+          remark: exerciseAverage !== null ? `${exerciseScores.length} attended record${exerciseScores.length === 1 ? "" : "s"}` : "Monthly imported class-work record"
+        });
+      }
       if (monthlyAverage !== null) rows.push({ label: "Monthly Tests", score: monthlyAverage, remark: "Objective sections only until teacher marks speaking/writing" });
       if (mockAverage !== null) rows.push({ label: "Mock Exams", score: mockAverage, remark: "Mock assessment average" });
       return rows;
@@ -7020,7 +7934,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function renderStudentResults() {
       const submissions = studentSubmissions().sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)));
-      const historicalScores = store.reviews.filter((item) => item.student === currentUser.name && item.source === "Old score import");
+      const historicalScores = uniqueMonthlyReviews(store.reviews.filter((item) => item.student === currentUser.name && item.source === "Old score import"));
       $("#studentResults").innerHTML = `
         ${pageHeader("Results Portal", "成绩中心", "Check scores by date. Red dates have available score records or submitted work.")}
         ${renderMonthlyScoreCard(currentUser.name)}
@@ -7164,27 +8078,33 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         <div class="split">
           <form class="card" onsubmit="saveAssignment(event)">
             <h3>${editing ? "Edit assignment" : "Assignment details"}</h3>
-            <div class="field"><label>Title</label><input id="assignmentTitle" required value="${editing ? editing.title : "New class homework"}"></div>
+            <p class="muted">Step 1: choose the assignment type. Step 2: fill only the essentials. Step 3: open advanced settings when you need uploads, answer keys, or timed blocks.</p>
+            <div class="field"><label>Task title</label><input id="assignmentTitle" required value="${editing ? editing.title : "New class homework"}"></div>
             <div class="field"><label>Program</label><select id="assignmentProgram" onchange="syncAssignmentOptions(); syncAssignmentTemplate();">${Object.keys(programs).map((program) => `<option ${program === formProgram ? "selected" : ""}>${program}</option>`).join("")}</select></div>
             <div class="field"><label>Class</label><select id="assignmentClass" onchange="syncAssignmentSections(); syncAssignmentTemplate();"></select></div>
-            <div class="field"><label>Type</label><select id="assignmentCategory" onchange="syncAssignmentTemplate()">${workCategories.map((category) => `<option ${selectedCategory === category ? "selected" : ""}>${category}</option>`).join("")}</select></div>
+            <div class="field"><label>Assignment type</label><input id="assignmentCategory" type="hidden" value="${selectedCategory}"><div class="tag-row">${workCategories.map((category) => `<span class="tag ${selectedCategory === category ? "green" : "blue"}">${categoryLabels[category] || category}</span>`).join("")}</div></div>
             <div class="field"><label>Exam section</label><select id="assignmentSection" onchange="syncAssignmentTemplate()"></select></div>
-            <div class="field"><label>Date posted</label><input id="assignmentPosted" type="date" value="${editing ? editing.posted : "2026-05-23"}"></div>
-            <div class="field"><label>Deadline</label><input id="assignmentDue" type="date" value="${editing ? editing.due : "2026-05-30"}"></div>
-            <div class="field"><label>Time limit for Monthly Test / Mock Exam</label><input id="assignmentDuration" type="number" min="0" max="240" placeholder="Minutes, for example 45" value="${editing && editing.durationMinutes ? editing.durationMinutes : ""}"></div>
-            <div class="field"><label>Upload question material</label><input id="assignmentFile" type="file" accept="image/*,audio/*,video/*,application/pdf"></div>
-            <div class="field"><label>Media link</label><input id="assignmentMediaUrl" placeholder="Optional video, audio, image, or document link" value="${editing && editing.mediaUrl ? editing.mediaUrl : ""}"></div>
-            <div class="field"><label>Teacher material / passage / transcript</label><textarea id="assignmentSourceMaterial" placeholder="Paste the reading passage, listening transcript, grammar text, speaking prompt, or writing source material here.">${editing && editing.sourceMaterial ? editing.sourceMaterial : ""}</textarea></div>
-            <div class="field"><label>Instructions</label><textarea id="assignmentInstructions">${editing ? editing.instructions : "Complete the assigned section and submit your answers."}</textarea></div>
-            <div class="field"><label>Answer sheet size</label><input id="assignmentAnswerCount" type="number" min="1" max="160" value="${editing && editing.answerCount ? editing.answerCount : templateFor(formProgram, editing ? editing.section : sectionsFor(formProgram, editing ? editing.className : programs[formProgram].classes[0])[0], editing ? editing.className : programs[formProgram].classes[0]).count}"></div>
-            <div class="field"><label>Section / task timing plan</label><textarea id="assignmentTimingPlan" placeholder="Optional advanced timer. One step per line: label | seconds | note&#10;Example: Task 2 prompt audio | 45 | Listen only&#10;Task 2 preparation | 30 | Prepare your answer&#10;Task 2 response | 60 | Record your response">${editing && editing.timingPlan ? editing.timingPlan : ""}</textarea></div>
-            <div id="templateHelp" class="template-note"></div>
-            <div id="teacherGuide" class="builder-guide"></div>
-            <div id="blockExample" class="block-example"></div>
-            <div class="field"><label>Section blocks</label><textarea id="assignmentBlocks" placeholder="Use this for formal Monthly Tests and Mock Exams. Add one block per audio, passage, language group, speaking task, or writing task. Separate blocks with ---">${editing && editing.sectionBlocks ? editing.sectionBlocks : ""}</textarea></div>
-            <div class="field"><label>Teacher prompts / item text</label><textarea id="assignmentQuestions" placeholder="Optional: paste one prompt/question per line. Leave blank when the uploaded exam material already contains all questions.">${editing && editing.questions ? editing.questions.join("\n") : ""}</textarea></div>
-            <div class="field"><label>Answer key for auto scoring</label><textarea id="assignmentAnswerKey" placeholder="For Listening, Reading, Language/Form, Structure, and ITP objective sections. Enter one correct answer per line, or comma-separated:&#10;A&#10;C&#10;B&#10;D">${editing && editing.answerKey ? escapeHtml(parseAnswerKey(editing.answerKey).join("\n")) : ""}</textarea></div>
-            ${editing && editing.media ? `<p class="tag-row"><span class="tag blue">Current upload: ${editing.media.name}</span></p>` : ""}
+            <div class="field-grid">
+              <div class="field"><label>Date posted</label><input id="assignmentPosted" type="date" value="${editing ? editing.posted : "2026-05-23"}"></div>
+              <div class="field"><label>Deadline</label><input id="assignmentDue" type="date" value="${editing ? editing.due : "2026-05-30"}"></div>
+            </div>
+            <details class="card" style="padding: 0.85rem 1rem; margin: 0.25rem 0 1rem; background: rgba(10, 30, 23, 0.45);">
+              <summary style="cursor: pointer; font-weight: 700; color: var(--text-main); list-style: none;">Advanced settings</summary>
+              <div class="field" style="margin-top: 0.85rem;"><label>Time limit for Monthly Test / Mock Exam</label><input id="assignmentDuration" type="number" min="0" max="240" placeholder="Minutes, for example 45" value="${editing && editing.durationMinutes ? editing.durationMinutes : ""}"></div>
+              <div class="field"><label>Upload question material</label><input id="assignmentFile" type="file" accept="image/*,audio/*,video/*,application/pdf"></div>
+              <div class="field"><label>Media link</label><input id="assignmentMediaUrl" placeholder="Optional video, audio, image, or document link" value="${editing && editing.mediaUrl ? editing.mediaUrl : ""}"></div>
+              <div class="field"><label>Teacher material / passage / transcript</label><textarea id="assignmentSourceMaterial" placeholder="Paste the reading passage, listening transcript, grammar text, speaking prompt, or writing source material here.">${editing && editing.sourceMaterial ? editing.sourceMaterial : ""}</textarea></div>
+              <div class="field"><label>Instructions</label><textarea id="assignmentInstructions">${editing ? editing.instructions : "Complete the assigned section and submit your answers."}</textarea></div>
+              <div class="field"><label>Answer sheet size</label><input id="assignmentAnswerCount" type="number" min="1" max="160" value="${editing && editing.answerCount ? editing.answerCount : templateFor(formProgram, editing ? editing.section : sectionsFor(formProgram, editing ? editing.className : programs[formProgram].classes[0])[0], editing ? editing.className : programs[formProgram].classes[0]).count}"></div>
+              <div class="field"><label>Section / task timing plan</label><textarea id="assignmentTimingPlan" placeholder="Optional advanced timer. One step per line: label | seconds | note&#10;Example: Task 2 prompt audio | 45 | Listen only&#10;Task 2 preparation | 30 | Prepare your answer&#10;Task 2 response | 60 | Record your response">${editing && editing.timingPlan ? editing.timingPlan : ""}</textarea></div>
+              <div id="templateHelp" class="template-note"></div>
+              <div id="teacherGuide" class="builder-guide"></div>
+              <div id="blockExample" class="block-example"></div>
+              <div class="field"><label>Section blocks</label><textarea id="assignmentBlocks" placeholder="Use this for formal Monthly Tests and Mock Exams. Add one block per audio, passage, language group, speaking task, or writing task. Separate blocks with ---">${editing && editing.sectionBlocks ? editing.sectionBlocks : ""}</textarea></div>
+              <div class="field"><label>Teacher prompts / item text</label><textarea id="assignmentQuestions" placeholder="Optional: paste one prompt/question per line. Leave blank when the uploaded exam material already contains all questions.">${editing && editing.questions ? editing.questions.join("\n") : ""}</textarea></div>
+              <div class="field"><label>Answer key for auto scoring</label><textarea id="assignmentAnswerKey" placeholder="For Listening, Reading, Language/Form, Structure, and ITP objective sections. Enter one correct answer per line, or comma-separated:&#10;A&#10;C&#10;B&#10;D">${editing && editing.answerKey ? escapeHtml(parseAnswerKey(editing.answerKey).join("\n")) : ""}</textarea></div>
+              ${editing && editing.media ? `<p class="tag-row"><span class="tag blue">Current upload: ${editing.media.name}</span></p>` : ""}
+            </details>
             <div class="toolbar">
               <button class="primary-btn" type="submit">${editing ? "Update assignment" : "Save assignment"}</button>
               ${editing ? `<button class="ghost-btn" type="button" onclick="cancelAssignmentEdit()">Cancel edit</button>` : ""}
@@ -8094,7 +9014,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const matchCurrentPlacement = (item) => item.student === student.name && item.program === student.program && item.className === student.className;
       const matchStudentHistory = (item) => item.student === student.name;
       const submissions = store.submissions.filter(matchCurrentPlacement);
-      const reviews = store.reviews.filter(matchStudentHistory).sort((a, b) => String(b.month || "").localeCompare(String(a.month || "")));
+      const reviews = uniqueMonthlyReviews(store.reviews.filter(matchStudentHistory));
       const assignedWork = store.assignments.filter((assignment) => assignment.program === student.program && assignment.className === student.className);
       const notes = store.adminNotes.filter((note) => note.student === student.name);
       const latestReview = reviews[0] || null;
@@ -8118,6 +9038,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const latestScores = latestReview && latestReview.scores ? latestReview.scores : {};
       const overall = latestScores.overall !== undefined ? latestScores.overall : student.score;
       const sourceLabel = latestReview ? (latestReview.source || latestReview.month || "Monthly review") : "No review yet";
+      const compactText = (value, max = 110) => {
+        const text = String(value || "").replace(/\s+/g, " ").trim();
+        if (!text) return "No detail yet.";
+        return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+      };
       const pendingWork = assignedWork.filter((assignment) => {
         const submission = submissions.find((item) => item.assignmentId === assignment.id);
         return isCompletionCategory(assignment.category) ? normalizedWorkStatus(submission) === "pending" : !submission;
@@ -8147,6 +9072,25 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             <div class="score-pill"><small>Writing</small><strong>${latestScores.writing ?? "-"}</strong></div>
           </div>
           <p class="muted">Latest record: ${escapeHtml(sourceLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</p>
+          <div class="student-snapshot">
+            <article class="message-item">
+              <small>Monthly detail snapshot</small>
+              <strong>${escapeHtml(sourceLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</strong>
+              <p>${escapeHtml(latestReview ? compactText(latestReview.strong) : "Open a monthly review to see the student's current details.")}</p>
+            </article>
+            <article class="message-item">
+              <small>Currently improving</small>
+              <p>${escapeHtml(latestReview ? compactText(latestReview.improving) : "No review yet.")}</p>
+            </article>
+            <article class="message-item">
+              <small>Weaknesses</small>
+              <p>${escapeHtml(latestReview ? compactText(latestReview.weakness) : "No review yet.")}</p>
+            </article>
+            <article class="message-item">
+              <small>How we will improve</small>
+              <p>${escapeHtml(latestReview ? compactText(latestReview.how, 145) : "No review yet.")}</p>
+            </article>
+          </div>
           <div class="review-toggle-grid">
             <details ${options.openTests ? "open" : ""}>
               <summary>Scores and monthly reviews · ${reviews.length}</summary>
@@ -8208,22 +9152,30 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const selectedClass = classNames.includes(recordClassFilter[sectionId] || "") ? recordClassFilter[sectionId] : "";
       const focusedStudentKey = recordStudentFocus[sectionId] || "";
       const classStudents = selectedClass ? students.filter((student) => student.className === selectedClass) : students;
-      const visibleStudents = focusedStudentKey
-        ? classStudents.filter((student) => studentFocusKey(student) === focusedStudentKey)
-        : classStudents;
+      const selectedStudentKey = classStudents.some((student) => studentFocusKey(student) === focusedStudentKey)
+        ? focusedStudentKey
+        : (classStudents[0] ? studentFocusKey(classStudents[0]) : "");
+      const selectedStudent = classStudents.find((student) => studentFocusKey(student) === selectedStudentKey) || null;
       $(`#${targetId}`).innerHTML = `
         ${pageHeader(title, zh, description)}
         ${renderProgramPicker(sectionId)}
-        <div class="toolbar" style="margin-bottom:14px">
+        <div class="card" style="margin-bottom:16px">
+          <h3>Choose one student</h3>
+          <div class="toolbar" style="margin-bottom:12px">
           <label class="field inline-field"><span>Class</span><select id="${targetId}Class" onchange="selectRecordClass('${sectionId}', this.value)">
             <option value="">All ${program} classes</option>
             ${classNames.map((className) => `<option ${selectedClass === className ? "selected" : ""}>${className}</option>`).join("")}
           </select></label>
-          ${focusedStudentKey ? `<button class="ghost-btn" type="button" onclick="clearRecordStudentFocus('${sectionId}')">Show all students</button>` : ""}
+          <label class="field inline-field"><span>Student</span><select id="${targetId}Student" onchange="selectRecordStudent('${sectionId}', this.value)">
+            ${classStudents.map((student) => {
+              const key = studentFocusKey(student);
+              return `<option value="${escapeHtml(key)}" ${selectedStudentKey === key ? "selected" : ""}>${escapeHtml(student.name)} · ${escapeHtml(student.studentId || "No ID")}</option>`;
+            }).join("")}
+          </select></label>
+          </div>
+          <p class="muted">Pick the class first, then one student. Only that student's record opens below, with each block folded until needed.</p>
         </div>
-        <div class="grid one-col">
-          ${visibleStudents.map((student) => renderStudentRecordCard(student, options)).join("") || `<div class="empty">No students found for ${program}${selectedClass ? ` · ${selectedClass}` : ""}${focusedStudentKey ? " · selected record" : ""}.</div>`}
-        </div>
+        ${selectedStudent ? renderStudentRecordCard(selectedStudent, options) : `<div class="empty">Choose a class and student to view records.</div>`}
       `;
     }
 
@@ -8343,17 +9295,15 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const isImportedPercent = review.source === "Old score import";
       const formatScore = (value) => value === undefined || value === null || value === "" ? "-" : `${value}${isImportedPercent ? "%" : ""}`;
       return `
-        <details class="card review-card" style="margin-bottom:14px">
-          <summary>
-            <div class="calendar-month-summary" style="align-items:flex-start">
-              <span>
-                <strong>${escapeHtml(review.student)}</strong>
-                <span class="muted" style="display:block; font-size:13px; margin-top:4px">${escapeHtml(review.program || "")}${review.className ? ` · ${escapeHtml(review.className)}` : ""} · ${escapeHtml(review.month)}</span>
-              </span>
-              <span class="tag blue">${formatScore(scores.overall)} overall</span>
-            </div>
-          </summary>
-          <div class="card" style="margin-top:12px">
+        <article class="card review-card" style="margin-bottom:14px">
+          <div class="calendar-month-summary" style="align-items:flex-start">
+            <span>
+              <strong>${escapeHtml(review.student)}</strong>
+              <span class="muted" style="display:block; font-size:13px; margin-top:4px">${escapeHtml(review.program || "")}${review.className ? ` · ${escapeHtml(review.className)}` : ""} · ${escapeHtml(review.month)}</span>
+            </span>
+            <span class="tag blue">${formatScore(scores.overall)} overall</span>
+          </div>
+          <div style="margin-top:12px">
             ${review.publishedBy ? `<p class="muted">Published by ${escapeHtml(review.publishedBy)} · ${escapeHtml(review.publishedAt || "")}</p>` : ""}
             ${review.sourceDate ? `<p class="tag-row"><span class="tag blue">${escapeHtml(review.source || "Score record")}</span><span class="tag green">${escapeHtml(review.sourceDate)}</span></p>` : ""}
             <div class="score-strip">
@@ -8373,7 +9323,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             </div>
             ${renderReviewEditHistory(review)}
           </div>
-        </details>
+        </article>
       `;
     }
 
@@ -8382,16 +9332,62 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderReviewCalendar(reviews, idPrefix, empty = "No monthly reviews or score records yet.") {
-      return renderMonthAccordionCalendar(
-        [...reviews].sort((a, b) => String(reviewDateKey(b)).localeCompare(String(reviewDateKey(a)))),
-        {
-          idPrefix,
-          empty,
-          singleOpen: true,
-          date: reviewDateKey,
-          render: (review) => renderReviewCard(review)
-        }
-      );
+      const normalized = uniqueMonthlyReviews(reviews)
+        .map((review, index) => ({ review, index, dateKey: reviewDateKey(review), monthKey: reviewDateKey(review).slice(0, 7) }))
+        .filter((entry) => entry.dateKey);
+      if (!normalized.length) return `<div class="empty">${empty}</div>`;
+      const byMonth = normalized.reduce((grouped, entry) => {
+        grouped[entry.monthKey] = grouped[entry.monthKey] || [];
+        grouped[entry.monthKey].push(entry);
+        return grouped;
+      }, {});
+      const months = Object.keys(byMonth).sort().reverse();
+      return `
+        <div class="event-calendar-wrap">
+          ${months.map((month) => {
+            const monthEntries = byMonth[month].sort((a, b) => String(b.dateKey).localeCompare(String(a.dateKey)));
+            const byStudent = monthEntries.reduce((grouped, entry) => {
+              const key = entry.review.student || "Unnamed student";
+              grouped[key] = grouped[key] || [];
+              grouped[key].push(entry.review);
+              return grouped;
+            }, {});
+            const studentNames = Object.keys(byStudent).sort((a, b) => a.localeCompare(b));
+            return `
+              <details id="${idPrefix}-month-${month}" class="calendar-month-card" data-calendar-group="${escapeHtml(idPrefix)}-months" ontoggle="handleCalendarDetailsToggle(this)">
+                <summary>
+                  <span class="calendar-month-summary">
+                    <span>${escapeHtml(monthLabel(month))}</span>
+                    <span class="tag blue">${studentNames.length} ${studentNames.length === 1 ? "student" : "students"}</span>
+                  </span>
+                </summary>
+                <div class="calendar-month-body">
+                  <p class="muted" style="margin-top:0">Open one student name to see only that learner's monthly review.</p>
+                  <div class="calendar-event-list">
+                    ${studentNames.map((studentName) => {
+                      const studentReviews = uniqueMonthlyReviews(byStudent[studentName]).slice(0, 1);
+                      const overall = studentReviews[0]?.scores?.overall;
+                      return `
+                        <details id="${idPrefix}-${month}-${studentName.replace(/\W+/g, "-")}" data-calendar-group="${escapeHtml(idPrefix)}-students" ontoggle="handleCalendarDetailsToggle(this)">
+                          <summary>
+                            <span class="calendar-month-summary">
+                              <span>${escapeHtml(studentName)}</span>
+                              <span class="tag blue">${overall !== undefined ? `${overall} overall` : `${studentReviews.length} review${studentReviews.length === 1 ? "" : "s"}`}</span>
+                            </span>
+                          </summary>
+                          <div class="grid one-col">
+                            ${studentReviews.map((review) => renderReviewCard(review)).join("")}
+                          </div>
+                        </details>
+                      `;
+                    }).join("")}
+                  </div>
+                </div>
+              </details>
+            `;
+          }).join("")}
+        </div>
+      `;
     }
 
     function renderPerformanceGraph(reviews) {
@@ -8709,11 +9705,12 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         const isActive = adminStudentFilterProgram === program && adminStudentFilterClass === className;
         return `<button class="tag ${isActive ? "green" : "blue"}" type="button" onclick="setAdminStudentFilter('${escapeHtml(program)}', '${escapeHtml(className)}')">${escapeHtml(className)} · ${count}</button>`;
       }).join("");
+      const hasSelectedClass = adminStudentFilterClass !== "All" && adminStudentFilterProgram !== "All";
       $("#adminStudents").innerHTML = `
         ${pageHeader("Student Details", "学生详情", "All registered students, class placement, rankings, and current score data. Admin can promote or move students without changing their ID.")}
         <div class="card" style="margin-bottom:16px">
           <h3>Class placement</h3>
-          <p>Click a class to view students in that group, or use the dropdowns to filter. Use Move class only when a student is promoted or reassigned.</p>
+          <p>Choose one class first. Only that class will expand to show its students and their details.</p>
           <div class="toolbar" style="margin-bottom:12px">
             <select id="adminStudentProgramFilter" onchange="setAdminStudentFilter(this.value, 'All')">
               <option value="All" ${adminStudentFilterProgram === "All" ? "selected" : ""}>All programs</option>
@@ -8726,45 +9723,53 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           </div>
           <div class="tag-row">${classCards}</div>
         </div>
-        <div class="table-card">
-          <table>
-            <thead><tr><th>Student</th><th>Student ID</th><th>Program</th><th>Class</th><th>Scores</th><th>Submissions</th><th>Profile photo</th><th>Admin actions</th></tr></thead>
-            <tbody>
-              ${entries.map(({ student, index }) => `
-                <tr>
-                  <td>
-                    <button class="link-btn" type="button" onclick="openStudentRecord('adminRecords', '${escapeHtml(studentFocusKey(student))}', '${escapeHtml(student.program)}', '${escapeHtml(student.className)}')" aria-label="Open full details for ${escapeHtml(student.name)}">
-                      <div class="profile-row">
-                        <div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div>
-                        <strong>${escapeHtml(student.name)}</strong>
-                      </div>
-                    </button>
-                  </td>
-                  <td>${escapeHtml(student.studentId || "Assigns at next login")}</td>
-                  <td>${escapeHtml(student.program)}</td>
-                  <td>${escapeHtml(student.className)}</td>
-                  <td>Overall ${student.score ?? "-"}<br>Homework ${workMetricForStudent(student, "homework")}%<br>Exercises ${workMetricForStudent(student, "exercises")}%<br>Monthly / Mock ${workMetricForStudent(student, "exams")}%</td>
-                  <td>${store.submissions.filter((submission) => submission.student === student.name).length}</td>
-                  <td><input id="adminPhoto${index}" type="file" accept="image/*" onchange="adminUploadProfilePhoto(${index})"></td>
-                  <td>
-                    <div class="toolbar" style="gap:8px; align-items:flex-start; flex-wrap:wrap">
-                      <div class="field" style="min-width:150px; margin:0">
-                        <label>Target program</label>
-                        <select id="adminMoveProgram${index}" onchange="syncAdminPromotionClasses(${index})">${promotionProgramOptions(student.program)}</select>
-                      </div>
-                      <div class="field" style="min-width:170px; margin:0">
-                        <label>Target class</label>
-                        <select id="adminMoveClass${index}">${promotionClassOptions(student.program, student.className)}</select>
-                      </div>
-                      <button class="ghost-btn" type="button" onclick="promoteStudent(${index})">Move / promote</button>
-                      <button class="danger-btn" type="button" onclick="deleteStudent(${index})">Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              `).join("") || `<tr><td colspan="8">No students in this class yet.</td></tr>`}
-            </tbody>
-          </table>
-        </div>
+        ${hasSelectedClass ? `
+          <details class="card" open>
+            <summary>
+              <span class="calendar-month-summary">
+                <span>${escapeHtml(adminStudentFilterProgram)} · ${escapeHtml(adminStudentFilterClass)}</span>
+                <span class="tag blue">${entries.length} ${entries.length === 1 ? "student" : "students"}</span>
+              </span>
+            </summary>
+            <div class="table-card" style="margin-top:14px">
+              <table>
+                <thead><tr><th>Student</th><th>Student ID</th><th>Scores</th><th>Submissions</th><th>Profile photo</th><th>Admin actions</th></tr></thead>
+                <tbody>
+                  ${entries.map(({ student, index }) => `
+                    <tr>
+                      <td>
+                        <button class="link-btn" type="button" onclick="openStudentRecord('adminRecords', '${escapeHtml(studentFocusKey(student))}', '${escapeHtml(student.program)}', '${escapeHtml(student.className)}')" aria-label="Open full details for ${escapeHtml(student.name)}">
+                          <div class="profile-row">
+                            <div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div>
+                            <strong>${escapeHtml(student.name)}</strong>
+                          </div>
+                        </button>
+                      </td>
+                      <td>${escapeHtml(student.studentId || "Assigns at next login")}</td>
+                      <td>Overall ${student.score ?? "-"}<br>Homework ${workMetricForStudent(student, "homework")}%<br>Exercises ${workMetricForStudent(student, "exercises")}%<br>Monthly / Mock ${workMetricForStudent(student, "exams")}%</td>
+                      <td>${store.submissions.filter((submission) => submission.student === student.name).length}</td>
+                      <td><input id="adminPhoto${index}" type="file" accept="image/*" onchange="adminUploadProfilePhoto(${index})"></td>
+                      <td>
+                        <div class="toolbar" style="gap:8px; align-items:flex-start; flex-wrap:wrap">
+                          <div class="field" style="min-width:150px; margin:0">
+                            <label>Target program</label>
+                            <select id="adminMoveProgram${index}" onchange="syncAdminPromotionClasses(${index})">${promotionProgramOptions(student.program)}</select>
+                          </div>
+                          <div class="field" style="min-width:170px; margin:0">
+                            <label>Target class</label>
+                            <select id="adminMoveClass${index}">${promotionClassOptions(student.program, student.className)}</select>
+                          </div>
+                          <button class="ghost-btn" type="button" onclick="promoteStudent(${index})">Move / promote</button>
+                          <button class="danger-btn" type="button" onclick="deleteStudent(${index})">Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join("") || `<tr><td colspan="6">No students in this class yet.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        ` : `<div class="empty">Choose one class to expand the student list for that class only.</div>`}
       `;
     }
 
@@ -8847,7 +9852,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const selectedMonth = selectedMonthOrLatest(adminScoreMonth, availableMonths.length ? availableMonths : monthChoices);
       const selectedSpan = ["1", "3", "5", "12", "36"].includes(String(adminScoreSpan)) ? String(adminScoreSpan) : "1";
       const rangeMonths = monthRangeKeys(selectedMonth, selectedSpan);
-      const classReviews = store.reviews.filter((review) => review.program === program && review.className === adminScoreClass);
+      const classReviews = uniqueMonthlyReviews(store.reviews.filter((review) => review.program === program && review.className === adminScoreClass));
       const filteredReviews = classReviews.filter((review) => rangeMonths.includes(reviewDateKey(review).slice(0, 7)));
       const filteredSubmissions = store.submissions.filter((submission) => submission.program === program && submission.className === adminScoreClass && rangeMonths.includes(monthFromSubmission(submission)));
       const classSeries = classAverageSeries(program, adminScoreClass, selectedMonth, selectedSpan);
