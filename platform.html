@@ -1761,6 +1761,36 @@
       background: rgba(255, 255, 255, 0.035);
     }
 
+    details.calendar-month-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    details.calendar-month-card > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    details.calendar-month-card > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .calendar-month-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .calendar-month-body {
+      display: grid;
+      gap: 10px;
+      padding: 0 16px 14px;
+    }
+
     .calendar-month-card h3 {
       margin-bottom: 12px;
     }
@@ -2957,6 +2987,13 @@
     let adminGuestSection = "Listening";
     let adminStudentFilterProgram = "All";
     let adminStudentFilterClass = "All";
+    let adminScoreProgram = "Primary";
+    let adminScoreClass = "Primary Step 2";
+    let adminScoreMonth = "";
+    let adminScoreSpan = "1";
+    let adminLessonProgram = "Primary";
+    let adminLessonClass = "Primary Step 2";
+    let adminLessonMonth = "";
     const workCategories = ["Exercise", "Homework", "Monthly Test", "Mock Exam"];
     const categoryLabels = {
       Exercise: "Class Exercises",
@@ -2983,19 +3020,19 @@
     ];
 
     const seededStudentAccounts = [
-      { name: "Miumiu", username: "miumiu", email: "miumiu@emeraldhills.local", password: "GM-Miumiu-7526", gender: "female", accountId: "EH-STU-2009", program: "Primary", className: "Primary Step 2", score: 57, exams: 57 },
-      { name: "Mingyuan", username: "mingyuan", email: "mingyuan@emeraldhills.local", password: "GM-Mingyuan-6349", gender: "male", accountId: "EH-STU-2013", program: "Primary", className: "Primary Step 2", score: 42, exams: 42 },
-      { name: "Cherry", username: "cherry", email: "cherry@emeraldhills.local", password: "GM-Cherry-8164", gender: "female", accountId: "EH-STU-2011", program: "Primary", className: "Primary Step 2", score: 84, exams: 84 },
-      { name: "Grace", username: "grace", email: "grace@emeraldhills.local", password: "GM-Grace-2705", gender: "female", accountId: "EH-STU-2012", program: "Primary", className: "Primary Step 2", score: 51.5, exams: 51.5 },
-      { name: "Yann", username: "yann", email: "yann@emeraldhills.local", password: "GM-Yann-4930", gender: "male", accountId: "EH-STU-2010", program: "Primary", className: "Primary Step 2", score: 76, exams: 76 },
-      { name: "Oscar", username: "oscar", email: "oscar@emeraldhills.local", password: "GM-Oscar-2158", gender: "male", accountId: "EH-STU-2003", program: "Junior", className: "Junior", score: 70.8, exams: 70.8 },
-      { name: "Ran", username: "ran", email: "ran@emeraldhills.local", password: "GM-Ran-9046", gender: "male", accountId: "EH-STU-2004", program: "Junior", className: "Junior", score: 63.6, exams: 63.6 },
-      { name: "Yaya", username: "yaya", email: "yaya@emeraldhills.local", password: "GM-Yaya-3672", gender: "female", accountId: "EH-STU-2005", program: "Junior", className: "Junior", score: 59.7, exams: 59.7 },
-      { name: "Ethan Guo", username: "ethan.guo", email: "ethanguo@emeraldhills.local", password: "GM-EthanG-4821", gender: "male", accountId: "EH-STU-2001", program: "Junior", className: "Junior", score: 63.6, exams: 63.6 },
-      { name: "Ethan Yang", username: "ethan.yang", email: "ethanyang@emeraldhills.local", password: "GM-EthanY-7394", gender: "male", accountId: "EH-STU-2002", program: "Junior", className: "Junior", score: 74.6, exams: 74.6 },
-      { name: "Leonardo", username: "leonardo", email: "leonardo@emeraldhills.local", password: "GM-Leonardo-5819", gender: "male", accountId: "EH-STU-2006", program: "iBT", className: "iBT", score: 69.2, exams: 69.2 },
-      { name: "Isaac", username: "isaac", email: "isaac@emeraldhills.local", password: "GM-Isaac-6403", gender: "male", accountId: "EH-STU-2007", program: "iBT", className: "iBT", score: 47.2, exams: 47.2 },
-      { name: "Wilson", username: "wilson", email: "wilson@emeraldhills.local", password: "GM-Wilson-1287", gender: "male", accountId: "EH-STU-2008", program: "iBT", className: "iBT", score: 68.7, exams: 68.7 }
+      { name: "Miumiu", username: "miumiu", email: "miumiu@emeraldhills.local", password: "EH-Miumiu-7526", gender: "female", accountId: "EH-STU-2009", program: "Primary", className: "Primary Step 2", score: 57, exams: 57, workMetrics: { homework: 75, exercises: 75 } },
+      { name: "Mingyuan", username: "mingyuan", email: "mingyuan@emeraldhills.local", password: "EH-Mingyuan-6349", gender: "male", accountId: "EH-STU-2013", program: "Primary", className: "Primary Step 2", score: 42, exams: 42 },
+      { name: "Cherry", username: "cherry", email: "cherry@emeraldhills.local", password: "EH-Cherry-8164", gender: "female", accountId: "EH-STU-2011", program: "Primary", className: "Primary Step 2", score: 84, exams: 84, workMetrics: { homework: 90, exercises: 90 } },
+      { name: "Grace", username: "grace", email: "grace@emeraldhills.local", password: "EH-Grace-2705", gender: "female", accountId: "EH-STU-2012", program: "Primary", className: "Primary Step 2", score: 51.5, exams: 51.5, workMetrics: { homework: 80, exercises: 75 } },
+      { name: "Yann", username: "yann", email: "yann@emeraldhills.local", password: "EH-Yann-4930", gender: "male", accountId: "EH-STU-2010", program: "Primary", className: "Primary Step 2", score: 76, exams: 76, workMetrics: { homework: 85, exercises: 90 } },
+      { name: "Oscar", username: "oscar", email: "oscar@emeraldhills.local", password: "EH-Oscar-2158", gender: "male", accountId: "EH-STU-2003", program: "Junior", className: "Junior", score: 70.8, exams: 70.8, workMetrics: { homework: 75, exercises: 90 } },
+      { name: "Ran", username: "ran", email: "ran@emeraldhills.local", password: "EH-Ran-9046", gender: "male", accountId: "EH-STU-2004", program: "Junior", className: "Junior", score: 63.6, exams: 63.6, workMetrics: { homework: 50, exercises: 90 } },
+      { name: "Yaya", username: "yaya", email: "yaya@emeraldhills.local", password: "EH-Yaya-3672", gender: "female", accountId: "EH-STU-2005", program: "Junior", className: "Junior", score: 59.7, exams: 59.7, workMetrics: { homework: 80, exercises: 75 } },
+      { name: "Ethan Guo", username: "ethan.guo", email: "ethanguo@emeraldhills.local", password: "EH-EthanG-4821", gender: "male", accountId: "EH-STU-2001", program: "Junior", className: "Junior", score: 63.6, exams: 63.6, workMetrics: { homework: 0, exercises: 85 } },
+      { name: "Ethan Yang", username: "ethan.yang", email: "ethanyang@emeraldhills.local", password: "EH-EthanY-7394", gender: "male", accountId: "EH-STU-2002", program: "Junior", className: "Junior", score: 74.6, exams: 74.6, workMetrics: { homework: 50, exercises: 80 } },
+      { name: "Leonardo", username: "leonardo", email: "leonardo@emeraldhills.local", password: "EH-Leonardo-5819", gender: "male", accountId: "EH-STU-2006", program: "iBT", className: "iBT", score: 69.2, exams: 69.2 },
+      { name: "Isaac", username: "isaac", email: "isaac@emeraldhills.local", password: "EH-Isaac-6403", gender: "male", accountId: "EH-STU-2007", program: "iBT", className: "iBT", score: 47.2, exams: 47.2 },
+      { name: "Wilson", username: "wilson", email: "wilson@emeraldhills.local", password: "EH-Wilson-1287", gender: "male", accountId: "EH-STU-2008", program: "iBT", className: "iBT", score: 68.7, exams: 68.7 }
     ].map((account) => ({
       ...account,
       role: "student",
@@ -3014,7 +3051,7 @@
         name: "QA Primary Step 1 Student",
         username: "qa.primary1",
         email: "qa.primary1@emeraldhills.local",
-        password: "GM-Test-Primary1-2026",
+        password: "EH-Test-Primary1-2026",
         gender: "female",
         accountId: "EH-STU-9006",
         studentId: "EH-STU-9006",
@@ -3032,7 +3069,7 @@
         name: "QA Primary Step 2 Student",
         username: "qa.primary2",
         email: "qa.primary2@emeraldhills.local",
-        password: "GM-Test-Primary2-2026",
+        password: "EH-Test-Primary2-2026",
         gender: "male",
         accountId: "EH-STU-9001",
         studentId: "EH-STU-9001",
@@ -3050,7 +3087,7 @@
         name: "QA Junior Student",
         username: "qa.junior",
         email: "qa.junior@emeraldhills.local",
-        password: "GM-Test-Junior-2026",
+        password: "EH-Test-Junior-2026",
         gender: "male",
         accountId: "EH-STU-9002",
         studentId: "EH-STU-9002",
@@ -3068,7 +3105,7 @@
         name: "QA ITP Level 1 Student",
         username: "qa.itp1",
         email: "qa.itp1@emeraldhills.local",
-        password: "GM-Test-ITP1-2026",
+        password: "EH-Test-ITP1-2026",
         gender: "female",
         accountId: "EH-STU-9003",
         studentId: "EH-STU-9003",
@@ -3086,7 +3123,7 @@
         name: "QA ITP Level 2 Student",
         username: "qa.itp2",
         email: "qa.itp2@emeraldhills.local",
-        password: "GM-Test-ITP2-2026",
+        password: "EH-Test-ITP2-2026",
         gender: "male",
         accountId: "EH-STU-9004",
         studentId: "EH-STU-9004",
@@ -3104,7 +3141,7 @@
         name: "QA iBT Student",
         username: "qa.ibt",
         email: "qa.ibt@emeraldhills.local",
-        password: "GM-Test-iBT-2026",
+        password: "EH-Test-iBT-2026",
         gender: "female",
         accountId: "EH-STU-9005",
         studentId: "EH-STU-9005",
@@ -3122,7 +3159,7 @@
         name: "QA Teacher",
         username: "qa.teacher",
         email: "qa.teacher@emeraldhills.local",
-        password: "GM-Test-Teacher-2026",
+        password: "EH-Test-Teacher-2026",
         gender: "female",
         accountId: "EH-TCH-9001",
         program: "All Programs",
@@ -3135,7 +3172,7 @@
         name: "QA Admin",
         username: "qa.admin",
         email: "qa.admin@emeraldhills.local",
-        password: "GM-Test-Admin-2026",
+        password: "EH-Test-Admin-2026",
         gender: "male",
         accountId: "EH-ADM-9001",
         program: "All Programs",
@@ -3770,7 +3807,8 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           score: student.score ?? seed.score,
           exams: student.exams ?? seed.exams,
           homework: student.homework ?? seed.homework,
-          exercises: student.exercises ?? seed.exercises
+          exercises: student.exercises ?? seed.exercises,
+          workMetrics: student.workMetrics || seed.workMetrics
         } : student;
       });
       const existing = new Set(merged.map((student) => String(student.name || "").toLowerCase()));
@@ -3786,6 +3824,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           homework: account.homework,
           exercises: account.exercises,
           exams: account.exams,
+          workMetrics: account.workMetrics,
           photo: ""
         }));
       return [...seeded, ...merged];
@@ -4563,6 +4602,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function workMetricForStudent(student, metric) {
       if (metric === "score") return Number(student.score) || 0;
+      if (student && student.workMetrics && student.workMetrics[metric] !== undefined && student.workMetrics[metric] !== null && student.workMetrics[metric] !== "") {
+        return Number(student.workMetrics[metric]) || 0;
+      }
       const assignments = store.assignments.filter((assignment) => assignment.program === student.program && assignment.className === student.className);
       if (metric === "homework") {
         const homework = assignments.filter((assignment) => assignment.category === "Homework");
@@ -4989,6 +5031,59 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       render();
     }
 
+    function selectAdminRecordStudent(studentKey) {
+      const student = store.students.find((item) => studentFocusKey(item) === studentKey);
+      if (student) {
+        teacherProgram.adminRecords = student.program;
+        recordClassFilter.adminRecords = student.className;
+        recordStudentFocus.adminRecords = studentKey;
+      } else {
+        recordStudentFocus.adminRecords = "";
+      }
+      renderAdminRecords();
+    }
+
+    function setAdminScoreProgram(program) {
+      adminScoreProgram = program;
+      adminScoreClass = classesFor(program)[0] || "";
+      adminScoreMonth = "";
+      renderAdminScores();
+    }
+
+    function setAdminScoreClass(className) {
+      adminScoreClass = className;
+      adminScoreMonth = "";
+      renderAdminScores();
+    }
+
+    function setAdminScoreMonth(month) {
+      adminScoreMonth = month;
+      renderAdminScores();
+    }
+
+    function setAdminScoreSpan(span) {
+      adminScoreSpan = span;
+      renderAdminScores();
+    }
+
+    function setAdminLessonProgram(program) {
+      adminLessonProgram = program;
+      adminLessonClass = classesFor(program)[0] || "";
+      adminLessonMonth = "";
+      renderAdminLessonNotes();
+    }
+
+    function setAdminLessonClass(className) {
+      adminLessonClass = className;
+      adminLessonMonth = "";
+      renderAdminLessonNotes();
+    }
+
+    function setAdminLessonMonth(month) {
+      adminLessonMonth = month;
+      renderAdminLessonNotes();
+    }
+
     function openProgramRecords(sectionId, program) {
       teacherProgram[sectionId] = program;
       if (recordClassFilter[sectionId] !== undefined) recordClassFilter[sectionId] = "";
@@ -5107,6 +5202,76 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return new Date(year, (month || 1) - 1, 1).getDay();
     }
 
+    function monthToDate(monthKey = "") {
+      const raw = String(monthKey || "").trim();
+      if (!/^\d{4}-\d{2}$/.test(raw)) return null;
+      const [year, month] = raw.split("-").map(Number);
+      const date = new Date(year, (month || 1) - 1, 1);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function shiftMonthKey(monthKey = "", offset = 0) {
+      const date = monthToDate(monthKey);
+      if (!date) return "";
+      const shifted = new Date(date.getFullYear(), date.getMonth() + Number(offset || 0), 1);
+      if (Number.isNaN(shifted.getTime())) return "";
+      return `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function monthRangeKeys(anchorMonth = "", count = 1) {
+      const total = Math.max(1, Number(count) || 1);
+      const base = normalizeDateKey(anchorMonth).slice(0, 7);
+      if (!/^\d{4}-\d{2}$/.test(base)) return [];
+      return Array.from({ length: total }, (_, index) => shiftMonthKey(base, index - total + 1)).filter(Boolean);
+    }
+
+    function latestMonthKey(months = []) {
+      const list = (Array.isArray(months) ? months : []).filter((month) => /^\d{4}-\d{2}$/.test(String(month || "")));
+      return list.sort().reverse()[0] || "";
+    }
+
+    function classReviewMonths(program, className) {
+      return [...new Set(
+        store.reviews
+          .filter((review) => review.program === program && review.className === className)
+          .map((review) => review.month ? review.month.slice(0, 7) : String(review.sourceDate || "").slice(0, 7))
+          .filter((month) => /^\d{4}-\d{2}$/.test(month))
+      )].sort();
+    }
+
+    function classLessonMonths(program, className) {
+      return [...new Set(
+        store.lessonNotes
+          .filter((note) => note.program === program && note.className === className && hasLessonContent(note))
+          .map((note) => String(note.date || "").slice(0, 7))
+          .filter((month) => /^\d{4}-\d{2}$/.test(month))
+      )].sort();
+    }
+
+    function selectedMonthOrLatest(selectedMonth, months) {
+      const valid = /^\d{4}-\d{2}$/.test(String(selectedMonth || "")) ? selectedMonth : "";
+      return valid && months.includes(valid) ? valid : latestMonthKey(months) || new Date().toISOString().slice(0, 7);
+    }
+
+    function classAverageSeries(program, className, anchorMonth, span) {
+      const reviews = store.reviews.filter((review) => review.program === program && review.className === className);
+      const months = classReviewMonths(program, className);
+      if (!months.length) return [];
+      const selectedAnchor = selectedMonthOrLatest(anchorMonth, months);
+      const range = monthRangeKeys(selectedAnchor, span);
+      return range.map((month) => {
+        const monthReviews = reviews.filter((review) => (review.month ? review.month.slice(0, 7) : String(review.sourceDate || "").slice(0, 7)) === month);
+        const average = averageValues(monthReviews.map((review) => Number(review.scores && review.scores.overall)).filter((value) => Number.isFinite(value)));
+        if (average === null) return null;
+        return {
+          month,
+          scores: { overall: average },
+          student: className,
+          displayLabel: initials(className || program || "EH")
+        };
+      }).filter(Boolean);
+    }
+
     function closeCalendarGroup(id) {
       const target = document.getElementById(id);
       const group = target && target.dataset ? target.dataset.calendarGroup : "";
@@ -5182,6 +5347,73 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
                   `;
                 }).join("")}
               </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function renderMonthAccordionCalendar(items, options) {
+      if (!items.length) return `<div class="empty">${options.empty || "No records yet."}</div>`;
+      const entries = items.map((item, index) => {
+        const date = normalizeDateKey(options.date(item));
+        return { item, index, date, month: date.slice(0, 7) || "No date" };
+      }).filter((entry) => entry.date);
+      if (!entries.length) return `<div class="empty">${options.empty || "No dated records yet."}</div>`;
+      const byMonth = entries.reduce((grouped, entry) => {
+        grouped[entry.month] = grouped[entry.month] || [];
+        grouped[entry.month].push(entry);
+        return grouped;
+      }, {});
+      const months = Object.keys(byMonth).sort().reverse();
+      return `
+        <div class="event-calendar-wrap">
+          ${months.map((month, monthIndex) => {
+            const monthEntries = byMonth[month];
+            const byDate = monthEntries.reduce((grouped, entry) => {
+              grouped[entry.date] = grouped[entry.date] || [];
+              grouped[entry.date].push(entry);
+              return grouped;
+            }, {});
+            const eventDates = new Set(Object.keys(byDate));
+            const blanks = Array.from({ length: calendarStartOffset(month) }, () => `<span class="calendar-day is-empty" aria-hidden="true"></span>`).join("");
+            const days = Array.from({ length: calendarDayCount(month) }, (_, index) => {
+              const day = index + 1;
+              const dateKey = `${month}-${String(day).padStart(2, "0")}`;
+              const detailId = `${options.idPrefix}-${dateKey}`;
+              const hasEvent = eventDates.has(dateKey);
+              return hasEvent
+                ? `<button class="calendar-day has-event" type="button" onclick="openCalendarDate('${detailId}')" aria-label="Open records for ${dateKey}">${day}</button>`
+                : `<span class="calendar-day">${day}</span>`;
+            }).join("");
+            return `
+              <details id="${options.idPrefix}-month-${month}" class="calendar-month-card"${monthIndex === 0 ? " open" : ""} data-calendar-group="${escapeHtml(options.idPrefix)}-months" ontoggle="handleCalendarDetailsToggle(this)">
+                <summary>
+                  <span class="calendar-month-summary">
+                    <span>${escapeHtml(monthLabel(month))}</span>
+                    <span class="tag blue">${monthEntries.length} ${monthEntries.length === 1 ? "record" : "records"}</span>
+                  </span>
+                </summary>
+                <div class="calendar-month-body">
+                  <div class="calendar-grid" aria-label="${escapeHtml(monthLabel(month))} calendar">
+                    ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => `<span class="calendar-weekday">${day}</span>`).join("")}
+                    ${blanks}${days}
+                  </div>
+                  <div class="calendar-event-list">
+                    ${Object.keys(byDate).sort().reverse().map((dateKey) => {
+                      const detailId = `${options.idPrefix}-${dateKey}`;
+                      return `
+                        <details id="${detailId}"${options.singleOpen ? ` data-calendar-group="${escapeHtml(options.idPrefix)}" ontoggle="handleCalendarDetailsToggle(this)"` : ""}>
+                          <summary>${escapeHtml(dateKey)} · ${byDate[dateKey].length} ${byDate[dateKey].length === 1 ? "record" : "records"}</summary>
+                          <div class="grid one-col">
+                            ${byDate[dateKey].map(({ item, index }) => options.render(item, index)).join("")}
+                          </div>
+                        </details>
+                      `;
+                    }).join("")}
+                  </div>
+                </div>
+              </details>
             `;
           }).join("")}
         </div>
@@ -5282,9 +5514,36 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderProgramDetails() {
-      const isEnglish = programDetailsLanguage === "english";
-      const file = isEnglish ? "emerald_hills.html" : "emerald_hills_simplified.html";
       const visiblePrograms = role === "student" ? [currentUser.program] : Object.keys(programs);
+      const sectionExplain = {
+        Primary: {
+          Listening: "Short audio and video-supported questions help younger learners connect what they see with what they hear.",
+          Reading: "Passages are built to test simple evidence-finding, comprehension, and vocabulary in context.",
+          "Language Form & Meaning": "Sentence-level grammar and word-choice tasks help students notice how English works inside a sentence.",
+          Speaking: "Speaking tasks use pictures, prompts, or short audio/video cues so students can answer in simple complete sentences.",
+          Writing: "Writing starts with short answers and gradually moves toward organised sentences and short paragraphs."
+        },
+        Junior: {
+          Listening: "Listening tasks use longer dialogues and talks so students learn to follow key ideas and evidence.",
+          Reading: "Reading focuses on main idea, detail, inference, and vocabulary questions that reward careful reading.",
+          "Language Form & Meaning": "Grammar and sentence meaning practice helps students choose the best structure and notice error patterns.",
+          Speaking: "Speaking asks students to explain, compare, and give reasons using complete English sentences.",
+          Writing: "Writing builds from short responses to clearer organisation, reasons, and supporting examples."
+        },
+        ITP: {
+          "Listening Comprehension": "Official multiple-choice listening with audio passages and numbered items.",
+          "Structure and Written Expression": "Grammar and sentence-correction practice based on the official TOEFL ITP style.",
+          "Reading Comprehension": "Passage-based reading questions that test evidence, detail, and vocabulary.",
+          "Vocabulary and Reading Comprehension": "Level 2 combines vocabulary knowledge with reading comprehension in a shorter format.",
+          Speaking: "Digital speaking tasks are teacher-built prompts that the platform treats as separate recording tasks."
+        },
+        iBT: {
+          Reading: "Academic reading tasks use passage-based evidence, inference, and answer support.",
+          Listening: "Listening tasks use lectures, conversations, and longer input so students practice academic note-taking and inference.",
+          Speaking: "Speaking follows the newer iBT style with short timed responses after reading, listening, or integrated prompts.",
+          Writing: "Writing includes integrated and academic-style responses with teacher-uploaded materials and guided structure."
+        }
+      };
       $("#programDetails").innerHTML = `
         ${pageHeader("Program Introduction", "课程介绍", role === "student" ? `Showing only your current level: ${currentUser.program} · ${currentUser.className}.` : "Open the full program introduction in the same browser tab.")}
         <div class="program-links">
@@ -5296,12 +5555,23 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         </div>
         <div class="grid">
           ${visiblePrograms.map((program) => `
-            <article class="card program-overview-card">
-              <h3>${escapeHtml(program)}${role === "student" ? ` · ${escapeHtml(currentUser.className)}` : ""}</h3>
-              <p>${programSummary(program)}</p>
-              <div class="tag-row">${sectionTags(program)}</div>
-              <div class="tag-row">${programScoreTags(program)}</div>
-            </article>
+            <details class="card program-overview-card">
+              <summary>
+                <h3>${escapeHtml(program)}${role === "student" ? ` · ${escapeHtml(currentUser.className)}` : ""}</h3>
+                <p>${programSummary(program)}</p>
+              </summary>
+              <div style="margin-top:12px">
+                <div class="tag-row">${programScoreTags(program)}</div>
+                <div class="review-toggle-grid">
+                  ${sectionsFor(program, role === "student" ? currentUser.className : classesFor(program)[0]).map((section) => `
+                    <details>
+                      <summary>${escapeHtml(section)}</summary>
+                      <p>${escapeHtml(sectionExplain[program] && sectionExplain[program][section] ? sectionExplain[program][section] : "Section details are published by the teacher for this program.")}</p>
+                    </details>
+                  `).join("")}
+                </div>
+              </div>
+            </details>
           `).join("")}
         </div>
       `;
@@ -6527,7 +6797,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderSubmissionCalendar(submissions, idPrefix) {
-      return renderEventCalendar(
+      return renderMonthAccordionCalendar(
         submissions,
         {
           idPrefix,
@@ -6725,7 +6995,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderLessonNoteCalendar(notes, idPrefix) {
-      return renderEventCalendar(
+      return renderMonthAccordionCalendar(
         notes.filter(hasLessonContent),
         {
           idPrefix,
@@ -7587,7 +7857,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         ${pageHeader("Submissions", "学生提交", "Homework records completion and a 0–100 score. Class exercises record completed (100%) or absent (excluded). Monthly tests and mock exams keep their assessment scores.")}
         ${renderProgramPicker("teacherSubmissions", { badge: (program) => submissionCategoryCount(program, category) })}
         ${renderCategoryTabs("teacherSubmissions")}
-        ${renderEventCalendar(submissions, {
+        ${renderMonthAccordionCalendar(submissions, {
           idPrefix: "teacher-submission-calendar",
           empty: `No ${categoryLabels[category]} records yet for ${teacherProgram.teacherSubmissions}.`,
           date: (submission) => submission.completionDate || submission.submittedAt,
@@ -7926,27 +8196,29 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         ${pageHeader("Monthly Reviews", "月度学习报告", "Write one monthly progress review for each student.")}
         ${renderProgramPicker("teacherReviews")}
         <div class="split">
-          <form class="card" onsubmit="saveMonthlyReview(event)">
-            <h3>Student review</h3>
-            <div class="field"><label>Student</label><select id="reviewStudent">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}">${student.name} · ${student.className}</option>`).join("")}</select></div>
-            <div class="field"><label>Month</label><input id="reviewMonth" type="month" value="2026-05"></div>
-            <div class="review-form">
-              <div class="field"><label>Overall score</label><input id="reviewOverall" type="number" min="0" max="120" required></div>
-              <div class="field"><label>Listening</label><input id="reviewListening" type="number" min="0" max="120"></div>
-              <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120"></div>
-              <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120"></div>
-              <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120"></div>
-              <div class="field"><label>Language / Structure</label><input id="reviewLanguage" type="number" min="0" max="120"></div>
-            </div>
-            <div class="review-form">
-              <div class="field"><label>Strong areas</label><textarea id="reviewStrong" required></textarea></div>
-              <div class="field"><label>Currently improving</label><textarea id="reviewImproving" required></textarea></div>
-              <div class="field"><label>Weaknesses</label><textarea id="reviewWeakness" required></textarea></div>
-              <div class="field"><label>Areas to improve</label><textarea id="reviewAreas" required></textarea></div>
-              <div class="field"><label>How to improve</label><textarea id="reviewHow" required></textarea></div>
-            </div>
-            <button class="primary-btn" type="submit">Publish review</button>
-          </form>
+          <details class="card" open>
+            <summary><h3 style="display:inline">Fill in student review</h3></summary>
+            <form onsubmit="saveMonthlyReview(event)" style="margin-top:12px">
+              <div class="field"><label>Student</label><select id="reviewStudent">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}">${student.name} · ${student.className}</option>`).join("")}</select></div>
+              <div class="field"><label>Month</label><input id="reviewMonth" type="month" value="2026-05"></div>
+              <div class="review-form">
+                <div class="field"><label>Overall score</label><input id="reviewOverall" type="number" min="0" max="120" required></div>
+                <div class="field"><label>Listening</label><input id="reviewListening" type="number" min="0" max="120"></div>
+                <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120"></div>
+                <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120"></div>
+                <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120"></div>
+                <div class="field"><label>Language / Structure</label><input id="reviewLanguage" type="number" min="0" max="120"></div>
+              </div>
+              <div class="review-form">
+                <div class="field"><label>Strong areas</label><textarea id="reviewStrong" required></textarea></div>
+                <div class="field"><label>Currently improving</label><textarea id="reviewImproving" required></textarea></div>
+                <div class="field"><label>Weaknesses</label><textarea id="reviewWeakness" required></textarea></div>
+                <div class="field"><label>Areas to improve</label><textarea id="reviewAreas" required></textarea></div>
+                <div class="field"><label>How to improve</label><textarea id="reviewHow" required></textarea></div>
+              </div>
+              <button class="primary-btn" type="submit">Publish review</button>
+            </form>
+          </details>
           <div>
             ${selectedReviews.length ? renderPerformanceGraph(selectedReviews) : ""}
             ${renderReviewCalendar(selectedReviews, "teacher-review-calendar", `No ${teacherProgram.teacherReviews} reviews written yet.`)}
@@ -8059,7 +8331,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderReviewCalendar(reviews, idPrefix, empty = "No monthly reviews or score records yet.") {
-      return renderEventCalendar(
+      return renderMonthAccordionCalendar(
         [...reviews].sort((a, b) => String(reviewDateKey(b)).localeCompare(String(reviewDateKey(a)))),
         {
           idPrefix,
@@ -8080,7 +8352,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         const score = Number(review.scores && review.scores.overall) || 0;
         const x = sorted.length === 1 ? 280 : 40 + (index * (520 / (sorted.length - 1)));
         const y = 170 - Math.min(120, Math.max(0, score)) * 1.15;
-        return { x, y, score, month: review.month };
+        return { x, y, score, month: review.month, label: review.displayLabel || initials(review.student || "") };
       });
       const polyline = points.map((point) => `${point.x},${point.y}`).join(" ");
       return `
@@ -8093,7 +8365,8 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           <polyline points="${polyline}" fill="none" stroke="#5DCAA5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
           ${points.map((point) => `
             <circle cx="${point.x}" cy="${point.y}" r="6" fill="#f0d080" />
-            <text x="${point.x - 18}" y="${point.y - 12}">${point.score}</text>
+            <text x="${point.x - 10}" y="${point.y - 12}">${point.label}</text>
+            <text x="${point.x - 10}" y="${point.y - 26}">${point.score}</text>
             <text x="${point.x - 28}" y="194">${point.month}</text>
           `).join("")}
         </svg>
@@ -8445,7 +8718,33 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderAdminRecords() {
-      renderStudentRecords("adminRecords", "adminRecords", "All Student Records", "全校学生完整记录", "Admin can inspect every student's tests, answer evidence, imported scores, monthly reviews, teacher feedback, admin annotations, and progress graph.", { openTests: true, openSubmissions: true });
+      const program = teacherProgram.adminRecords;
+      const students = studentsForProgram(program);
+      const classNames = programs[program].classes;
+      const selectedClass = classNames.includes(recordClassFilter.adminRecords || "") ? recordClassFilter.adminRecords : "";
+      const classStudents = selectedClass ? students.filter((student) => student.className === selectedClass) : students;
+      const selectedStudentKey = classStudents.some((student) => studentFocusKey(student) === recordStudentFocus.adminRecords)
+        ? recordStudentFocus.adminRecords
+        : (classStudents[0] ? studentFocusKey(classStudents[0]) : "");
+      const selectedStudent = classStudents.find((student) => studentFocusKey(student) === selectedStudentKey) || null;
+      $("#adminRecords").innerHTML = `
+        ${pageHeader("Student Records", "学生记录", "Pick a class first, then choose a student to open only that learner's full records.")}
+        ${renderProgramPicker("adminRecords")}
+        <div class="card" style="margin-bottom:16px">
+          <h3>Choose one student</h3>
+          <div class="toolbar" style="margin-bottom:12px">
+            <label class="field inline-field"><span>Class</span><select onchange="selectRecordClass('adminRecords', this.value)">
+              <option value="">All ${program} classes</option>
+              ${classNames.map((className) => `<option value="${escapeHtml(className)}" ${selectedClass === className ? "selected" : ""}>${escapeHtml(className)}</option>`).join("")}
+            </select></label>
+            <label class="field inline-field"><span>Student</span><select onchange="selectAdminRecordStudent(this.value)">
+              ${classStudents.map((student) => `<option value="${escapeHtml(studentFocusKey(student))}" ${selectedStudentKey === studentFocusKey(student) ? "selected" : ""}>${escapeHtml(student.name)} · ${escapeHtml(student.studentId || "No ID")}</option>`).join("")}
+            </select></label>
+          </div>
+          <p class="muted">Only the selected student's record will open below. This keeps the admin view focused and easier to read.</p>
+        </div>
+        ${selectedStudent ? renderStudentRecordCard(selectedStudent, { openTests: true, openSubmissions: true }) : `<div class="empty">Choose a class and student to view records.</div>`}
+      `;
     }
 
     function renderSubmissionScoreCard(submission) {
@@ -8477,7 +8776,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderSubmissionReviewCalendar(submissions, idPrefix, empty = "No submissions yet.") {
-      return renderEventCalendar(
+      return renderMonthAccordionCalendar(
         [...submissions].sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt))),
         {
           idPrefix,
@@ -8489,16 +8788,51 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderAdminScores() {
+      const program = adminScoreProgram in programs ? adminScoreProgram : "Primary";
+      const classNames = classesFor(program);
+      if (!classNames.includes(adminScoreClass)) adminScoreClass = classNames[0] || "";
+      const availableMonths = classReviewMonths(program, adminScoreClass);
+      const monthChoices = availableMonths.length ? [...availableMonths].sort().reverse() : [new Date().toISOString().slice(0, 7)];
+      const selectedMonth = selectedMonthOrLatest(adminScoreMonth, availableMonths.length ? availableMonths : monthChoices);
+      const selectedSpan = ["1", "3", "5", "12", "36"].includes(String(adminScoreSpan)) ? String(adminScoreSpan) : "1";
+      const rangeMonths = monthRangeKeys(selectedMonth, selectedSpan);
+      const classReviews = store.reviews.filter((review) => review.program === program && review.className === adminScoreClass);
+      const filteredReviews = classReviews.filter((review) => rangeMonths.includes(reviewDateKey(review).slice(0, 7)));
+      const filteredSubmissions = store.submissions.filter((submission) => submission.program === program && submission.className === adminScoreClass && rangeMonths.includes(monthFromSubmission(submission)));
+      const classSeries = classAverageSeries(program, adminScoreClass, selectedMonth, selectedSpan);
+      const classAverage = classSeries.length ? averageValues(classSeries.map((point) => point.scores.overall)) : null;
       $("#adminScores").innerHTML = `
-        ${pageHeader("Scores & Tests", "成绩与测试", "Review every submitted test, homework, exercise, and imported monthly score by date. Red dates have available records.")}
-        <div class="toolbar" style="margin-bottom:14px">
-          <button class="primary-btn" type="button" onclick="activateSection('adminRecords')">Open full student records</button>
+        ${pageHeader("Scores & Tests", "成绩与测试", "Choose a class first, then narrow the calendar to one month or a short range. The graph shows that class only.")}
+        <div class="card" style="margin-bottom:16px">
+          <h3>Class score filters</h3>
+          <div class="toolbar" style="gap:10px; flex-wrap:wrap">
+            <select onchange="setAdminScoreProgram(this.value)">
+              ${Object.keys(programs).map((item) => `<option value="${escapeHtml(item)}" ${item === program ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
+            </select>
+            <select onchange="setAdminScoreClass(this.value)">
+              ${classNames.map((className) => `<option value="${escapeHtml(className)}" ${className === adminScoreClass ? "selected" : ""}>${escapeHtml(className)}</option>`).join("")}
+            </select>
+            <select onchange="setAdminScoreMonth(this.value)">
+              ${monthChoices.map((month) => `<option value="${month}" ${month === selectedMonth ? "selected" : ""}>${monthLabel(month)}</option>`).join("")}
+            </select>
+            <select onchange="setAdminScoreSpan(this.value)">
+              ${["1", "3", "5", "12", "36"].map((span) => `<option value="${span}" ${span === selectedSpan ? "selected" : ""}>${span} month${span === "1" ? "" : "s"}</option>`).join("")}
+            </select>
+            <button class="ghost-btn" type="button" onclick="activateSection('adminRecords')">Open selected student record</button>
+          </div>
+          <p class="muted">The graph and calendars below only show ${escapeHtml(program)} · ${escapeHtml(adminScoreClass)} records inside the selected month window.</p>
+          <div class="score-strip">
+            <div class="score-pill"><small>Class average</small><strong>${classAverage === null ? "-" : `${classAverage}%`}</strong></div>
+            <div class="score-pill"><small>Months shown</small><strong>${rangeMonths.length}</strong></div>
+            <div class="score-pill"><small>Reviews</small><strong>${classReviews.length}</strong></div>
+            <div class="score-pill"><small>Submissions</small><strong>${filteredSubmissions.length}</strong></div>
+          </div>
         </div>
-        <h3>Submission scores</h3>
-        ${renderSubmissionReviewCalendar(store.submissions, "admin-submission-calendar")}
-        <h3 style="margin-top:24px">Imported / monthly score records</h3>
-        ${store.reviews.length ? renderPerformanceGraph(store.reviews) : ""}
-        ${renderReviewCalendar(store.reviews, "admin-review-calendar", "No monthly reviews or imported scores yet.")}
+        ${classSeries.length ? renderPerformanceGraph(classSeries) : `<div class="empty">No monthly score graph is available yet for this class.</div>`}
+        <h3 style="margin-top:24px">Monthly review records</h3>
+        ${renderReviewCalendar(filteredReviews, "admin-review-calendar", "No monthly reviews found for the selected class and month window.")}
+        <h3 style="margin-top:24px">Submission scores</h3>
+        ${renderSubmissionReviewCalendar(filteredSubmissions, "admin-submission-calendar", "No submission scores found for the selected class and month window.")}
       `;
     }
 
@@ -8794,13 +9128,35 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function renderAdminLessonNotes() {
       const notes = publishedLessonNotes();
+      const program = adminLessonProgram in programs ? adminLessonProgram : "Primary";
+      const classNames = classesFor(program);
+      if (!classNames.includes(adminLessonClass)) adminLessonClass = classNames[0] || "";
+      const availableMonths = classLessonMonths(program, adminLessonClass);
+      const monthChoices = availableMonths.length ? [...availableMonths].sort().reverse() : [new Date().toISOString().slice(0, 7)];
+      const selectedMonth = selectedMonthOrLatest(adminLessonMonth, availableMonths.length ? availableMonths : monthChoices);
+      const filteredNotes = notes.filter((note) => note.program === program && note.className === adminLessonClass && String(note.date || "").slice(0, 7) === selectedMonth);
       $("#adminLessonNotes").innerHTML = `
         ${pageHeader("Teacher Lesson Notes", "教师课堂记录", "Admins can review teacher lesson boards by date, open each saved lesson, and leave comments or suggestions in the same calendar-style flow used by teachers.")}
-        ${renderEventCalendar(
-          notes.sort((a, b) => String(b.date).localeCompare(String(a.date))),
+        <div class="card" style="margin-bottom:16px">
+          <h3>Class and month filter</h3>
+          <div class="toolbar" style="gap:10px; flex-wrap:wrap">
+            <select onchange="setAdminLessonProgram(this.value)">
+              ${Object.keys(programs).map((item) => `<option value="${escapeHtml(item)}" ${item === program ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
+            </select>
+            <select onchange="setAdminLessonClass(this.value)">
+              ${classNames.map((className) => `<option value="${escapeHtml(className)}" ${className === adminLessonClass ? "selected" : ""}>${escapeHtml(className)}</option>`).join("")}
+            </select>
+            <select onchange="setAdminLessonMonth(this.value)">
+              ${monthChoices.map((month) => `<option value="${month}" ${month === selectedMonth ? "selected" : ""}>${monthLabel(month)}</option>`).join("")}
+            </select>
+          </div>
+          <p class="muted">Pick the class, then one month. The calendar below opens the dates for that month only so it is easier to read.</p>
+        </div>
+        ${renderMonthAccordionCalendar(
+          filteredNotes.sort((a, b) => String(b.date).localeCompare(String(a.date))),
           {
             idPrefix: "admin-lesson-note",
-            empty: "No teacher lesson notes have been saved yet.",
+            empty: "No teacher lesson notes have been saved yet for the selected class and month.",
             date: (note) => note.date,
             render: (note, index) => renderAdminLessonNoteCard(note, index)
           }

@@ -159,6 +159,11 @@
   }
   .error-table input[type="text"]:focus { border-color: var(--navy); }
   .error-table tr:hover td { background: #fafaf8; }
+  .error-table tr.row-correct td { background: #e6f4ed !important; }
+  .error-table tr.row-wrong   td { background: #fdecea !important; }
+  .error-table tr.row-correct .error-num { color: var(--correct); }
+  .error-table tr.row-wrong   .error-num { color: var(--wrong); }
+  .proof-score { font-size: 0.88rem; color: var(--muted); margin-top: 10px; }
 
   .reveal-btn {
     padding: 10px 24px;
@@ -242,7 +247,7 @@
     <h3>Before you begin — Language Form &amp; Meaning:</h3>
     <ul>
       <li>This section has two parts: 10 grammar questions in a story + a proofreading challenge.</li>
-      <li>Enter your name above, then click <strong>Start Test</strong> — the timer starts immediately. Submit when you are finished; you do not need to wait for time to end.</li>
+      <li>Enter your name above, then click <strong>Start Test</strong> — the 20-minute timer starts immediately.</li>
       <li><strong>Part 1:</strong> Read the story. Click the best word or phrase to complete each blank (1–10).</li>
       <li><strong>Part 2:</strong> Read the passage and find 10 errors. Write the error and the correction in each row.</li>
       <li>Click <strong>Submit Answers</strong> at the end to see your score for Part 1.</li>
@@ -404,7 +409,7 @@
       <tr><td class="error-num">10</td><td><input type="text" id="err10" placeholder="" oninput="scheduleAutosave()"></td><td><input type="text" id="cor10" placeholder="" oninput="scheduleAutosave()"></td></tr>
     </table>
 
-    <button class="reveal-btn" onclick="revealProofAnswers()">Reveal Answer Key (Teacher)</button>
+    <button class="reveal-btn" id="revealProofBtn" onclick="revealProofAnswers()" style="display:none">Reveal Answer Key (Teacher)</button>
 
     <div class="answer-key-box" id="proofAnswerKey">
       <h4>Answer Key — 10 Errors in Sam's Big Race</h4>
@@ -433,7 +438,7 @@
 </div><!-- end #testContent -->
 
 <script>
-const TOTAL_Q = 10;
+const TOTAL_Q = 20;
 const TOTAL_TIME = 20 * 60;
 let timeLeft = TOTAL_TIME;
 let timerInterval = null;
@@ -442,6 +447,20 @@ let autosaveTimer;
 
 const ANSWER_KEY = { c1:'C', c2:'C', c3:'A', c4:'B', c5:'C', c6:'B', c7:'C', c8:'C', c9:'B', c10:'D' };
 const clozeIds = ['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10'];
+
+// Proofreading answer key: [wrong, correct] — comparison is case-insensitive
+const PROOF_KEY = {
+  1: ['every',    'every'],    // accept any capitalisation of 'every'/'Every'
+  2: ['saturday', 'saturday'],
+  3: ['sam',      'sam'],
+  4: ['love',     'loves'],
+  5: ['dog',      'dogs'],
+  6: ['bottle',   'bottles'],
+  7: ['win?',     'win.'],
+  8: ['run',      'ran'],
+  9: ['trip',     'tripped'],
+ 10: ['play',     'plays']
+};
 
 function goPanel(n) {
   document.querySelectorAll('.task-panel').forEach(p => p.style.display = 'none');
@@ -498,13 +517,8 @@ document.querySelectorAll('.inline-q input[type="radio"]').forEach(inp => {
 });
 
 function submitTest(auto = false) {
-  let answered = 0;
-  clozeIds.forEach(q => { if (document.querySelector(`input[name="${q}"]:checked`)) answered++; });
-  if (!auto && answered < TOTAL_Q) {
-    if (!confirm(`You have ${TOTAL_Q - answered} unanswered question(s). Submit anyway?`)) return;
-  }
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-  let correct = 0;
+  let answered = 0, correct = 0;
   clozeIds.forEach(q => {
     const correctVal = ANSWER_KEY[q];
     const checked = document.querySelector(`input[name="${q}"]:checked`);
@@ -514,36 +528,51 @@ function submitTest(auto = false) {
       if (inp.value === correctVal) lbl.classList.add('c-correct');
       else if (inp.checked) lbl.classList.add('c-wrong');
     });
-    if (checked && checked.value === correctVal) correct++;
+    if (checked) {
+      answered++;
+      if (checked.value === correctVal) correct++;
+    }
   });
-  const pct = Math.round((correct / TOTAL_Q) * 100);
-  const marked = clozeIds.map((q, index) => {
-    const checked = document.querySelector(`input[name="${q}"]:checked`);
-    return {
-      question: index + 1,
-      studentAnswer: checked ? checked.value : "",
-      correctAnswer: ANSWER_KEY[q],
-      correct: Boolean(checked && checked.value === ANSWER_KEY[q]),
-      result: checked && checked.value === ANSWER_KEY[q] ? "Correct" : "Incorrect"
-    };
-  });
+  // Grade proofreading (Part 2) — lock inputs and highlight rows
+  let proofCorrect = 0, proofAnswered = 0;
+  for (let i = 1; i <= 10; i++) {
+    const errInput = document.getElementById('err' + i);
+    const corInput = document.getElementById('cor' + i);
+    const row = errInput.closest('tr');
+    const studentErr = errInput.value.trim().toLowerCase();
+    const studentCor = corInput.value.trim().toLowerCase();
+    const [expectedErr, expectedCor] = PROOF_KEY[i];
+    errInput.readOnly = true;
+    corInput.readOnly = true;
+    errInput.style.background = '#f0f0f0';
+    corInput.style.background = '#f0f0f0';
+    const hasAnswer = studentErr.length > 0 || studentCor.length > 0;
+    if (hasAnswer) proofAnswered++;
+    const isCorrect = studentErr === expectedErr && studentCor === expectedCor;
+    if (isCorrect) {
+      row.classList.add('row-correct');
+      proofCorrect++;
+    } else {
+      if (hasAnswer) row.classList.add('row-wrong');
+      // Show correct answer below each input
+      const answerHint = document.createElement('div');
+      answerHint.style.cssText = 'font-size:0.78rem;color:var(--correct);font-weight:600;margin-top:4px;';
+      answerHint.textContent = '✓ ' + expectedErr + '  →  ' + expectedCor;
+      corInput.closest('td').appendChild(answerHint);
+    }
+  }
+
+  const totalCorrect = correct + proofCorrect;
+  const totalAnswered = answered + proofAnswered;
+  const pct = Math.round((totalCorrect / TOTAL_Q) * 100);
   document.getElementById('scoreSummary').style.display = 'block';
-  document.getElementById('scoreDisplay').textContent = correct + ' / ' + TOTAL_Q;
-  document.getElementById('scoreDetail').textContent = `Score: ${pct}%  ·  Correct: ${correct}  ·  Wrong: ${answered - correct}  ·  Unanswered: ${TOTAL_Q - answered}`;
+  document.getElementById('scoreDisplay').textContent = totalCorrect + ' / ' + TOTAL_Q;
+  document.getElementById('scoreDetail').textContent =
+    `Score: ${pct}%  ·  Part 1: ${correct}/10  ·  Part 2: ${proofCorrect}/10  ·  Unanswered: ${TOTAL_Q - totalAnswered}`;
   document.getElementById('scoreSummary').scrollIntoView({behavior:'smooth'});
   document.getElementById('btnSubmit').disabled = true;
+  document.getElementById('revealProofBtn').style.display = 'inline-block';
   saveProgress();
-  window.parent.postMessage({
-    type: 'eh-exam-submitted',
-    section: 'Language Form & Meaning',
-    answers: getState(),
-    correct,
-    total: TOTAL_Q,
-    percent: pct,
-    scoreLabel: correct + ' / ' + TOTAL_Q + ' (' + pct + '%)',
-    marked,
-    autoSubmitted: auto
-  }, '*');
 }
 
 function revealProofAnswers() {
@@ -576,8 +605,8 @@ function restoreState(state) {
   if (state.date) document.getElementById('studentDate').value = state.date;
   if (state.cloze) {
     Object.entries(state.cloze).forEach(([q, v]) => {
-      const chip = document.querySelector(`.blank-choices[data-q="${q}"] .blank-choice[data-v="${v}"]`);
-      if (chip) chip.classList.add('selected');
+      const inp = document.querySelector(`input[name="${q}"][value="${v}"]`);
+      if (inp) inp.checked = true;
     });
   }
   if (state.errors) {
@@ -590,7 +619,7 @@ function restoreState(state) {
 
 function saveProgress() {
   try {
-    localStorage.setItem('toefl_p2_language', JSON.stringify(getState()));
+    sessionStorage.setItem('toefl_p2_language', JSON.stringify(getState()));
     document.getElementById('autosaveStatus').textContent = 'Saved at ' + new Date().toLocaleTimeString();
   } catch(e) {}
 }
@@ -600,9 +629,11 @@ function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTi
 function clearAll() {
   if (!confirm('Clear all answers? This cannot be undone.')) return;
   clozeIds.forEach(q => {
-    document.querySelectorAll(`.blank-choices[data-q="${q}"] .blank-choice`).forEach(c => {
-      c.classList.remove('selected','correct','wrong');
-      c.style.pointerEvents = '';
+    document.querySelectorAll(`input[name="${q}"]`).forEach(inp => {
+      inp.checked = false;
+      inp.disabled = false;
+      const lbl = inp.closest('label');
+      if (lbl) { lbl.classList.remove('c-correct','c-wrong'); }
     });
   });
   for (let i = 1; i <= 10; i++) {
@@ -625,23 +656,11 @@ function downloadHTML() {
   a.click();
 }
 
-function applyStudentFromQuery() {
-  const params = new URLSearchParams(window.location.search);
-  const name = params.get("student");
-  const className = params.get("className");
-  const date = params.get("date");
-  if (name) document.getElementById("studentName").value = name;
-  if (className) document.getElementById("studentClass").value = className;
-  if (date) document.getElementById("studentDate").value = date;
-}
-
-window.addEventListener("load", () => {
-  try { const s = localStorage.getItem('toefl_p2_language') || sessionStorage.getItem('toefl_p2_language'); if (s) restoreState(JSON.parse(s)); } catch(e) {}
-  applyStudentFromQuery();
+window.addEventListener('load', () => {
+  try { const s = sessionStorage.getItem('toefl_p2_language'); if (s) restoreState(JSON.parse(s)); } catch(e) {}
   if (!document.getElementById('studentDate').value)
     document.getElementById('studentDate').value = new Date().toISOString().split('T')[0];
 });
 </script>
-<script src="../exam-score-privacy.js"></script>
 </body>
 </html>
