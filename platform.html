@@ -3786,10 +3786,22 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const merged = accounts.map((account) => {
         const seed = seededAccounts.find((item) => item.role === (account.role || "student") && (item.username.toLowerCase() === String(account.username || "").toLowerCase() || item.name.toLowerCase() === String(account.name || "").toLowerCase()));
         if (!seed) return account;
-        const isQaSeed = String(seed.username || "").toLowerCase().startsWith("qa.");
-        return isQaSeed
-          ? { ...account, ...seed, photo: account.photo || seed.photo || "", accountId: seed.accountId || account.accountId, studentId: seed.studentId || account.studentId }
-          : { ...seed, ...account, accountId: account.accountId || seed.accountId, studentId: account.studentId || seed.studentId };
+        return {
+          ...account,
+          ...seed,
+          // Keep user-generated media/state where it exists, but always prefer the
+          // seeded identity and password so old browser storage cannot break login.
+          photo: account.photo || seed.photo || "",
+          role: seed.role || account.role,
+          username: seed.username || account.username,
+          email: seed.email || account.email,
+          password: seed.password || account.password,
+          accountId: seed.accountId || account.accountId,
+          studentId: seed.studentId || account.studentId,
+          program: seed.program || account.program,
+          className: seed.className || account.className,
+          gender: seed.gender || account.gender
+        };
       });
       const existingKeys = new Set(merged.map((account) => `${account.role || "student"}:${String(account.username || "").toLowerCase()}`));
       const seeded = seededAccounts.filter((account) => !existingKeys.has(`${account.role}:${account.username.toLowerCase()}`));
@@ -8331,28 +8343,37 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const isImportedPercent = review.source === "Old score import";
       const formatScore = (value) => value === undefined || value === null || value === "" ? "-" : `${value}${isImportedPercent ? "%" : ""}`;
       return `
-        <article class="card" style="margin-bottom:14px">
-          <h3>${escapeHtml(review.student)} · ${escapeHtml(review.month)}</h3>
-          <p class="muted">${escapeHtml(review.program || "")}${review.className ? ` · ${escapeHtml(review.className)}` : ""}</p>
-          ${review.publishedBy ? `<p class="muted">Published by ${escapeHtml(review.publishedBy)} · ${escapeHtml(review.publishedAt || "")}</p>` : ""}
-          ${review.sourceDate ? `<p class="tag-row"><span class="tag blue">${escapeHtml(review.source || "Score record")}</span><span class="tag green">${escapeHtml(review.sourceDate)}</span></p>` : ""}
-          <div class="score-strip">
-            <div class="score-pill"><small>Overall</small><strong>${formatScore(scores.overall)}</strong></div>
-            <div class="score-pill"><small>Speaking</small><strong>${formatScore(scores.speaking)}</strong></div>
-            <div class="score-pill"><small>Listening</small><strong>${formatScore(scores.listening)}</strong></div>
-            <div class="score-pill"><small>Reading</small><strong>${formatScore(scores.reading)}</strong></div>
-            ${scores.language !== undefined ? `<div class="score-pill"><small>Grammar</small><strong>${formatScore(scores.language)}</strong></div>` : ""}
-            <div class="score-pill"><small>Writing</small><strong>${formatScore(scores.writing)}</strong></div>
+        <details class="card review-card" style="margin-bottom:14px">
+          <summary>
+            <div class="calendar-month-summary" style="align-items:flex-start">
+              <span>
+                <strong>${escapeHtml(review.student)}</strong>
+                <span class="muted" style="display:block; font-size:13px; margin-top:4px">${escapeHtml(review.program || "")}${review.className ? ` · ${escapeHtml(review.className)}` : ""} · ${escapeHtml(review.month)}</span>
+              </span>
+              <span class="tag blue">${formatScore(scores.overall)} overall</span>
+            </div>
+          </summary>
+          <div class="card" style="margin-top:12px">
+            ${review.publishedBy ? `<p class="muted">Published by ${escapeHtml(review.publishedBy)} · ${escapeHtml(review.publishedAt || "")}</p>` : ""}
+            ${review.sourceDate ? `<p class="tag-row"><span class="tag blue">${escapeHtml(review.source || "Score record")}</span><span class="tag green">${escapeHtml(review.sourceDate)}</span></p>` : ""}
+            <div class="score-strip">
+              <div class="score-pill"><small>Overall</small><strong>${formatScore(scores.overall)}</strong></div>
+              <div class="score-pill"><small>Speaking</small><strong>${formatScore(scores.speaking)}</strong></div>
+              <div class="score-pill"><small>Listening</small><strong>${formatScore(scores.listening)}</strong></div>
+              <div class="score-pill"><small>Reading</small><strong>${formatScore(scores.reading)}</strong></div>
+              ${scores.language !== undefined ? `<div class="score-pill"><small>Grammar</small><strong>${formatScore(scores.language)}</strong></div>` : ""}
+              <div class="score-pill"><small>Writing</small><strong>${formatScore(scores.writing)}</strong></div>
+            </div>
+            <div class="review-toggle-grid">
+              <details><summary>Strong areas</summary><p>${escapeHtml(review.strong || "No comment added yet.")}</p></details>
+              <details><summary>Currently improving</summary><p>${escapeHtml(review.improving || "No comment added yet.")}</p></details>
+              <details><summary>Weaknesses</summary><p>${escapeHtml(review.weakness || "No comment added yet.")}</p></details>
+              <details><summary>Areas to improve</summary><p>${escapeHtml(review.areas || "No comment added yet.")}</p></details>
+              <details><summary>How we will improve</summary><p>${escapeHtml(review.how || "No comment added yet.")}</p></details>
+            </div>
+            ${renderReviewEditHistory(review)}
           </div>
-          <div class="review-toggle-grid">
-            <details><summary>Strong areas</summary><p>${escapeHtml(review.strong || "No comment added yet.")}</p></details>
-            <details><summary>Currently improving</summary><p>${escapeHtml(review.improving || "No comment added yet.")}</p></details>
-            <details><summary>Weaknesses</summary><p>${escapeHtml(review.weakness || "No comment added yet.")}</p></details>
-            <details><summary>Areas to improve</summary><p>${escapeHtml(review.areas || "No comment added yet.")}</p></details>
-            <details><summary>How we will improve</summary><p>${escapeHtml(review.how || "No comment added yet.")}</p></details>
-          </div>
-          ${renderReviewEditHistory(review)}
-        </article>
+        </details>
       `;
     }
 
