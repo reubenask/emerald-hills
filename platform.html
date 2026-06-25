@@ -1530,6 +1530,16 @@
       opacity: 0.35;
     }
 
+    .score-card-section-row td {
+      background: rgba(185, 146, 90, 0.12);
+      color: #f0d7a0;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-top: 1px solid rgba(185, 146, 90, 0.35);
+      border-bottom: 1px solid rgba(185, 146, 90, 0.25);
+    }
+
     .monthly-score-content {
       position: relative;
       z-index: 1;
@@ -1665,6 +1675,83 @@
       padding: 5px 8px;
       border-bottom: 1px solid rgba(185, 146, 90, 0.18);
       color: #fff8dd;
+    }
+
+    .semester-sheet {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      overflow: hidden;
+    }
+
+    .semester-sheet-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .semester-sheet-header h3 {
+      margin: 0 0 6px;
+    }
+
+    .semester-sheet-header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .semester-table-wrap {
+      overflow: auto;
+      max-height: min(72vh, 1200px);
+    }
+
+    .semester-table {
+      width: 100%;
+      min-width: 1040px;
+      border-collapse: collapse;
+    }
+
+    .semester-table th,
+    .semester-table td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 12px 14px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .semester-table th:last-child,
+    .semester-table td:last-child {
+      border-right: none;
+    }
+
+    .semester-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: rgba(9, 27, 21, 0.98);
+      color: var(--green-light);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 12px;
+    }
+
+    .semester-table td strong {
+      color: var(--text);
+    }
+
+    .semester-table td small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+    }
+
+    .semester-table-empty {
+      padding: 18px;
+      color: var(--muted);
     }
 
     @media (max-width: 760px) {
@@ -2783,6 +2870,14 @@
       }
     };
 
+    function isGrammarSection(section) {
+      return section === "Grammar" || section === "Language Form & Meaning";
+    }
+
+    function displaySectionName(section) {
+      return isGrammarSection(section) ? "Language Form & Meaning" : section;
+    }
+
     const itpLevelDetails = {
       "ITP Level 1": {
         label: "Level 1 · Intermediate to Advanced",
@@ -3335,12 +3430,12 @@
 中文：优势：Cherry 自从加入以来进步神速，令人印象深刻。她非常有上进心，总是乐于为课堂做贡献。她的理解能力也显著增强：阅读能力明显提高，听力技巧也敏锐了许多。她现在非常善于从听力对话中解读深层含义，并准确回答问题。`,
         improving: `April overview: Cherry's main growth this month was not only in scores, but in learning attitude and classroom confidence. She is beginning to connect listening meaning, reading clues, and classroom discussion more naturally.
 中文：四月学习概况：Cherry 本月的成长不仅体现在成绩上，更体现在学习态度和课堂信心上。她开始更自然地把听力含义、阅读线索和课堂讨论连接起来。`,
-        weakness: `Areas for improvement: Her main challenge is confidence when producing language. She can understand well, but she sometimes hesitates because she is afraid of making mistakes, especially when organising simple sentences. Grammar and writing are therefore the areas that need the most careful support.
-中文：提升空间：她目前最需要提升的是输出时的自信心。她理解能力很强，但有时害怕犯错，尤其是在组织简单句子时会犹豫。因此语法与写作是当前需要重点支持的部分。`,
+        weakness: `Areas for improvement: Her main challenge is confidence when producing language. She can understand well, but she sometimes hesitates because she is afraid of making mistakes, especially when organising simple sentences. Language Form & Meaning and writing are therefore the areas that need the most careful support.
+中文：提升空间：她目前最需要提升的是输出时的自信心。她理解能力很强，但有时害怕犯错，尤其是在组织简单句子时会犹豫。因此 Language Form & Meaning 与写作是当前需要重点支持的部分。`,
         areas: `We will help Cherry see mistakes as a normal part of learning, then use targeted sentence-building, short writing practice, and oral sentence frames to make output feel safer and clearer.
 中文：我们会帮助 Cherry 认识到错误只是学习过程的一部分，并通过有针对性的造句、短写作和口语句型框架，让她更安全、更清楚地表达。`,
-        how: `How we will support Cherry: In class, the teacher will invite her to answer with simple complete sentences first, then gradually add details. At home, parents can encourage one short English sentence after reading or listening, without correcting every mistake immediately. Together, we will protect her motivation while helping grammar and writing catch up with her strong comprehension.
-中文：我们将这样支持 Cherry：课堂上，老师会先鼓励她用简单完整句回答，再逐步加入细节。家庭中，家长可以在阅读或听力后鼓励她说一句简短英文，不必马上纠正每个错误。我们会共同保护她的上进心，同时帮助语法和写作跟上她的理解能力。`
+        how: `How we will support Cherry: In class, the teacher will invite her to answer with simple complete sentences first, then gradually add details. At home, parents can encourage one short English sentence after reading or listening, without correcting every mistake immediately. Together, we will protect her motivation while helping Language Form & Meaning and writing catch up with her strong comprehension.
+中文：我们将这样支持 Cherry：课堂上，老师会先鼓励她用简单完整句回答，再逐步加入细节。家庭中，家长可以在阅读或听力后鼓励她说一句简短英文，不必马上纠正每个错误。我们会共同保护她的上进心，同时帮助 Language Form & Meaning 和写作跟上她的理解能力。`
       },
       "Primary|Primary Step 2|Grace|2026-04": {
         strong: `Strengths: Grace is a listening champion. Listening is her strongest area: she concentrates well and can quickly identify the correct answer after hearing a dialogue. Although she is the youngest student in the class, her comprehension, maturity, vocabulary, and speaking ability are all growing steadily.
@@ -3371,12 +3466,12 @@
 中文：优势：Yann 是一个非常有决心且聪明的孩子，理解新知识的速度非常快。他在听、说、读、写各个核心领域中表现都很好。他的听力记忆尤为突出，能够很好地记住听力材料中的主要信息、具体名称以及表达方式，这使他能够更准确地判断正确答案。`,
         improving: `April overview: Yann's April performance shows a strong learning engine. He absorbs new material quickly and can use listening information well, so the next stage is to turn that ability into steadier reading fluency, writing accuracy, and classroom patience.
 中文：四月学习概况：Yann 本月展现出很强的学习动力。他吸收新内容很快，也能很好地使用听力信息。下一步是把这种能力转化为更稳定的阅读流利度、写作准确性和课堂耐心。`,
-        weakness: `Areas for improvement: Reading fluency and speed need more independent reading. Grammar and writing require targeted practice. Classroom etiquette also needs attention because his enthusiasm sometimes leads him to answer questions meant for other students.
-中文：提升空间：阅读流利度与速度需要通过更多自主阅读来提升。语法与写作需要更有针对性的练习。课堂礼仪也需要关注，因为他非常积极，有时会在问题是提给其他同学时抢先回答。`,
-        areas: `We will strengthen independent reading, grammar use, writing control, and the habit of giving classmates space to express themselves.
-中文：我们会加强自主阅读、语法使用、写作控制，并帮助他练习给同伴更多表达机会。`,
-        how: `How we will support Yann: In class, the teacher will continue polishing grammar and writing while giving him turn-taking goals during discussions. At home, parents can encourage regular independent reading and ask him to retell one useful expression from what he read or heard. This will help his speed, accuracy, and patience grow together.
-中文：我们将这样支持 Yann：课堂上，老师会持续打磨他的语法和写作，并在讨论中给他设定轮流发言目标。家庭中，家长可以鼓励规律自主阅读，并请他复述读到或听到的一个有用表达。这样可以让速度、准确度和耐心同步成长。`
+        weakness: `Areas for improvement: Reading fluency and speed need more independent reading. Language Form & Meaning and writing require targeted practice. Classroom etiquette also needs attention because his enthusiasm sometimes leads him to answer questions meant for other students.
+中文：提升空间：阅读流利度与速度需要通过更多自主阅读来提升。Language Form & Meaning 与写作需要更有针对性的练习。课堂礼仪也需要关注，因为他非常积极，有时会在问题是提给其他同学时抢先回答。`,
+        areas: `We will strengthen independent reading, Language Form & Meaning use, writing control, and the habit of giving classmates space to express themselves.
+中文：我们会加强自主阅读、Language Form & Meaning 使用、写作控制，并帮助他练习给同伴更多表达机会。`,
+        how: `How we will support Yann: In class, the teacher will continue polishing Language Form & Meaning and writing while giving him turn-taking goals during discussions. At home, parents can encourage regular independent reading and ask him to retell one useful expression from what he read or heard. This will help his speed, accuracy, and patience grow together.
+中文：我们将这样支持 Yann：课堂上，老师会持续打磨他的 Language Form & Meaning 和写作，并在讨论中给他设定轮流发言目标。家庭中，家长可以鼓励规律自主阅读，并请他复述读到或听到的一个有用表达。这样可以让速度、准确度和耐心同步成长。`
       },
       "Primary|Primary Step 2|Mingyuan|2026-04": {
         strong: `Strengths: Ming Yuan has an outstanding attitude. He is hardworking, energetic, and willing to try even when he is not completely sure of the answer. Listening comprehension is currently his strongest area, and his speaking has improved noticeably in a short time.
@@ -3726,14 +3821,14 @@ Currently improving: Oscar's grammar is stable this semester, not weak, but stil
         improving: `June class summary: 1. We reviewed tense structures and grammar rules. 2. We continued working with The Wild Robot and new vocabulary. 3. We practised listening and reading question types such as main idea, detail, factual information, purpose, and vocabulary.
 中文：六月课堂概况：1. 我们复习了时态结构和语法规则。2. 我们继续学习《荒野机器人》及相关新词汇。3. 我们练习了听力和阅读题型，如主旨、细节、事实信息、目的和词汇。
 
-Currently improving: Ran's speaking and reading are improving, with speaking showing the most visible growth. He is more willing to speak, but sometimes gets stuck when he cannot find the correct grammar structure.
-中文：目前正在提升：Ran 的口语和阅读都在进步，其中口语进步最明显。他更愿意开口，但有时会因为找不到正确语法结构而卡住。`,
-        weakness: `Weaknesses: Grammar remains the biggest challenge. Reading is improving, but grammar needs more individual attention because it affects both speaking and writing. He needs to see how other people use the same words and sentence patterns in real text.
-中文：弱项：语法仍然是最大的挑战。阅读正在进步，但语法需要更多个别关注，因为它会影响口语和写作。他需要通过真实文本观察别人如何使用相同词汇和句型。`,
-        areas: `Areas to improve: We will focus on spoken grammar, sentence construction, reading exposure, and regular short writing.
-中文：提升方向：我们会重点加强口语语法、句子构建、阅读接触和规律短写作。`,
-        how: `How we will support Ran: In class, the teacher will use sentence frames and compare correct and incorrect answer options so Ran can see why a sentence works. At home, Ran can write twice a week on any topic, plus one English diary entry each week. Parents can listen to him read one paragraph aloud and ask him to summarise the main point in one clear sentence. This connects vocabulary, reading, grammar, and speaking in one routine.
-中文：我们将这样支持 Ran：课堂上，老师会使用句型框架，并比较正确和错误选项，让 Ran 看清为什么某个句子成立。家庭中，Ran 可以每周任选话题写两次短文，再写一篇英文日记。家长可以听他朗读一段，并请他用一句清楚的话总结主旨。这样能把词汇、阅读、语法和口语连接在同一个练习中。`
+Currently improving: Ran's speaking and reading are improving, with speaking showing the most visible growth. He is more willing to speak, but sometimes gets stuck when he cannot find the correct Language Form & Meaning structure.
+中文：目前正在提升：Ran 的口语和阅读都在进步，其中口语进步最明显。他更愿意开口，但有时会因为找不到正确的 Language Form & Meaning 结构而卡住。`,
+        weakness: `Weaknesses: Language Form & Meaning remains the biggest challenge. Reading is improving, but this area needs more individual attention because it affects both speaking and writing. He needs to see how other people use the same words and sentence patterns in real text.
+中文：弱项：Language Form & Meaning 仍然是最大的挑战。阅读正在进步，但这一部分需要更多个别关注，因为它会影响口语和写作。他需要通过真实文本观察别人如何使用相同词汇和句型。`,
+        areas: `Areas to improve: We will focus on spoken Language Form & Meaning, sentence construction, reading exposure, and regular short writing.
+中文：提升方向：我们会重点加强口语中的 Language Form & Meaning、句子构建、阅读接触和规律短写作。`,
+        how: `How we will support Ran: In class, the teacher will use sentence frames and compare correct and incorrect answer options so Ran can see why a sentence works. At home, Ran can write twice a week on any topic, plus one English diary entry each week. Parents can listen to him read one paragraph aloud and ask him to summarise the main point in one clear sentence. This connects vocabulary, reading, Language Form & Meaning, and speaking in one routine.
+中文：我们将这样支持 Ran：课堂上，老师会使用句型框架，并比较正确和错误选项，让 Ran 看清为什么某个句子成立。家庭中，Ran 可以每周任选话题写两次短文，再写一篇英文日记。家长可以听他朗读一段，并请他用一句清楚的话总结主旨。这样能把词汇、阅读、Language Form & Meaning 和口语连接在同一个练习中。`
       },
       "Junior|Junior|Ethan Guo|2026-06": {
         strong: `Strengths: Ethan Guo has shown one of the strongest long-term improvements in the class. His grammar has improved through speaking, his writing is beginning to grow, his vocabulary knowledge is expanding, and his reading speed is much faster than when he began.
@@ -3948,7 +4043,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           },
           {
             name: "Language Form & Meaning",
-            overview: "Grammar work covered pronouns, nouns, verbs, tense review, subject-verb agreement, punctuation, capitalization, and sentence correction. The later grammar detective lessons helped students notice mistakes inside both single sentences and short paragraphs.",
+            overview: "Language Form & Meaning work covered pronouns, nouns, verbs, tense review, subject-verb agreement, punctuation, capitalization, and sentence correction. The later language detective lessons helped students notice mistakes inside both single sentences and short paragraphs.",
             overviewZh: "语法部分涵盖了代词、名词、动词、时态复习、主谓一致、标点、大写规则和句子改错。后期的“语法侦探”课程帮助学生在单句和短段落中发现错误。",
             focus: ["Parts of speech", "Tense review", "Subject-verb agreement", "Punctuation", "Error detection"]
           },
@@ -4002,9 +4097,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           },
           {
             name: "Language Form & Meaning",
-            overview: "Grammar and language work included sentence correction, tense review, comparatives and superlatives, subject-verb agreement, punctuation, and grammar detective tasks. Students were asked to understand not just the right form, but why the other choices were wrong.",
-            overviewZh: "语法与语言形式训练涵盖了句子改错、时态复习、比较级和最高级、主谓一致、标点以及“语法侦探”任务。学生不仅要知道正确形式，还要理解其他选项为什么不对。",
-            focus: ["Tense review", "Comparatives", "Superlatives", "Grammar correction", "Error explanation"]
+            overview: "Language Form & Meaning work included sentence correction, tense review, comparatives and superlatives, subject-verb agreement, punctuation, and language detective tasks. Students were asked to understand not just the right form, but why the other choices were wrong.",
+            overviewZh: "Language Form & Meaning 训练涵盖了句子改错、时态复习、比较级和最高级、主谓一致、标点以及“语言侦探”任务。学生不仅要知道正确形式，还要理解其他选项为什么不对。",
+            focus: ["Tense review", "Comparatives", "Superlatives", "Language correction", "Error explanation"]
           },
           {
             name: "Speaking",
@@ -4090,7 +4185,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const template = templateFor(level.program, section, level.className);
       const miniCount = section === "Speaking" ? 2 : section === "Writing" ? 1 : Math.min(8, template.count || 8);
       const sectionTitle = `${level.label} ${section} Mini Entrance`;
-      const objectivePrompt = section.includes("Language") || section.includes("Structure")
+      const objectivePrompt = isGrammarSection(section) || section.includes("Structure")
         ? "Paste each grammar sentence or paragraph on a new line. Use [choices: A option | B option | C option | D option] beside the blank so it displays as a formal answer box."
         : `Add ${section.toLowerCase()} passages, audio notes, images, or question ranges here. One prompt per line is enough for the platform to build the answer sheet.`;
       const speakingPrompt = "Task 1: Listen or read the prompt, prepare, then record your answer.\nTask 2: Respond to the picture, audio, or video prompt uploaded by admin.";
@@ -5627,6 +5722,43 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return store.students.filter((student) => student.program === program);
     }
 
+    function isQaStudent(student) {
+      if (!student) return false;
+      const name = String(student.name || "").trim();
+      const username = String(student.username || "").trim();
+      const studentId = String(student.studentId || "").trim();
+      return /^qa\b/i.test(name) || /^qa[.\-_]/i.test(username) || /^EH-STU-900\d$/i.test(studentId);
+    }
+
+    function reviewScoreValue(review, key) {
+      if (!review) return null;
+      if (key === "overall") {
+        if (review.scores && review.scores.overall !== undefined && review.scores.overall !== null && review.scores.overall !== "") return review.scores.overall;
+        if (review.overall !== undefined && review.overall !== null && review.overall !== "") return review.overall;
+        return null;
+      }
+      if (review.scores && review.scores[key] !== undefined && review.scores[key] !== null && review.scores[key] !== "") return review.scores[key];
+      return null;
+    }
+
+    function reviewHasScoreData(review) {
+      return ["overall", "speaking", "listening", "reading", "language", "writing"].some((key) => reviewScoreValue(review, key) !== null);
+    }
+
+    function preferredStudentSelection(students = []) {
+      if (!students.length) return null;
+      const ranked = [...students].sort((a, b) => {
+        const aQa = isQaStudent(a);
+        const bQa = isQaStudent(b);
+        if (aQa !== bQa) return aQa ? 1 : -1;
+        const aScored = Number(a.score || 0) > 0;
+        const bScored = Number(b.score || 0) > 0;
+        if (aScored !== bScored) return aScored ? -1 : 1;
+        return String(a.name || "").localeCompare(String(b.name || ""));
+      });
+      return ranked[0] || null;
+    }
+
     function assignmentsForTeacher(sectionId) {
       return store.assignments.filter((item) => item.program === teacherProgram[sectionId] && categoryMatches(item.category, teacherCategory[sectionId]));
     }
@@ -6184,6 +6316,84 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       `;
     }
 
+    function monthWithinOverview(month, overview) {
+      if (!month) return false;
+      const start = String(overview.startMonth || "").slice(0, 7);
+      const end = String(overview.endMonth || "").slice(0, 7);
+      if (!start || !end) return true;
+      return month >= start && month <= end;
+    }
+
+    function inferLessonFocusSkill(note) {
+      const haystack = `${note.topic || ""} ${note.objective || ""} ${note.lessonForDay || ""} ${note.materials || ""} ${note.homework || ""}`.toLowerCase();
+      const skills = [];
+      if (haystack.includes("listening")) skills.push("Listening");
+      if (haystack.includes("reading")) skills.push("Reading");
+      if (haystack.includes("language form") || haystack.includes("grammar") || haystack.includes("tense") || haystack.includes("comparative") || haystack.includes("superlative")) skills.push("Language Form & Meaning");
+      if (haystack.includes("speaking") || haystack.includes("role play") || haystack.includes("discussion")) skills.push("Speaking");
+      if (haystack.includes("writing") || haystack.includes("email") || haystack.includes("paragraph") || haystack.includes("diary")) skills.push("Writing");
+      if (haystack.includes("test") || haystack.includes("exam") || haystack.includes("assessment")) skills.push("Assessment");
+      return [...new Set(skills)].join(" · ") || "Integrated TOEFL skills";
+    }
+
+    function semesterLessonRows(overview) {
+      return store.lessonNotes
+        .filter((note) => note.program === overview.program && note.className === overview.className)
+        .filter((note) => monthWithinOverview(String(note.date || "").slice(0, 7), overview))
+        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")))
+        .map((note) => ({
+          date: note.date || "",
+          title: note.topic || "Lesson note",
+          content: note.lessonForDay || note.materials || note.iceBreaker || "Lesson content not added yet.",
+          objective: note.objective || "Objective not added yet.",
+          focusSkill: inferLessonFocusSkill(note)
+        }));
+    }
+
+    function renderSemesterOverviewTable(overview) {
+      const rows = semesterLessonRows(overview);
+      return `
+        <article class="semester-sheet" style="margin-top:14px">
+          <div class="semester-sheet-header">
+            <div>
+              <h3>Semester lesson overview</h3>
+              <p>Tabulated class-by-class lesson outline for parents, students, teachers, and admin.</p>
+            </div>
+            <div class="tag-row">
+              <span class="tag green">${escapeHtml(overview.semesterLabel)}</span>
+              <span class="tag blue">${escapeHtml(semesterWindowLabel(overview))}</span>
+            </div>
+          </div>
+          ${rows.length ? `
+            <div class="semester-table-wrap">
+              <table class="semester-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Lesson title</th>
+                    <th>Content</th>
+                    <th>Objective</th>
+                    <th>Focus skill</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows.map((row) => `
+                    <tr>
+                      <td><strong>${escapeHtml(row.date)}</strong></td>
+                      <td>${escapeHtml(row.title)}</td>
+                      <td>${escapeHtml(row.content)}</td>
+                      <td>${escapeHtml(row.objective)}</td>
+                      <td>${escapeHtml(row.focusSkill)}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          ` : `<div class="semester-table-empty">No lesson-by-lesson semester rows are available for this class yet.</div>`}
+        </article>
+      `;
+    }
+
     function renderSemesterOverviewBody(overview, options = {}) {
       return `
         <div class="semester-meta">
@@ -6191,39 +6401,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           <span class="tag blue">${escapeHtml(semesterWindowLabel(overview))}</span>
           <span class="tag blue">${escapeHtml(overview.program)} · ${escapeHtml(overview.className)}</span>
         </div>
-        <article class="card semester-outline-card" style="margin-top:14px">
-          <h3>Semester summary</h3>
-          <p>${escapeHtml(overview.summary || "No English summary added yet.")}</p>
-          <p class="muted">${escapeHtml(overview.summaryZh || "尚未添加中文概述。")}</p>
-        </article>
-        <div class="split" style="margin-top:14px">
-          <article class="card">
-            <h3>Parent-facing learning focus</h3>
-            <ul class="semester-bullet-list">
-              ${(overview.parentFocus || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("") || `<li>No English parent overview added yet.</li>`}
-            </ul>
-            <ul class="semester-bullet-list muted" style="margin-top:10px">
-              ${(overview.parentFocusZh || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("") || `<li>尚未添加中文家长说明。</li>`}
-            </ul>
-          </article>
-          <article class="card">
-            <h3>Home support</h3>
-            <p>${escapeHtml(overview.homeSupport || "No English home-support guidance added yet.")}</p>
-            <p class="muted">${escapeHtml(overview.homeSupportZh || "尚未添加中文家庭支持建议。")}</p>
-          </article>
-        </div>
-        <div class="semester-sections-grid" style="margin-top:14px">
-          ${(overview.sections || []).map((section) => `
-            <article class="card semester-section-card">
-              <h3>${escapeHtml(section.name)}</h3>
-              <p>${escapeHtml(section.overview || "No English section overview added yet.")}</p>
-              <p class="muted">${escapeHtml(section.overviewZh || "尚未添加中文分项概述。")}</p>
-              <div class="tag-row">
-                ${(section.focus || []).map((item) => `<span class="tag blue">${escapeHtml(item)}</span>`).join("") || `<span class="tag">Focus details pending</span>`}
-              </div>
-            </article>
-          `).join("")}
-        </div>
+        ${renderSemesterOverviewTable(overview)}
         ${options.showHistory ? `<article class="card" style="margin-top:14px"><h3>Edit notes</h3>${renderSemesterOverviewHistory(overview) || `<div class="empty">No edit notes yet.</div>`}</article>` : ""}
       `;
     }
@@ -6457,14 +6635,14 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         Primary: {
           Listening: "Short audio and video-supported questions help younger learners connect what they see with what they hear.",
           Reading: "Passages are built to test simple evidence-finding, comprehension, and vocabulary in context.",
-          "Language Form & Meaning": "Sentence-level grammar and word-choice tasks help students notice how English works inside a sentence.",
+          "Language Form & Meaning": "Sentence-level language-form and word-choice tasks help students notice how English works inside a sentence.",
           Speaking: "Speaking tasks use pictures, prompts, or short audio/video cues so students can answer in simple complete sentences.",
           Writing: "Writing starts with short answers and gradually moves toward organised sentences and short paragraphs."
         },
         Junior: {
           Listening: "Listening tasks use longer dialogues and talks so students learn to follow key ideas and evidence.",
           Reading: "Reading focuses on main idea, detail, inference, and vocabulary questions that reward careful reading.",
-          "Language Form & Meaning": "Grammar and sentence meaning practice helps students choose the best structure and notice error patterns.",
+          "Language Form & Meaning": "Language Form & Meaning practice helps students choose the best structure and notice error patterns.",
           Speaking: "Speaking asks students to explain, compare, and give reasons using complete English sentences.",
           Writing: "Writing builds from short responses to clearer organisation, reasons, and supporting examples."
         },
@@ -7801,6 +7979,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return [...months].sort().reverse();
     }
 
+    function monthlyScoreCardHasContent(studentName, month) {
+      const data = monthlyScoreCardRows(studentName, month);
+      return data.rows.length > 0;
+    }
+
     function renderScoreCardRow(label, score, remark = "") {
       const grade = gradeForPercent(score);
       const number = Number(score);
@@ -7817,19 +8000,32 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       `;
     }
 
+    function scoreCardSectionRow(title, colspan = 6) {
+      return `
+        <tr class="score-card-section-row">
+          <td colspan="${colspan}">${escapeHtml(title)}</td>
+        </tr>
+      `;
+    }
+
     function monthlyScoreCardRows(studentName, month) {
       const review = store.reviews
         .filter((item) => item.student === studentName && (item.month === month || String(item.sourceDate || "").slice(0, 7) === month))
-        .sort((a, b) => String(b.sourceDate || b.month).localeCompare(String(a.sourceDate || a.month)))[0];
-      const rows = [];
-      if (review && review.scores) {
+        .sort((a, b) => {
+          const scoreBias = Number(reviewHasScoreData(b)) - Number(reviewHasScoreData(a));
+          if (scoreBias) return scoreBias;
+          return String(b.sourceDate || b.month).localeCompare(String(a.sourceDate || a.month));
+        })[0];
+      const examRows = [];
+      const workRows = [];
+      if (review) {
         [
-          ["Speaking", review.scores.speaking],
-          ["Listening", review.scores.listening],
-          ["Reading", review.scores.reading],
-          ["Language Form & Meaning", review.scores.language],
-          ["Writing", review.scores.writing]
-        ].filter(([, value]) => value !== undefined).forEach(([label, score]) => rows.push({ label, score, remark: "Monthly skill score" }));
+          ["Speaking", reviewScoreValue(review, "speaking")],
+          ["Listening", reviewScoreValue(review, "listening")],
+          ["Reading", reviewScoreValue(review, "reading")],
+          ["Language Form & Meaning", reviewScoreValue(review, "language")],
+          ["Writing", reviewScoreValue(review, "writing")]
+        ].filter(([, value]) => value !== undefined && value !== null && value !== "").forEach(([label, score]) => examRows.push({ label, score, remark: "Monthly exam score" }));
       }
       const monthSubmissions = store.submissions.filter((submission) => submission.student === studentName && monthFromSubmission(submission) === month);
       const homeworkScores = monthSubmissions
@@ -7853,31 +8049,36 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const seededWorkMetrics = seededMonthlyWorkMetric(studentName, month);
       const homeworkValue = homeworkAverage !== null ? homeworkAverage : (seededWorkMetrics && Number.isFinite(Number(seededWorkMetrics.homework)) ? Number(seededWorkMetrics.homework) : null);
       const exerciseValue = exerciseAverage !== null ? exerciseAverage : (seededWorkMetrics && Number.isFinite(Number(seededWorkMetrics.exercises)) ? Number(seededWorkMetrics.exercises) : null);
+      if (monthlyAverage !== null) examRows.push({ label: "Monthly Tests", score: monthlyAverage, remark: "Objective sections only until teacher marks speaking/writing" });
+      if (mockAverage !== null) examRows.push({ label: "Mock Exams", score: mockAverage, remark: "Mock assessment average" });
       if (homeworkValue !== null) {
-        rows.push({
+        workRows.push({
           label: "Homework",
           score: homeworkValue,
           remark: homeworkAverage !== null ? `${homeworkScores.length} record${homeworkScores.length === 1 ? "" : "s"}` : "Monthly imported work record"
         });
       }
       if (exerciseValue !== null) {
-        rows.push({
+        workRows.push({
           label: "Class Exercises",
           score: exerciseValue,
           remark: exerciseAverage !== null ? `${exerciseScores.length} attended record${exerciseScores.length === 1 ? "" : "s"}` : "Monthly imported class-work record"
         });
       }
-      if (monthlyAverage !== null) rows.push({ label: "Monthly Tests", score: monthlyAverage, remark: "Objective sections only until teacher marks speaking/writing" });
-      if (mockAverage !== null) rows.push({ label: "Mock Exams", score: mockAverage, remark: "Mock assessment average" });
-      return rows;
+      return { examRows, workRows, rows: [...examRows, ...workRows] };
     }
 
     function renderMonthlyScoreCard(studentName = currentUser.name) {
       const months = monthlyScoreMonths(studentName);
       if (!months.length) return `<div class="empty">No score card is available yet.</div>`;
-      if (!studentResultMonth || !months.includes(studentResultMonth)) studentResultMonth = months[0];
+      if (!studentResultMonth || !months.includes(studentResultMonth)) {
+        studentResultMonth = months.find((month) => monthlyScoreCardHasContent(studentName, month)) || months[0];
+      }
       const student = store.students.find((item) => item.name === studentName) || currentStudentRecord() || {};
-      const rows = monthlyScoreCardRows(studentName, studentResultMonth);
+      const scoreData = monthlyScoreCardRows(studentName, studentResultMonth);
+      const rows = scoreData.rows;
+      const examRows = scoreData.examRows;
+      const workRows = scoreData.workRows;
       const overall = averageValues(rows.map((row) => row.score));
       const grade = gradeForPercent(overall);
       return `
@@ -7904,7 +8105,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               <table class="score-card-table">
                 <thead><tr><th>Subject</th><th>Max Score</th><th>Score Obtained</th><th>Percentage</th><th>Grade</th><th>Remarks</th></tr></thead>
                 <tbody>
-                  ${rows.length ? rows.map((row) => renderScoreCardRow(row.label, row.score, row.remark)).join("") : `<tr><td colspan="6">No score rows for this month yet.</td></tr>`}
+                  ${scoreCardSectionRow("Section A · Exam Scores")}
+                  ${examRows.length ? examRows.map((row) => renderScoreCardRow(row.label, row.score, row.remark)).join("") : `<tr><td colspan="6">No exam scores for this month yet.</td></tr>`}
+                  ${scoreCardSectionRow("Section B · Homework and Class Exercises")}
+                  ${workRows.length ? workRows.map((row) => renderScoreCardRow(row.label, row.score, row.remark)).join("") : `<tr><td colspan="6">No homework or class exercise scores for this month yet.</td></tr>`}
                 </tbody>
               </table>
             </div>
@@ -9018,7 +9222,8 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const assignedWork = store.assignments.filter((assignment) => assignment.program === student.program && assignment.className === student.className);
       const notes = store.adminNotes.filter((note) => note.student === student.name);
       const latestReview = reviews[0] || null;
-      return { submissions, reviews, assignedWork, notes, latestReview };
+      const latestScoredReview = reviews.find(reviewHasScoreData) || null;
+      return { submissions, reviews, assignedWork, notes, latestReview, latestScoredReview };
     }
 
     function workRecordSummary(submission, assignment) {
@@ -9034,10 +9239,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderStudentRecordCard(student, options = {}) {
-      const { submissions, reviews, assignedWork, notes, latestReview } = studentRecordBundle(student);
-      const latestScores = latestReview && latestReview.scores ? latestReview.scores : {};
-      const overall = latestScores.overall !== undefined ? latestScores.overall : student.score;
-      const sourceLabel = latestReview ? (latestReview.source || latestReview.month || "Monthly review") : "No review yet";
+      const { submissions, reviews, assignedWork, notes, latestReview, latestScoredReview } = studentRecordBundle(student);
+      const latestScores = latestScoredReview && latestScoredReview.scores ? latestScoredReview.scores : {};
+      const overall = reviewScoreValue(latestScoredReview, "overall") !== null ? reviewScoreValue(latestScoredReview, "overall") : student.score;
+      const sourceLabel = latestScoredReview ? (latestScoredReview.source || latestScoredReview.month || "Monthly review") : "No scored record yet";
+      const snapshotLabel = latestReview ? (latestReview.source || latestReview.month || "Monthly review") : "No review yet";
       const compactText = (value, max = 110) => {
         const text = String(value || "").replace(/\s+/g, " ").trim();
         if (!text) return "No detail yet.";
@@ -9064,18 +9270,18 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             </div>
           </div>
           <div class="score-strip">
-            <div class="score-pill"><small>Overall</small><strong>${overall || 0}${latestReview && latestReview.source === "Old score import" ? "%" : ""}</strong></div>
-            <div class="score-pill"><small>Speaking</small><strong>${latestScores.speaking ?? "-"}</strong></div>
-            <div class="score-pill"><small>Listening</small><strong>${latestScores.listening ?? "-"}</strong></div>
-            <div class="score-pill"><small>Reading</small><strong>${latestScores.reading ?? "-"}</strong></div>
-            <div class="score-pill"><small>Grammar</small><strong>${latestScores.language ?? "-"}</strong></div>
-            <div class="score-pill"><small>Writing</small><strong>${latestScores.writing ?? "-"}</strong></div>
+            <div class="score-pill"><small>Overall</small><strong>${overall !== null && overall !== undefined && overall !== "" ? overall : "-"}${latestScoredReview && latestScoredReview.source === "Old score import" ? "%" : ""}</strong></div>
+            <div class="score-pill"><small>Speaking</small><strong>${reviewScoreValue(latestScoredReview, "speaking") ?? "-"}</strong></div>
+            <div class="score-pill"><small>Listening</small><strong>${reviewScoreValue(latestScoredReview, "listening") ?? "-"}</strong></div>
+            <div class="score-pill"><small>Reading</small><strong>${reviewScoreValue(latestScoredReview, "reading") ?? "-"}</strong></div>
+            <div class="score-pill"><small>Language Form & Meaning</small><strong>${reviewScoreValue(latestScoredReview, "language") ?? "-"}</strong></div>
+            <div class="score-pill"><small>Writing</small><strong>${reviewScoreValue(latestScoredReview, "writing") ?? "-"}</strong></div>
           </div>
-          <p class="muted">Latest record: ${escapeHtml(sourceLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</p>
+          <p class="muted">Latest scored record: ${escapeHtml(sourceLabel)}${latestScoredReview && latestScoredReview.sourceDate ? ` · ${escapeHtml(latestScoredReview.sourceDate)}` : ""}</p>
           <div class="student-snapshot">
             <article class="message-item">
               <small>Monthly detail snapshot</small>
-              <strong>${escapeHtml(sourceLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</strong>
+              <strong>${escapeHtml(snapshotLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</strong>
               <p>${escapeHtml(latestReview ? compactText(latestReview.strong) : "Open a monthly review to see the student's current details.")}</p>
             </article>
             <article class="message-item">
@@ -9152,9 +9358,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const selectedClass = classNames.includes(recordClassFilter[sectionId] || "") ? recordClassFilter[sectionId] : "";
       const focusedStudentKey = recordStudentFocus[sectionId] || "";
       const classStudents = selectedClass ? students.filter((student) => student.className === selectedClass) : students;
+      const preferredStudent = preferredStudentSelection(classStudents);
       const selectedStudentKey = classStudents.some((student) => studentFocusKey(student) === focusedStudentKey)
         ? focusedStudentKey
-        : (classStudents[0] ? studentFocusKey(classStudents[0]) : "");
+        : (preferredStudent ? studentFocusKey(preferredStudent) : "");
       const selectedStudent = classStudents.find((student) => studentFocusKey(student) === selectedStudentKey) || null;
       $(`#${targetId}`).innerHTML = `
         ${pageHeader(title, zh, description)}
@@ -9201,7 +9408,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
                 <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120"></div>
                 <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120"></div>
                 <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120"></div>
-                <div class="field"><label>Language / Structure</label><input id="reviewLanguage" type="number" min="0" max="120"></div>
+                <div class="field"><label>Language Form & Meaning</label><input id="reviewLanguage" type="number" min="0" max="120"></div>
               </div>
               <div class="review-form">
                 <div class="field"><label>Strong areas</label><textarea id="reviewStrong" required></textarea></div>
@@ -9294,6 +9501,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const scores = review.scores || {};
       const isImportedPercent = review.source === "Old score import";
       const formatScore = (value) => value === undefined || value === null || value === "" ? "-" : `${value}${isImportedPercent ? "%" : ""}`;
+      const overallScore = reviewScoreValue(review, "overall");
       return `
         <article class="card review-card" style="margin-bottom:14px">
           <div class="calendar-month-summary" style="align-items:flex-start">
@@ -9301,18 +9509,18 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               <strong>${escapeHtml(review.student)}</strong>
               <span class="muted" style="display:block; font-size:13px; margin-top:4px">${escapeHtml(review.program || "")}${review.className ? ` · ${escapeHtml(review.className)}` : ""} · ${escapeHtml(review.month)}</span>
             </span>
-            <span class="tag blue">${formatScore(scores.overall)} overall</span>
+            <span class="tag blue">${formatScore(overallScore)} overall</span>
           </div>
           <div style="margin-top:12px">
             ${review.publishedBy ? `<p class="muted">Published by ${escapeHtml(review.publishedBy)} · ${escapeHtml(review.publishedAt || "")}</p>` : ""}
             ${review.sourceDate ? `<p class="tag-row"><span class="tag blue">${escapeHtml(review.source || "Score record")}</span><span class="tag green">${escapeHtml(review.sourceDate)}</span></p>` : ""}
             <div class="score-strip">
-              <div class="score-pill"><small>Overall</small><strong>${formatScore(scores.overall)}</strong></div>
-              <div class="score-pill"><small>Speaking</small><strong>${formatScore(scores.speaking)}</strong></div>
-              <div class="score-pill"><small>Listening</small><strong>${formatScore(scores.listening)}</strong></div>
-              <div class="score-pill"><small>Reading</small><strong>${formatScore(scores.reading)}</strong></div>
-              ${scores.language !== undefined ? `<div class="score-pill"><small>Grammar</small><strong>${formatScore(scores.language)}</strong></div>` : ""}
-              <div class="score-pill"><small>Writing</small><strong>${formatScore(scores.writing)}</strong></div>
+              <div class="score-pill"><small>Overall</small><strong>${formatScore(overallScore)}</strong></div>
+              <div class="score-pill"><small>Speaking</small><strong>${formatScore(reviewScoreValue(review, "speaking"))}</strong></div>
+              <div class="score-pill"><small>Listening</small><strong>${formatScore(reviewScoreValue(review, "listening"))}</strong></div>
+              <div class="score-pill"><small>Reading</small><strong>${formatScore(reviewScoreValue(review, "reading"))}</strong></div>
+              ${reviewScoreValue(review, "language") !== null ? `<div class="score-pill"><small>Language Form & Meaning</small><strong>${formatScore(reviewScoreValue(review, "language"))}</strong></div>` : ""}
+              <div class="score-pill"><small>Writing</small><strong>${formatScore(reviewScoreValue(review, "writing"))}</strong></div>
             </div>
             <div class="review-toggle-grid">
               <details><summary>Strong areas</summary><p>${escapeHtml(review.strong || "No comment added yet.")}</p></details>
@@ -9366,7 +9574,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
                   <div class="calendar-event-list">
                     ${studentNames.map((studentName) => {
                       const studentReviews = uniqueMonthlyReviews(byStudent[studentName]).slice(0, 1);
-                      const overall = studentReviews[0]?.scores?.overall;
+                      const overall = reviewScoreValue(studentReviews[0], "overall");
                       return `
                         <details id="${idPrefix}-${month}-${studentName.replace(/\W+/g, "-")}" data-calendar-group="${escapeHtml(idPrefix)}-students" ontoggle="handleCalendarDetailsToggle(this)">
                           <summary>
@@ -9392,11 +9600,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function renderPerformanceGraph(reviews) {
       const sorted = [...reviews]
-        .filter((review) => Number.isFinite(Number(review.scores && review.scores.overall)))
+        .filter((review) => Number.isFinite(Number(reviewScoreValue(review, "overall"))))
         .sort((a, b) => a.month.localeCompare(b.month));
       if (!sorted.length) return "";
       const points = sorted.map((review, index) => {
-        const score = Number(review.scores && review.scores.overall) || 0;
+        const score = Number(reviewScoreValue(review, "overall")) || 0;
         const x = sorted.length === 1 ? 280 : 40 + (index * (520 / (sorted.length - 1)));
         const y = 170 - Math.min(120, Math.max(0, score)) * 1.15;
         return { x, y, score, month: review.month, label: review.displayLabel || initials(review.student || "") };
@@ -9779,9 +9987,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const classNames = programs[program].classes;
       const selectedClass = classNames.includes(recordClassFilter.adminRecords || "") ? recordClassFilter.adminRecords : "";
       const classStudents = selectedClass ? students.filter((student) => student.className === selectedClass) : students;
+      const preferredStudent = preferredStudentSelection(classStudents);
       const selectedStudentKey = classStudents.some((student) => studentFocusKey(student) === recordStudentFocus.adminRecords)
         ? recordStudentFocus.adminRecords
-        : (classStudents[0] ? studentFocusKey(classStudents[0]) : "");
+        : (preferredStudent ? studentFocusKey(preferredStudent) : "");
       const selectedStudent = classStudents.find((student) => studentFocusKey(student) === selectedStudentKey) || null;
       $("#adminRecords").innerHTML = `
         ${pageHeader("Student Records", "学生记录", "Pick a class first, then choose a student to open only that learner's full records.")}
