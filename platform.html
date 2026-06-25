@@ -8201,7 +8201,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         ${pageHeader("Monthly Reviews", "月度学习报告", "Write one monthly progress review for each student.")}
         ${renderProgramPicker("teacherReviews")}
         <div class="split">
-          <details class="card" open>
+          <details class="card">
             <summary><h3 style="display:inline">Fill in student review</h3></summary>
             <form onsubmit="saveMonthlyReview(event)" style="margin-top:12px">
               <div class="field"><label>Student</label><select id="reviewStudent">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}">${student.name} · ${student.className}</option>`).join("")}</select></div>
