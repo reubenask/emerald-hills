@@ -49,7 +49,7 @@ export default function App() {
   return (
     <main className="shell">
       <aside className="side">
-        <div className="brand"><span>GM</span> TOEFL Academy</div>
+        <div className="brand"><span>EH</span> Emerald Hills TOEFL Academy</div>
         <nav>
           <a href="#security">Security</a>
           <a href="#roles">Roles</a>
@@ -61,7 +61,7 @@ export default function App() {
       <section className="content">
         <header className="hero">
           <p>Production Webapp Foundation</p>
-          <h1>Green Mountain TOEFL Academy</h1>
+          <h1>Emerald Hills TOEFL Academy</h1>
           <span>
             React + Vite + TypeScript shell with Supabase Auth, Postgres, Storage, and row-level security ready for rollout.
           </span>

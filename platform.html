@@ -4346,17 +4346,28 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function login() {
       const loginId = normalizeUsername($("#loginUsername").value);
       const password = $("#loginPassword").value.trim();
-      const account = store.accounts.find((item) => {
+      const matchesLoginId = (item) => {
         const candidateId = normalizeUsername(item.username || "");
         const candidateEmail = normalizeEmail(item.email || "");
         const candidateAccountId = normalizeUsername(item.accountId || item.studentId || "");
-        return item.role === role && (candidateId === loginId || candidateEmail === loginId || candidateAccountId === loginId) && item.password === password;
-      });
-      if (!account) {
-        window.alert("No matching account found for this role, username/email/ID, and password.");
+        return candidateId === loginId || candidateEmail === loginId || candidateAccountId === loginId;
+      };
+      const exactMatch = store.accounts.find((item) => item.role === role && matchesLoginId(item) && item.password === password);
+      if (exactMatch) {
+        enterPlatform(exactMatch, role);
         return;
       }
-      enterPlatform(account, role);
+      const sameLogin = store.accounts.filter(matchesLoginId);
+      const sameLoginPassword = sameLogin.find((item) => item.password === password);
+      if (sameLoginPassword) {
+        window.alert(`This account belongs to the ${displayRoleName(sameLoginPassword.role)} role. Please switch to that role and try again.`);
+        return;
+      }
+      if (sameLogin.length) {
+        window.alert("The username/email/ID exists, but the password is not correct for that account.");
+        return;
+      }
+      window.alert("No matching account found for this role, username/email/ID, and password.");
     }
 
     function updateUserAvatar() {
