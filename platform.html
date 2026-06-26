@@ -1678,10 +1678,18 @@
     }
 
     .semester-sheet {
+      width: 100%;
       border: 1px solid var(--line);
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.03);
       overflow: hidden;
+    }
+
+    .semester-overview-stack {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+      width: 100%;
     }
 
     .semester-sheet-header {
@@ -1706,12 +1714,41 @@
     .semester-table-wrap {
       overflow: auto;
       max-height: min(72vh, 1200px);
+      width: 100%;
     }
 
     .semester-table {
       width: 100%;
-      min-width: 1040px;
+      min-width: 100%;
+      table-layout: fixed;
       border-collapse: collapse;
+    }
+
+    .semester-table th:nth-child(1),
+    .semester-table td:nth-child(1) {
+      width: 12%;
+      min-width: 120px;
+    }
+
+    .semester-table th:nth-child(2),
+    .semester-table td:nth-child(2) {
+      width: 20%;
+      min-width: 180px;
+    }
+
+    .semester-table th:nth-child(3),
+    .semester-table td:nth-child(3) {
+      width: 24%;
+    }
+
+    .semester-table th:nth-child(4),
+    .semester-table td:nth-child(4) {
+      width: 24%;
+    }
+
+    .semester-table th:nth-child(5),
+    .semester-table td:nth-child(5) {
+      width: 20%;
     }
 
     .semester-table th,
@@ -6635,7 +6672,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       $("#studentSemesterOverview").innerHTML = `
         ${pageHeader("Semester Overview", "学期课程总览", `${currentUser.program} · ${currentUser.className} · Parent-friendly overview of what this class learned across the semester.`)}
         ${overviews.length
-          ? `<div class="grid">${overviews.map((overview, index) => renderSemesterOverviewCard(overview, { open: index === 0 })).join("")}</div>`
+          ? `<div class="semester-overview-stack">${overviews.map((overview, index) => renderSemesterOverviewCard(overview, { open: index === 0 })).join("")}</div>`
           : `<div class="empty">No semester overview has been published for ${currentUser.className} yet.</div>`}
       `;
     }
@@ -6661,7 +6698,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           <p class="muted">Choose the class first, then add or edit the semester outline parents and students will read.</p>
         </div>
         ${renderSemesterOverviewForm("teacher", program, className, teacherSemesterEditId)}
-        <div class="grid" style="margin-top:16px">
+        <div class="semester-overview-stack" style="margin-top:16px">
           ${overviews.map((overview, index) => renderSemesterOverviewCard(overview, {
             open: index === 0,
             showHistory: true,
@@ -6692,7 +6729,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           <p class="muted">Use the same semester view as teachers, but with admin oversight and edit tracking.</p>
         </div>
         ${renderSemesterOverviewForm("admin", program, className, adminSemesterEditId)}
-        <div class="grid" style="margin-top:16px">
+        <div class="semester-overview-stack" style="margin-top:16px">
           ${overviews.map((overview, index) => renderSemesterOverviewCard(overview, {
             open: index === 0,
             showHistory: true,
