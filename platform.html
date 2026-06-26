@@ -2989,7 +2989,7 @@
         media: null,
         questions: [
           "Complete the writing task using clear organization.",
-          "Check grammar and sentence variety before submitting."
+          "Check language form and meaning and sentence variety before submitting."
         ],
         editable: true
       }
@@ -3136,6 +3136,8 @@
     let studentWorkCategory = "Exercise";
     let studentResultMonth = "";
     let programDetailsLanguage = "english";
+    let teacherReviewStudentFocus = "";
+    let teacherReviewMonthFocus = "2026-06";
     let teacherProgram = {
       teacherAssignments: "Primary",
       teacherSubmissions: "Primary",
@@ -3159,6 +3161,13 @@
       teacherSubmissions: "Exercise",
       teacherRankings: "score"
     };
+
+    function setTeacherReviewFocus(studentKey, month) {
+      teacherReviewStudentFocus = studentKey || teacherReviewStudentFocus || "";
+      teacherReviewMonthFocus = month || teacherReviewMonthFocus || "2026-06";
+      render();
+    }
+
     let recordClassFilter = {
       teacherRecords: "",
       adminRecords: ""
@@ -3389,33 +3398,51 @@
       { student: "Yaya", program: "Junior", className: "Junior", month: "2026-04", sourceDate: "2026-04-30", overall: 56.9, scores: { speaking: 65, listening: 40, reading: 45.5, language: 67, writing: 67 } },
       { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-04", sourceDate: "2026-04-30", overall: 80.7, scores: { speaking: 52.5, listening: 100, reading: 91, language: 83, writing: 77 } },
       { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-04", sourceDate: "2026-04-30", overall: 70.1, scores: { speaking: 62.5, listening: 90, reading: 91, language: 67, writing: 40 } },
-      { student: "Miumiu", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-31", overall: 57, scores: { speaking: 55, listening: 30, reading: 90, language: 50, writing: 60 } },
-      { student: "Cherry", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-31", overall: 84, scores: { speaking: 70, listening: 90, reading: 100, language: 80, writing: 80 } },
-      { student: "Grace", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-31", overall: 51.5, scores: { speaking: 57.5, listening: 60, reading: 80, language: 10, writing: 50 } },
-      { student: "Yann", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-31", overall: 76, scores: { speaking: 60, listening: 60, reading: 90, language: 90, writing: 80 } },
-      { student: "Oscar", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 70.8, scores: { speaking: 80, listening: 83.3, reading: 52.6, language: 68, writing: 70 } },
-      { student: "Ran", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 63.6, scores: { speaking: 70, listening: 66.7, reading: 47.3, language: 64, writing: 70 } },
-      { student: "Yaya", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 59.7, scores: { speaking: 70, listening: 66.7, reading: 52.6, language: 44, writing: 65 } },
-      { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 63.6, scores: { speaking: 70, listening: 66.7, reading: 68.4, language: 48, writing: 65 } },
-      { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 74.6, scores: { speaking: 70, listening: 75, reading: 84.2, language: 64, writing: 80 } },
-      { student: "Miumiu", program: "Primary", className: "Primary Step 2", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Yann", program: "Primary", className: "Primary Step 2", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Cherry", program: "Primary", className: "Primary Step 2", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Grace", program: "Primary", className: "Primary Step 2", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Oscar", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Ran", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Yaya", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Isaac", program: "iBT", className: "iBT", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Wilson", program: "iBT", className: "iBT", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: {} },
-      { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-31", overall: 69.2, scores: { speaking: 57.5, listening: 76, reading: 80, writing: 63.3 } },
-      { student: "Isaac", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-31", overall: 47.2, scores: { speaking: 40, listening: 52.1, reading: 50, writing: 46.6 } },
-      { student: "Wilson", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-31", overall: 68.7, scores: { speaking: 50, listening: 89.1, reading: 72.5, writing: 63.3 } }
+      { student: "Miumiu", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-31", overall: 57, scores: { speaking: 55, listening: 30, reading: 90, language: 50, writing: 60, homework: 100, exercises: 75 } },
+      { student: "Cherry", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-31", overall: 84, scores: { speaking: 70, listening: 90, reading: 100, language: 80, writing: 80, homework: 100, exercises: 80 } },
+      { student: "Grace", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-31", overall: 51.5, scores: { speaking: 57.5, listening: 60, reading: 80, language: 10, writing: 50, homework: 20, exercises: 80 } },
+      { student: "Yann", program: "Primary", className: "Primary Step 2", month: "2026-05", sourceDate: "2026-05-31", overall: 76, scores: { speaking: 60, listening: 60, reading: 90, language: 90, writing: 80, homework: 100, exercises: 80 } },
+      { student: "Oscar", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 70.8, scores: { speaking: 80, listening: 83.3, reading: 52.6, language: 68, writing: 70, homework: 100, exercises: 85 } },
+      { student: "Ran", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 63.6, scores: { speaking: 70, listening: 66.7, reading: 47.3, language: 64, writing: 70, homework: 50, exercises: 70 } },
+      { student: "Yaya", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 59.7, scores: { speaking: 70, listening: 66.7, reading: 52.6, language: 44, writing: 65, homework: 90, exercises: 75 } },
+      { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 63.6, scores: { speaking: 70, listening: 66.7, reading: 68.4, language: 48, writing: 65, homework: 0, exercises: 80 } },
+      { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-05", sourceDate: "2026-05-31", overall: 74.6, scores: { speaking: 70, listening: 75, reading: 84.2, language: 64, writing: 80, homework: 0, exercises: 85 } },
+      { student: "Miumiu", program: "Primary", className: "Primary Step 2", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: null, listening: null, reading: null, language: null, writing: null, homework: 85, exercises: 80 } },
+      { student: "Yann", program: "Primary", className: "Primary Step 2", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: 60, listening: 70, reading: 90, language: 70, writing: 80, homework: 85, exercises: 90 } },
+      { student: "Cherry", program: "Primary", className: "Primary Step 2", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: 65, listening: 75, reading: 55, language: 40, writing: 56, homework: 85, exercises: 80 } },
+      { student: "Grace", program: "Primary", className: "Primary Step 2", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: 60, listening: 50, reading: 50, language: 60, writing: 56, homework: 85, exercises: 80 } },
+      { student: "Oscar", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: 83.3, listening: 73.1, reading: 50, language: 53.8, writing: 50, homework: 90, exercises: 80 } },
+      { student: "Ran", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: 66.7, listening: 57.7, reading: 53.8, language: 42.3, writing: 60, homework: 85, exercises: 80 } },
+      { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: 56.7, listening: 69.2, reading: 50, language: 53.8, writing: 40, homework: 0, exercises: 80 } },
+      { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: 66.7, listening: 69.2, reading: 80.8, language: 80.8, writing: 40, homework: 70, exercises: 80 } },
+      { student: "Yaya", program: "Junior", className: "Junior", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: 70, listening: 65.4, reading: 61.5, language: 46.2, writing: 25, homework: 85, exercises: 70 } },
+      { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { speaking: 57.5, listening: 76, reading: 80, writing: 63.3, homework: 70, exercises: 80 } },
+      { student: "Isaac", program: "iBT", className: "iBT", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { homework: 85, exercises: 60 } },
+      { student: "Wilson", program: "iBT", className: "iBT", month: "2026-06", sourceDate: "2026-06-30", source: "June monthly review", overall: null, scores: { homework: 0, exercises: 90 } },
+      { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-31", overall: 69.2, scores: { speaking: 57.5, listening: 76, reading: 80, writing: 63.3, homework: 80, exercises: 80 } },
+      { student: "Isaac", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-31", overall: 47.2, scores: { speaking: 40, listening: 52.1, reading: 50, writing: 46.6, homework: 80, exercises: 50 } },
+      { student: "Wilson", program: "iBT", className: "iBT", month: "2026-05", sourceDate: "2026-05-31", overall: 68.7, scores: { speaking: 50, listening: 89.1, reading: 72.5, writing: 63.3, homework: 25, exercises: 80 } }
     ];
 
     const seededMonthlyWorkMetrics = [
+      { student: "Miumiu", program: "Primary", className: "Primary Step 2", month: "2026-05", homework: 100, exercises: 75 },
+      { student: "Cherry", program: "Primary", className: "Primary Step 2", month: "2026-05", homework: 100, exercises: 80 },
+      { student: "Grace", program: "Primary", className: "Primary Step 2", month: "2026-05", homework: 20, exercises: 80 },
+      { student: "Yann", program: "Primary", className: "Primary Step 2", month: "2026-05", homework: 100, exercises: 80 },
+      { student: "Miumiu", program: "Primary", className: "Primary Step 2", month: "2026-06", homework: 85, exercises: 80 },
+      { student: "Cherry", program: "Primary", className: "Primary Step 2", month: "2026-06", homework: 85, exercises: 80 },
+      { student: "Grace", program: "Primary", className: "Primary Step 2", month: "2026-06", homework: 85, exercises: 80 },
+      { student: "Yann", program: "Primary", className: "Primary Step 2", month: "2026-06", homework: 85, exercises: 90 },
+      { student: "Oscar", program: "Junior", className: "Junior", month: "2026-05", homework: 100, exercises: 85 },
+      { student: "Ran", program: "Junior", className: "Junior", month: "2026-05", homework: 50, exercises: 70 },
+      { student: "Yaya", program: "Junior", className: "Junior", month: "2026-05", homework: 90, exercises: 75 },
+      { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-05", homework: 0, exercises: 80 },
+      { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-05", homework: 0, exercises: 85 },
+      { student: "Oscar", program: "Junior", className: "Junior", month: "2026-06", homework: 90, exercises: 80 },
+      { student: "Ran", program: "Junior", className: "Junior", month: "2026-06", homework: 85, exercises: 80 },
+      { student: "Yaya", program: "Junior", className: "Junior", month: "2026-06", homework: 85, exercises: 70 },
+      { student: "Ethan Guo", program: "Junior", className: "Junior", month: "2026-06", homework: 0, exercises: 80 },
+      { student: "Ethan Yang", program: "Junior", className: "Junior", month: "2026-06", homework: 70, exercises: 80 },
       { student: "Isaac", program: "iBT", className: "iBT", month: "2026-05", homework: 80, exercises: 50 },
       { student: "Leonardo", program: "iBT", className: "iBT", month: "2026-05", homework: 80, exercises: 80 },
       { student: "Wilson", program: "iBT", className: "iBT", month: "2026-05", homework: 25, exercises: 80 },
@@ -3901,7 +3928,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           reading: review.scores.reading ?? undefined,
           speaking: review.scores.speaking ?? undefined,
           writing: review.scores.writing ?? undefined,
-          language: review.scores.language ?? undefined
+          language: review.scores.language ?? undefined,
+          homework: review.scores.homework ?? undefined,
+          exercises: review.scores.exercises ?? undefined
         },
         ...guidance
       };
@@ -4159,7 +4188,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             name: "Writing",
             overview: "Writing moved through task structure, short quizzes, grammar review, sentence order, email responses, longer academic writing, and idea generation. Students practised building clearer paragraphs with stronger reasons, examples, and topic control.",
             overviewZh: "写作部分依次训练了任务结构、短测、语法复习、句子顺序、邮件回复、较长学术写作以及构思方法。学生练习构建更清晰的段落，并加强理由、例子和主题控制。",
-            focus: ["Task structure", "Grammar accuracy", "Email writing", "Academic paragraphs", "Idea generation"]
+            focus: ["Task structure", "Language Form & Meaning accuracy", "Email writing", "Academic paragraphs", "Idea generation"]
           }
         ]
       }
@@ -4334,9 +4363,44 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function mergeSeededReviews(saved) {
       const reviews = Array.isArray(saved) ? saved : [];
-      const seededNames = new Set(seededScoreReviewsWithGuidance.map((review) => review.student.toLowerCase()));
-      const otherReviews = reviews.filter((review) => !(review.source === "Old score import" && seededNames.has(String(review.student || "").toLowerCase())));
-      return [...seededScoreReviewsWithGuidance, ...otherReviews];
+      const reviewKey = (review) => `${String(review.student || "").toLowerCase()}|${String(review.program || "").toLowerCase()}|${String(review.className || "").toLowerCase()}|${String(review.month || review.sourceDate || "").slice(0, 7)}`;
+      const normalizeScores = (scores = {}) => {
+        const normalized = { ...scores };
+        if ((normalized.language === undefined || normalized.language === null || normalized.language === "") && normalized.grammar !== undefined && normalized.grammar !== null && normalized.grammar !== "") {
+          normalized.language = normalized.grammar;
+        }
+        if (normalized.grammar === undefined || normalized.grammar === null || normalized.grammar === "") delete normalized.grammar;
+        Object.keys(normalized).forEach((scoreKey) => {
+          if (normalized[scoreKey] === "" || normalized[scoreKey] === undefined || normalized[scoreKey] === null) delete normalized[scoreKey];
+        });
+        return normalized;
+      };
+      const seededByKey = new Map(seededScoreReviewsWithGuidance.map((review) => [reviewKey(review), review]));
+      const merged = reviews.map((review) => {
+        const key = reviewKey(review);
+        const seed = seededByKey.get(key);
+        if (!seed) return review;
+        const mergedScores = {
+          ...normalizeScores(seed.scores || {}),
+          ...normalizeScores(review.scores || {})
+        };
+        Object.keys(mergedScores).forEach((scoreKey) => {
+          if (mergedScores[scoreKey] === "" || mergedScores[scoreKey] === undefined) delete mergedScores[scoreKey];
+        });
+        return {
+          ...seed,
+          ...review,
+          scores: mergedScores,
+          strong: review.strong || seed.strong,
+          improving: review.improving || seed.improving,
+          weakness: review.weakness || seed.weakness,
+          areas: review.areas || seed.areas,
+          how: review.how || seed.how
+        };
+      });
+      const mergedKeys = new Set(merged.map((review) => reviewKey(review)));
+      const missingSeeded = seededScoreReviewsWithGuidance.filter((review) => !mergedKeys.has(reviewKey(review)));
+      return [...missingSeeded, ...merged];
     }
 
     function mergeSeededAssignments(saved) {
@@ -5732,17 +5796,74 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function reviewScoreValue(review, key) {
       if (!review) return null;
+      const scoreKeys = key === "language"
+        ? ["language", "grammar"]
+        : key === "grammar"
+          ? ["grammar", "language"]
+          : [key];
       if (key === "overall") {
         if (review.scores && review.scores.overall !== undefined && review.scores.overall !== null && review.scores.overall !== "") return review.scores.overall;
         if (review.overall !== undefined && review.overall !== null && review.overall !== "") return review.overall;
         return null;
       }
-      if (review.scores && review.scores[key] !== undefined && review.scores[key] !== null && review.scores[key] !== "") return review.scores[key];
+      if (review.scores) {
+        for (const scoreKey of scoreKeys) {
+          if (review.scores[scoreKey] !== undefined && review.scores[scoreKey] !== null && review.scores[scoreKey] !== "") return review.scores[scoreKey];
+        }
+      }
       return null;
     }
 
+    function reviewDerivedOverall(review) {
+      const explicitOverall = reviewScoreValue(review, "overall");
+      if (explicitOverall !== null) return explicitOverall;
+      const scoreKeys = ["speaking", "listening", "reading", "language", "grammar", "writing", "homework", "exercises"];
+      const values = scoreKeys
+        .map((key) => reviewScoreValue(review, key))
+        .filter((value) => Number.isFinite(Number(value)))
+        .map((value) => Number(value));
+      if (!values.length) return null;
+      return Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10;
+    }
+
     function reviewHasScoreData(review) {
-      return ["overall", "speaking", "listening", "reading", "language", "writing"].some((key) => reviewScoreValue(review, key) !== null);
+      return ["overall", "speaking", "listening", "reading", "language", "grammar", "writing", "homework", "exercises"].some((key) => reviewScoreValue(review, key) !== null);
+    }
+
+    function reviewCompletenessScore(review) {
+      if (!review) return 0;
+      const scoreCount = ["overall", "speaking", "listening", "reading", "language", "grammar", "writing", "homework", "exercises"]
+        .filter((key) => reviewScoreValue(review, key) !== null).length;
+      const textCount = ["strong", "improving", "weakness", "areas", "how"]
+        .filter((key) => String(review[key] || "").trim()).length;
+      return scoreCount * 10 + textCount;
+    }
+
+    function comparePreferredReviews(a, b) {
+      const scoreBias = Number(reviewHasScoreData(b)) - Number(reviewHasScoreData(a));
+      if (scoreBias) return scoreBias;
+      const completenessBias = reviewCompletenessScore(b) - reviewCompletenessScore(a);
+      if (completenessBias) return completenessBias;
+      return String(reviewDateKey(b)).localeCompare(String(reviewDateKey(a)));
+    }
+
+    function preferredReviewList(reviews = []) {
+      return [...reviews].filter(Boolean).sort(comparePreferredReviews);
+    }
+
+    function preferredReviewForStudentMonth(studentName, month, program = "", className = "") {
+      const targetMonth = String(month || "").slice(0, 7);
+      if (!studentName || !targetMonth) return null;
+      return preferredReviewList(
+        store.reviews.filter((review) => {
+          if (review.student !== studentName) return false;
+          const reviewMonth = reviewMonthKey(review);
+          if (reviewMonth !== targetMonth) return false;
+          if (program && review.program && review.program !== program) return false;
+          if (className && review.className && review.className !== className) return false;
+          return true;
+        })
+      )[0] || null;
     }
 
     function preferredStudentSelection(students = []) {
@@ -5815,16 +5936,14 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function uniqueMonthlyReviews(reviews = []) {
-      const sorted = [...reviews]
-        .filter(Boolean)
-        .sort((a, b) => String(reviewDateKey(b)).localeCompare(String(reviewDateKey(a))));
+      const sorted = preferredReviewList(reviews);
       const seen = new Set();
       const deduped = [];
       sorted.forEach((review) => {
         const monthKey = reviewMonthKey(review);
         const studentName = String(review.student || "").trim();
         if (!studentName || !monthKey) return;
-        const key = `${studentName}|${monthKey}`;
+        const key = `${studentName}|${String(review.program || "").trim()}|${String(review.className || "").trim()}|${monthKey}`;
         if (seen.has(key)) return;
         seen.add(key);
         deduped.push(review);
@@ -5901,14 +6020,14 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function classAverageSeries(program, className, anchorMonth, span) {
-      const reviews = store.reviews.filter((review) => review.program === program && review.className === className);
+      const reviews = uniqueMonthlyReviews(store.reviews.filter((review) => review.program === program && review.className === className));
       const months = classReviewMonths(program, className);
       if (!months.length) return [];
       const selectedAnchor = selectedMonthOrLatest(anchorMonth, months);
       const range = monthRangeKeys(selectedAnchor, span);
       return range.map((month) => {
         const monthReviews = reviews.filter((review) => (review.month ? review.month.slice(0, 7) : String(review.sourceDate || "").slice(0, 7)) === month);
-        const average = averageValues(monthReviews.map((review) => Number(review.scores && review.scores.overall)).filter((value) => Number.isFinite(value)));
+        const average = averageValues(monthReviews.map((review) => Number(reviewDerivedOverall(review))).filter((value) => Number.isFinite(value)));
         if (average === null) return null;
         return {
           month,
@@ -6648,7 +6767,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         },
         ITP: {
           "Listening Comprehension": "Official multiple-choice listening with audio passages and numbered items.",
-          "Structure and Written Expression": "Grammar and sentence-correction practice based on the official TOEFL ITP style.",
+          "Structure and Written Expression": "Language Form & Meaning and sentence-correction practice based on the official TOEFL ITP style.",
           "Reading Comprehension": "Passage-based reading questions that test evidence, detail, and vocabulary.",
           "Vocabulary and Reading Comprehension": "Level 2 combines vocabulary knowledge with reading comprehension in a shorter format.",
           Speaking: "Digital speaking tasks are teacher-built prompts that the platform treats as separate recording tasks."
@@ -8009,13 +8128,13 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function monthlyScoreCardRows(studentName, month) {
-      const review = store.reviews
-        .filter((item) => item.student === studentName && (item.month === month || String(item.sourceDate || "").slice(0, 7) === month))
-        .sort((a, b) => {
-          const scoreBias = Number(reviewHasScoreData(b)) - Number(reviewHasScoreData(a));
-          if (scoreBias) return scoreBias;
-          return String(b.sourceDate || b.month).localeCompare(String(a.sourceDate || a.month));
-        })[0];
+      const currentStudent = store.students.find((item) => item.name === studentName) || null;
+      const review = preferredReviewForStudentMonth(
+        studentName,
+        month,
+        currentStudent ? currentStudent.program : "",
+        currentStudent ? currentStudent.className : ""
+      );
       const examRows = [];
       const workRows = [];
       if (review) {
@@ -8027,13 +8146,19 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           ["Writing", reviewScoreValue(review, "writing")]
         ].filter(([, value]) => value !== undefined && value !== null && value !== "").forEach(([label, score]) => examRows.push({ label, score, remark: "Monthly exam score" }));
       }
+      const reviewHomework = review ? reviewScoreValue(review, "homework") : null;
+      const reviewExercises = review ? reviewScoreValue(review, "exercises") : null;
       const monthSubmissions = store.submissions.filter((submission) => submission.student === studentName && monthFromSubmission(submission) === month);
-      const homeworkScores = monthSubmissions
-        .filter((submission) => assignmentForSubmission(submission).category === "Homework")
-        .map((submission) => normalizedWorkStatus(submission) === "completed" ? numericScore(submission.scorePercent ?? submission.score) || 0 : 0);
-      const exerciseScores = monthSubmissions
-        .filter((submission) => assignmentForSubmission(submission).category === "Exercise" && normalizedWorkStatus(submission) !== "absent")
-        .map((submission) => normalizedWorkStatus(submission) === "completed" ? 100 : 0);
+      const homeworkScores = reviewHomework !== null && reviewHomework !== undefined
+        ? [reviewHomework]
+        : monthSubmissions
+          .filter((submission) => assignmentForSubmission(submission).category === "Homework")
+          .map((submission) => normalizedWorkStatus(submission) === "completed" ? numericScore(submission.scorePercent ?? submission.score) || 0 : 0);
+      const exerciseScores = reviewExercises !== null && reviewExercises !== undefined
+        ? [reviewExercises]
+        : monthSubmissions
+          .filter((submission) => assignmentForSubmission(submission).category === "Exercise" && normalizedWorkStatus(submission) !== "absent")
+          .map((submission) => normalizedWorkStatus(submission) === "completed" ? 100 : 0);
       const monthlyTestScores = monthSubmissions
         .filter((submission) => assignmentForSubmission(submission).category === "Monthly Test")
         .map((submission) => numericScore(submission.scorePercent ?? submission.score))
@@ -9222,7 +9347,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const assignedWork = store.assignments.filter((assignment) => assignment.program === student.program && assignment.className === student.className);
       const notes = store.adminNotes.filter((note) => note.student === student.name);
       const latestReview = reviews[0] || null;
-      const latestScoredReview = reviews.find(reviewHasScoreData) || null;
+      const latestScoredReview = preferredReviewList(reviews).find(reviewHasScoreData) || null;
       return { submissions, reviews, assignedWork, notes, latestReview, latestScoredReview };
     }
 
@@ -9241,7 +9366,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function renderStudentRecordCard(student, options = {}) {
       const { submissions, reviews, assignedWork, notes, latestReview, latestScoredReview } = studentRecordBundle(student);
       const latestScores = latestScoredReview && latestScoredReview.scores ? latestScoredReview.scores : {};
-      const overall = reviewScoreValue(latestScoredReview, "overall") !== null ? reviewScoreValue(latestScoredReview, "overall") : student.score;
+      const overall = reviewDerivedOverall(latestScoredReview) !== null ? reviewDerivedOverall(latestScoredReview) : student.score;
       const sourceLabel = latestScoredReview ? (latestScoredReview.source || latestScoredReview.month || "Monthly review") : "No scored record yet";
       const snapshotLabel = latestReview ? (latestReview.source || latestReview.month || "Monthly review") : "No review yet";
       const compactText = (value, max = 110) => {
@@ -9276,6 +9401,8 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             <div class="score-pill"><small>Reading</small><strong>${reviewScoreValue(latestScoredReview, "reading") ?? "-"}</strong></div>
             <div class="score-pill"><small>Language Form & Meaning</small><strong>${reviewScoreValue(latestScoredReview, "language") ?? "-"}</strong></div>
             <div class="score-pill"><small>Writing</small><strong>${reviewScoreValue(latestScoredReview, "writing") ?? "-"}</strong></div>
+            <div class="score-pill"><small>Homework</small><strong>${reviewScoreValue(latestScoredReview, "homework") ?? "-"}</strong></div>
+            <div class="score-pill"><small>Class Exercises</small><strong>${reviewScoreValue(latestScoredReview, "exercises") ?? "-"}</strong></div>
           </div>
           <p class="muted">Latest scored record: ${escapeHtml(sourceLabel)}${latestScoredReview && latestScoredReview.sourceDate ? ` · ${escapeHtml(latestScoredReview.sourceDate)}` : ""}</p>
           <div class="student-snapshot">
@@ -9393,29 +9520,40 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function renderTeacherReviews() {
       const selectedStudents = studentsForProgram(teacherProgram.teacherReviews);
       const selectedReviews = reviewsForProgram(teacherProgram.teacherReviews);
+      const selectedStudentKey = selectedStudents.some((student) => studentFocusKey(student) === teacherReviewStudentFocus)
+        ? teacherReviewStudentFocus
+        : (selectedStudents[0] ? studentFocusKey(selectedStudents[0]) : "");
+      const selectedStudent = selectedStudents.find((student) => studentFocusKey(student) === selectedStudentKey) || selectedStudents[0] || null;
+      const selectedMonth = teacherReviewMonthFocus || "2026-06";
+      const selectedReview = selectedStudent
+        ? preferredReviewForStudentMonth(selectedStudent.name, selectedMonth, selectedStudent.program, selectedStudent.className)
+        : null;
       $("#teacherReviews").innerHTML = `
         ${pageHeader("Monthly Reviews", "月度学习报告", "Write one monthly progress review for each student.")}
         ${renderProgramPicker("teacherReviews")}
         <div class="split">
           <details class="card">
-            <summary><h3 style="display:inline">Fill in student review</h3></summary>
+            <summary><h3 style="display:inline">Score entry & sync</h3></summary>
             <form onsubmit="saveMonthlyReview(event)" style="margin-top:12px">
-              <div class="field"><label>Student</label><select id="reviewStudent">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}">${student.name} · ${student.className}</option>`).join("")}</select></div>
-              <div class="field"><label>Month</label><input id="reviewMonth" type="month" value="2026-05"></div>
+              <p class="muted" style="margin-top:0">Update the monthly score once here and the same record will feed student, teacher, and admin views.</p>
+              <div class="field"><label>Student</label><select id="reviewStudent" onchange="setTeacherReviewFocus(this.value, document.getElementById('reviewMonth').value)">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}" ${studentFocusKey(student) === selectedStudentKey ? "selected" : ""}>${student.name} · ${student.className}</option>`).join("")}</select></div>
+              <div class="field"><label>Month</label><input id="reviewMonth" type="month" value="${escapeHtml(selectedMonth)}" onchange="setTeacherReviewFocus(document.getElementById('reviewStudent').value, this.value)"></div>
               <div class="review-form">
-                <div class="field"><label>Overall score</label><input id="reviewOverall" type="number" min="0" max="120" required></div>
-                <div class="field"><label>Listening</label><input id="reviewListening" type="number" min="0" max="120"></div>
-                <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120"></div>
-                <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120"></div>
-                <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120"></div>
-                <div class="field"><label>Language Form & Meaning</label><input id="reviewLanguage" type="number" min="0" max="120"></div>
+                <div class="field"><label>Overall score</label><input id="reviewOverall" type="number" min="0" max="120" value="${selectedReview ? (reviewDerivedOverall(selectedReview) ?? "") : ""}"></div>
+                <div class="field"><label>Listening</label><input id="reviewListening" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "listening") ?? "") : ""}"></div>
+                <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "reading") ?? "") : ""}"></div>
+                <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "speaking") ?? "") : ""}"></div>
+                <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "writing") ?? "") : ""}"></div>
+                <div class="field"><label>Language Form & Meaning</label><input id="reviewLanguage" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "language") ?? "") : ""}"></div>
+                <div class="field"><label>Homework</label><input id="reviewHomework" type="number" min="0" max="100" value="${selectedReview ? (reviewScoreValue(selectedReview, "homework") ?? "") : ""}"></div>
+                <div class="field"><label>Class Exercises</label><input id="reviewExercises" type="number" min="0" max="100" value="${selectedReview ? (reviewScoreValue(selectedReview, "exercises") ?? "") : ""}"></div>
               </div>
               <div class="review-form">
-                <div class="field"><label>Strong areas</label><textarea id="reviewStrong" required></textarea></div>
-                <div class="field"><label>Currently improving</label><textarea id="reviewImproving" required></textarea></div>
-                <div class="field"><label>Weaknesses</label><textarea id="reviewWeakness" required></textarea></div>
-                <div class="field"><label>Areas to improve</label><textarea id="reviewAreas" required></textarea></div>
-                <div class="field"><label>How to improve</label><textarea id="reviewHow" required></textarea></div>
+                <div class="field"><label>Strong areas</label><textarea id="reviewStrong">${escapeHtml(selectedReview ? (selectedReview.strong || "") : "")}</textarea></div>
+                <div class="field"><label>Currently improving</label><textarea id="reviewImproving">${escapeHtml(selectedReview ? (selectedReview.improving || "") : "")}</textarea></div>
+                <div class="field"><label>Weaknesses</label><textarea id="reviewWeakness">${escapeHtml(selectedReview ? (selectedReview.weakness || "") : "")}</textarea></div>
+                <div class="field"><label>Areas to improve</label><textarea id="reviewAreas">${escapeHtml(selectedReview ? (selectedReview.areas || "") : "")}</textarea></div>
+                <div class="field"><label>How to improve</label><textarea id="reviewHow">${escapeHtml(selectedReview ? (selectedReview.how || "") : "")}</textarea></div>
               </div>
               <button class="primary-btn" type="submit">Publish review</button>
             </form>
@@ -9433,16 +9571,34 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       if (stopIfNotAllowed("teacher", "admin")) return;
       const [student, program, className] = $("#reviewStudent").value.split("|");
       const month = $("#reviewMonth").value;
-      const existing = store.reviews.find((item) => item.student === student && item.month === month);
-      const reviews = store.reviews.filter((item) => !(item.student === student && item.month === $("#reviewMonth").value));
-      const newScores = {
-        overall: Number($("#reviewOverall").value) || 0,
-        listening: Number($("#reviewListening").value) || 0,
-        reading: Number($("#reviewReading").value) || 0,
-        speaking: Number($("#reviewSpeaking").value) || 0,
-        writing: Number($("#reviewWriting").value) || 0,
-        language: Number($("#reviewLanguage").value) || 0
+      const sameReviewRecord = (item) =>
+        item.student === student &&
+        item.program === program &&
+        item.className === className &&
+        item.month === month;
+      const existing = store.reviews.find((item) => sameReviewRecord(item));
+      const reviews = store.reviews.filter((item) => !sameReviewRecord(item));
+      const parseScoreInput = (selector) => {
+        const raw = $(selector).value;
+        if (raw === undefined || raw === null || String(raw).trim() === "") return null;
+        const value = Number(raw);
+        return Number.isFinite(value) ? value : null;
       };
+      const explicitOverall = parseScoreInput("#reviewOverall");
+      const newScores = {
+        overall: explicitOverall !== null ? explicitOverall : null,
+        listening: parseScoreInput("#reviewListening"),
+        reading: parseScoreInput("#reviewReading"),
+        speaking: parseScoreInput("#reviewSpeaking"),
+        writing: parseScoreInput("#reviewWriting"),
+        language: parseScoreInput("#reviewLanguage"),
+        homework: parseScoreInput("#reviewHomework"),
+        exercises: parseScoreInput("#reviewExercises")
+      };
+      if (newScores.overall === null) {
+        const derivedOverall = reviewDerivedOverall({ scores: newScores });
+        newScores.overall = derivedOverall !== null ? derivedOverall : null;
+      }
       reviews.unshift({
         student,
         program,
@@ -9476,7 +9632,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function renderReviewEditHistory(review) {
       const history = review.editHistory || [];
       if (!history.length) return "";
-      const scoreLine = (scores = {}) => ["overall", "speaking", "listening", "reading", "language", "writing"]
+      const scoreLine = (scores = {}) => ["overall", "speaking", "listening", "reading", "language", "writing", "homework", "exercises"]
         .filter((key) => scores[key] !== undefined)
         .map((key) => `${key}: ${scores[key]}`)
         .join(" · ") || "blank";
@@ -9501,7 +9657,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const scores = review.scores || {};
       const isImportedPercent = review.source === "Old score import";
       const formatScore = (value) => value === undefined || value === null || value === "" ? "-" : `${value}${isImportedPercent ? "%" : ""}`;
-      const overallScore = reviewScoreValue(review, "overall");
+      const overallScore = reviewDerivedOverall(review);
       return `
         <article class="card review-card" style="margin-bottom:14px">
           <div class="calendar-month-summary" style="align-items:flex-start">
@@ -9521,6 +9677,8 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               <div class="score-pill"><small>Reading</small><strong>${formatScore(reviewScoreValue(review, "reading"))}</strong></div>
               ${reviewScoreValue(review, "language") !== null ? `<div class="score-pill"><small>Language Form & Meaning</small><strong>${formatScore(reviewScoreValue(review, "language"))}</strong></div>` : ""}
               <div class="score-pill"><small>Writing</small><strong>${formatScore(reviewScoreValue(review, "writing"))}</strong></div>
+              <div class="score-pill"><small>Homework</small><strong>${formatScore(reviewScoreValue(review, "homework"))}</strong></div>
+              <div class="score-pill"><small>Class Exercises</small><strong>${formatScore(reviewScoreValue(review, "exercises"))}</strong></div>
             </div>
             <div class="review-toggle-grid">
               <details><summary>Strong areas</summary><p>${escapeHtml(review.strong || "No comment added yet.")}</p></details>
@@ -9574,7 +9732,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
                   <div class="calendar-event-list">
                     ${studentNames.map((studentName) => {
                       const studentReviews = uniqueMonthlyReviews(byStudent[studentName]).slice(0, 1);
-                      const overall = reviewScoreValue(studentReviews[0], "overall");
+                      const overall = reviewDerivedOverall(studentReviews[0]);
                       return `
                         <details id="${idPrefix}-${month}-${studentName.replace(/\W+/g, "-")}" data-calendar-group="${escapeHtml(idPrefix)}-students" ontoggle="handleCalendarDetailsToggle(this)">
                           <summary>
@@ -9600,11 +9758,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function renderPerformanceGraph(reviews) {
       const sorted = [...reviews]
-        .filter((review) => Number.isFinite(Number(reviewScoreValue(review, "overall"))))
+        .filter((review) => Number.isFinite(Number(reviewDerivedOverall(review))))
         .sort((a, b) => a.month.localeCompare(b.month));
       if (!sorted.length) return "";
       const points = sorted.map((review, index) => {
-        const score = Number(reviewScoreValue(review, "overall")) || 0;
+        const score = Number(reviewDerivedOverall(review)) || 0;
         const x = sorted.length === 1 ? 280 : 40 + (index * (520 / (sorted.length - 1)));
         const y = 170 - Math.min(120, Math.max(0, score)) * 1.15;
         return { x, y, score, month: review.month, label: review.displayLabel || initials(review.student || "") };
