@@ -1686,10 +1686,15 @@
     }
 
     .semester-overview-stack {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
+      display: block;
       gap: 16px;
       width: 100%;
+    }
+
+    .semester-overview-stack > .card {
+      width: 100%;
+      max-width: none;
+      margin-bottom: 16px;
     }
 
     .semester-sheet-header {
@@ -1719,8 +1724,8 @@
 
     .semester-table {
       width: 100%;
-      min-width: 100%;
-      table-layout: fixed;
+      min-width: 980px;
+      table-layout: auto;
       border-collapse: collapse;
     }
 
@@ -1738,7 +1743,7 @@
 
     .semester-table th:nth-child(3),
     .semester-table td:nth-child(3) {
-      width: 24%;
+      width: 28%;
     }
 
     .semester-table th:nth-child(4),
@@ -1758,6 +1763,23 @@
       padding: 12px 14px;
       vertical-align: top;
       text-align: left;
+      line-height: 1.45;
+    }
+
+    .lesson-date-link {
+      border: 0;
+      background: transparent;
+      color: var(--gold);
+      font: inherit;
+      font-weight: 800;
+      padding: 0;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .lesson-date-link:hover {
+      color: var(--green-light);
+      text-decoration: underline;
     }
 
     .semester-table th:last-child,
@@ -1855,6 +1877,19 @@
       color: var(--accent);
       font-size: 20px;
       font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    }
+
+    .semester-overview-stack,
+    .semester-overview-card,
+    .semester-overview-card .semester-sheet,
+    .semester-overview-card .semester-table-wrap {
+      width: 100%;
+      max-width: none;
+    }
+
+    .semester-overview-card .semester-table {
+      width: 100%;
+      min-width: 1120px;
     }
 
     .student-snapshot {
@@ -2780,7 +2815,7 @@
           <button data-section="teacherLessonNotes" onclick="activateSection('teacherLessonNotes')">Lesson Notes</button>
           <button data-section="teacherSubmissions" onclick="activateSection('teacherSubmissions')">Submissions</button>
           <button data-section="teacherRecords" onclick="activateSection('teacherRecords')">Student Records</button>
-          <button data-section="teacherReviews" onclick="activateSection('teacherReviews')">Monthly Reviews</button>
+          <button data-section="teacherReviews" onclick="activateSection('teacherReviews')">Record Scores</button>
           <button data-section="teacherRankings" onclick="activateSection('teacherRankings')">Rankings</button>
         </nav>
         <nav id="adminNav" class="nav hidden">
@@ -3226,6 +3261,8 @@
     let adminScoreProgram = "Primary";
     let adminScoreClass = "Primary Step 2";
     let adminScoreMonth = "";
+    let adminScoreStartMonth = "";
+    let adminScoreEndMonth = "";
     let adminScoreSpan = "1";
     let adminLessonProgram = "Primary";
     let adminLessonClass = "Primary Step 2";
@@ -4401,33 +4438,18 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function mergeSeededReviews(saved) {
       const reviews = Array.isArray(saved) ? saved : [];
       const reviewKey = (review) => `${String(review.student || "").toLowerCase()}|${String(review.program || "").toLowerCase()}|${String(review.className || "").toLowerCase()}|${String(review.month || review.sourceDate || "").slice(0, 7)}`;
-      const normalizeScores = (scores = {}) => {
-        const normalized = { ...scores };
-        if ((normalized.language === undefined || normalized.language === null || normalized.language === "") && normalized.grammar !== undefined && normalized.grammar !== null && normalized.grammar !== "") {
-          normalized.language = normalized.grammar;
-        }
-        if (normalized.grammar === undefined || normalized.grammar === null || normalized.grammar === "") delete normalized.grammar;
-        Object.keys(normalized).forEach((scoreKey) => {
-          if (normalized[scoreKey] === "" || normalized[scoreKey] === undefined || normalized[scoreKey] === null) delete normalized[scoreKey];
-        });
-        return normalized;
-      };
       const seededByKey = new Map(seededScoreReviewsWithGuidance.map((review) => [reviewKey(review), review]));
       const merged = reviews.map((review) => {
         const key = reviewKey(review);
         const seed = seededByKey.get(key);
         if (!seed) return review;
-        const mergedScores = {
-          ...normalizeScores(seed.scores || {}),
-          ...normalizeScores(review.scores || {})
-        };
-        Object.keys(mergedScores).forEach((scoreKey) => {
-          if (mergedScores[scoreKey] === "" || mergedScores[scoreKey] === undefined) delete mergedScores[scoreKey];
-        });
+        const mergedScores = mergeScoreObjects(seed.scores || {}, review.scores || {});
+        const mergedOverall = hasFilledValue(review.overall) ? review.overall : seed.overall;
         return {
           ...seed,
           ...review,
           scores: mergedScores,
+          overall: hasFilledValue(mergedScores.overall) ? mergedScores.overall : mergedOverall,
           strong: review.strong || seed.strong,
           improving: review.improving || seed.improving,
           weakness: review.weakness || seed.weakness,
@@ -4688,6 +4710,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         '"': "&quot;",
         "'": "&#39;"
       }[character]));
+    }
+
+    function jsString(value = "") {
+      return JSON.stringify(String(value ?? ""));
     }
 
     function roleLabel() {
@@ -5285,7 +5311,16 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function workMetricForStudent(student, metric) {
-      if (metric === "score") return Number(student.score) || 0;
+      const latestReview = student ? monthlyReviewsForStudent(student.name, student.program, student.className).find(reviewHasScoreData) : null;
+      if (metric === "score" || metric === "exams") {
+        const latestOverall = reviewDerivedOverall(latestReview);
+        if (latestOverall !== null) return Number(latestOverall) || 0;
+        if (metric === "score") return Number(student.score) || 0;
+      }
+      if ((metric === "homework" || metric === "exercises") && latestReview) {
+        const latestWorkValue = reviewScoreValue(latestReview, metric);
+        if (latestWorkValue !== null) return Number(latestWorkValue) || 0;
+      }
       if (student && student.workMetrics && student.workMetrics[metric] !== undefined && student.workMetrics[metric] !== null && student.workMetrics[metric] !== "") {
         return Number(student.workMetrics[metric]) || 0;
       }
@@ -5697,6 +5732,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function selectTeacherProgram(sectionId, program) {
       teacherProgram[sectionId] = program;
+      if (teacherClassFilter[sectionId] !== undefined) teacherClassFilter[sectionId] = classesFor(program)[0] || "";
       if (recordClassFilter[sectionId] !== undefined) recordClassFilter[sectionId] = "";
       if (recordStudentFocus[sectionId] !== undefined) recordStudentFocus[sectionId] = "";
       editingAssignmentId = null;
@@ -5736,23 +5772,44 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       adminScoreProgram = program;
       adminScoreClass = classesFor(program)[0] || "";
       adminScoreMonth = "";
+      adminScoreStartMonth = "";
+      adminScoreEndMonth = "";
       renderAdminScores();
     }
 
     function setAdminScoreClass(className) {
       adminScoreClass = className;
       adminScoreMonth = "";
+      adminScoreStartMonth = "";
+      adminScoreEndMonth = "";
       renderAdminScores();
     }
 
     function setAdminScoreMonth(month) {
       adminScoreMonth = month;
+      adminScoreEndMonth = month;
       renderAdminScores();
     }
 
     function setAdminScoreSpan(span) {
       adminScoreSpan = span;
       renderAdminScores();
+    }
+
+    function setAdminScoreStartMonth(month) {
+      adminScoreStartMonth = month;
+      renderAdminScores();
+    }
+
+    function setAdminScoreEndMonth(month) {
+      adminScoreEndMonth = month;
+      adminScoreMonth = month;
+      renderAdminScores();
+    }
+
+    function setTeacherRankingClass(className) {
+      teacherClassFilter.teacherRankings = className;
+      renderTeacherRankings();
     }
 
     function setAdminLessonProgram(program) {
@@ -5831,6 +5888,84 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return /^qa\b/i.test(name) || /^qa[.\-_]/i.test(username) || /^EH-STU-900\d$/i.test(studentId);
     }
 
+    function normalizeReviewScores(scores = {}) {
+      const normalized = { ...(scores || {}) };
+      if ((normalized.language === undefined || normalized.language === null || normalized.language === "") && normalized.grammar !== undefined && normalized.grammar !== null && normalized.grammar !== "") {
+        normalized.language = normalized.grammar;
+      }
+      delete normalized.grammar;
+      Object.keys(normalized).forEach((scoreKey) => {
+        if (normalized[scoreKey] === "" || normalized[scoreKey] === undefined || normalized[scoreKey] === null) delete normalized[scoreKey];
+      });
+      return normalized;
+    }
+
+    function hasFilledValue(value) {
+      return value !== undefined && value !== null && String(value).trim() !== "";
+    }
+
+    function mergeScoreObjects(baseScores = {}, overrideScores = {}) {
+      const merged = normalizeReviewScores(baseScores || {});
+      const override = normalizeReviewScores(overrideScores || {});
+      Object.entries(override).forEach(([key, value]) => {
+        if (hasFilledValue(value)) merged[key] = value;
+      });
+      return normalizeReviewScores(merged);
+    }
+
+    function mergedReviewEditHistory(reviews = []) {
+      return [...reviews]
+        .flatMap((review) => Array.isArray(review && review.editHistory) ? review.editHistory : [])
+        .sort((a, b) => String(b && b.date || "").localeCompare(String(a && a.date || "")));
+    }
+
+    function mergeReviewGroup(reviews = []) {
+      const filtered = [...reviews].filter(Boolean);
+      if (!filtered.length) return null;
+      const sorted = [...filtered].sort((a, b) => String(reviewDateKey(b)).localeCompare(String(reviewDateKey(a))));
+      const base = sorted[0];
+      const merged = sorted.reduce((acc, review) => {
+        const next = { ...acc };
+        ["student", "program", "className", "month", "source", "sourceDate", "publishedBy", "publishedRole", "publishedAt", "excluded"].forEach((field) => {
+          if (hasFilledValue(review[field])) next[field] = review[field];
+        });
+        next.scores = mergeScoreObjects(acc.scores || {}, review.scores || {});
+        if (review.overall !== undefined && review.overall !== null && review.overall !== "") next.overall = review.overall;
+        ["strong", "improving", "weakness", "areas", "how"].forEach((field) => {
+          if (String(review[field] || "").trim()) next[field] = review[field];
+          if (!String(next[field] || "").trim()) next[field] = acc[field] || "";
+        });
+        return next;
+      }, { ...base, scores: normalizeReviewScores(base.scores || {}) });
+      merged.scores = normalizeReviewScores(merged.scores || {});
+      if ((merged.scores.overall === undefined || merged.scores.overall === null || merged.scores.overall === "") && merged.overall !== undefined && merged.overall !== null && merged.overall !== "") {
+        merged.scores.overall = merged.overall;
+      }
+      if ((merged.overall === undefined || merged.overall === null || merged.overall === "") && merged.scores.overall !== undefined && merged.scores.overall !== null && merged.scores.overall !== "") {
+        merged.overall = merged.scores.overall;
+      }
+      const derivedOverall = reviewDerivedOverall(merged);
+      if (derivedOverall !== null) {
+        if (merged.overall === undefined || merged.overall === null || merged.overall === "") merged.overall = derivedOverall;
+        if (merged.scores.overall === undefined || merged.scores.overall === null || merged.scores.overall === "") merged.scores.overall = derivedOverall;
+      }
+      merged.editHistory = mergedReviewEditHistory(filtered);
+      return merged;
+    }
+
+    function allMonthlyReviews() {
+      return uniqueMonthlyReviews([...seededScoreReviewsWithGuidance, ...store.reviews]);
+    }
+
+    function monthlyReviewsForStudent(studentName, program = "", className = "") {
+      return uniqueMonthlyReviews([...seededScoreReviewsWithGuidance, ...store.reviews].filter((review) => {
+        if (review.student !== studentName) return false;
+        if (program && review.program && review.program !== program) return false;
+        if (className && review.className && review.className !== className) return false;
+        return true;
+      }));
+    }
+
     function reviewScoreValue(review, key) {
       if (!review) return null;
       const scoreKeys = key === "language"
@@ -5854,7 +5989,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function reviewDerivedOverall(review) {
       const explicitOverall = reviewScoreValue(review, "overall");
       if (explicitOverall !== null) return explicitOverall;
-      const scoreKeys = ["speaking", "listening", "reading", "language", "grammar", "writing", "homework", "exercises"];
+      const scoreKeys = ["speaking", "listening", "reading", "language", "grammar", "writing"];
       const values = scoreKeys
         .map((key) => reviewScoreValue(review, key))
         .filter((value) => Number.isFinite(Number(value)))
@@ -5891,16 +6026,18 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function preferredReviewForStudentMonth(studentName, month, program = "", className = "") {
       const targetMonth = String(month || "").slice(0, 7);
       if (!studentName || !targetMonth) return null;
-      return preferredReviewList(
-        store.reviews.filter((review) => {
+      const matchingReviews = [...seededScoreReviewsWithGuidance, ...store.reviews].filter((review) => {
           if (review.student !== studentName) return false;
           const reviewMonth = reviewMonthKey(review);
           if (reviewMonth !== targetMonth) return false;
           if (program && review.program && review.program !== program) return false;
           if (className && review.className && review.className !== className) return false;
           return true;
-        })
-      )[0] || null;
+      });
+      if (!matchingReviews.length) {
+        return mergeReviewGroup([...seededScoreReviewsWithGuidance, ...store.reviews].filter((review) => review.student === studentName && reviewMonthKey(review) === targetMonth));
+      }
+      return mergeReviewGroup(matchingReviews);
     }
 
     function preferredStudentSelection(students = []) {
@@ -5950,7 +6087,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function reviewsForProgram(program) {
-      return uniqueMonthlyReviews(store.reviews.filter((review) => review.program === program));
+      return allMonthlyReviews().filter((review) => review.program === program);
     }
 
     function activeSectionId() {
@@ -5973,19 +6110,18 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function uniqueMonthlyReviews(reviews = []) {
-      const sorted = preferredReviewList(reviews);
-      const seen = new Set();
-      const deduped = [];
-      sorted.forEach((review) => {
+      const grouped = new Map();
+      reviews.filter(Boolean).forEach((review) => {
         const monthKey = reviewMonthKey(review);
         const studentName = String(review.student || "").trim();
         if (!studentName || !monthKey) return;
         const key = `${studentName}|${String(review.program || "").trim()}|${String(review.className || "").trim()}|${monthKey}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-        deduped.push(review);
+        grouped.set(key, [...(grouped.get(key) || []), review]);
       });
-      return deduped;
+      return [...grouped.values()]
+        .map((group) => mergeReviewGroup(group))
+        .filter(Boolean)
+        .sort((a, b) => String(reviewDateKey(b)).localeCompare(String(reviewDateKey(a))));
     }
 
     function monthLabel(monthKey = "") {
@@ -5998,6 +6134,12 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function calendarDayCount(monthKey = "") {
       const [year, month] = monthKey.split("-").map(Number);
       return new Date(year, month || 1, 0).getDate();
+    }
+
+    function monthEndDateKey(monthKey = "") {
+      const raw = String(monthKey || "").trim();
+      if (!/^\d{4}-\d{2}$/.test(raw)) return raw;
+      return `${raw}-${String(calendarDayCount(raw)).padStart(2, "0")}`;
     }
 
     function calendarStartOffset(monthKey = "") {
@@ -6028,6 +6170,21 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return Array.from({ length: total }, (_, index) => shiftMonthKey(base, index - total + 1)).filter(Boolean);
     }
 
+    function monthRangeBetween(startMonth = "", endMonth = "") {
+      const start = monthToDate(startMonth);
+      const end = monthToDate(endMonth);
+      if (!start || !end) return [];
+      const first = start <= end ? start : end;
+      const last = start <= end ? end : start;
+      const months = [];
+      const cursor = new Date(first.getFullYear(), first.getMonth(), 1);
+      while (cursor <= last) {
+        months.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`);
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+      return months;
+    }
+
     function latestMonthKey(months = []) {
       const list = (Array.isArray(months) ? months : []).filter((month) => /^\d{4}-\d{2}$/.test(String(month || "")));
       return list.sort().reverse()[0] || "";
@@ -6035,7 +6192,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function classReviewMonths(program, className) {
       return [...new Set(
-        store.reviews
+        allMonthlyReviews()
           .filter((review) => review.program === program && review.className === className)
           .map((review) => review.month ? review.month.slice(0, 7) : String(review.sourceDate || "").slice(0, 7))
           .filter((month) => /^\d{4}-\d{2}$/.test(month))
@@ -6056,13 +6213,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return valid && months.includes(valid) ? valid : latestMonthKey(months) || new Date().toISOString().slice(0, 7);
     }
 
-    function classAverageSeries(program, className, anchorMonth, span) {
-      const reviews = uniqueMonthlyReviews(store.reviews.filter((review) => review.program === program && review.className === className));
-      const months = classReviewMonths(program, className);
-      if (!months.length) return [];
-      const selectedAnchor = selectedMonthOrLatest(anchorMonth, months);
-      const range = monthRangeKeys(selectedAnchor, span);
-      return range.map((month) => {
+    function classAverageSeriesForMonths(program, className, months = []) {
+      const reviews = allMonthlyReviews().filter((review) => review.program === program && review.className === className);
+      return months.map((month) => {
         const monthReviews = reviews.filter((review) => (review.month ? review.month.slice(0, 7) : String(review.sourceDate || "").slice(0, 7)) === month);
         const average = averageValues(monthReviews.map((review) => Number(reviewDerivedOverall(review))).filter((value) => Number.isFinite(value)));
         if (average === null) return null;
@@ -6073,6 +6226,13 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           displayLabel: initials(className || program || "EH")
         };
       }).filter(Boolean);
+    }
+
+    function classAverageSeries(program, className, anchorMonth, span) {
+      const months = classReviewMonths(program, className);
+      if (!months.length) return [];
+      const selectedAnchor = selectedMonthOrLatest(anchorMonth, months);
+      return classAverageSeriesForMonths(program, className, monthRangeKeys(selectedAnchor, span));
     }
 
     function closeCalendarGroup(idOrGroup, exceptId = "") {
@@ -6298,6 +6458,66 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         })),
         editHistory: []
       });
+    }
+
+    function semesterWindowForDate(dateString = "") {
+      const [yearText, monthText] = String(dateString || "").split("-");
+      const year = Number(yearText);
+      const month = Number(monthText);
+      if (!year || !month) return { startMonth: "", endMonth: "", semesterLabel: "Semester Overview" };
+      if (month >= 3 && month <= 8) {
+        return { startMonth: `${year}-03`, endMonth: `${year}-06`, semesterLabel: `Spring Semester ${year}` };
+      }
+      if (month >= 9) {
+        return { startMonth: `${year}-09`, endMonth: `${year + 1}-01`, semesterLabel: `Fall Semester ${year}-${year + 1}` };
+      }
+      return { startMonth: `${year - 1}-09`, endMonth: `${year}-01`, semesterLabel: `Fall Semester ${year - 1}-${year}` };
+    }
+
+    function ensureSemesterOverviewFromLessonNote(note) {
+      if (!note || !hasLessonContent(note)) return;
+      const semesterWindow = semesterWindowForDate(note.date);
+      const key = `${note.program}|${note.className}|${semesterWindow.startMonth}|${semesterWindow.endMonth}`;
+      const exists = store.semesterOverviews.some((overview) => `${overview.program}|${overview.className}|${overview.startMonth}|${overview.endMonth}` === key);
+      if (exists) return;
+      const id = `${note.program.toLowerCase()}-${note.className.toLowerCase().replace(/\s+/g, "-")}-${semesterWindow.startMonth || "semester"}-${semesterWindow.endMonth || "overview"}-auto`;
+      store.semesterOverviews = [
+        normalizeSemesterOverview({
+          ...defaultSemesterOverview(note.program, note.className),
+          id,
+          ...semesterWindow,
+          autoGenerated: true,
+          summary: "Auto-built from saved lesson notes. The table below shows each class date, topic, content, objective, and focus skill.",
+          summaryZh: "根据已保存的课堂备课自动生成。下方表格展示每次课的日期、主题、内容、目标和重点技能。",
+          editHistory: [semesterHistoryEntry("Auto-created from lesson notes", `Generated from ${note.date} lesson note.`)]
+        }),
+        ...store.semesterOverviews
+      ];
+    }
+
+    function ensureSemesterOverviewsFromLessons(program, className) {
+      store.lessonNotes
+        .filter((note) => note.program === program && note.className === className && hasLessonContent(note))
+        .forEach(ensureSemesterOverviewFromLessonNote);
+    }
+
+    function openLessonFromSemester(program, className, date) {
+      if (role === "student") {
+        activateSection("studentLessonNotes");
+        setTimeout(() => openCalendarDate(`student-lesson-note-${date}`), 0);
+        return;
+      }
+      if (role === "teacher") {
+        teacherProgram.teacherLessonNotes = program;
+        teacherClassFilter.teacherLessonNotes = className;
+        activateSection("teacherLessonNotes");
+        setTimeout(() => openCalendarDate(`teacher-lesson-note-${date}`), 0);
+        return;
+      }
+      adminLessonProgram = program;
+      adminLessonClass = className;
+      activateSection("adminLessonNotes");
+      setTimeout(() => openCalendarDate(`admin-lesson-note-${date}`), 0);
     }
 
     function setTeacherSemesterProgram(program) {
@@ -6535,7 +6755,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
                 <tbody>
                   ${rows.map((row) => `
                     <tr>
-                      <td><strong>${escapeHtml(row.date)}</strong></td>
+                      <td><button class="tag blue" type="button" onclick="openLessonFromSemester(${jsString(overview.program)}, ${jsString(overview.className)}, ${jsString(row.date)})">${escapeHtml(row.date)}</button></td>
                       <td>${escapeHtml(row.title)}</td>
                       <td>${escapeHtml(row.content)}</td>
                       <td>${escapeHtml(row.objective)}</td>
@@ -6566,7 +6786,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const summaryLine = options.summaryLine || `${overview.program} · ${overview.className}`;
       const action = options.action || "";
       return `
-        <details class="card"${options.open ? " open" : ""}>
+        <details class="card semester-overview-card"${options.open ? " open" : ""}>
           <summary>
             <span class="calendar-month-summary">
               <span>
@@ -6668,6 +6888,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderStudentSemesterOverview() {
+      ensureSemesterOverviewsFromLessons(currentUser.program, currentUser.className);
       const overviews = semesterOverviewsFor(currentUser.program, currentUser.className);
       $("#studentSemesterOverview").innerHTML = `
         ${pageHeader("Semester Overview", "学期课程总览", `${currentUser.program} · ${currentUser.className} · Parent-friendly overview of what this class learned across the semester.`)}
@@ -6682,9 +6903,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const classNames = classesFor(program);
       if (!classNames.includes(teacherClassFilter.teacherSemesterOverview)) teacherClassFilter.teacherSemesterOverview = classNames[0] || "";
       const className = teacherClassFilter.teacherSemesterOverview;
+      ensureSemesterOverviewsFromLessons(program, className);
       const overviews = semesterOverviewsFor(program, className);
       $("#teacherSemesterOverview").innerHTML = `
-        ${pageHeader("Semester Overview", "学期课程总览", "Build a parent-facing semester outline for the selected class. These overviews describe the general learning arc, not daily lesson notes.")}
+        ${pageHeader("Semester Overview", "学期课程总览", "Auto-built from saved lesson notes. Teachers can edit the generated table only when a correction is needed.")}
         <div class="card" style="margin-bottom:16px">
           <h3>Program and class</h3>
           <div class="toolbar" style="gap:10px; flex-wrap:wrap">
@@ -6695,15 +6917,15 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               ${classNames.map((item) => `<option value="${escapeHtml(item)}" ${item === className ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
             </select>
           </div>
-          <p class="muted">Choose the class first, then add or edit the semester outline parents and students will read.</p>
+          <p class="muted">Choose the class first. The semester overview is generated from the saved lesson-note calendar.</p>
         </div>
-        ${renderSemesterOverviewForm("teacher", program, className, teacherSemesterEditId)}
+        ${teacherSemesterEditId ? renderSemesterOverviewForm("teacher", program, className, teacherSemesterEditId) : ""}
         <div class="semester-overview-stack" style="margin-top:16px">
           ${overviews.map((overview, index) => renderSemesterOverviewCard(overview, {
             open: index === 0,
             showHistory: true,
             action: `<button class="ghost-btn" type="button" onclick="editTeacherSemesterOverview('${escapeHtml(overview.id)}')">Edit overview</button>`
-          })).join("") || `<div class="empty">No semester overview saved for ${className} yet.</div>`}
+          })).join("") || `<div class="empty">No lesson notes have been saved for ${className} yet, so the semester overview cannot be generated.</div>`}
         </div>
       `;
     }
@@ -6713,9 +6935,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const classNames = classesFor(program);
       if (!classNames.includes(adminSemesterClass)) adminSemesterClass = classNames[0] || "";
       const className = adminSemesterClass;
+      ensureSemesterOverviewsFromLessons(program, className);
       const overviews = semesterOverviewsFor(program, className);
       $("#adminSemesterOverview").innerHTML = `
-        ${pageHeader("Semester Overview", "学期课程总览", "Admins can review or edit the same parent-facing semester overviews, check audit notes, and publish class-level learning summaries by term.")}
+        ${pageHeader("Semester Overview", "学期课程总览", "Admins review the same auto-generated semester overview that teachers and students see.")}
         <div class="card" style="margin-bottom:16px">
           <h3>Program and class</h3>
           <div class="toolbar" style="gap:10px; flex-wrap:wrap">
@@ -6726,15 +6949,13 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               ${classNames.map((item) => `<option value="${escapeHtml(item)}" ${item === className ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
             </select>
           </div>
-          <p class="muted">Use the same semester view as teachers, but with admin oversight and edit tracking.</p>
+          <p class="muted">This view is generated from lesson notes. Admin can audit it here without creating a second version.</p>
         </div>
-        ${renderSemesterOverviewForm("admin", program, className, adminSemesterEditId)}
         <div class="semester-overview-stack" style="margin-top:16px">
           ${overviews.map((overview, index) => renderSemesterOverviewCard(overview, {
             open: index === 0,
-            showHistory: true,
-            action: `<button class="ghost-btn" type="button" onclick="editAdminSemesterOverview('${escapeHtml(overview.id)}')">Edit overview</button>`
-          })).join("") || `<div class="empty">No semester overview saved for ${className} yet.</div>`}
+            showHistory: true
+          })).join("") || `<div class="empty">No lesson notes have been saved for ${className} yet, so the semester overview cannot be generated.</div>`}
         </div>
       `;
     }
@@ -6745,7 +6966,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const reviewed = submissions.filter((item) => item.score !== "").length;
       const inbox = messagesForCurrentStudent();
       const studentId = ensureCurrentStudentId();
-      const ownReviews = store.reviews.filter((item) => item.student === currentUser.name);
+      const ownReviews = monthlyReviewsForStudent(currentUser.name, currentUser.program, currentUser.className);
       $("#studentDashboard").innerHTML = `
         ${pageHeader("Student Center", `${currentUser.program} 学习中心`, `${currentUser.className} · Student ID ${studentId} · ${sectionsFor(currentUser.program, currentUser.className).length} exam sections available`, `<div class="toolbar"><button class="primary-btn" onclick="activateSection('studentAssignments')">Open assignments</button><button class="ghost-btn" onclick="activateSection('studentResults')">Results</button></div>`)}
         <div class="metric-grid">
@@ -8060,7 +8281,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderStudentReviews() {
-      const reviews = uniqueMonthlyReviews(store.reviews.filter((item) => item.student === currentUser.name));
+      const reviews = monthlyReviewsForStudent(currentUser.name, currentUser.program, currentUser.className);
       $("#studentReviews").innerHTML = `
         ${pageHeader("Monthly Review", "月度学习反馈", "Open a month or date to read strengths, improvement, weaknesses, and next steps.")}
         ${reviews.length ? renderPerformanceGraph(reviews) : ""}
@@ -8121,7 +8342,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function monthlyScoreMonths(studentName = currentUser ? currentUser.name : "") {
       const months = new Set();
-      store.reviews.filter((review) => review.student === studentName).forEach((review) => {
+      [...seededScoreReviewsWithGuidance, ...store.reviews].filter((review) => review.student === studentName).forEach((review) => {
         if (review.month) months.add(review.month);
         else if (review.sourceDate) months.add(String(review.sourceDate).slice(0, 7));
       });
@@ -8141,15 +8362,17 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function renderScoreCardRow(label, score, remark = "") {
-      const grade = gradeForPercent(score);
       const number = Number(score);
-      const scoreText = Number.isFinite(number) ? Math.round(number * 10) / 10 : "-";
+      const isNumeric = Number.isFinite(number);
+      const grade = isNumeric ? gradeForPercent(score) : { grade: "-", remark: remark || "Not recorded" };
+      const scoreText = isNumeric ? Math.round(number * 10) / 10 : escapeHtml(String(score || "-"));
+      const percentageText = isNumeric ? formatPercentScore(score) : "-";
       return `
         <tr>
           <td>${escapeHtml(label)}</td>
           <td>100</td>
           <td>${scoreText}</td>
-          <td>${formatPercentScore(score)}</td>
+          <td>${percentageText}</td>
           <td>${escapeHtml(grade.grade)}</td>
           <td>${escapeHtml(remark || grade.remark)}</td>
         </tr>
@@ -8185,6 +8408,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       }
       const reviewHomework = review ? reviewScoreValue(review, "homework") : null;
       const reviewExercises = review ? reviewScoreValue(review, "exercises") : null;
+      if (review && !examRows.length && (reviewHomework !== null || reviewExercises !== null)) {
+        examRows.push({ label: "Monthly Test", score: "Absent / not recorded", remark: "No exam score was recorded for this month", includeInTotal: false });
+      }
       const monthSubmissions = store.submissions.filter((submission) => submission.student === studentName && monthFromSubmission(submission) === month);
       const homeworkScores = reviewHomework !== null && reviewHomework !== undefined
         ? [reviewHomework]
@@ -8241,7 +8467,8 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const rows = scoreData.rows;
       const examRows = scoreData.examRows;
       const workRows = scoreData.workRows;
-      const overall = averageValues(rows.map((row) => row.score));
+      const scoredRows = rows.filter((row) => row.includeInTotal !== false && Number.isFinite(Number(row.score)));
+      const overall = averageValues(scoredRows.map((row) => row.score));
       const grade = gradeForPercent(overall);
       return `
         <div class="toolbar" style="justify-content:flex-end;margin-bottom:12px">
@@ -8276,7 +8503,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             </div>
             <div class="score-card-bottom">
               <div class="score-card-total">
-                <div><small>Total Score</small><strong>${overall === null ? "-" : `${Math.round(overall * rows.length * 10) / 10}/${rows.length * 100}`}</strong></div>
+                <div><small>Total Score</small><strong>${overall === null ? "-" : `${Math.round(overall * scoredRows.length * 10) / 10}/${scoredRows.length * 100}`}</strong></div>
                 <div><small>Overall Grade</small><strong>${escapeHtml(grade.grade)}</strong></div>
                 <div><small>Average</small><strong>${formatPercentScore(overall)}</strong></div>
               </div>
@@ -8300,7 +8527,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function renderStudentResults() {
       const submissions = studentSubmissions().sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)));
-      const historicalScores = uniqueMonthlyReviews(store.reviews.filter((item) => item.student === currentUser.name && item.source === "Old score import"));
+      const historicalScores = monthlyReviewsForStudent(currentUser.name, currentUser.program, currentUser.className).filter((item) => item.source === "Old score import");
       $("#studentResults").innerHTML = `
         ${pageHeader("Results Portal", "成绩中心", "Check scores by date. Red dates have available score records or submitted work.")}
         ${renderMonthlyScoreCard(currentUser.name)}
@@ -8411,7 +8638,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const assignments = store.assignments;
       const submissions = store.submissions;
       $("#teacherDashboard").innerHTML = `
-        ${pageHeader("Teacher Console", "教师管理中心", "Create work, upload media, review submissions, write lesson notes, monthly reviews, and manage rankings.", `<div class="toolbar"><button class="primary-btn" onclick="activateSection('teacherRecords')">Student records</button><button class="ghost-btn" onclick="activateSection('teacherAssignments')">Create assignment</button><button class="ghost-btn" onclick="activateSection('teacherLessonNotes')">Lesson notes</button></div>`)}
+        ${pageHeader("Teacher Console", "教师管理中心", "Create work, upload media, review submissions, write lesson notes, monthly reviews, and manage rankings.", `<div class="toolbar"><button class="primary-btn" onclick="activateSection('teacherRecords')">Student records</button><button class="ghost-btn" onclick="activateSection('teacherReviews')">Record scores</button><button class="ghost-btn" onclick="activateSection('teacherAssignments')">Create assignment</button><button class="ghost-btn" onclick="activateSection('teacherLessonNotes')">Lesson notes</button></div>`)}
         <div class="metric-grid">
           ${dashboardMetric("Programs", 4, "programDetails", "Open program outlines and exam structures")}
           ${dashboardMetric("Assignments", assignments.length, "teacherAssignments", "Open create and edit work")}
@@ -8442,9 +8669,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         ${renderProgramPicker("teacherAssignments")}
         ${renderCategoryTabs("teacherAssignments")}
         <div class="split">
-          <form class="card" onsubmit="saveAssignment(event)">
-            <h3>${editing ? "Edit assignment" : "Assignment details"}</h3>
-            <p class="muted">Step 1: choose the assignment type. Step 2: fill only the essentials. Step 3: open advanced settings when you need uploads, answer keys, or timed blocks.</p>
+          <details class="card"${editing ? " open" : ""}>
+            <summary><h3 style="display:inline">${editing ? "Edit assignment" : "Fill in assignment details"}</h3></summary>
+          <form onsubmit="saveAssignment(event)" style="margin-top:12px">
+            <p class="muted">Select the work type above, then choose the class, date, section, and any files or answer keys needed. Students see the saved work in their own work platform, and scores are recorded separately in Record Scores.</p>
             <div class="field"><label>Task title</label><input id="assignmentTitle" required value="${editing ? editing.title : "New class homework"}"></div>
             <div class="field"><label>Program</label><select id="assignmentProgram" onchange="syncAssignmentOptions(); syncAssignmentTemplate();">${Object.keys(programs).map((program) => `<option ${program === formProgram ? "selected" : ""}>${program}</option>`).join("")}</select></div>
             <div class="field"><label>Class</label><select id="assignmentClass" onchange="syncAssignmentSections(); syncAssignmentTemplate();"></select></div>
@@ -8476,7 +8704,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               ${editing ? `<button class="ghost-btn" type="button" onclick="cancelAssignmentEdit()">Cancel edit</button>` : ""}
             </div>
           </form>
-          <div class="table-card">
+          </details>
+          <details class="card">
+            <summary><h3 style="display:inline">Saved ${escapeHtml(categoryLabels[teacherCategory.teacherAssignments] || teacherCategory.teacherAssignments)} · ${assignments.length}</h3></summary>
+          <div class="table-card" style="margin-top:12px">
             <table>
               <thead><tr><th>Work</th><th>Class</th><th>Dates</th><th></th></tr></thead>
               <tbody>
@@ -8495,6 +8726,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               </tbody>
             </table>
           </div>
+          </details>
         </div>
       `;
       syncAssignmentOptions(editing);
@@ -9175,6 +9407,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       };
       if (hasLessonContent(savedNote)) {
         upsertLessonNote(savedNote);
+        ensureSemesterOverviewFromLessonNote(savedNote);
       } else {
         store.lessonNotes = store.lessonNotes.filter((note) => !(note.date === savedNote.date && note.program === savedNote.program && note.className === savedNote.className));
         activeLessonDate = "";
@@ -9380,11 +9613,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const matchCurrentPlacement = (item) => item.student === student.name && item.program === student.program && item.className === student.className;
       const matchStudentHistory = (item) => item.student === student.name;
       const submissions = store.submissions.filter(matchCurrentPlacement);
-      const reviews = uniqueMonthlyReviews(store.reviews.filter(matchStudentHistory));
+      const reviews = monthlyReviewsForStudent(student.name, student.program, student.className);
       const assignedWork = store.assignments.filter((assignment) => assignment.program === student.program && assignment.className === student.className);
       const notes = store.adminNotes.filter((note) => note.student === student.name);
       const latestReview = reviews[0] || null;
-      const latestScoredReview = preferredReviewList(reviews).find(reviewHasScoreData) || null;
+      const latestScoredReview = reviews.find(reviewHasScoreData) || null;
       return { submissions, reviews, assignedWork, notes, latestReview, latestScoredReview };
     }
 
@@ -9406,11 +9639,6 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const overall = reviewDerivedOverall(latestScoredReview) !== null ? reviewDerivedOverall(latestScoredReview) : student.score;
       const sourceLabel = latestScoredReview ? (latestScoredReview.source || latestScoredReview.month || "Monthly review") : "No scored record yet";
       const snapshotLabel = latestReview ? (latestReview.source || latestReview.month || "Monthly review") : "No review yet";
-      const compactText = (value, max = 110) => {
-        const text = String(value || "").replace(/\s+/g, " ").trim();
-        if (!text) return "No detail yet.";
-        return text.length > max ? `${text.slice(0, max - 1)}…` : text;
-      };
       const pendingWork = assignedWork.filter((assignment) => {
         const submission = submissions.find((item) => item.assignmentId === assignment.id);
         return isCompletionCategory(assignment.category) ? normalizedWorkStatus(submission) === "pending" : !submission;
@@ -9442,25 +9670,20 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             <div class="score-pill"><small>Class Exercises</small><strong>${reviewScoreValue(latestScoredReview, "exercises") ?? "-"}</strong></div>
           </div>
           <p class="muted">Latest scored record: ${escapeHtml(sourceLabel)}${latestScoredReview && latestScoredReview.sourceDate ? ` · ${escapeHtml(latestScoredReview.sourceDate)}` : ""}</p>
-          <div class="student-snapshot">
-            <article class="message-item">
-              <small>Monthly detail snapshot</small>
-              <strong>${escapeHtml(snapshotLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</strong>
-              <p>${escapeHtml(latestReview ? compactText(latestReview.strong) : "Open a monthly review to see the student's current details.")}</p>
-            </article>
-            <article class="message-item">
-              <small>Currently improving</small>
-              <p>${escapeHtml(latestReview ? compactText(latestReview.improving) : "No review yet.")}</p>
-            </article>
-            <article class="message-item">
-              <small>Weaknesses</small>
-              <p>${escapeHtml(latestReview ? compactText(latestReview.weakness) : "No review yet.")}</p>
-            </article>
-            <article class="message-item">
-              <small>How we will improve</small>
-              <p>${escapeHtml(latestReview ? compactText(latestReview.how, 145) : "No review yet.")}</p>
-            </article>
-          </div>
+          <article class="message-item" style="margin:8px 0 12px">
+            <small>Monthly detail snapshot</small>
+            <strong>${escapeHtml(snapshotLabel)}${latestReview && latestReview.sourceDate ? ` · ${escapeHtml(latestReview.sourceDate)}` : ""}</strong>
+            <p style="margin:8px 0 0; color:var(--ink)">This record now reads from the same full review source used in the teacher and student monthly review pages.</p>
+          </article>
+          ${latestReview ? renderReviewNarrativeBlocks(latestReview, { openFirst: true }) : `
+            <div class="review-toggle-grid">
+              <details open><summary>Strong areas</summary><p>No review yet.</p></details>
+              <details><summary>Currently improving</summary><p>No review yet.</p></details>
+              <details><summary>Weaknesses</summary><p>No review yet.</p></details>
+              <details><summary>Areas to improve</summary><p>No review yet.</p></details>
+              <details><summary>How we will improve</summary><p>No review yet.</p></details>
+            </div>
+          `}
           <div class="review-toggle-grid">
             <details ${options.openTests ? "open" : ""}>
               <summary>Scores and monthly reviews · ${reviews.length}</summary>
@@ -9565,14 +9788,18 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const selectedReview = selectedStudent
         ? preferredReviewForStudentMonth(selectedStudent.name, selectedMonth, selectedStudent.program, selectedStudent.className)
         : null;
+      const scoreModeValue = selectedReview && selectedReview.scoreMode ? selectedReview.scoreMode : "Monthly Test";
       $("#teacherReviews").innerHTML = `
-        ${pageHeader("Monthly Reviews", "月度学习报告", "Write one monthly progress review for each student.")}
+        ${pageHeader("Record Scores", "成绩录入", "Enter homework, class exercise, monthly test, mock test, and review scores once. The same record feeds report cards, graphs, teacher records, admin records, and student portals.")}
         ${renderProgramPicker("teacherReviews")}
         <div class="split">
           <details class="card">
-            <summary><h3 style="display:inline">Score entry & sync</h3></summary>
+            <summary><h3 style="display:inline">Record scores / Fill in student review</h3></summary>
             <form onsubmit="saveMonthlyReview(event)" style="margin-top:12px">
-              <p class="muted" style="margin-top:0">Update the monthly score once here and the same record will feed student, teacher, and admin views.</p>
+              <p class="muted" style="margin-top:0">Choose the score mode, class, student, and month. Homework and class exercise scores appear in Section B; monthly tests and mock tests appear in Section A.</p>
+              <div class="field"><label>Score mode</label><select id="reviewScoreMode">
+                ${["Monthly Test", "Mock Exam", "Homework", "Class Exercise"].map((item) => `<option value="${escapeHtml(item)}" ${item === scoreModeValue ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
+              </select></div>
               <div class="field"><label>Student</label><select id="reviewStudent" onchange="setTeacherReviewFocus(this.value, document.getElementById('reviewMonth').value)">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}" ${studentFocusKey(student) === selectedStudentKey ? "selected" : ""}>${student.name} · ${student.className}</option>`).join("")}</select></div>
               <div class="field"><label>Month</label><input id="reviewMonth" type="month" value="${escapeHtml(selectedMonth)}" onchange="setTeacherReviewFocus(document.getElementById('reviewStudent').value, this.value)"></div>
               <div class="review-form">
@@ -9592,7 +9819,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
                 <div class="field"><label>Areas to improve</label><textarea id="reviewAreas">${escapeHtml(selectedReview ? (selectedReview.areas || "") : "")}</textarea></div>
                 <div class="field"><label>How to improve</label><textarea id="reviewHow">${escapeHtml(selectedReview ? (selectedReview.how || "") : "")}</textarea></div>
               </div>
-              <button class="primary-btn" type="submit">Publish review</button>
+              <button class="primary-btn" type="submit">Save score / review</button>
             </form>
           </details>
           <div>
@@ -9616,14 +9843,17 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const existing = store.reviews.find((item) => sameReviewRecord(item));
       const reviews = store.reviews.filter((item) => !sameReviewRecord(item));
       const parseScoreInput = (selector) => {
+        if (!$(selector)) return null;
         const raw = $(selector).value;
         if (raw === undefined || raw === null || String(raw).trim() === "") return null;
         const value = Number(raw);
         return Number.isFinite(value) ? value : null;
       };
+      const scoreMode = $("#reviewScoreMode") ? $("#reviewScoreMode").value : "Monthly Test";
       const explicitOverall = parseScoreInput("#reviewOverall");
+      const preservedScores = normalizeReviewScores(existing && existing.scores ? existing.scores : {});
       const newScores = {
-        overall: explicitOverall !== null ? explicitOverall : null,
+        overall: explicitOverall !== null ? explicitOverall : preservedScores.overall ?? null,
         listening: parseScoreInput("#reviewListening"),
         reading: parseScoreInput("#reviewReading"),
         speaking: parseScoreInput("#reviewSpeaking"),
@@ -9632,32 +9862,40 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         homework: parseScoreInput("#reviewHomework"),
         exercises: parseScoreInput("#reviewExercises")
       };
+      Object.keys(newScores).forEach((scoreKey) => {
+        if (newScores[scoreKey] === null && preservedScores[scoreKey] !== undefined) newScores[scoreKey] = preservedScores[scoreKey];
+      });
       if (newScores.overall === null) {
         const derivedOverall = reviewDerivedOverall({ scores: newScores });
-        newScores.overall = derivedOverall !== null ? derivedOverall : null;
+        newScores.overall = derivedOverall !== null ? derivedOverall : (preservedScores.overall ?? null);
       }
+      const previousScores = existing ? normalizeReviewScores(existing.scores || {}) : {};
       reviews.unshift({
         student,
         program,
         className,
         month,
-        scores: newScores,
-        strong: $("#reviewStrong").value,
-        improving: $("#reviewImproving").value,
-        weakness: $("#reviewWeakness").value,
-        areas: $("#reviewAreas").value,
-        how: $("#reviewHow").value,
+        scores: normalizeReviewScores(newScores),
+        strong: $("#reviewStrong").value.trim() || (existing && existing.strong) || "",
+        improving: $("#reviewImproving").value.trim() || (existing && existing.improving) || "",
+        weakness: $("#reviewWeakness").value.trim() || (existing && existing.weakness) || "",
+        areas: $("#reviewAreas").value.trim() || (existing && existing.areas) || "",
+        how: $("#reviewHow").value.trim() || (existing && existing.how) || "",
         publishedBy: currentUser.name,
         publishedRole: role,
         publishedAt: new Date().toISOString().slice(0, 10),
+        scoreMode,
+        source: (existing && existing.source) || `${scoreMode} score entry`,
+        sourceDate: (existing && existing.sourceDate) || monthEndDateKey(month),
+        excluded: existing && existing.excluded ? existing.excluded : "",
         editHistory: [
           {
             action: existing ? "Monthly review updated" : "Monthly review published",
             by: currentUser ? currentUser.name : "System",
             role,
             date: new Date().toISOString().slice(0, 10),
-            previousScores: existing ? existing.scores || {} : {},
-            newScores
+            previousScores,
+            newScores: normalizeReviewScores(newScores)
           },
           ...((existing && existing.editHistory) || [])
         ]
@@ -9690,6 +9928,19 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       `;
     }
 
+    function renderReviewNarrativeBlocks(review, options = {}) {
+      const openFirst = Boolean(options.openFirst);
+      return `
+        <div class="review-toggle-grid">
+          <details ${openFirst ? "open" : ""}><summary>Strong areas</summary><p>${escapeHtml(review.strong || "No comment added yet.")}</p></details>
+          <details><summary>Currently improving</summary><p>${escapeHtml(review.improving || "No comment added yet.")}</p></details>
+          <details><summary>Weaknesses</summary><p>${escapeHtml(review.weakness || "No comment added yet.")}</p></details>
+          <details><summary>Areas to improve</summary><p>${escapeHtml(review.areas || "No comment added yet.")}</p></details>
+          <details><summary>How we will improve</summary><p>${escapeHtml(review.how || "No comment added yet.")}</p></details>
+        </div>
+      `;
+    }
+
     function renderReviewCard(review) {
       const scores = review.scores || {};
       const isImportedPercent = review.source === "Old score import";
@@ -9717,13 +9968,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               <div class="score-pill"><small>Homework</small><strong>${formatScore(reviewScoreValue(review, "homework"))}</strong></div>
               <div class="score-pill"><small>Class Exercises</small><strong>${formatScore(reviewScoreValue(review, "exercises"))}</strong></div>
             </div>
-            <div class="review-toggle-grid">
-              <details><summary>Strong areas</summary><p>${escapeHtml(review.strong || "No comment added yet.")}</p></details>
-              <details><summary>Currently improving</summary><p>${escapeHtml(review.improving || "No comment added yet.")}</p></details>
-              <details><summary>Weaknesses</summary><p>${escapeHtml(review.weakness || "No comment added yet.")}</p></details>
-              <details><summary>Areas to improve</summary><p>${escapeHtml(review.areas || "No comment added yet.")}</p></details>
-              <details><summary>How we will improve</summary><p>${escapeHtml(review.how || "No comment added yet.")}</p></details>
-            </div>
+            ${renderReviewNarrativeBlocks(review)}
             ${renderReviewEditHistory(review)}
           </div>
         </article>
@@ -9770,12 +10015,15 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
                     ${studentNames.map((studentName) => {
                       const studentReviews = uniqueMonthlyReviews(byStudent[studentName]).slice(0, 1);
                       const overall = reviewDerivedOverall(studentReviews[0]);
+                      const overallLabel = overall !== null && overall !== undefined && overall !== ""
+                        ? `${overall} overall`
+                        : `${studentReviews.length} review${studentReviews.length === 1 ? "" : "s"}`;
                       return `
                         <details id="${idPrefix}-${month}-${studentName.replace(/\W+/g, "-")}" data-calendar-group="${escapeHtml(idPrefix)}-students" ontoggle="handleCalendarDetailsToggle(this)">
                           <summary>
                             <span class="calendar-month-summary">
                               <span>${escapeHtml(studentName)}</span>
-                              <span class="tag blue">${overall !== undefined ? `${overall} overall` : `${studentReviews.length} review${studentReviews.length === 1 ? "" : "s"}`}</span>
+                              <span class="tag blue">${escapeHtml(overallLabel)}</span>
                             </span>
                           </summary>
                           <div class="grid one-col">
@@ -9825,9 +10073,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function renderTeacherRankings() {
       const program = teacherProgram.teacherRankings;
-      const selectedClass = $("#rankingClass") ? $("#rankingClass").value : "";
       const programClasses = programs[program].classes;
-      const currentClass = rankingClassForProgram(program, selectedClass);
+      const currentClass = rankingClassForProgram(program, teacherClassFilter.teacherRankings);
+      teacherClassFilter.teacherRankings = currentClass;
       const metric = teacherCategory.teacherRankings || "score";
       $("#teacherRankings").innerHTML = `
         <div class="topline">
@@ -9839,7 +10087,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             </div>
           </div>
           <div class="toolbar">
-            <select id="rankingClass" onchange="renderTeacherRankings()">${programClasses.map((className) => `<option ${currentClass === className ? "selected" : ""}>${className}</option>`).join("")}</select>
+            <select id="rankingClass" onchange="setTeacherRankingClass(this.value)">${programClasses.map((className) => `<option ${currentClass === className ? "selected" : ""}>${className}</option>`).join("")}</select>
           </div>
         </div>
         ${renderProgramPicker("teacherRankings")}
@@ -9850,10 +10098,8 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function rankingClassForProgram(program, selectedClass = "") {
       const programClasses = programs[program].classes;
-      const populatedClass = programClasses.find((className) => store.students.some((student) => student.className === className));
-      if (!selectedClass || !programClasses.includes(selectedClass)) return populatedClass || programClasses[0];
-      const selectedHasStudents = store.students.some((student) => student.className === selectedClass);
-      return selectedHasStudents || !populatedClass ? selectedClass : populatedClass;
+      if (selectedClass && programClasses.includes(selectedClass)) return selectedClass;
+      return programClasses[0] || "";
     }
 
     function renderAdminDashboard() {
@@ -10253,14 +10499,16 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       if (!classNames.includes(adminScoreClass)) adminScoreClass = classNames[0] || "";
       const availableMonths = classReviewMonths(program, adminScoreClass);
       const monthChoices = availableMonths.length ? [...availableMonths].sort().reverse() : [new Date().toISOString().slice(0, 7)];
-      const selectedMonth = selectedMonthOrLatest(adminScoreMonth, availableMonths.length ? availableMonths : monthChoices);
-      const selectedSpan = ["1", "3", "5", "12", "36"].includes(String(adminScoreSpan)) ? String(adminScoreSpan) : "1";
-      const rangeMonths = monthRangeKeys(selectedMonth, selectedSpan);
-      const classReviews = uniqueMonthlyReviews(store.reviews.filter((review) => review.program === program && review.className === adminScoreClass));
+      const selectedEndMonth = selectedMonthOrLatest(adminScoreEndMonth || adminScoreMonth, availableMonths.length ? availableMonths : monthChoices);
+      const fallbackStartMonth = shiftMonthKey(selectedEndMonth, -2) || selectedEndMonth;
+      const selectedStartMonth = /^\d{4}-\d{2}$/.test(String(adminScoreStartMonth || "")) ? adminScoreStartMonth : fallbackStartMonth;
+      const rangeMonths = monthRangeBetween(selectedStartMonth, selectedEndMonth);
+      const classReviews = allMonthlyReviews().filter((review) => review.program === program && review.className === adminScoreClass);
       const filteredReviews = classReviews.filter((review) => rangeMonths.includes(reviewDateKey(review).slice(0, 7)));
       const filteredSubmissions = store.submissions.filter((submission) => submission.program === program && submission.className === adminScoreClass && rangeMonths.includes(monthFromSubmission(submission)));
-      const classSeries = classAverageSeries(program, adminScoreClass, selectedMonth, selectedSpan);
+      const classSeries = classAverageSeriesForMonths(program, adminScoreClass, rangeMonths);
       const classAverage = classSeries.length ? averageValues(classSeries.map((point) => point.scores.overall)) : null;
+      const monthOptions = [...new Set([...monthChoices, ...rangeMonths])].filter(Boolean).sort().reverse();
       $("#adminScores").innerHTML = `
         ${pageHeader("Scores & Tests", "成绩与测试", "Choose a class first, then narrow the calendar to one month or a short range. The graph shows that class only.")}
         <div class="card" style="margin-bottom:16px">
@@ -10272,19 +10520,19 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             <select onchange="setAdminScoreClass(this.value)">
               ${classNames.map((className) => `<option value="${escapeHtml(className)}" ${className === adminScoreClass ? "selected" : ""}>${escapeHtml(className)}</option>`).join("")}
             </select>
-            <select onchange="setAdminScoreMonth(this.value)">
-              ${monthChoices.map((month) => `<option value="${month}" ${month === selectedMonth ? "selected" : ""}>${monthLabel(month)}</option>`).join("")}
-            </select>
-            <select onchange="setAdminScoreSpan(this.value)">
-              ${["1", "3", "5", "12", "36"].map((span) => `<option value="${span}" ${span === selectedSpan ? "selected" : ""}>${span} month${span === "1" ? "" : "s"}</option>`).join("")}
-            </select>
+            <label class="field inline-field"><span>From</span><select onchange="setAdminScoreStartMonth(this.value)">
+              ${monthOptions.map((month) => `<option value="${month}" ${month === selectedStartMonth ? "selected" : ""}>${monthLabel(month)}</option>`).join("")}
+            </select></label>
+            <label class="field inline-field"><span>To</span><select onchange="setAdminScoreEndMonth(this.value)">
+              ${monthOptions.map((month) => `<option value="${month}" ${month === selectedEndMonth ? "selected" : ""}>${monthLabel(month)}</option>`).join("")}
+            </select></label>
             <button class="ghost-btn" type="button" onclick="activateSection('adminRecords')">Open selected student record</button>
           </div>
           <p class="muted">The graph and calendars below only show ${escapeHtml(program)} · ${escapeHtml(adminScoreClass)} records inside the selected month window.</p>
           <div class="score-strip">
             <div class="score-pill"><small>Class average</small><strong>${classAverage === null ? "-" : `${classAverage}%`}</strong></div>
             <div class="score-pill"><small>Months shown</small><strong>${rangeMonths.length}</strong></div>
-            <div class="score-pill"><small>Reviews</small><strong>${classReviews.length}</strong></div>
+            <div class="score-pill"><small>Reviews</small><strong>${filteredReviews.length}</strong></div>
             <div class="score-pill"><small>Submissions</small><strong>${filteredSubmissions.length}</strong></div>
           </div>
         </div>
