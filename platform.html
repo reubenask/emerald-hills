@@ -3187,7 +3187,63 @@
       editable: false
     }));
 
-    const seededAssignments = [...starterAssignments, ...seededPrimaryStep2JuneExamAssignments, ...seededJuniorJuneExamAssignments];
+    const seededIbtJuneExamAssignments = [
+      {
+        id: "ibt-june-2026-speaking",
+        title: "iBT June Monthly Test — Speaking",
+        section: "Speaking",
+        durationMinutes: 16,
+        answerCount: 11,
+        markingMode: "teacher-marked",
+        externalExamUrl: "assets/exams/ibt-june-2026/speaking.html"
+      },
+      {
+        id: "ibt-june-2026-listening",
+        title: "iBT June Monthly Test — Listening",
+        section: "Listening",
+        durationMinutes: 29,
+        answerCount: 35,
+        markingMode: "html-auto",
+        externalExamUrl: "assets/exams/ibt-june-2026/listening.html"
+      },
+      {
+        id: "ibt-june-2026-reading",
+        title: "iBT June Monthly Test — Reading",
+        section: "Reading",
+        durationMinutes: 35,
+        answerCount: 40,
+        markingMode: "html-auto",
+        externalExamUrl: "assets/exams/ibt-june-2026/reading.html"
+      },
+      {
+        id: "ibt-june-2026-writing",
+        title: "iBT June Monthly Test — Writing",
+        section: "Writing",
+        durationMinutes: 20,
+        answerCount: 3,
+        markingMode: "teacher-marked",
+        externalExamUrl: "assets/exams/ibt-june-2026/writing.html"
+      }
+    ].map((assignment) => ({
+      ...assignment,
+      program: "iBT",
+      className: "iBT",
+      category: "Monthly Test",
+      posted: "2026-06-23",
+      due: "2026-06-30",
+      instructions: "Open this iBT June monthly exam section, enter your name, complete the test, and submit from inside the exam page when you are finished. Objective sections auto-score inside the HTML file; Speaking and Writing are reviewed by the teacher. The platform records completion under your account.",
+      media: null,
+      mediaUrl: "",
+      sourceMaterial: "",
+      sectionBlocks: "",
+      timingPlan: "",
+      questions: [],
+      answerKey: [],
+      seeded: true,
+      editable: false
+    }));
+
+    const seededAssignments = [...starterAssignments, ...seededPrimaryStep2JuneExamAssignments, ...seededJuniorJuneExamAssignments, ...seededIbtJuneExamAssignments];
 
     let role = "student";
     let authMode = "signin";
@@ -5196,7 +5252,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function formalExamPackKey(assignment) {
       if (!assignment || !isFormalTimedCategory(assignment.category)) return "";
-      const seededPack = String(assignment.id || "").match(/^(primary-step2-june-2026|junior-june-2026)-/);
+      const seededPack = String(assignment.id || "").match(/^(primary-step2-june-2026|junior-june-2026|ibt-june-2026)-/);
       if (seededPack) return seededPack[1];
       if (assignment.externalExamUrl) {
         return [
@@ -5213,7 +5269,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function formalExamPackAssignments(assignment) {
       const key = formalExamPackKey(assignment);
       if (!key) return assignment ? [assignment] : [];
-      const seededPack = /^(primary-step2-june-2026|junior-june-2026)$/.test(key);
+      const seededPack = /^(primary-step2-june-2026|junior-june-2026|ibt-june-2026)$/.test(key);
       return store.assignments
         .map((item, index) => ({ item, index }))
         .filter(({ item }) => formalExamPackKey(item) === key)

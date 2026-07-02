@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEFL iBT — Reading Section</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+:root{--navy:#1a2744;--gold:#b8952a;--bg:#f5f4f0;--white:#ffffff;--border:#ddd8cc;--text:#1a1a1a;--muted:#6b6b6b;--shadow:0 2px 12px rgba(0,0,0,.08);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;}
+.top-banner{background:var(--navy);color:#fff;text-align:center;padding:10px 20px;font-size:.95rem;font-weight:500;letter-spacing:.5px;border-bottom:3px solid var(--gold);}
+.logo-bar{background:#fff;text-align:center;padding:24px 20px 18px;border-bottom:1px solid var(--border);}
+.ets-badge{display:inline-flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:50%;border:2px solid var(--navy);font-family:'EB Garamond',serif;font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:8px;}
+.logo-bar h1{font-family:'EB Garamond',serif;font-size:1.7rem;color:var(--navy);font-weight:600;}
+.logo-bar h2{font-size:1rem;font-weight:500;color:var(--muted);margin-top:4px;}
+.student-form{background:#fff;max-width:820px;margin:20px auto;border-radius:8px;padding:24px 28px;box-shadow:var(--shadow);}
+.form-row-inline{display:flex;gap:16px;}
+.form-row{margin-bottom:0;flex:1;}
+.form-row label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px;}
+.form-row input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:.9rem;background:#fafaf8;outline:none;}
+.form-row input:focus{border-color:var(--navy);}
+.action-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.btn{padding:8px 16px;border-radius:6px;border:none;font-family:inherit;font-size:.82rem;font-weight:600;cursor:pointer;}
+.btn-primary{background:var(--navy);color:white;}
+.btn-gold{background:var(--gold);color:white;}
+.btn-outline{background:white;color:var(--navy);border:1.5px solid var(--navy);}
+.btn-danger{background:white;color:#c1121f;border:1.5px solid #c1121f;}
+.autosave-bar{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:.78rem;color:var(--muted);}
+.autosave-badge{background:#e8f0e8;color:#2d6a4f;font-size:.7rem;font-weight:600;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.8px;}
+
+#timerWidget{position:fixed;top:16px;right:20px;background:var(--navy);color:white;border-radius:12px;padding:10px 18px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.35);z-index:9999;min-width:110px;display:none;border:2px solid rgba(255,255,255,.15);}
+#timerWidget .t-label{font-size:.6rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.55);margin-bottom:2px;}
+#timerDisplay{font-size:1.55rem;font-weight:700;font-family:'EB Garamond',serif;letter-spacing:1px;}
+#timerWidget.warn{background:#b8952a;}
+#timerWidget.crit{background:#c1121f;animation:tpulse .9s infinite;}
+@keyframes tpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+.pre-test-card{max-width:820px;margin:0 auto 24px;background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);}
+.ptc-body{padding:26px 30px 22px;border-left:4px solid var(--navy);}
+.ptc-body h3{font-family:'EB Garamond',serif;font-size:1.1rem;color:var(--navy);margin-bottom:12px;font-weight:600;}
+.ptc-body ul{margin:0 0 0 18px;color:var(--text);font-size:.88rem;line-height:1.85;}
+.ptc-footer{padding:18px 30px;background:var(--bg);border-top:1px solid var(--border);display:flex;justify-content:center;}
+.btn-start{padding:12px 48px;background:var(--navy);color:white;border:none;border-radius:8px;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,39,68,.25);}
+.btn-start:hover{background:#0f1a35;}
+
+.task-panel{display:none;}
+.task-panel.active{display:block;}
+.panel-topbar{max-width:820px;margin:0 auto 0;background:#e6eaf0;border-radius:0 0 8px 8px;padding:6px 22px;display:flex;align-items:center;justify-content:space-between;}
+.panel-prog{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--navy);}
+.divider{height:2px;background:linear-gradient(90deg,var(--gold),transparent);max-width:820px;margin:12px auto 0;}
+
+.section-block{max-width:820px;margin:0 auto 24px;}
+.section-header{background:var(--navy);color:white;padding:12px 22px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;}
+.sec-title{font-family:'EB Garamond',serif;font-size:1.1rem;font-weight:600;}
+.sec-badge{font-size:.68rem;font-weight:600;background:var(--gold);color:white;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.8px;}
+.section-body{background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:22px 26px;box-shadow:var(--shadow);}
+
+.instruction-box{background:#f8f7f3;border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:4px;padding:12px 16px;font-size:.86rem;color:#444;margin-bottom:20px;line-height:1.6;}
+
+/* PASSAGE with blanks */
+.passage-box{background:#fafaf8;border:1px solid var(--border);border-radius:6px;padding:18px 22px;margin-bottom:20px;font-size:.95rem;line-height:2.1;}
+.blank-input{border:none;border-bottom:2.5px solid var(--navy);background:transparent;font-family:inherit;font-size:.92rem;text-align:center;outline:none;padding:1px 2px;color:var(--navy);font-weight:700;vertical-align:baseline;cursor:text;transition:border-color .15s,background .15s;}
+.blank-input:focus{border-bottom-color:var(--gold);background:#fffbf0;}
+.blank-input.correct{border-bottom-color:#28a745 !important;background:#d4edda88;color:#155724;border-radius:3px 3px 0 0;}
+.blank-input.wrong{border-bottom-color:#dc3545 !important;background:#f8d7da88;color:#721c24;border-radius:3px 3px 0 0;}
+.module-badge{font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;}
+.module-badge.m1{background:var(--navy);color:#fff;}
+.module-badge.m2{background:var(--gold);color:#fff;}
+
+/* Email display */
+.email-box{border:2px solid #888;border-radius:2px;margin-bottom:22px;overflow:hidden;}
+.email-header-row{display:flex;border-bottom:1px solid #aaa;}
+.email-label{background:#e8e8e8;padding:7px 12px;font-weight:600;font-size:.85rem;border-right:1px solid #aaa;min-width:80px;}
+.email-value{padding:7px 12px;font-size:.85rem;flex:1;}
+.email-body{padding:14px 16px;font-size:.88rem;line-height:1.75;max-height:220px;overflow-y:auto;background:#fff;}
+
+/* MCQ */
+.mcq-item{margin-bottom:22px;}
+.q-stem{font-weight:600;font-size:.92rem;margin-bottom:10px;line-height:1.5;}
+.mcq-opts{display:flex;flex-direction:column;gap:7px;}
+.mcq-opt{display:flex;align-items:flex-start;gap:10px;padding:9px 14px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:.88rem;line-height:1.5;transition:border-color .15s,background .15s;}
+.mcq-opt:hover{border-color:var(--navy);background:#f0f3fa;}
+.mcq-opt input{margin-top:2px;flex-shrink:0;accent-color:var(--navy);}
+.mcq-opt.correct{background:#d4edda;border-color:#28a745;color:#155724;}
+.mcq-opt.wrong{background:#f8d7da;border-color:#dc3545;color:#721c24;}
+.mcq-opt.show-correct{background:#d4edda;border-color:#28a745;color:#155724;}
+
+/* Academic passage */
+.passage-academic{background:#fafaf8;border:1px solid var(--border);border-radius:6px;padding:18px 22px;margin-bottom:22px;font-size:.92rem;line-height:1.85;}
+.passage-academic p{margin-bottom:14px;}
+.passage-academic p:last-child{margin-bottom:0;}
+.passage-title{font-family:'EB Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:14px;}
+.vocab-target{text-decoration:underline;text-decoration-style:solid;font-weight:600;}
+
+/* Module transition */
+.mod-transition{max-width:820px;margin:0 auto 24px;background:#fff3cd;border:2px solid var(--gold);border-radius:10px;padding:28px 32px;text-align:center;box-shadow:var(--shadow);}
+.mod-transition h2{font-family:'EB Garamond',serif;font-size:1.4rem;color:var(--navy);margin-bottom:12px;}
+.mod-transition p{font-size:.9rem;color:#555;margin-bottom:6px;line-height:1.7;}
+.mod-transition .warning{font-weight:700;color:#c1121f;font-size:.95rem;margin:14px 0;}
+
+/* Panel nav */
+.panel-nav{max-width:820px;margin:0 auto 48px;display:flex;justify-content:space-between;align-items:center;padding:0 4px;gap:12px;}
+.btn-nav-next{padding:11px 28px;background:var(--navy);color:white;border:none;border-radius:8px;font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,39,68,.2);}
+.btn-nav-back{padding:11px 22px;background:white;color:var(--navy);border:1.5px solid var(--navy);border-radius:8px;font-family:inherit;font-size:.92rem;font-weight:600;cursor:pointer;}
+.btn-submit{padding:13px 44px;background:var(--gold);color:white;border:none;border-radius:8px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(184,149,42,.3);}
+.btn-nav-back:disabled,.btn-nav-next:disabled{background:#ccc;color:#888;border-color:#ccc;cursor:default;box-shadow:none;}
+
+/* Results */
+.results-card{max-width:820px;margin:0 auto 40px;background:#fff;border:2px solid var(--gold);border-radius:10px;padding:28px 32px;text-align:center;box-shadow:var(--shadow);}
+.results-card h2{font-family:'EB Garamond',serif;font-size:1.6rem;color:var(--navy);margin-bottom:8px;}
+.score-display{font-size:2.8rem;font-weight:700;color:var(--navy);font-family:'EB Garamond',serif;margin:12px 0;}
+.score-sub{font-size:.9rem;color:var(--muted);}
+.score-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0;text-align:left;}
+.score-row{background:#f8f7f3;border-radius:6px;padding:12px 16px;font-size:.88rem;}
+.score-row strong{display:block;color:var(--navy);margin-bottom:2px;}
+
+/* Errata notice */
+.errata{background:#fff3f3;border:1px solid #f5c2c7;border-left:4px solid #dc3545;border-radius:4px;padding:10px 14px;font-size:.82rem;color:#721c24;margin-bottom:16px;}
+</style>
+</head>
+<body>
+
+<div id="timerWidget">
+  <div class="t-label">Time Remaining</div>
+  <div id="timerDisplay">35:00</div>
+</div>
+
+<div class="top-banner">TOEFL iBT® Practice Test &nbsp;|&nbsp; Reading Section</div>
+<div class="logo-bar">
+  <div class="ets-badge">ETS</div>
+  <h1>TOEFL iBT®</h1>
+  <h2>Reading Section &nbsp;|&nbsp; 35 Minutes &nbsp;|&nbsp; Two Adaptive Modules &nbsp;|&nbsp; 40 Questions</h2>
+</div>
+
+<div class="student-form">
+  <div class="form-row-inline">
+    <div class="form-row"><label>Student Name</label><input type="text" id="sName" placeholder="Enter student name"></div>
+    <div class="form-row"><label>Class</label><input type="text" id="sClass" placeholder="Class"></div>
+    <div class="form-row"><label>Date</label><input type="date" id="sDate"></div>
+  </div>
+  <div class="action-btns">
+    <button class="btn btn-primary" onclick="saveProgress()">Save</button>
+    <button class="btn btn-gold" onclick="downloadHTML()">Download</button>
+    <button class="btn btn-outline" onclick="window.print()">Print</button>
+    <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+  </div>
+  <div class="autosave-bar">
+    <span class="autosave-badge">Autosave Enabled</span>
+    <span id="autosaveStatus">Autosave ready.</span>
+  </div>
+</div>
+
+<!-- PRE-TEST CARD -->
+<div class="pre-test-card" id="preCard">
+  <div class="ptc-body">
+    <h3>Before you begin — Reading Section:</h3>
+    <ul>
+      <li>This section has <strong>two adaptive modules</strong>. Enter your name, then click <strong>Start Test</strong> — the 35-minute timer begins.</li>
+      <li><strong>Module 1:</strong> 20 questions across three task types. You can use Next and Back to move between questions within Module 1.</li>
+      <li><strong>Module 2:</strong> 20 questions. Once you start Module 2, <strong>you cannot return to Module 1</strong>.</li>
+      <li>All answers are checked only after you submit the complete test at the end of Module 2.</li>
+      <li><strong>Task 1 (Complete the Words):</strong> Type the missing letters directly into the blanks in the passage. Your answers are auto-marked when you submit the complete test at the end of Module 2.</li>
+    </ul>
+  </div>
+  <div class="ptc-footer">
+    <button class="btn-start" id="startBtn" onclick="startTest()">Start Test →</button>
+  </div>
+</div>
+
+<div id="testContent" style="display:none">
+
+<!-- ═══ MODULE 1 PANELS ═══ -->
+
+<!-- PANEL 0: M1 Instructions -->
+<div class="task-panel active" id="panel0">
+  <div class="panel-topbar"><span class="panel-prog">Reading Section — Module 1 — Instructions</span><span class="module-badge m1">MODULE 1 OF 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="mod-transition" style="background:#eef2fb;border-color:var(--navy);">
+      <h2>Reading Section, Module 1</h2>
+      <p>In an actual test, the clock will show you how much time you have to complete Module 1.</p>
+      <p>You can use <strong>Next</strong> and <strong>Back</strong> to move to the next question or return to previous questions within the same module.</p>
+      <p style="margin-top:12px;font-size:.85rem;color:var(--muted);">There are <strong>3 task types</strong> in this module:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px;text-align:left;">
+        <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;"><strong style="color:var(--navy);font-size:.85rem;">Task 1</strong><br><span style="font-size:.82rem;color:var(--muted);">Complete the Words<br>Questions 1–10</span></div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;"><strong style="color:var(--navy);font-size:.85rem;">Task 2</strong><br><span style="font-size:.82rem;color:var(--muted);">Read in Daily Life<br>Questions 11–15</span></div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;"><strong style="color:var(--navy);font-size:.85rem;">Task 3</strong><br><span style="font-size:.82rem;color:var(--muted);">Read an Academic Passage<br>Questions 16–20</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-nav">
+    <span></span>
+    <button class="btn-nav-next" onclick="goPanel(1)">Next →</button>
+  </div>
+</div>
+
+<!-- PANEL 1: M1 Task 1 – Complete the Words -->
+<div class="task-panel" id="panel1">
+  <div class="panel-topbar"><span class="panel-prog">Task 1: Complete the Words — Questions 1–10</span><span class="module-badge m1">MODULE 1 OF 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="section-header"><span class="sec-title">Task 1 — Complete the Words</span><span class="sec-badge">Questions 1–10</span></div>
+    <div class="section-body">
+      <div class="instruction-box"><strong>Complete the Words: Type the missing letters in each blank.</strong><br>Click on each blank in the passage below and type the missing letters. After submitting the full test, each blank will be marked correct (green) or incorrect (red).</div>
+
+      <div class="passage-box">
+        Oc<input type="text" class="blank-input" id="bi_m1f1" data-answer="ean" size="4" placeholder="___"> currents are large-scale m<input type="text" class="blank-input" id="bi_m1f2" data-answer="ove" size="4" placeholder="___">ments of seawater that flow across the su<input type="text" class="blank-input" id="bi_m1f3" data-answer="rface" size="6" placeholder="_____"> of the ocean. They are driven mainly by wi<input type="text" class="blank-input" id="bi_m1f4" data-answer="nd" size="3" placeholder="__"> and differences in tempe<input type="text" class="blank-input" id="bi_m1f5" data-answer="rature" size="7" placeholder="_______"> and salt content. These curr<input type="text" class="blank-input" id="bi_m1f6" data-answer="ents" size="5" placeholder="____"> creat<input type="text" class="blank-input" id="bi_m1f7" data-answer="ed" size="3" placeholder="__"> a g<input type="text" class="blank-input" id="bi_m1f8" data-answer="lobal" size="6" placeholder="_____"> system that affects cl<input type="text" class="blank-input" id="bi_m1f9" data-answer="imate" size="6" placeholder="_____"> patterns around the world. They also help regulate the distrib<input type="text" class="blank-input" id="bi_m1f10" data-answer="ution" size="7" placeholder="______"> of heat, nutrients, and marine life across the planet.
+      </div>
+
+
+    </div>
+  </div>
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(0)">← Back</button>
+    <button class="btn-nav-next" onclick="goPanel(2)">Next →</button>
+  </div>
+</div>
+
+<!-- PANEL 2: M1 Task 2 – Email 1 (Q11-12) -->
+<div class="task-panel" id="panel2">
+  <div class="panel-topbar"><span class="panel-prog">Task 2: Read in Daily Life — Questions 11–12</span><span class="module-badge m1">MODULE 1 OF 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="section-header"><span class="sec-title">Task 2 — Read an Email</span><span class="sec-badge">Questions 11–12</span></div>
+    <div class="section-body">
+      <div class="instruction-box">Read the email and answer the questions below.</div>
+      <div class="email-box">
+        <div class="email-header-row"><div class="email-label">To:</div><div class="email-value">t.okonkwo@dmail.com</div></div>
+        <div class="email-header-row"><div class="email-label">From:</div><div class="email-value">reservations@greenpinelodge.com</div></div>
+        <div class="email-header-row"><div class="email-label">Date:</div><div class="email-value">09/14/2025</div></div>
+        <div class="email-header-row"><div class="email-label">Subject:</div><div class="email-value">Booking Confirmation — Reservation #GP-4471</div></div>
+        <div class="email-body">
+          Dear Mr. Okonkwo,<br><br>
+          Thank you for choosing Green Pine Lodge. We are pleased to confirm your reservation for two nights: Friday, October 3rd and Saturday, October 4th, 2025. Your room is a standard double on the second floor, with a garden view.<br><br>
+          Check-in begins at 3:00 PM and check-out is by 11:00 AM. If you plan to arrive after 9:00 PM, please notify us in advance so we can arrange key collection.<br><br>
+          Breakfast is included each morning from 7:00 AM to 10:00 AM in the main dining room. Parking is available free of charge on site.<br><br>
+          We look forward to welcoming you.<br><br>
+          Kind regards,<br>Green Pine Lodge Reservations Team
+        </div>
+      </div>
+
+      <div class="mcq-item">
+        <p class="q-stem">11. &nbsp;What time does check-in begin?</p>
+        <div class="mcq-opts" id="q11_opts">
+          <label class="mcq-opt"><input type="radio" name="q11" value="A"> (A) &nbsp;11:00 AM</label>
+          <label class="mcq-opt"><input type="radio" name="q11" value="B"> (B) &nbsp;7:00 AM</label>
+          <label class="mcq-opt"><input type="radio" name="q11" value="C"> (C) &nbsp;3:00 PM</label>
+          <label class="mcq-opt"><input type="radio" name="q11" value="D"> (D) &nbsp;9:00 PM</label>
+        </div>
+      </div>
+
+      <div class="mcq-item">
+        <p class="q-stem">12. &nbsp;What must Mr. Okonkwo do if he arrives after 9:00 PM?</p>
+        <div class="mcq-opts" id="q12_opts">
+          <label class="mcq-opt"><input type="radio" name="q12" value="A"> (A) &nbsp;Call the lodge to extend his reservation.</label>
+          <label class="mcq-opt"><input type="radio" name="q12" value="B"> (B) &nbsp;Notify the lodge in advance to arrange key collection.</label>
+          <label class="mcq-opt"><input type="radio" name="q12" value="C"> (C) &nbsp;Pay an additional late check-in fee.</label>
+          <label class="mcq-opt"><input type="radio" name="q12" value="D"> (D) &nbsp;Use the side entrance of the building.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(1)">← Back</button>
+    <button class="btn-nav-next" onclick="goPanel(3)">Next →</button>
+  </div>
+</div>
+
+<!-- PANEL 3: M1 Task 2 – Email 2 (Q13-15) -->
+<div class="task-panel" id="panel3">
+  <div class="panel-topbar"><span class="panel-prog">Task 2: Read in Daily Life — Questions 13–15</span><span class="module-badge m1">MODULE 1 OF 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="section-header"><span class="sec-title">Task 2 — Read an Email</span><span class="sec-badge">Questions 13–15</span></div>
+    <div class="section-body">
+      <div class="instruction-box">Read the email and answer the questions below.</div>
+      <div class="email-box">
+        <div class="email-header-row"><div class="email-label">To:</div><div class="email-value">all.staff@northbridge-legal.com</div></div>
+        <div class="email-header-row"><div class="email-label">From:</div><div class="email-value">h.papadopoulos@northbridge-legal.com</div></div>
+        <div class="email-header-row"><div class="email-label">Date:</div><div class="email-value">11/03/2025</div></div>
+        <div class="email-header-row"><div class="email-label">Subject:</div><div class="email-value">Office Closure — Friday, November 7th</div></div>
+        <div class="email-body">
+          Dear Team,<br><br>
+          Please be advised that our office will be closed this Friday, November 7th, due to a scheduled deep-cleaning of all workspaces. This has been arranged as part of our annual facilities maintenance programme.<br><br>
+          All staff are asked to take their laptops and any essential materials home by end of day Thursday. If you need access to physical files on Friday, please contact Marcus Webb in facilities management no later than Wednesday at noon.<br><br>
+          The office will reopen as normal on Monday, November 10th.<br><br>
+          Thank you for your cooperation.<br><br>
+          Helena Papadopoulos<br>Office Manager
+        </div>
+      </div>
+
+      <div class="mcq-item">
+        <p class="q-stem">13. &nbsp;Why will the office be closed on Friday?</p>
+        <div class="mcq-opts" id="q13_opts">
+          <label class="mcq-opt"><input type="radio" name="q13" value="A"> (A) &nbsp;Staff are attending a company conference.</label>
+          <label class="mcq-opt"><input type="radio" name="q13" value="B"> (B) &nbsp;A public holiday has been declared.</label>
+          <label class="mcq-opt"><input type="radio" name="q13" value="C"> (C) &nbsp;Scheduled deep-cleaning of all workspaces.</label>
+          <label class="mcq-opt"><input type="radio" name="q13" value="D"> (D) &nbsp;Building maintenance requires a full shutdown.</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">14. &nbsp;By when must staff contact Marcus Webb if they need physical files on Friday?</p>
+        <div class="mcq-opts" id="q14_opts">
+          <label class="mcq-opt"><input type="radio" name="q14" value="A"> (A) &nbsp;Thursday at end of day.</label>
+          <label class="mcq-opt"><input type="radio" name="q14" value="B"> (B) &nbsp;Wednesday at noon.</label>
+          <label class="mcq-opt"><input type="radio" name="q14" value="C"> (C) &nbsp;Friday morning.</label>
+          <label class="mcq-opt"><input type="radio" name="q14" value="D"> (D) &nbsp;Monday at the latest.</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">15. &nbsp;What are staff asked to do before leaving on Thursday?</p>
+        <div class="mcq-opts" id="q15_opts">
+          <label class="mcq-opt"><input type="radio" name="q15" value="A"> (A) &nbsp;Submit a request for remote work approval.</label>
+          <label class="mcq-opt"><input type="radio" name="q15" value="B"> (B) &nbsp;Clear all items from their desks permanently.</label>
+          <label class="mcq-opt"><input type="radio" name="q15" value="C"> (C) &nbsp;Take their laptops and essential materials home.</label>
+          <label class="mcq-opt"><input type="radio" name="q15" value="D"> (D) &nbsp;Sign a facilities maintenance form.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(2)">← Back</button>
+    <button class="btn-nav-next" onclick="goPanel(4)">Next →</button>
+  </div>
+</div>
+
+<!-- PANEL 4: M1 Task 3 – Academic Passage (Q16-20) -->
+<div class="task-panel" id="panel4">
+  <div class="panel-topbar"><span class="panel-prog">Task 3: Academic Passage — Questions 16–20</span><span class="module-badge m1">MODULE 1 OF 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="section-header"><span class="sec-title">Task 3 — Read an Academic Passage</span><span class="sec-badge">Questions 16–20</span></div>
+    <div class="section-body">
+      <div class="instruction-box">Read the passage and answer the questions that follow.</div>
+      <div class="passage-academic">
+        <div class="passage-title">The Role of Bees in Ecosystem Health</div>
+        <p>Bees are among the most important animals on Earth, playing a central role in the process of pollination. When a bee visits a flower to collect nectar, pollen grains attach to its body and are transferred to the next flower it visits. This movement of pollen between flowers <span class="vocab-target">fertilises</span> plants and enables them to produce seeds and fruit. Without this process, a large proportion of the world's flowering plants would be unable to reproduce.</p>
+        <p>The economic significance of bee pollination is enormous. It is estimated that bees contribute to the production of approximately one-third of the food that humans consume globally, including fruits, vegetables, nuts, and seeds. Crops such as almonds, blueberries, and avocados are almost entirely dependent on bee pollination. The global economic value of this service runs into hundreds of billions of dollars each year.</p>
+        <p>Despite their importance, bee populations around the world have been declining at an alarming rate. Scientists have identified several contributing factors, including habitat loss, the widespread use of pesticides, climate change, and the spread of parasites such as the Varroa mite. Colony collapse disorder, a phenomenon in which worker bees abandon a hive, has devastated commercial bee populations in several countries.</p>
+        <p>Efforts to protect and restore bee populations are underway in many parts of the world. These include planting wildflower meadows, reducing pesticide use in agriculture, and creating urban green spaces that provide food and shelter for bees. Some cities have also encouraged rooftop beekeeping as a way of supporting urban bee colonies. Researchers continue to study the complex factors behind bee decline in order to develop more effective conservation strategies.</p>
+      </div>
+
+      <div class="mcq-item">
+        <p class="q-stem">16. &nbsp;The word "fertilises" in paragraph 1 is closest in meaning to</p>
+        <div class="mcq-opts" id="q16_opts">
+          <label class="mcq-opt"><input type="radio" name="q16" value="A"> (A) &nbsp;damages</label>
+          <label class="mcq-opt"><input type="radio" name="q16" value="B"> (B) &nbsp;enables reproduction in</label>
+          <label class="mcq-opt"><input type="radio" name="q16" value="C"> (C) &nbsp;attracts insects to</label>
+          <label class="mcq-opt"><input type="radio" name="q16" value="D"> (D) &nbsp;protects from disease</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">17. &nbsp;According to the passage, which of the following crops is almost entirely dependent on bee pollination?</p>
+        <div class="mcq-opts" id="q17_opts">
+          <label class="mcq-opt"><input type="radio" name="q17" value="A"> (A) &nbsp;Wheat</label>
+          <label class="mcq-opt"><input type="radio" name="q17" value="B"> (B) &nbsp;Rice</label>
+          <label class="mcq-opt"><input type="radio" name="q17" value="C"> (C) &nbsp;Almonds</label>
+          <label class="mcq-opt"><input type="radio" name="q17" value="D"> (D) &nbsp;Potatoes</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">18. &nbsp;Which of the following is identified in the passage as a cause of bee population decline?</p>
+        <div class="mcq-opts" id="q18_opts">
+          <label class="mcq-opt"><input type="radio" name="q18" value="A"> (A) &nbsp;Overproduction of honey</label>
+          <label class="mcq-opt"><input type="radio" name="q18" value="B"> (B) &nbsp;Increased flower diversity</label>
+          <label class="mcq-opt"><input type="radio" name="q18" value="C"> (C) &nbsp;The spread of the Varroa mite</label>
+          <label class="mcq-opt"><input type="radio" name="q18" value="D"> (D) &nbsp;Rising demand for organic food</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">19. &nbsp;What is the relationship between paragraphs 2 and 3?</p>
+        <div class="mcq-opts" id="q19_opts">
+          <label class="mcq-opt"><input type="radio" name="q19" value="A"> (A) &nbsp;Paragraph 3 provides solutions to the problem introduced in paragraph 2.</label>
+          <label class="mcq-opt"><input type="radio" name="q19" value="B"> (B) &nbsp;Paragraph 3 presents a problem that contrasts with the positive picture in paragraph 2.</label>
+          <label class="mcq-opt"><input type="radio" name="q19" value="C"> (C) &nbsp;Paragraph 3 gives further examples of the economic value described in paragraph 2.</label>
+          <label class="mcq-opt"><input type="radio" name="q19" value="D"> (D) &nbsp;Paragraph 3 contradicts the claims made in paragraph 2.</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">20. &nbsp;What does the author suggest about the efforts to protect bees?</p>
+        <div class="mcq-opts" id="q20_opts">
+          <label class="mcq-opt"><input type="radio" name="q20" value="A"> (A) &nbsp;They have already reversed the decline in most countries.</label>
+          <label class="mcq-opt"><input type="radio" name="q20" value="B"> (B) &nbsp;They are limited to rural farming communities.</label>
+          <label class="mcq-opt"><input type="radio" name="q20" value="C"> (C) &nbsp;They are ongoing and include both urban and agricultural approaches.</label>
+          <label class="mcq-opt"><input type="radio" name="q20" value="D"> (D) &nbsp;They focus mainly on reducing the impact of climate change.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(3)">← Back</button>
+    <button class="btn-nav-next" onclick="goModuleTransition()">Next →</button>
+  </div>
+</div>
+
+<!-- PANEL 5: Module 2 Transition -->
+<div class="task-panel" id="panel5">
+  <div class="panel-topbar"><span class="panel-prog">Reading Section — Module Transition</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="mod-transition">
+      <h2>Reading Section, Module 2</h2>
+      <p>In an actual test, the clock will show you how much time you have to complete Module 2.</p>
+      <p>You can use <strong>Next</strong> and <strong>Back</strong> to move to the next question or return to previous questions <em>within Module 2</em>.</p>
+      <div class="warning">⚠ You will NOT be able to return to Module 1 once you have begun Module 2.</div>
+    </div>
+  </div>
+  <div class="panel-nav">
+    <span></span>
+    <button class="btn-nav-next" onclick="goPanel(6)">Begin Module 2 →</button>
+  </div>
+</div>
+
+<!-- ═══ MODULE 2 PANELS ═══ -->
+
+<!-- PANEL 6: M2 Task 1 – Complete the Words -->
+<div class="task-panel" id="panel6">
+  <div class="panel-topbar"><span class="panel-prog">Task 1: Complete the Words — Questions 1–10</span><span class="module-badge m2">MODULE 2 OF 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="section-header"><span class="sec-title">Task 1 — Complete the Words</span><span class="sec-badge">Questions 1–10</span></div>
+    <div class="section-body">
+      <div class="instruction-box"><strong>Complete the Words: Type the missing letters in each blank.</strong><br>Click on each blank in the passage below and type the missing letters. After submitting the full test, each blank will be marked correct (green) or incorrect (red).</div>
+
+      <div class="passage-box">
+        Volc<input type="text" class="blank-input" id="bi_m2f1" data-answer="anic" size="5" placeholder="____"> activity occurs when an er<input type="text" class="blank-input" id="bi_m2f2" data-answer="uption" size="7" placeholder="______"> takes place, forcing magma from be<input type="text" class="blank-input" id="bi_m2f3" data-answer="neath" size="6" placeholder="_____"> the Earth's crust to the sur<input type="text" class="blank-input" id="bi_m2f4" data-answer="face" size="5" placeholder="____">. The mol<input type="text" class="blank-input" id="bi_m2f5" data-answer="ten" size="4" placeholder="___"> rock, known as lava, flows outward under immense press<input type="text" class="blank-input" id="bi_m2f6" data-answer="ure" size="4" placeholder="___">. Volcanic gases released into the atm<input type="text" class="blank-input" id="bi_m2f7" data-answer="osphere" size="8" placeholder="_______"> can affect air quality across wide areas. Although dang<input type="text" class="blank-input" id="bi_m2f8" data-answer="erous" size="6" placeholder="_____">, volcanoes are also a nat<input type="text" class="blank-input" id="bi_m2f9" data-answer="ural" size="5" placeholder="____"> part of Earth's geology and have shaped many landscapes. They are among the most powerful natural disas<input type="text" class="blank-input" id="bi_m2f10" data-answer="ters" size="5" placeholder="____"> known to humanity.
+      </div>
+
+
+    </div>
+  </div>
+  <div class="panel-nav">
+    <span></span>
+    <button class="btn-nav-next" onclick="goPanel(7)">Next →</button>
+  </div>
+</div>
+
+<!-- PANEL 7: M2 Task 2 – Email 1 (Q11-13) City Swim Club -->
+<div class="task-panel" id="panel7">
+  <div class="panel-topbar"><span class="panel-prog">Task 2: Read in Daily Life — Questions 11–13</span><span class="module-badge m2">MODULE 2 OF 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="section-header"><span class="sec-title">Task 2 — Read an Email</span><span class="sec-badge">Questions 11–13</span></div>
+    <div class="section-body">
+      <div class="instruction-box">Read the email and answer the questions below.</div>
+      <div class="email-box">
+        <div class="email-header-row"><div class="email-label">To:</div><div class="email-value">r.ferreira@dmail.com</div></div>
+        <div class="email-header-row"><div class="email-label">From:</div><div class="email-value">noreply@cityswimclub.com</div></div>
+        <div class="email-header-row"><div class="email-label">Date:</div><div class="email-value">07/05/2025</div></div>
+        <div class="email-header-row"><div class="email-label">Subject:</div><div class="email-value">Membership Renewal Reminder</div></div>
+        <div class="email-body">
+          Dear Ms. Ferreira,<br><br>
+          This is a friendly reminder that your City Swim Club membership is due to expire on July 31st, 2025. To continue enjoying full access to our facilities, please renew your membership before this date.<br><br>
+          You can renew online through your member account or visit the reception desk during staffed hours: Monday to Friday, 8:00 AM to 8:00 PM, and Saturday, 9:00 AM to 5:00 PM. The club is closed on Sundays.<br><br>
+          Members who renew before July 15th will receive a 10% early renewal discount. Please note that access to the pool and gym will be suspended immediately upon membership expiry if renewal has not been completed.<br><br>
+          Thank you for being a valued member.<br><br>
+          City Swim Club Administration
+        </div>
+      </div>
+
+      <div class="mcq-item">
+        <p class="q-stem">11. &nbsp;When does Ms. Ferreira's membership expire?</p>
+        <div class="mcq-opts" id="m2q11_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q11" value="A"> (A) &nbsp;July 5th</label>
+          <label class="mcq-opt"><input type="radio" name="m2q11" value="B"> (B) &nbsp;July 15th</label>
+          <label class="mcq-opt"><input type="radio" name="m2q11" value="C"> (C) &nbsp;July 31st</label>
+          <label class="mcq-opt"><input type="radio" name="m2q11" value="D"> (D) &nbsp;August 1st</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">12. &nbsp;What benefit is offered to members who renew before July 15th?</p>
+        <div class="mcq-opts" id="m2q12_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q12" value="A"> (A) &nbsp;A free one-month extension.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q12" value="B"> (B) &nbsp;A 10% discount on the renewal fee.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q12" value="C"> (C) &nbsp;Free access to a guest pass.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q12" value="D"> (D) &nbsp;Priority booking for swimming lanes.</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">13. &nbsp;What will happen if Ms. Ferreira does not renew before her membership expires?</p>
+        <div class="mcq-opts" id="m2q13_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q13" value="A"> (A) &nbsp;She will be charged a late renewal penalty.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q13" value="B"> (B) &nbsp;Her account will be permanently deleted.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q13" value="C"> (C) &nbsp;Her access to the pool and gym will be suspended.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q13" value="D"> (D) &nbsp;She will need to rejoin as a new member.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(6)">← Back</button>
+    <button class="btn-nav-next" onclick="goPanel(8)">Next →</button>
+  </div>
+</div>
+
+<!-- PANEL 8: M2 Task 2 – Email 2 (Q14-15) Sunrise Food Bank -->
+<div class="task-panel" id="panel8">
+  <div class="panel-topbar"><span class="panel-prog">Task 2: Read in Daily Life — Questions 14–15</span><span class="module-badge m2">MODULE 2 OF 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="section-header"><span class="sec-title">Task 2 — Read an Email</span><span class="sec-badge">Questions 14–15</span></div>
+    <div class="section-body">
+      <div class="instruction-box">Read the email and answer the questions below.</div>
+      <div class="email-box">
+        <div class="email-header-row"><div class="email-label">To:</div><div class="email-value">d.morrison@dmail.com</div></div>
+        <div class="email-header-row"><div class="email-label">From:</div><div class="email-value">volunteer@sunrisefoodbank.org</div></div>
+        <div class="email-header-row"><div class="email-label">Date:</div><div class="email-value">10/21/2025</div></div>
+        <div class="email-header-row"><div class="email-label">Subject:</div><div class="email-value">Volunteer Shift Confirmation — Saturday, October 25th</div></div>
+        <div class="email-body">
+          Dear Mr. Morrison,<br><br>
+          Thank you for signing up to volunteer with the Sunrise Food Bank. This email confirms your shift on Saturday, October 25th, from 9:00 AM to 1:00 PM at our main distribution centre on Fielding Road.<br><br>
+          Please wear comfortable clothing that you do not mind getting dirty, and bring your own water bottle. Gloves and aprons will be provided on site.<br><br>
+          If you are unable to attend, please notify us at least 24 hours before your shift by replying to this email or calling 555-0193. Late cancellations make it difficult for us to arrange cover.<br><br>
+          We appreciate your generosity and look forward to seeing you on Saturday.<br><br>
+          Sunrise Food Bank Volunteer Coordinator
+        </div>
+      </div>
+
+      <div class="mcq-item">
+        <p class="q-stem">14. &nbsp;What should Mr. Morrison bring with him to the volunteer shift?</p>
+        <div class="mcq-opts" id="m2q14_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q14" value="A"> (A) &nbsp;His own gloves and apron.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q14" value="B"> (B) &nbsp;A printed copy of this email.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q14" value="C"> (C) &nbsp;His own water bottle.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q14" value="D"> (D) &nbsp;Food donations for the distribution centre.</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">15. &nbsp;How much notice must Mr. Morrison give if he cannot attend?</p>
+        <div class="mcq-opts" id="m2q15_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q15" value="A"> (A) &nbsp;48 hours.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q15" value="B"> (B) &nbsp;At least 24 hours.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q15" value="C"> (C) &nbsp;By Friday morning at the latest.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q15" value="D"> (D) &nbsp;As soon as possible, with no minimum time stated.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(7)">← Back</button>
+    <button class="btn-nav-next" onclick="goPanel(9)">Next →</button>
+  </div>
+</div>
+
+<!-- PANEL 9: M2 Task 3 – Academic Passage (Q16-20) Decision-Making -->
+<div class="task-panel" id="panel9">
+  <div class="panel-topbar"><span class="panel-prog">Task 3: Academic Passage — Questions 16–20</span><span class="module-badge m2">MODULE 2 OF 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="section-header"><span class="sec-title">Task 3 — Read an Academic Passage</span><span class="sec-badge">Questions 16–20</span></div>
+    <div class="section-body">
+      <div class="instruction-box">Read the passage and answer the questions that follow.</div>
+      <div class="passage-academic">
+        <div class="passage-title">The Psychology of Decision-Making Under Uncertainty</div>
+        <p>Decision-making is rarely a straightforward process. When people are faced with choices under conditions of uncertainty, they frequently rely on mental shortcuts, known as <span class="vocab-target">heuristics</span>, rather than carrying out systematic analysis. While heuristics often lead to reasonably good decisions in everyday situations, they can also produce predictable errors in judgement, which psychologists refer to as cognitive biases.</p>
+        <p>One of the most studied cognitive biases is the availability heuristic, a concept developed by psychologists Amos Tversky and Daniel Kahneman in the 1970s. This heuristic describes the tendency for people to judge the likelihood of an event based on how easily an example comes to mind. For instance, a person who has recently read about a plane crash may overestimate the danger of air travel, even though statistically it remains one of the safest forms of long-distance transport. The vividness and emotional impact of a recent memory makes certain risks feel more probable than they actually are.</p>
+        <p>A related phenomenon is the anchoring effect, in which the first piece of information a person encounters on a subject disproportionately influences their subsequent judgements. In one well-known experiment, participants were asked to estimate the percentage of African nations in the United Nations after being shown a randomly generated number. Those shown a higher number consistently gave higher estimates, demonstrating that even irrelevant information can serve as an anchor that skews reasoning.</p>
+        <p>Understanding these biases has significant practical implications. In fields such as medicine, law, and finance, poor decisions driven by cognitive biases can have serious consequences. As a result, many organisations now invest in training programmes designed to help professionals recognise and counteract their own biased thinking. Structured decision-making frameworks, peer review processes, and deliberate consideration of alternative viewpoints are among the strategies used to reduce the influence of heuristics on high-stakes choices.</p>
+      </div>
+
+      <div class="mcq-item">
+        <p class="q-stem">16. &nbsp;The word "heuristics" in paragraph 1 is closest in meaning to</p>
+        <div class="mcq-opts" id="m2q16_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q16" value="A"> (A) &nbsp;scientific experiments</label>
+          <label class="mcq-opt"><input type="radio" name="m2q16" value="B"> (B) &nbsp;mental shortcuts used to make decisions</label>
+          <label class="mcq-opt"><input type="radio" name="m2q16" value="C"> (C) &nbsp;detailed logical analyses</label>
+          <label class="mcq-opt"><input type="radio" name="m2q16" value="D"> (D) &nbsp;emotional responses to difficult situations</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">17. &nbsp;According to the passage, who developed the concept of the availability heuristic?</p>
+        <div class="mcq-opts" id="m2q17_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q17" value="A"> (A) &nbsp;A team of economists at Harvard University.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q17" value="B"> (B) &nbsp;Researchers studying airline safety in the 1980s.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q17" value="C"> (C) &nbsp;Psychologists Amos Tversky and Daniel Kahneman.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q17" value="D"> (D) &nbsp;Medical professionals studying patient decision-making.</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">18. &nbsp;What does the air travel example in paragraph 2 illustrate?</p>
+        <div class="mcq-opts" id="m2q18_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q18" value="A"> (A) &nbsp;That air travel is more dangerous than statistics suggest.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q18" value="B"> (B) &nbsp;That vivid recent memories can cause people to misjudge risk levels.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q18" value="C"> (C) &nbsp;That media coverage of disasters is always exaggerated.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q18" value="D"> (D) &nbsp;That people generally avoid travelling by plane after accidents.</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">19. &nbsp;What is the main point of the anchoring effect experiment described in paragraph 3?</p>
+        <div class="mcq-opts" id="m2q19_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q19" value="A"> (A) &nbsp;People are unable to estimate statistics accurately without reference materials.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q19" value="B"> (B) &nbsp;Irrelevant numerical information can influence a person's subsequent judgements.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q19" value="C"> (C) &nbsp;Participants in the study had strong prior knowledge about the United Nations.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q19" value="D"> (D) &nbsp;Random number generation is an unreliable method for conducting research.</label>
+        </div>
+      </div>
+      <div class="mcq-item">
+        <p class="q-stem">20. &nbsp;What is the relationship between paragraphs 3 and 4?</p>
+        <div class="mcq-opts" id="m2q20_opts">
+          <label class="mcq-opt"><input type="radio" name="m2q20" value="A"> (A) &nbsp;Paragraph 4 challenges the research findings described in paragraph 3.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q20" value="B"> (B) &nbsp;Paragraph 4 provides another example of the anchoring effect from paragraph 3.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q20" value="C"> (C) &nbsp;Paragraph 4 explains the real-world importance of the biases introduced in earlier paragraphs.</label>
+          <label class="mcq-opt"><input type="radio" name="m2q20" value="D"> (D) &nbsp;Paragraph 4 introduces a new bias that contradicts the findings of paragraph 3.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(8)">← Back</button>
+    <button class="btn-nav-next" onclick="goPanel(10)">Next →</button>
+  </div>
+</div>
+
+<!-- PANEL 10: Submit -->
+<div class="task-panel" id="panel10">
+  <div class="panel-topbar"><span class="panel-prog">Reading Section — End of Module 2</span></div>
+  <div class="divider"></div>
+  <div class="section-block" style="margin-top:16px;">
+    <div class="mod-transition" style="background:#f0f8f0;border-color:#28a745;">
+      <h2 style="color:#155724;">You have completed both modules.</h2>
+      <p>Review your answers using the Back button, or submit to see your results.</p>
+      <p style="margin-top:12px;font-size:.85rem;"><strong>Note:</strong> Once you submit, you cannot change your answers.</p>
+      <button class="btn-submit" style="margin-top:22px;font-size:1.05rem;padding:14px 50px;" onclick="submitTest()">Submit Reading Test</button>
+    </div>
+  </div>
+  <div class="panel-nav">
+    <button class="btn-nav-back" onclick="goPanel(9)">← Back</button>
+    <span></span>
+  </div>
+</div>
+
+<!-- RESULTS PANEL -->
+<div class="task-panel" id="panelResults">
+  <div class="divider"></div>
+  <div class="results-card">
+    <h2>Reading Section — Results</h2>
+    <div class="score-display" id="scoreDisplay">0 / 20</div>
+    <p class="score-sub" id="scoreSub">MCQ score (Tasks 2 &amp; 3). Task 1 answers are shown in the passages above.</p>
+    <div class="score-breakdown" id="scoreBreakdown"></div>
+    <p style="margin-top:16px;font-size:.82rem;color:var(--muted);">Scroll up to review correct answers highlighted in each question.</p>
+  </div>
+</div>
+
+</div><!-- /testContent -->
+
+<script>
+// ──────────────────────────────────────────────
+// ANSWER KEYS
+// ──────────────────────────────────────────────
+const ANSWERS = {
+  // M1 MCQ
+  q11:'C', q12:'B', q13:'C', q14:'B', q15:'C',
+  q16:'B', q17:'C', q18:'C', q19:'B', q20:'C',
+  // M2 MCQ
+  m2q11:'C', m2q12:'B', m2q13:'C', m2q14:'C', m2q15:'B',
+  m2q16:'B', m2q17:'C', m2q18:'B', m2q19:'B', m2q20:'C'
+};
+
+// ──────────────────────────────────────────────
+// TIMER
+// ──────────────────────────────────────────────
+let timerSecs = 35*60, timerInterval = null;
+function startTest(){
+  if(!document.getElementById('sName').value.trim()){ alert('Please enter the student name before starting the test.'); document.getElementById('sName').focus(); return; }
+  document.getElementById('preCard').style.display='none';
+  document.getElementById('testContent').style.display='block';
+  document.getElementById('timerWidget').style.display='block';
+  timerInterval = setInterval(tickTimer,1000);
+  autoSave();
+}
+function tickTimer(){
+  timerSecs--;
+  if(timerSecs<=0){clearInterval(timerInterval);timerSecs=0;
+    document.getElementById('timerDisplay').textContent='00:00';
+    alert('Time is up! Your answers will now be submitted and marked.');
+    submitTest(true);
+    return;
+  }
+  let m=Math.floor(timerSecs/60), s=timerSecs%60;
+  document.getElementById('timerDisplay').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  let w=document.getElementById('timerWidget');
+  if(timerSecs<=120){w.className='crit';}
+  else if(timerSecs<=300){w.className='warn';}
+  else{w.className='';}
+}
+
+// ──────────────────────────────────────────────
+// PANEL NAVIGATION
+// ──────────────────────────────────────────────
+let currentPanel = 0;
+let module2Started = false;
+function goPanel(n){
+  document.querySelectorAll('.task-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel'+n).classList.add('active');
+  currentPanel = n;
+  window.scrollTo({top:0,behavior:'smooth'});
+  autoSave();
+}
+function goModuleTransition(){
+  if(!module2Started){
+    if(!confirm('You are about to begin Module 2.\n\nYou CANNOT return to Module 1 once you begin.\n\nContinue?')) return;
+    module2Started = true;
+  }
+  goPanel(5);
+}
+
+// ──────────────────────────────────────────────
+// SUBMIT & SCORE
+// ──────────────────────────────────────────────
+function submitTest(forced){
+  if(!forced && !confirm('Submit the Reading Test now? You cannot change your answers after submitting.')) return;
+  clearInterval(timerInterval);
+
+  let mcqNames = ['q11','q12','q13','q14','q15','q16','q17','q18','q19','q20',
+                  'm2q11','m2q12','m2q13','m2q14','m2q15','m2q16','m2q17','m2q18','m2q19','m2q20'];
+  let correct=0, total=mcqNames.length;
+
+  mcqNames.forEach(name=>{
+    let sel = document.querySelector(`input[name="${name}"]:checked`);
+    let chosen = sel ? sel.value : null;
+    let right = ANSWERS[name];
+    let opts = document.querySelectorAll(`input[name="${name}"]`);
+    opts.forEach(inp=>{
+      let lbl = inp.closest('.mcq-opt');
+      if(inp.value===right) lbl.classList.add('show-correct');
+      else if(chosen && inp.value===chosen && chosen!==right) lbl.classList.add('wrong');
+    });
+    if(chosen===right) correct++;
+  });
+
+  // Score blank-input fill-in answers
+  let fillCorrect = 0, fillTotal = 0;
+  document.querySelectorAll('.blank-input').forEach(inp=>{
+    fillTotal++;
+    let answer = (inp.dataset.answer||'').toLowerCase();
+    let typed = inp.value.trim().toLowerCase();
+    inp.disabled = true;
+    if(typed === answer){
+      inp.classList.add('correct');
+      fillCorrect++;
+    } else {
+      inp.classList.add('wrong');
+      inp.title = 'You typed: ' + (inp.value||'(blank)') + ' | Correct: ' + inp.dataset.answer;
+      inp.value = inp.dataset.answer; // show correct answer in red
+    }
+  });
+
+  // Results
+  goPanel('Results');
+  let grandTotal = total + fillTotal;
+  let grandCorrect = correct + fillCorrect;
+  document.getElementById('scoreDisplay').textContent = grandCorrect+' / '+grandTotal;
+  document.getElementById('scoreSub').textContent = 'Combined score: MCQ (Tasks 2 & 3) + Fill-in (Task 1)';
+  let m1score = 0, m2score = 0;
+  ['q11','q12','q13','q14','q15','q16','q17','q18','q19','q20'].forEach(n=>{
+    let sel=document.querySelector(`input[name="${n}"]:checked`);
+    if(sel && sel.value===ANSWERS[n]) m1score++;
+  });
+  ['m2q11','m2q12','m2q13','m2q14','m2q15','m2q16','m2q17','m2q18','m2q19','m2q20'].forEach(n=>{
+    let sel=document.querySelector(`input[name="${n}"]:checked`);
+    if(sel && sel.value===ANSWERS[n]) m2score++;
+  });
+  document.getElementById('scoreBreakdown').innerHTML=`
+    <div class="score-row"><strong>Module 1 — Task 1 (Fill-in)</strong>${fillCorrect>=10?10:fillCorrect} / 10 correct</div>
+    <div class="score-row"><strong>Module 1 — MCQ (Tasks 2–3)</strong>${m1score} / 10 correct</div>
+    <div class="score-row"><strong>Module 2 — Task 1 (Fill-in)</strong>${fillCorrect>=10?fillCorrect-10:0} / 10 correct</div>
+    <div class="score-row"><strong>Module 2 — MCQ (Tasks 2–3)</strong>${m2score} / 10 correct</div>
+    <div class="score-row"><strong>Total Score</strong>${grandCorrect} / ${grandTotal} (${Math.round(grandCorrect/grandTotal*100)}%)</div>
+  `;
+  const answers = {};
+  document.querySelectorAll('input[type=radio]:checked').forEach(r=>{answers[r.name]=r.value;});
+  document.querySelectorAll('.blank-input').forEach((inp,idx)=>{answers['blank_'+(idx+1)]=inp.value;});
+  window.parent && window.parent.postMessage({
+    type:'eh-exam-submitted',
+    section:'Reading',
+    answers,
+    correct:grandCorrect,
+    total:grandTotal,
+    percent:Math.round(grandCorrect/grandTotal*100),
+    scoreLabel:grandCorrect+' / '+grandTotal+' ('+Math.round(grandCorrect/grandTotal*100)+'%)',
+    autoSubmitted:Boolean(forced)
+  }, '*');
+  saveProgress();
+}
+
+// ──────────────────────────────────────────────
+// AUTOSAVE / PERSIST
+// ──────────────────────────────────────────────
+function autoSave(){
+  try{
+    let data={name:document.getElementById('sName').value,cls:document.getElementById('sClass').value,date:document.getElementById('sDate').value};
+    document.querySelectorAll('input[type=radio]:checked').forEach(r=>{data['r_'+r.name]=r.value;});
+    sessionStorage.setItem('ibt_reading',JSON.stringify(data));
+    document.getElementById('autosaveStatus').textContent='Autosaved '+new Date().toLocaleTimeString();
+  }catch(e){}
+}
+function saveProgress(){autoSave();}
+function loadProgress(){
+  try{
+    let raw=sessionStorage.getItem('ibt_reading');
+    if(!raw)return;
+    let d=JSON.parse(raw);
+    if(d.name) document.getElementById('sName').value=d.name;
+    if(d.cls) document.getElementById('sClass').value=d.cls;
+    if(d.date) document.getElementById('sDate').value=d.date;
+    Object.keys(d).forEach(k=>{
+      if(k.startsWith('r_')){let n=k.slice(2);let r=document.querySelector(`input[name="${n}"][value="${d[k]}"]`);if(r)r.checked=true;}
+    });
+  }catch(e){}
+}
+function downloadHTML(){
+  autoSave();
+  // input.value is a DOM property — not serialized by outerHTML. Fix with setAttribute.
+  document.querySelectorAll('input[type="text"]').forEach(el=>el.setAttribute('value', el.value));
+  let blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
+  let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='reading_saved.html';a.click();
+}
+function clearAll(){
+  if(!confirm('Clear all answers?'))return;
+  document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  document.getElementById('sName').value='';
+  sessionStorage.removeItem('ibt_reading');
+}
+document.getElementById('sDate').valueAsDate=new Date();
+loadProgress();
+setInterval(autoSave,30000);
+</script>
+</body>
+</html>
