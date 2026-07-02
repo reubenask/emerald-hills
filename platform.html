@@ -2815,7 +2815,7 @@
           <button data-section="teacherLessonNotes" onclick="activateSection('teacherLessonNotes')">Lesson Notes</button>
           <button data-section="teacherSubmissions" onclick="activateSection('teacherSubmissions')">Submissions</button>
           <button data-section="teacherRecords" onclick="activateSection('teacherRecords')">Student Records</button>
-          <button data-section="teacherReviews" onclick="activateSection('teacherReviews')">Record Scores</button>
+          <button data-section="teacherReviews" onclick="activateSection('teacherReviews')">Record Scores & Reviews</button>
           <button data-section="teacherRankings" onclick="activateSection('teacherRankings')">Rankings</button>
         </nav>
         <nav id="adminNav" class="nav hidden">
@@ -9882,55 +9882,117 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         `;
       };
       $("#teacherReviews").innerHTML = `
-        ${pageHeader("Record Scores", "成绩录入", "Enter homework, class exercise, monthly test, mock test, and review scores once. The same record feeds report cards, graphs, teacher records, admin records, and student portals.")}
+        ${pageHeader("Record Scores & Monthly Reviews", "成绩录入与月度反馈", "Enter homework, class exercise, monthly test, mock test, and monthly review comments once. The same record feeds report cards, graphs, teacher records, admin records, and student portals.")}
         ${renderProgramPicker("teacherReviews")}
         <div class="split">
-          <details class="card" open>
-            <summary><h3 style="display:inline">Record scores</h3></summary>
-            <form onsubmit="saveMonthlyReview(event)" style="margin-top:12px">
-              <p class="muted" style="margin-top:0">Choose one score type first. Homework and class exercise entries are dated and averaged into Section B; monthly tests and mock exams feed Section A.</p>
-              ${renderScoreModeTabs()}
-              <input id="reviewScoreMode" type="hidden" value="${escapeHtml(scoreModeValue)}">
-              <div class="field"><label>Student</label><select id="reviewStudent" onchange="setTeacherReviewFocus(this.value, document.getElementById('reviewMonth').value)">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}" ${studentFocusKey(student) === selectedStudentKey ? "selected" : ""}>${student.name} · ${student.className}</option>`).join("")}</select></div>
-              <div class="field"><label>Month</label><input id="reviewMonth" type="month" value="${escapeHtml(selectedMonth)}" onchange="setTeacherReviewFocus(document.getElementById('reviewStudent').value, this.value)"></div>
-              <div class="field"><label>${isWorkMode ? `${scoreModeValue} date` : "Test date"}</label><input id="reviewSourceDate" type="date" value="${escapeHtml(selectedSourceDate)}"></div>
-              ${isWorkMode ? `
+          <div>
+            <details class="card" open>
+              <summary><h3 style="display:inline">Record scores</h3></summary>
+              <form onsubmit="saveMonthlyReview(event)" style="margin-top:12px">
+                <p class="muted" style="margin-top:0">Choose one score type first. Homework and class exercise entries are dated and averaged into Section B; monthly tests and mock exams feed Section A.</p>
+                ${renderScoreModeTabs()}
+                <input id="reviewScoreMode" type="hidden" value="${escapeHtml(scoreModeValue)}">
+                <div class="field"><label>Student</label><select id="reviewStudent" onchange="setTeacherReviewFocus(this.value, document.getElementById('reviewMonth').value)">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}" ${studentFocusKey(student) === selectedStudentKey ? "selected" : ""}>${student.name} · ${student.className}</option>`).join("")}</select></div>
+                <div class="field"><label>Month</label><input id="reviewMonth" type="month" value="${escapeHtml(selectedMonth)}" onchange="setTeacherReviewFocus(document.getElementById('reviewStudent').value, this.value)"></div>
+                <div class="field"><label>${isWorkMode ? `${scoreModeValue} date` : "Test date"}</label><input id="reviewSourceDate" type="date" value="${escapeHtml(selectedSourceDate)}"></div>
+                ${isWorkMode ? `
+                  <div class="review-form">
+                    <div class="field"><label>Score obtained</label><input id="reviewObtained" type="number" min="0" step="0.1" value="${escapeHtml(workObtained)}" placeholder="Example: 5"></div>
+                    <div class="field"><label>Total score</label><input id="reviewMax" type="number" min="1" step="0.1" value="${escapeHtml(workMax)}" placeholder="Example: 10"></div>
+                    <div class="field"><label>Current monthly average</label><input disabled value="${workPercent === null || workPercent === undefined || workPercent === "" ? "" : formatPercentScore(workPercent)}"></div>
+                  </div>
+                  <p class="muted">Enter the raw mark for the selected date. The platform converts it to a percentage and averages all ${scoreModeValue.toLowerCase()} entries in this month.</p>
+                  ${renderEntryList()}
+                ` : `
+                  <div class="review-form">
+                    <div class="field"><label>Overall score</label><input id="reviewOverall" type="number" min="0" max="120" value="${selectedReview ? (reviewDerivedOverall(selectedReview) ?? "") : ""}"></div>
+                    <div class="field"><label>Listening</label><input id="reviewListening" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "listening") ?? "") : ""}"></div>
+                    <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "reading") ?? "") : ""}"></div>
+                    <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "speaking") ?? "") : ""}"></div>
+                    <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "writing") ?? "") : ""}"></div>
+                    <div class="field"><label>Language Form & Meaning</label><input id="reviewLanguage" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "language") ?? "") : ""}"></div>
+                  </div>
+                `}
+                <button class="primary-btn" type="submit">Save ${escapeHtml(scoreModeValue)} score</button>
+              </form>
+            </details>
+            <details class="card" open style="margin-top:16px">
+              <summary><h3 style="display:inline">Fill monthly review</h3></summary>
+              <form onsubmit="saveMonthlyNarrative(event)" style="margin-top:12px">
+                <p class="muted" style="margin-top:0">Write the monthly comments here. These comments share the same student/month record as the scores above, so student records, admin records, and student monthly review all read the same source.</p>
+                <div class="field"><label>Student</label><select id="narrativeStudent" onchange="setTeacherReviewFocus(this.value, document.getElementById('narrativeMonth').value)">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}" ${studentFocusKey(student) === selectedStudentKey ? "selected" : ""}>${student.name} · ${student.className}</option>`).join("")}</select></div>
+                <div class="field"><label>Month</label><input id="narrativeMonth" type="month" value="${escapeHtml(selectedMonth)}" onchange="setTeacherReviewFocus(document.getElementById('narrativeStudent').value, this.value)"></div>
+                <div class="field"><label>Review date</label><input id="narrativeSourceDate" type="date" value="${escapeHtml(selectedReview && selectedReview.sourceDate ? selectedReview.sourceDate : monthEndDateKey(selectedMonth))}"></div>
                 <div class="review-form">
-                  <div class="field"><label>Score obtained</label><input id="reviewObtained" type="number" min="0" step="0.1" value="${escapeHtml(workObtained)}" placeholder="Example: 5"></div>
-                  <div class="field"><label>Total score</label><input id="reviewMax" type="number" min="1" step="0.1" value="${escapeHtml(workMax)}" placeholder="Example: 10"></div>
-                  <div class="field"><label>Current monthly average</label><input disabled value="${workPercent === null || workPercent === undefined || workPercent === "" ? "" : formatPercentScore(workPercent)}"></div>
+                  <div class="field"><label>Strong areas</label><textarea id="narrativeStrong">${escapeHtml(selectedReview ? (selectedReview.strong || "") : "")}</textarea></div>
+                  <div class="field"><label>Currently improving</label><textarea id="narrativeImproving">${escapeHtml(selectedReview ? (selectedReview.improving || "") : "")}</textarea></div>
+                  <div class="field"><label>Weaknesses</label><textarea id="narrativeWeakness">${escapeHtml(selectedReview ? (selectedReview.weakness || "") : "")}</textarea></div>
+                  <div class="field"><label>Areas to improve</label><textarea id="narrativeAreas">${escapeHtml(selectedReview ? (selectedReview.areas || "") : "")}</textarea></div>
+                  <div class="field"><label>How we will improve</label><textarea id="narrativeHow">${escapeHtml(selectedReview ? (selectedReview.how || "") : "")}</textarea></div>
                 </div>
-                <p class="muted">Enter the raw mark for the selected date. The platform converts it to a percentage and averages all ${scoreModeValue.toLowerCase()} entries in this month.</p>
-                ${renderEntryList()}
-              ` : `
-                <div class="review-form">
-                  <div class="field"><label>Overall score</label><input id="reviewOverall" type="number" min="0" max="120" value="${selectedReview ? (reviewDerivedOverall(selectedReview) ?? "") : ""}"></div>
-                  <div class="field"><label>Listening</label><input id="reviewListening" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "listening") ?? "") : ""}"></div>
-                  <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "reading") ?? "") : ""}"></div>
-                  <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "speaking") ?? "") : ""}"></div>
-                  <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "writing") ?? "") : ""}"></div>
-                  <div class="field"><label>Language Form & Meaning</label><input id="reviewLanguage" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "language") ?? "") : ""}"></div>
-                </div>
-              `}
-              <details class="auto-score-box" style="margin:14px 0">
-                <summary>Optional monthly review notes</summary>
-                <div class="review-form" style="margin-top:12px">
-                  <div class="field"><label>Strong areas</label><textarea id="reviewStrong">${escapeHtml(selectedReview ? (selectedReview.strong || "") : "")}</textarea></div>
-                  <div class="field"><label>Currently improving</label><textarea id="reviewImproving">${escapeHtml(selectedReview ? (selectedReview.improving || "") : "")}</textarea></div>
-                  <div class="field"><label>Weaknesses</label><textarea id="reviewWeakness">${escapeHtml(selectedReview ? (selectedReview.weakness || "") : "")}</textarea></div>
-                  <div class="field"><label>Areas to improve</label><textarea id="reviewAreas">${escapeHtml(selectedReview ? (selectedReview.areas || "") : "")}</textarea></div>
-                  <div class="field"><label>How to improve</label><textarea id="reviewHow">${escapeHtml(selectedReview ? (selectedReview.how || "") : "")}</textarea></div>
-                </div>
-              </details>
-              <button class="primary-btn" type="submit">Save ${escapeHtml(scoreModeValue)} score</button>
-            </form>
-          </details>
+                <button class="primary-btn" type="submit">Save monthly review</button>
+              </form>
+            </details>
+          </div>
           <div>
             ${selectedReviews.length ? renderPerformanceGraph(selectedReviews) : ""}
             ${renderReviewCalendar(selectedReviews, "teacher-review-calendar", `No ${teacherProgram.teacherReviews} reviews written yet.`)}
           </div>
         </div>
       `;
+    }
+
+    function saveMonthlyNarrative(event) {
+      event.preventDefault();
+      if (stopIfNotAllowed("teacher", "admin")) return;
+      const [student, program, className] = $("#narrativeStudent").value.split("|");
+      const month = $("#narrativeMonth").value;
+      const sourceDate = $("#narrativeSourceDate") && $("#narrativeSourceDate").value
+        ? $("#narrativeSourceDate").value
+        : monthEndDateKey(month);
+      const sameReviewRecord = (item) =>
+        item.student === student &&
+        item.program === program &&
+        item.className === className &&
+        item.month === month;
+      const existing = store.reviews.find((item) => sameReviewRecord(item));
+      const reviews = store.reviews.filter((item) => !sameReviewRecord(item));
+      const previousScores = existing ? normalizeReviewScores(existing.scores || {}) : {};
+      const preservedScores = normalizeReviewScores(existing && existing.scores ? existing.scores : {});
+      reviews.unshift({
+        ...(existing || {}),
+        student,
+        program,
+        className,
+        month,
+        scores: preservedScores,
+        strong: $("#narrativeStrong").value.trim(),
+        improving: $("#narrativeImproving").value.trim(),
+        weakness: $("#narrativeWeakness").value.trim(),
+        areas: $("#narrativeAreas").value.trim(),
+        how: $("#narrativeHow").value.trim(),
+        publishedBy: currentUser.name,
+        publishedRole: role,
+        publishedAt: new Date().toISOString().slice(0, 10),
+        source: "Monthly review",
+        sourceDate,
+        scoreEntries: Array.isArray(existing && existing.scoreEntries) ? existing.scoreEntries : [],
+        excluded: existing && existing.excluded ? existing.excluded : "",
+        editHistory: [
+          {
+            action: existing ? "Monthly review updated" : "Monthly review created",
+            by: currentUser ? currentUser.name : "System",
+            role,
+            date: new Date().toISOString().slice(0, 10),
+            previousScores,
+            newScores: preservedScores,
+            sourceDate
+          },
+          ...((existing && existing.editHistory) || [])
+        ]
+      });
+      store.reviews = reviews;
+      render();
     }
 
     function saveMonthlyReview(event) {
@@ -10016,11 +10078,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         className,
         month,
         scores: normalizeReviewScores(newScores),
-        strong: $("#reviewStrong").value.trim() || (existing && existing.strong) || "",
-        improving: $("#reviewImproving").value.trim() || (existing && existing.improving) || "",
-        weakness: $("#reviewWeakness").value.trim() || (existing && existing.weakness) || "",
-        areas: $("#reviewAreas").value.trim() || (existing && existing.areas) || "",
-        how: $("#reviewHow").value.trim() || (existing && existing.how) || "",
+        strong: (existing && existing.strong) || "",
+        improving: (existing && existing.improving) || "",
+        weakness: (existing && existing.weakness) || "",
+        areas: (existing && existing.areas) || "",
+        how: (existing && existing.how) || "",
         publishedBy: currentUser.name,
         publishedRole: role,
         publishedAt: new Date().toISOString().slice(0, 10),
