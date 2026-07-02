@@ -3210,6 +3210,7 @@
     let programDetailsLanguage = "english";
     let teacherReviewStudentFocus = "";
     let teacherReviewMonthFocus = "2026-06";
+    let teacherScoreMode = "Homework";
     let teacherProgram = {
       teacherAssignments: "Primary",
       teacherSubmissions: "Primary",
@@ -3237,6 +3238,11 @@
     function setTeacherReviewFocus(studentKey, month) {
       teacherReviewStudentFocus = studentKey || teacherReviewStudentFocus || "";
       teacherReviewMonthFocus = month || teacherReviewMonthFocus || "2026-06";
+      render();
+    }
+
+    function setTeacherScoreMode(mode) {
+      teacherScoreMode = mode || teacherScoreMode || "Homework";
       render();
     }
 
@@ -5950,6 +5956,13 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         if (merged.scores.overall === undefined || merged.scores.overall === null || merged.scores.overall === "") merged.scores.overall = derivedOverall;
       }
       merged.editHistory = mergedReviewEditHistory(filtered);
+      merged.scoreEntries = filtered
+        .flatMap((review) => Array.isArray(review && review.scoreEntries) ? review.scoreEntries : [])
+        .filter((entry, index, entries) => {
+          const key = `${entry.mode || ""}|${entry.date || ""}|${entry.obtained || ""}|${entry.max || ""}|${entry.percent || ""}`;
+          return entries.findIndex((candidate) => `${candidate.mode || ""}|${candidate.date || ""}|${candidate.obtained || ""}|${candidate.max || ""}|${candidate.percent || ""}` === key) === index;
+        })
+        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
       return merged;
     }
 
@@ -5984,6 +5997,41 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         }
       }
       return null;
+    }
+
+    function isWorkScoreMode(mode) {
+      return mode === "Homework" || mode === "Class Exercise";
+    }
+
+    function scoreModeScoreKey(mode) {
+      if (mode === "Homework") return "homework";
+      if (mode === "Class Exercise") return "exercises";
+      return "";
+    }
+
+    function scoreModeSourceLabel(mode) {
+      if (mode === "Homework") return "Homework score";
+      if (mode === "Class Exercise") return "Class exercise score";
+      if (mode === "Mock Exam") return "Mock exam score";
+      return "Monthly test score";
+    }
+
+    function reviewScoreEntries(review, mode = "") {
+      const entries = Array.isArray(review && review.scoreEntries) ? review.scoreEntries : [];
+      return entries
+        .filter((entry) => !mode || entry.mode === mode)
+        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+    }
+
+    function averageScoreEntries(entries = []) {
+      return averageValues(entries.map((entry) => entry.percent));
+    }
+
+    function percentFromObtainedMax(obtained, max) {
+      const obtainedNumber = Number(obtained);
+      const maxNumber = Number(max);
+      if (!Number.isFinite(obtainedNumber) || !Number.isFinite(maxNumber) || maxNumber <= 0) return null;
+      return Math.round((obtainedNumber / maxNumber) * 1000) / 10;
     }
 
     function reviewDerivedOverall(review) {
@@ -8406,8 +8454,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           ["Writing", reviewScoreValue(review, "writing")]
         ].filter(([, value]) => value !== undefined && value !== null && value !== "").forEach(([label, score]) => examRows.push({ label, score, remark: "Monthly exam score" }));
       }
-      const reviewHomework = review ? reviewScoreValue(review, "homework") : null;
-      const reviewExercises = review ? reviewScoreValue(review, "exercises") : null;
+      const reviewEntries = review ? reviewScoreEntries(review) : [];
+      const homeworkEntryAverage = averageScoreEntries(reviewEntries.filter((entry) => entry.mode === "Homework" && String(entry.date || "").slice(0, 7) === month));
+      const exerciseEntryAverage = averageScoreEntries(reviewEntries.filter((entry) => entry.mode === "Class Exercise" && String(entry.date || "").slice(0, 7) === month));
+      const reviewHomework = homeworkEntryAverage !== null ? homeworkEntryAverage : (review ? reviewScoreValue(review, "homework") : null);
+      const reviewExercises = exerciseEntryAverage !== null ? exerciseEntryAverage : (review ? reviewScoreValue(review, "exercises") : null);
       if (review && !examRows.length && (reviewHomework !== null || reviewExercises !== null)) {
         examRows.push({ label: "Monthly Test", score: "Absent / not recorded", remark: "No exam score was recorded for this month", includeInTotal: false });
       }
@@ -9788,38 +9839,90 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const selectedReview = selectedStudent
         ? preferredReviewForStudentMonth(selectedStudent.name, selectedMonth, selectedStudent.program, selectedStudent.className)
         : null;
-      const scoreModeValue = selectedReview && selectedReview.scoreMode ? selectedReview.scoreMode : "Monthly Test";
+      const scoreModeValue = teacherScoreMode || "Homework";
+      const isWorkMode = isWorkScoreMode(scoreModeValue);
+      const selectedEntries = selectedReview ? reviewScoreEntries(selectedReview, scoreModeValue) : [];
+      const selectedEntriesForMonth = selectedEntries.filter((entry) => String(entry.date || "").slice(0, 7) === selectedMonth);
+      const latestEntry = selectedEntriesForMonth[selectedEntriesForMonth.length - 1] || null;
+      const selectedSourceDate = latestEntry && latestEntry.date
+        ? latestEntry.date
+        : (selectedReview && selectedReview.sourceDate ? selectedReview.sourceDate : monthEndDateKey(selectedMonth));
+      const workScoreKey = scoreModeScoreKey(scoreModeValue);
+      const currentWorkPercent = workScoreKey && selectedReview ? reviewScoreValue(selectedReview, workScoreKey) : null;
+      const workObtained = latestEntry ? latestEntry.obtained : (currentWorkPercent !== null ? currentWorkPercent : "");
+      const workMax = latestEntry ? latestEntry.max : (currentWorkPercent !== null ? 100 : "");
+      const monthlyWorkAverage = averageScoreEntries(selectedEntriesForMonth);
+      const workPercent = monthlyWorkAverage !== null ? monthlyWorkAverage : (currentWorkPercent !== null ? currentWorkPercent : null);
+      const renderScoreModeTabs = () => `
+        <div class="toolbar" style="gap:8px; flex-wrap:wrap; margin:10px 0 16px">
+          ${["Homework", "Class Exercise", "Monthly Test", "Mock Exam"].map((item) => `
+            <button class="${scoreModeValue === item ? "primary-btn" : "ghost-btn"}" type="button" onclick="setTeacherScoreMode('${item}')">${escapeHtml(item)}</button>
+          `).join("")}
+        </div>
+      `;
+      const renderEntryList = () => {
+        if (!isWorkMode) return "";
+        if (!selectedEntriesForMonth.length) return `<div class="empty">No ${scoreModeValue.toLowerCase()} score has been recorded for ${monthLabel(selectedMonth)} yet.</div>`;
+        return `
+          <div class="table-wrap compact-table" style="margin:12px 0">
+            <table>
+              <thead><tr><th>Date</th><th>Score</th><th>Converted %</th><th>Entered by</th></tr></thead>
+              <tbody>
+                ${selectedEntriesForMonth.map((entry) => `
+                  <tr>
+                    <td>${escapeHtml(entry.date || "")}</td>
+                    <td>${escapeHtml(entry.obtained ?? "")}/${escapeHtml(entry.max ?? "")}</td>
+                    <td>${formatPercentScore(entry.percent)}</td>
+                    <td>${escapeHtml(entry.enteredBy || "")}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      };
       $("#teacherReviews").innerHTML = `
         ${pageHeader("Record Scores", "成绩录入", "Enter homework, class exercise, monthly test, mock test, and review scores once. The same record feeds report cards, graphs, teacher records, admin records, and student portals.")}
         ${renderProgramPicker("teacherReviews")}
         <div class="split">
           <details class="card">
-            <summary><h3 style="display:inline">Record scores / Fill in student review</h3></summary>
+            <summary><h3 style="display:inline">Record scores</h3></summary>
             <form onsubmit="saveMonthlyReview(event)" style="margin-top:12px">
-              <p class="muted" style="margin-top:0">Choose the score mode, class, student, and month. Homework and class exercise scores appear in Section B; monthly tests and mock tests appear in Section A.</p>
-              <div class="field"><label>Score mode</label><select id="reviewScoreMode">
-                ${["Monthly Test", "Mock Exam", "Homework", "Class Exercise"].map((item) => `<option value="${escapeHtml(item)}" ${item === scoreModeValue ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}
-              </select></div>
+              <p class="muted" style="margin-top:0">Choose one score type first. Homework and class exercise entries are dated and averaged into Section B; monthly tests and mock exams feed Section A.</p>
+              ${renderScoreModeTabs()}
+              <input id="reviewScoreMode" type="hidden" value="${escapeHtml(scoreModeValue)}">
               <div class="field"><label>Student</label><select id="reviewStudent" onchange="setTeacherReviewFocus(this.value, document.getElementById('reviewMonth').value)">${selectedStudents.map((student) => `<option value="${student.name}|${student.program}|${student.className}" ${studentFocusKey(student) === selectedStudentKey ? "selected" : ""}>${student.name} · ${student.className}</option>`).join("")}</select></div>
               <div class="field"><label>Month</label><input id="reviewMonth" type="month" value="${escapeHtml(selectedMonth)}" onchange="setTeacherReviewFocus(document.getElementById('reviewStudent').value, this.value)"></div>
-              <div class="review-form">
-                <div class="field"><label>Overall score</label><input id="reviewOverall" type="number" min="0" max="120" value="${selectedReview ? (reviewDerivedOverall(selectedReview) ?? "") : ""}"></div>
-                <div class="field"><label>Listening</label><input id="reviewListening" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "listening") ?? "") : ""}"></div>
-                <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "reading") ?? "") : ""}"></div>
-                <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "speaking") ?? "") : ""}"></div>
-                <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "writing") ?? "") : ""}"></div>
-                <div class="field"><label>Language Form & Meaning</label><input id="reviewLanguage" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "language") ?? "") : ""}"></div>
-                <div class="field"><label>Homework</label><input id="reviewHomework" type="number" min="0" max="100" value="${selectedReview ? (reviewScoreValue(selectedReview, "homework") ?? "") : ""}"></div>
-                <div class="field"><label>Class Exercises</label><input id="reviewExercises" type="number" min="0" max="100" value="${selectedReview ? (reviewScoreValue(selectedReview, "exercises") ?? "") : ""}"></div>
-              </div>
-              <div class="review-form">
-                <div class="field"><label>Strong areas</label><textarea id="reviewStrong">${escapeHtml(selectedReview ? (selectedReview.strong || "") : "")}</textarea></div>
-                <div class="field"><label>Currently improving</label><textarea id="reviewImproving">${escapeHtml(selectedReview ? (selectedReview.improving || "") : "")}</textarea></div>
-                <div class="field"><label>Weaknesses</label><textarea id="reviewWeakness">${escapeHtml(selectedReview ? (selectedReview.weakness || "") : "")}</textarea></div>
-                <div class="field"><label>Areas to improve</label><textarea id="reviewAreas">${escapeHtml(selectedReview ? (selectedReview.areas || "") : "")}</textarea></div>
-                <div class="field"><label>How to improve</label><textarea id="reviewHow">${escapeHtml(selectedReview ? (selectedReview.how || "") : "")}</textarea></div>
-              </div>
-              <button class="primary-btn" type="submit">Save score / review</button>
+              <div class="field"><label>${isWorkMode ? `${scoreModeValue} date` : "Test date"}</label><input id="reviewSourceDate" type="date" value="${escapeHtml(selectedSourceDate)}"></div>
+              ${isWorkMode ? `
+                <div class="review-form">
+                  <div class="field"><label>Score obtained</label><input id="reviewObtained" type="number" min="0" step="0.1" value="${escapeHtml(workObtained)}" placeholder="Example: 5"></div>
+                  <div class="field"><label>Total score</label><input id="reviewMax" type="number" min="1" step="0.1" value="${escapeHtml(workMax)}" placeholder="Example: 10"></div>
+                  <div class="field"><label>Current monthly average</label><input disabled value="${workPercent === null || workPercent === undefined || workPercent === "" ? "" : formatPercentScore(workPercent)}"></div>
+                </div>
+                <p class="muted">Enter the raw mark for the selected date. The platform converts it to a percentage and averages all ${scoreModeValue.toLowerCase()} entries in this month.</p>
+                ${renderEntryList()}
+              ` : `
+                <div class="review-form">
+                  <div class="field"><label>Overall score</label><input id="reviewOverall" type="number" min="0" max="120" value="${selectedReview ? (reviewDerivedOverall(selectedReview) ?? "") : ""}"></div>
+                  <div class="field"><label>Listening</label><input id="reviewListening" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "listening") ?? "") : ""}"></div>
+                  <div class="field"><label>Reading</label><input id="reviewReading" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "reading") ?? "") : ""}"></div>
+                  <div class="field"><label>Speaking</label><input id="reviewSpeaking" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "speaking") ?? "") : ""}"></div>
+                  <div class="field"><label>Writing</label><input id="reviewWriting" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "writing") ?? "") : ""}"></div>
+                  <div class="field"><label>Language Form & Meaning</label><input id="reviewLanguage" type="number" min="0" max="120" value="${selectedReview ? (reviewScoreValue(selectedReview, "language") ?? "") : ""}"></div>
+                </div>
+              `}
+              <details class="auto-score-box" style="margin:14px 0">
+                <summary>Optional monthly review notes</summary>
+                <div class="review-form" style="margin-top:12px">
+                  <div class="field"><label>Strong areas</label><textarea id="reviewStrong">${escapeHtml(selectedReview ? (selectedReview.strong || "") : "")}</textarea></div>
+                  <div class="field"><label>Currently improving</label><textarea id="reviewImproving">${escapeHtml(selectedReview ? (selectedReview.improving || "") : "")}</textarea></div>
+                  <div class="field"><label>Weaknesses</label><textarea id="reviewWeakness">${escapeHtml(selectedReview ? (selectedReview.weakness || "") : "")}</textarea></div>
+                  <div class="field"><label>Areas to improve</label><textarea id="reviewAreas">${escapeHtml(selectedReview ? (selectedReview.areas || "") : "")}</textarea></div>
+                  <div class="field"><label>How to improve</label><textarea id="reviewHow">${escapeHtml(selectedReview ? (selectedReview.how || "") : "")}</textarea></div>
+                </div>
+              </details>
+              <button class="primary-btn" type="submit">Save ${escapeHtml(scoreModeValue)} score</button>
             </form>
           </details>
           <div>
@@ -9850,6 +9953,29 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         return Number.isFinite(value) ? value : null;
       };
       const scoreMode = $("#reviewScoreMode") ? $("#reviewScoreMode").value : "Monthly Test";
+      const sourceDate = $("#reviewSourceDate") && $("#reviewSourceDate").value
+        ? $("#reviewSourceDate").value
+        : ((existing && existing.sourceDate) || monthEndDateKey(month));
+      const obtainedScore = parseScoreInput("#reviewObtained");
+      const maxScore = parseScoreInput("#reviewMax");
+      const convertedWorkPercent = percentFromObtainedMax(obtainedScore, maxScore);
+      const preservedEntries = Array.isArray(existing && existing.scoreEntries) ? existing.scoreEntries : [];
+      let scoreEntries = preservedEntries;
+      if (isWorkScoreMode(scoreMode) && convertedWorkPercent !== null) {
+        const nextEntry = {
+          mode: scoreMode,
+          date: sourceDate,
+          obtained: obtainedScore,
+          max: maxScore,
+          percent: convertedWorkPercent,
+          enteredBy: currentUser ? currentUser.name : "Teacher",
+          enteredAt: new Date().toISOString().slice(0, 10)
+        };
+        scoreEntries = [
+          ...preservedEntries.filter((entry) => !(entry.mode === scoreMode && entry.date === sourceDate)),
+          nextEntry
+        ].sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+      }
       const explicitOverall = parseScoreInput("#reviewOverall");
       const preservedScores = normalizeReviewScores(existing && existing.scores ? existing.scores : {});
       const newScores = {
@@ -9862,6 +9988,20 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         homework: parseScoreInput("#reviewHomework"),
         exercises: parseScoreInput("#reviewExercises")
       };
+      if (scoreMode === "Homework") {
+        const homeworkAverage = averageScoreEntries(scoreEntries.filter((entry) => entry.mode === "Homework" && String(entry.date || "").slice(0, 7) === month));
+        if (homeworkAverage !== null) newScores.homework = homeworkAverage;
+      }
+      if (scoreMode === "Class Exercise") {
+        const exerciseAverage = averageScoreEntries(scoreEntries.filter((entry) => entry.mode === "Class Exercise" && String(entry.date || "").slice(0, 7) === month));
+        if (exerciseAverage !== null) newScores.exercises = exerciseAverage;
+      }
+      const reviewSource = isWorkScoreMode(scoreMode)
+        ? ((existing && existing.source) || scoreModeSourceLabel(scoreMode))
+        : scoreModeSourceLabel(scoreMode);
+      const reviewSourceDate = isWorkScoreMode(scoreMode)
+        ? ((existing && existing.sourceDate) || monthEndDateKey(month))
+        : sourceDate;
       Object.keys(newScores).forEach((scoreKey) => {
         if (newScores[scoreKey] === null && preservedScores[scoreKey] !== undefined) newScores[scoreKey] = preservedScores[scoreKey];
       });
@@ -9885,17 +10025,19 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         publishedRole: role,
         publishedAt: new Date().toISOString().slice(0, 10),
         scoreMode,
-        source: (existing && existing.source) || `${scoreMode} score entry`,
-        sourceDate: (existing && existing.sourceDate) || monthEndDateKey(month),
+        source: reviewSource,
+        sourceDate: reviewSourceDate,
+        scoreEntries,
         excluded: existing && existing.excluded ? existing.excluded : "",
         editHistory: [
           {
-            action: existing ? "Monthly review updated" : "Monthly review published",
+            action: existing ? `${scoreMode} score updated` : `${scoreMode} score recorded`,
             by: currentUser ? currentUser.name : "System",
             role,
             date: new Date().toISOString().slice(0, 10),
             previousScores,
-            newScores: normalizeReviewScores(newScores)
+            newScores: normalizeReviewScores(newScores),
+            sourceDate
           },
           ...((existing && existing.editHistory) || [])
         ]
