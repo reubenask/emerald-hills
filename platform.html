@@ -3289,6 +3289,12 @@
       exercises: "Class Exercise %",
       homework: "Homework %"
     };
+    const markingModeLabels = {
+      "html-auto": "HTML auto-mark / auto-save",
+      "answer-key": "Platform auto-mark with answer key",
+      "teacher-marked": "Teacher reads and scores"
+    };
+    const markingModeOptions = Object.entries(markingModeLabels);
     const typingGames = [
       {
         title: "TYPE//VOID",
@@ -7174,6 +7180,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           <div class="tag-row">
             <span class="tag green">${categoryLabels[assignment.category] || assignment.category}</span>
             <span class="tag blue">${assignment.section}</span>
+            <span class="tag blue">${markingModeLabels[assignment.markingMode] || markingModeLabels["teacher-marked"]}</span>
             <span class="tag warn">${statusText}</span>
           </div>
           <p>${assignment.instructions}</p>
@@ -8715,6 +8722,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const editing = assignments.find((item) => item.id === editingAssignmentId);
       const formProgram = editing ? editing.program : teacherProgram.teacherAssignments;
       const selectedCategory = editing ? editing.category : teacherCategory.teacherAssignments;
+      const selectedMarkingMode = editing && editing.markingMode ? editing.markingMode : "html-auto";
       $("#teacherAssignments").innerHTML = `
         ${pageHeader("Content Builder", "创建与编辑任务", "Only teachers can create homework, exercises, mock tests, upload media, and edit exam materials.")}
         ${renderProgramPicker("teacherAssignments")}
@@ -8723,12 +8731,19 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           <details class="card"${editing ? " open" : ""}>
             <summary><h3 style="display:inline">${editing ? "Edit assignment" : "Fill in assignment details"}</h3></summary>
           <form onsubmit="saveAssignment(event)" style="margin-top:12px">
-            <p class="muted">Select the work type above, then choose the class, date, section, and any files or answer keys needed. Students see the saved work in their own work platform, and scores are recorded separately in Record Scores.</p>
+            <p class="muted">Select the work type above, upload the HTML question file whenever possible, then choose whether the file can auto-mark or whether the teacher will read and score it. Students see the saved work in their own work platform, and scores sync through Record Scores.</p>
             <div class="field"><label>Task title</label><input id="assignmentTitle" required value="${editing ? editing.title : "New class homework"}"></div>
             <div class="field"><label>Program</label><select id="assignmentProgram" onchange="syncAssignmentOptions(); syncAssignmentTemplate();">${Object.keys(programs).map((program) => `<option ${program === formProgram ? "selected" : ""}>${program}</option>`).join("")}</select></div>
             <div class="field"><label>Class</label><select id="assignmentClass" onchange="syncAssignmentSections(); syncAssignmentTemplate();"></select></div>
             <div class="field"><label>Assignment type</label><input id="assignmentCategory" type="hidden" value="${selectedCategory}"><div class="tag-row">${workCategories.map((category) => `<span class="tag ${selectedCategory === category ? "green" : "blue"}">${categoryLabels[category] || category}</span>`).join("")}</div></div>
             <div class="field"><label>Exam section</label><select id="assignmentSection" onchange="syncAssignmentTemplate()"></select></div>
+            <div class="field">
+              <label>Marking workflow</label>
+              <select id="assignmentMarkingMode">
+                ${markingModeOptions.map(([value, label]) => `<option value="${value}" ${selectedMarkingMode === value ? "selected" : ""}>${label}</option>`).join("")}
+              </select>
+              <small class="muted">Use uploaded HTML auto-marking when the file can report answers or scores. Use answer-key auto-marking for objective sections. Use teacher-marked for speaking, writing, open homework, and exercises that need review.</small>
+            </div>
             <div class="field-grid">
               <div class="field"><label>Date posted</label><input id="assignmentPosted" type="date" value="${editing ? editing.posted : "2026-05-23"}"></div>
               <div class="field"><label>Deadline</label><input id="assignmentDue" type="date" value="${editing ? editing.due : "2026-05-30"}"></div>
@@ -8736,8 +8751,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             <details class="card" style="padding: 0.85rem 1rem; margin: 0.25rem 0 1rem; background: rgba(10, 30, 23, 0.45);">
               <summary style="cursor: pointer; font-weight: 700; color: var(--text-main); list-style: none;">Advanced settings</summary>
               <div class="field" style="margin-top: 0.85rem;"><label>Time limit for Monthly Test / Mock Exam</label><input id="assignmentDuration" type="number" min="0" max="240" placeholder="Minutes, for example 45" value="${editing && editing.durationMinutes ? editing.durationMinutes : ""}"></div>
-              <div class="field"><label>Upload question material</label><input id="assignmentFile" type="file" accept="image/*,audio/*,video/*,application/pdf"></div>
+              <div class="field"><label>Upload HTML question file / material</label><input id="assignmentFile" type="file" accept=".html,.htm,text/html,image/*,audio/*,video/*,application/pdf,.pdf,.doc,.docx,.ppt,.pptx"></div>
               <div class="field"><label>Media link</label><input id="assignmentMediaUrl" placeholder="Optional video, audio, image, or document link" value="${editing && editing.mediaUrl ? editing.mediaUrl : ""}"></div>
+              <div class="template-note"><strong>Scoring connection:</strong> HTML auto-marked files should report completion or scores back to the platform when possible. If they cannot, the teacher records the score in Record Scores; that same score feeds teacher records, admin records, student report cards, rankings, and graphs.</div>
               <div class="field"><label>Teacher material / passage / transcript</label><textarea id="assignmentSourceMaterial" placeholder="Paste the reading passage, listening transcript, grammar text, speaking prompt, or writing source material here.">${editing && editing.sourceMaterial ? editing.sourceMaterial : ""}</textarea></div>
               <div class="field"><label>Instructions</label><textarea id="assignmentInstructions">${editing ? editing.instructions : "Complete the assigned section and submit your answers."}</textarea></div>
               <div class="field"><label>Answer sheet size</label><input id="assignmentAnswerCount" type="number" min="1" max="160" value="${editing && editing.answerCount ? editing.answerCount : templateFor(formProgram, editing ? editing.section : sectionsFor(formProgram, editing ? editing.className : programs[formProgram].classes[0])[0], editing ? editing.className : programs[formProgram].classes[0]).count}"></div>
@@ -8764,7 +8780,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               <tbody>
                 ${assignments.map((item) => `
                   <tr>
-                    <td><strong>${item.title}</strong><br>${item.category} · ${item.section}</td>
+                    <td><strong>${item.title}</strong><br>${item.category} · ${item.section}<br><span class="tag blue">${markingModeLabels[item.markingMode] || markingModeLabels["teacher-marked"]}</span></td>
                     <td>${item.program}<br>${item.className}</td>
                     <td>${item.posted}<br>${item.due}${item.durationMinutes ? `<br>${item.durationMinutes} min` : ""}</td>
                     <td>
@@ -8990,6 +9006,21 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       let assignments = store.assignments;
       const existing = assignments.find((item) => item.id === editingAssignmentId);
       const uploaded = await readUploadedMaterial($("#assignmentFile").files[0]);
+      const mediaUrl = $("#assignmentMediaUrl").value.trim();
+      const sourceMaterial = $("#assignmentSourceMaterial").value.trim();
+      const sectionBlocks = $("#assignmentBlocks").value.trim();
+      const questions = $("#assignmentQuestions").value.split("\n").map((item) => item.trim()).filter(Boolean);
+      const answerKey = parseAnswerKey($("#assignmentAnswerKey").value);
+      const markingMode = $("#assignmentMarkingMode").value;
+      const hasQuestionMaterial = uploaded || (existing && existing.media) || mediaUrl || sourceMaterial || sectionBlocks || questions.length;
+      if (!hasQuestionMaterial) {
+        window.alert("Please upload an HTML/question file, add a media link, or enter the material/questions before saving this work.");
+        return;
+      }
+      if (markingMode === "answer-key" && !answerKey.length) {
+        window.alert("Answer-key auto-marking needs at least one correct answer. Choose teacher-marked if the teacher will read and score it later.");
+        return;
+      }
       const saved = {
         id: editingAssignmentId || `a${Date.now()}`,
         title: $("#assignmentTitle").value,
@@ -9000,17 +9031,18 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         posted: $("#assignmentPosted").value,
         due: $("#assignmentDue").value,
         media: uploaded || (existing ? existing.media : null),
-        mediaUrl: $("#assignmentMediaUrl").value.trim(),
-        sourceMaterial: $("#assignmentSourceMaterial").value.trim(),
-        sectionBlocks: $("#assignmentBlocks").value.trim(),
+        mediaUrl,
+        sourceMaterial,
+        sectionBlocks,
         timingPlan: $("#assignmentTimingPlan").value.trim(),
         instructions: $("#assignmentInstructions").value,
         answerCount: Number($("#assignmentAnswerCount").value) || templateFor($("#assignmentProgram").value, $("#assignmentSection").value, $("#assignmentClass").value).count,
         durationMinutes: Number($("#assignmentDuration").value) || 0,
-        questions: $("#assignmentQuestions").value.split("\n").map((item) => item.trim()).filter(Boolean),
-        answerKey: parseAnswerKey($("#assignmentAnswerKey").value),
+        questions,
+        answerKey,
+        markingMode,
         editHistory: [
-          lessonAuditEntry(editingAssignmentId ? "Assignment updated" : "Assignment created", `${$("#assignmentCategory").value} · ${$("#assignmentSection").value}`),
+          lessonAuditEntry(editingAssignmentId ? "Assignment updated" : "Assignment created", `${$("#assignmentCategory").value} · ${$("#assignmentSection").value} · ${markingModeLabels[markingMode] || markingMode}`),
           ...((existing && existing.editHistory) || [])
         ],
         editable: true
