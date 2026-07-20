@@ -232,6 +232,10 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35);
     }
 
+    .entrance-file-frame.compact-frame {
+      min-height: 420px;
+    }
+
     .entrance-meta {
       display: flex;
       flex-wrap: wrap;
@@ -3335,6 +3339,7 @@
     let publicGuestSection = "Listening";
     let adminGuestLevel = "Primary Step 1";
     let adminGuestSection = "Listening";
+    let adminGuestSubmissionIndex = 0;
     let adminStudentFilterProgram = "All";
     let adminStudentFilterClass = "All";
     let adminScoreProgram = "Primary";
@@ -5617,6 +5622,46 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const entranceFile = entranceExamFileFor(level.key, publicGuestSection);
       const questions = exam.questions || [];
       const answerCount = Number(exam.answerCount) || Math.max(questions.length, 1);
+      const answerForm = `
+        <form onsubmit="submitGuestExam(event)">
+          <div class="grid">
+            <div class="field"><label>Guest name</label><input id="guestName" required placeholder="Full name"></div>
+            <div class="field"><label>Age</label><input id="guestAge" type="number" min="3" max="99" required placeholder="Age"></div>
+          </div>
+          <div class="grid">
+            <div class="field">
+              <label>Contact type</label>
+              <select id="guestContactType">
+                <option>Phone</option>
+                <option>WeChat ID</option>
+                <option>Email</option>
+              </select>
+            </div>
+            <div class="field"><label>Phone / WeChat / Email</label><input id="guestContact" required placeholder="Phone, WeChat ID, or email"></div>
+          </div>
+          ${entranceFile ? `
+            <div class="field"><label>Answer sheet / script upload</label><input id="guestAnswerSheetFile" type="file" accept=".html,.htm,.pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,image/*,application/pdf,text/html,text/plain"></div>
+            <div class="field"><label>Answer notes or recording link</label><textarea id="guestExamNotes" placeholder="Paste answers, score/result page, recording link, or anything admin should review."></textarea></div>
+          ` : `
+            <div class="grid">
+              ${Array.from({ length: answerCount }, (_, index) => {
+                const prompt = questions[index] || `${publicGuestSection} answer ${index + 1}`;
+                const isSpeaking = publicGuestSection === "Speaking";
+                return `
+                <div class="field">
+                  <label>${isSpeaking ? "Speaking task" : "Question"} ${index + 1}</label>
+                  <p>${escapeHtml(prompt)}</p>
+                  ${isSpeaking ? `<button class="secondary-btn" type="button" onclick="speakGuestPrompt(${index})">Play prompt</button>` : ""}
+                  <textarea class="guest-answer" required placeholder="${isSpeaking ? "Paste recording link or write your spoken response note" : "Type your answer"}"></textarea>
+                </div>
+              `;
+              }).join("")}
+            </div>
+            <div class="field"><label>Extra answer notes or recording link</label><textarea id="guestExamNotes" placeholder="Optional notes for admin review."></textarea></div>
+          `}
+          <button class="primary-btn" type="submit">Submit entrance exam</button>
+        </form>
+      `;
       $("#publicContent").innerHTML = `
         <div class="public-panel">
           <h1>Entrance Examination</h1>
@@ -5653,28 +5698,8 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             ` : `
               ${exam.timingPlan ? `<div class="speaking-prompt-card"><strong>Timing guide</strong><p>${escapeHtml(exam.timingPlan).replace(/\n/g, "<br>")}</p></div>` : ""}
               ${renderPublicMedia(exam)}
-              <form onsubmit="submitGuestExam(event)">
-                <div class="grid">
-                  <div class="field"><label>Guest name</label><input id="guestName" required placeholder="Full name"></div>
-                  <div class="field"><label>Contact</label><input id="guestContact" required placeholder="Phone, WeChat, or email"></div>
-                </div>
-                <div class="grid">
-                  ${Array.from({ length: answerCount }, (_, index) => {
-                    const prompt = questions[index] || `${publicGuestSection} answer ${index + 1}`;
-                    const isSpeaking = publicGuestSection === "Speaking";
-                    return `
-                    <div class="field">
-                      <label>${isSpeaking ? "Speaking task" : "Question"} ${index + 1}</label>
-                      <p>${escapeHtml(prompt)}</p>
-                      ${isSpeaking ? `<button class="secondary-btn" type="button" onclick="speakGuestPrompt(${index})">Play prompt</button>` : ""}
-                      <textarea class="guest-answer" required placeholder="${isSpeaking ? "Paste recording link or write your spoken response note" : "Type your answer"}"></textarea>
-                    </div>
-                  `;
-                  }).join("")}
-                </div>
-                <button class="primary-btn" type="submit">Submit entrance exam</button>
-              </form>
             `}
+            ${answerForm}
           </div>
         </div>
       `;
@@ -5768,23 +5793,37 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return "";
     }
 
-    function submitGuestExam(event) {
+    async function submitGuestExam(event) {
       event.preventDefault();
       const bank = store.guestExam;
       const level = entranceLevelMeta(publicGuestLevel);
       const exam = bank[level.key].sections[publicGuestSection];
       const answers = $$(".guest-answer").map((answer) => answer.value.trim());
+      const entranceFile = entranceExamFileFor(level.key, publicGuestSection);
+      const uploadedScript = await readUploadedMaterial($("#guestAnswerSheetFile")?.files?.[0]);
       const submissions = store.guestSubmissions;
       submissions.unshift({
+        id: `guest-${Date.now()}`,
         date: new Date().toISOString().slice(0, 10),
         name: $("#guestName").value.trim(),
+        age: $("#guestAge").value.trim(),
+        contactType: $("#guestContactType").value,
         contact: $("#guestContact").value.trim(),
         program: level.program,
         className: level.className,
         level: level.key,
         section: publicGuestSection,
         title: exam.title,
-        answers
+        entranceFile,
+        answers,
+        notes: $("#guestExamNotes")?.value.trim() || "",
+        answerSheet: uploadedScript,
+        score: "",
+        maxScore: "",
+        status: "Needs review",
+        adminFeedback: "",
+        reviewedAt: "",
+        reviewedBy: ""
       });
       store.guestSubmissions = submissions;
       window.alert("Entrance exam submitted. The school will review it and contact you.");
@@ -10959,12 +10998,86 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       render();
     }
 
+    function renderGuestAnswerSheetPreview(submission) {
+      const sheet = submission.answerSheet;
+      if (!sheet || !sheet.dataUrl) return `<div class="empty">No uploaded answer sheet. Check typed answers or notes below.</div>`;
+      const type = sheet.type || "";
+      if (type.startsWith("image/")) {
+        return `<div class="media-preview"><img src="${sheet.dataUrl}" alt="${escapeHtml(sheet.name || "Guest answer sheet")}"></div>`;
+      }
+      if (type === "application/pdf" || type === "text/html" || type === "text/plain") {
+        return `<iframe class="entrance-file-frame compact-frame" src="${sheet.dataUrl}" title="${escapeHtml(sheet.name || "Guest answer sheet")}"></iframe>`;
+      }
+      return `
+        <div class="empty">
+          <p>${escapeHtml(sheet.name || "Uploaded answer sheet")} is attached. This file type may not preview in the browser.</p>
+          <a class="secondary-btn" href="${sheet.dataUrl}" target="_blank" rel="noopener">Open uploaded script</a>
+        </div>
+      `;
+    }
+
+    function renderGuestSubmissionReview(submission, index) {
+      if (!submission) {
+        return `<article class="card"><h3>No guest selected</h3><p class="muted">Guest submissions will appear here after visitors complete the entrance form.</p></article>`;
+      }
+      const percent = submission.score && submission.maxScore
+        ? Math.round((Number(submission.score) / Number(submission.maxScore)) * 100)
+        : "";
+      return `
+        <article class="card">
+          <div class="record-heading">
+            <div>
+              <h3>${escapeHtml(submission.name || "Guest applicant")}</h3>
+              <p>${escapeHtml(submission.level || submission.className || "Entrance")} · ${escapeHtml(submission.section || "General")} · ${escapeHtml(submission.date || "")}</p>
+            </div>
+            <span class="tag ${submission.status === "Marked" ? "green" : "blue"}">${escapeHtml(submission.status || "Needs review")}</span>
+          </div>
+          <div class="score-strip">
+            <div class="score-pill"><span>Age</span><strong>${escapeHtml(submission.age || "-")}</strong></div>
+            <div class="score-pill"><span>Contact type</span><strong>${escapeHtml(submission.contactType || "Contact")}</strong></div>
+            <div class="score-pill"><span>Contact</span><strong>${escapeHtml(submission.contact || "-")}</strong></div>
+            <div class="score-pill"><span>Score</span><strong>${percent ? `${escapeHtml(submission.score)}/${escapeHtml(submission.maxScore)} · ${percent}%` : "-"}</strong></div>
+          </div>
+          <details class="inline-details" open>
+            <summary>Entrance exam file</summary>
+            ${submission.entranceFile ? `<iframe class="entrance-file-frame compact-frame" src="${escapeHtml(submission.entranceFile)}" title="${escapeHtml(submission.title || "Entrance exam")}"></iframe>` : `<div class="empty">This submission used the typed mini-question form.</div>`}
+          </details>
+          <details class="inline-details" open>
+            <summary>Guest answer sheet / script</summary>
+            ${renderGuestAnswerSheetPreview(submission)}
+            ${submission.notes ? `<div class="feedback-box"><strong>Notes / links</strong><p>${escapeHtml(submission.notes).replace(/\n/g, "<br>")}</p></div>` : ""}
+            ${(submission.answers || []).length ? `<div class="feedback-box"><strong>Typed answers</strong>${submission.answers.map((answer, answerIndex) => `<p><strong>Q${answerIndex + 1}:</strong> ${escapeHtml(answer)}</p>`).join("")}</div>` : ""}
+          </details>
+          <form class="nested-form" onsubmit="saveGuestSubmissionReview(event, ${index})">
+            <h3>Admin marking</h3>
+            <div class="grid">
+              <div class="field"><label>Score obtained</label><input id="guestReviewScore" type="number" min="0" step="0.1" value="${escapeHtml(submission.score || "")}" placeholder="Score"></div>
+              <div class="field"><label>Max score</label><input id="guestReviewMaxScore" type="number" min="1" step="0.1" value="${escapeHtml(submission.maxScore || "")}" placeholder="Max score"></div>
+              <div class="field">
+                <label>Status</label>
+                <select id="guestReviewStatus">
+                  ${["Needs review", "Marked", "Needs follow-up", "Accepted", "Rejected"].map((status) => `<option ${status === (submission.status || "Needs review") ? "selected" : ""}>${status}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+            <div class="field"><label>Admin comments / marking notes</label><textarea id="guestReviewFeedback" placeholder="Write feedback, placement recommendation, or unmarked-script notes.">${escapeHtml(submission.adminFeedback || "")}</textarea></div>
+            ${(submission.reviewedAt || submission.reviewedBy) ? `<p class="muted">Last reviewed: ${escapeHtml(submission.reviewedAt || "-")} by ${escapeHtml(submission.reviewedBy || "admin")}</p>` : ""}
+            <button class="primary-btn" type="submit">Save guest score and notes</button>
+          </form>
+          <button class="danger-btn" type="button" onclick="deleteGuestSubmission(${index})">Delete guest submission</button>
+        </article>
+      `;
+    }
+
     function renderAdminGuest() {
       const bank = store.guestExam;
       const level = entranceLevelMeta(adminGuestLevel);
       const sections = Object.keys(bank[level.key].sections);
       if (!sections.includes(adminGuestSection)) adminGuestSection = sections[0];
       const exam = bank[level.key].sections[adminGuestSection];
+      const submissions = store.guestSubmissions;
+      if (adminGuestSubmissionIndex >= submissions.length) adminGuestSubmissionIndex = Math.max(0, submissions.length - 1);
+      const selectedSubmission = submissions[adminGuestSubmissionIndex] || null;
       $("#adminGuest").innerHTML = `
         ${pageHeader("Guest Entrance Exams", "访客入学测试", "Admin controls mini entrance exams for every level and section, including speaking media prompts.")}
         <div class="split">
@@ -10996,21 +11109,18 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             ${exam.media ? `<p class="tag-row"><span class="tag blue">Current upload: ${escapeHtml(exam.media.name || "media")}</span></p>` : ""}
             <button class="primary-btn" type="submit">Save selected entrance section</button>
           </form>
-          <div class="table-card">
-            <table>
-              <thead><tr><th>Guest</th><th>Level</th><th>Contact</th><th>Submission</th><th>Actions</th></tr></thead>
-              <tbody>
-                ${store.guestSubmissions.map((submission, index) => `
-                  <tr>
-                    <td><strong>${escapeHtml(submission.name)}</strong><br>${escapeHtml(submission.date)}</td>
-                    <td>${escapeHtml(submission.level || submission.className || "Entrance")}<br><span class="tag blue">${escapeHtml(submission.section || "General")}</span></td>
-                    <td>${escapeHtml(submission.contact)}</td>
-                    <td>${(submission.answers || []).map((answer, answerIndex) => `<strong>Q${answerIndex + 1}</strong>: ${escapeHtml(answer)}`).join("<br>")}</td>
-                    <td><button class="danger-btn" type="button" onclick="deleteGuestSubmission(${index})">Delete</button></td>
-                  </tr>
-                `).join("") || `<tr><td colspan="5">No guest submissions yet.</td></tr>`}
-              </tbody>
-            </table>
+          <div>
+            <article class="card">
+              <h3>Guest registry and scripts</h3>
+              <p class="muted">Select one applicant. Admin can open the entrance sheet, review submitted answers, record scores, and leave marking notes.</p>
+              <div class="field">
+                <label>Guest submission</label>
+                <select id="adminGuestSubmissionSelect" onchange="setAdminGuestSubmissionIndex(this.value)">
+                  ${submissions.map((submission, index) => `<option value="${index}" ${index === adminGuestSubmissionIndex ? "selected" : ""}>${escapeHtml(submission.name || "Guest")} · ${escapeHtml(submission.age ? `${submission.age} years` : "age missing")} · ${escapeHtml(submission.level || submission.className || "Entrance")} · ${escapeHtml(submission.section || "General")} · ${escapeHtml(submission.status || "Needs review")}</option>`).join("")}
+                </select>
+              </div>
+            </article>
+            ${renderGuestSubmissionReview(selectedSubmission, adminGuestSubmissionIndex)}
           </div>
         </div>
       `;
@@ -11025,6 +11135,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function setAdminGuestSection(section) {
       adminGuestSection = section;
+      renderAdminGuest();
+    }
+
+    function setAdminGuestSubmissionIndex(index) {
+      adminGuestSubmissionIndex = Number(index) || 0;
       renderAdminGuest();
     }
 
@@ -11056,6 +11171,25 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function deleteGuestSubmission(index) {
       if (stopIfNotAllowed("admin")) return;
       store.guestSubmissions = store.guestSubmissions.filter((item, itemIndex) => itemIndex !== index);
+      adminGuestSubmissionIndex = Math.max(0, adminGuestSubmissionIndex - 1);
+      renderAdminGuest();
+    }
+
+    function saveGuestSubmissionReview(event, index) {
+      event.preventDefault();
+      if (stopIfNotAllowed("admin")) return;
+      const submissions = store.guestSubmissions;
+      if (!submissions[index]) return;
+      submissions[index] = {
+        ...submissions[index],
+        score: $("#guestReviewScore").value.trim(),
+        maxScore: $("#guestReviewMaxScore").value.trim(),
+        status: $("#guestReviewStatus").value,
+        adminFeedback: $("#guestReviewFeedback").value.trim(),
+        reviewedAt: new Date().toISOString().slice(0, 10),
+        reviewedBy: currentUser?.name || "Admin"
+      };
+      store.guestSubmissions = submissions;
       renderAdminGuest();
     }
 
