@@ -3335,6 +3335,7 @@
     let adminShiftFilterProgram = "All";
     let adminShiftFilterClass = "All";
     let adminShiftStudentIndex = "";
+    let publicGuestRegistry = null;
     let publicGuestLevel = "Primary Step 1";
     let publicGuestSection = "Listening";
     let adminGuestLevel = "Primary Step 1";
@@ -5622,22 +5623,36 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const entranceFile = entranceExamFileFor(level.key, publicGuestSection);
       const questions = exam.questions || [];
       const answerCount = Number(exam.answerCount) || Math.max(questions.length, 1);
-      const answerForm = `
-        <form onsubmit="submitGuestExam(event)">
+      const hasGuestAccess = publicGuestRegistry
+        && publicGuestRegistry.level === publicGuestLevel
+        && publicGuestRegistry.section === publicGuestSection;
+      const registry = publicGuestRegistry || {};
+      const registryForm = `
+        <form class="guest-registry-card" onsubmit="startGuestEntrance(event)">
+          <h2>Applicant registry</h2>
+          <p>Fill in the applicant details first. The selected entrance exam unlocks only after this step.</p>
           <div class="grid">
-            <div class="field"><label>Guest name</label><input id="guestName" required placeholder="Full name"></div>
-            <div class="field"><label>Age</label><input id="guestAge" type="number" min="3" max="99" required placeholder="Age"></div>
+            <div class="field"><label>Guest name</label><input id="guestName" required placeholder="Full name" value="${escapeHtml(registry.name || "")}"></div>
+            <div class="field"><label>Age</label><input id="guestAge" type="number" min="3" max="99" required placeholder="Age" value="${escapeHtml(registry.age || "")}"></div>
           </div>
           <div class="grid">
             <div class="field">
               <label>Contact type</label>
               <select id="guestContactType">
-                <option>Phone</option>
-                <option>WeChat ID</option>
-                <option>Email</option>
+                ${["Phone", "WeChat ID", "Email"].map((type) => `<option ${registry.contactType === type ? "selected" : ""}>${type}</option>`).join("")}
               </select>
             </div>
-            <div class="field"><label>Phone / WeChat / Email</label><input id="guestContact" required placeholder="Phone, WeChat ID, or email"></div>
+            <div class="field"><label>Phone / WeChat / Email</label><input id="guestContact" required placeholder="Phone, WeChat ID, or email" value="${escapeHtml(registry.contact || "")}"></div>
+          </div>
+          <button class="primary-btn" type="submit">${hasGuestAccess ? "Update applicant details" : "Start entrance exam"}</button>
+        </form>
+      `;
+      const answerForm = `
+        <form onsubmit="submitGuestExam(event)">
+          <div class="guest-registry-summary">
+            <strong>${escapeHtml(registry.name || "")}</strong>
+            <span>${escapeHtml(registry.age ? `Age ${registry.age}` : "")}</span>
+            <span>${escapeHtml(registry.contactType || "")}: ${escapeHtml(registry.contact || "")}</span>
           </div>
           ${entranceFile ? `
             <div class="field"><label>Answer sheet / script upload</label><input id="guestAnswerSheetFile" type="file" accept=".html,.htm,.pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,image/*,application/pdf,text/html,text/plain"></div>
@@ -5680,40 +5695,58 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               </div>
             </div>
           </div>
+          ${registryForm}
           <div class="entrance-exam-card">
             <h2>${escapeHtml(exam.title || `${level.label} ${publicGuestSection}`)}</h2>
-            <p>${entranceFile ? "This section is loaded from the uploaded entrance exam pack." : escapeHtml(exam.instructions || "No uploaded file has been mapped for this section yet.")}</p>
+            <p>${hasGuestAccess ? (entranceFile ? "This section is loaded from the uploaded entrance exam pack." : escapeHtml(exam.instructions || "No uploaded file has been mapped for this section yet.")) : "Registry required. Fill in the applicant details above before opening this entrance exam."}</p>
             <div class="entrance-meta">
               <span class="tag green">${escapeHtml(level.program)}</span>
               <span class="tag blue">${escapeHtml(level.className)}</span>
               <span class="tag blue">${escapeHtml(publicGuestSection)}</span>
               ${entranceFile ? `<span class="tag green">Uploaded exam file</span>` : `<span class="tag red">Needs file</span>`}
             </div>
-            ${entranceFile ? `
+            ${hasGuestAccess && entranceFile ? `
               <div class="entrance-file-actions">
                 <a class="primary-btn" href="${escapeHtml(entranceFile)}">Open selected section</a>
                 <span class="muted">The exam also appears in the preview below.</span>
               </div>
               <iframe class="entrance-file-frame" src="${escapeHtml(entranceFile)}" title="${escapeHtml(level.label)} ${escapeHtml(publicGuestSection)} entrance exam"></iframe>
-            ` : `
+            ` : hasGuestAccess ? `
               ${exam.timingPlan ? `<div class="speaking-prompt-card"><strong>Timing guide</strong><p>${escapeHtml(exam.timingPlan).replace(/\n/g, "<br>")}</p></div>` : ""}
               ${renderPublicMedia(exam)}
+            ` : `
+              <div class="empty">The entrance test is locked until the applicant registry is complete.</div>
             `}
-            ${answerForm}
+            ${hasGuestAccess ? answerForm : ""}
           </div>
         </div>
       `;
+    }
+
+    function startGuestEntrance(event) {
+      event.preventDefault();
+      publicGuestRegistry = {
+        name: $("#guestName").value.trim(),
+        age: $("#guestAge").value.trim(),
+        contactType: $("#guestContactType").value,
+        contact: $("#guestContact").value.trim(),
+        level: publicGuestLevel,
+        section: publicGuestSection
+      };
+      renderPublicGuest();
     }
 
     function setPublicGuestLevel(levelKey) {
       publicGuestLevel = levelKey;
       const level = entranceLevelMeta(publicGuestLevel);
       publicGuestSection = sectionsFor(level.program, level.className)[0];
+      publicGuestRegistry = null;
       renderPublicGuest();
     }
 
     function setPublicGuestSection(section) {
       publicGuestSection = section;
+      publicGuestRegistry = null;
       renderPublicGuest();
     }
 
@@ -5795,6 +5828,11 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     async function submitGuestExam(event) {
       event.preventDefault();
+      if (!publicGuestRegistry || publicGuestRegistry.level !== publicGuestLevel || publicGuestRegistry.section !== publicGuestSection) {
+        window.alert("Please fill in the applicant registry before starting the entrance exam.");
+        renderPublicGuest();
+        return;
+      }
       const bank = store.guestExam;
       const level = entranceLevelMeta(publicGuestLevel);
       const exam = bank[level.key].sections[publicGuestSection];
@@ -5805,10 +5843,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       submissions.unshift({
         id: `guest-${Date.now()}`,
         date: new Date().toISOString().slice(0, 10),
-        name: $("#guestName").value.trim(),
-        age: $("#guestAge").value.trim(),
-        contactType: $("#guestContactType").value,
-        contact: $("#guestContact").value.trim(),
+        name: publicGuestRegistry.name,
+        age: publicGuestRegistry.age,
+        contactType: publicGuestRegistry.contactType,
+        contact: publicGuestRegistry.contact,
         program: level.program,
         className: level.className,
         level: level.key,
@@ -5826,6 +5864,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         reviewedBy: ""
       });
       store.guestSubmissions = submissions;
+      publicGuestRegistry = null;
       window.alert("Entrance exam submitted. The school will review it and contact you.");
       renderPublicGuest();
     }
