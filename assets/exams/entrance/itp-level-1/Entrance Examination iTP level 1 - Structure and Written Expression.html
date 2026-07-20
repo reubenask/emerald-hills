@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrance Examination iTP level 1 - Structure and Written Expression</title>
+<style>
+  :root{
+    --navy:#1a2744;--gold:#b8952a;--bg:#f5f4f0;--white:#fff;--border:#ddd8cc;
+    --text:#1a1a1a;--muted:#6b6b6b;--soft:#f8f7f3;--shadow:0 2px 12px rgba(0,0,0,.08);
+    --danger:#c1121f;--ok:#2d6a4f;--selected:#e8f0fe;--wrong:#c1121f;--correct:#2d6a4f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 "Avenir Next","Segoe UI",sans-serif}
+  .top-banner{background:var(--navy);color:#fff;text-align:center;padding:10px 20px;font-size:.95rem;font-weight:600;letter-spacing:.5px;border-bottom:3px solid var(--gold)}
+  .logo-bar{background:#fff;text-align:center;padding:26px 20px 18px;border-bottom:1px solid var(--border)}
+  .ets-badge{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;border:2px solid var(--navy);font:600 1rem Georgia,serif;color:var(--navy);margin-bottom:10px}
+  .logo-bar h1{margin:0;font:600 1.85rem Georgia,serif;color:var(--navy)}
+  .logo-bar h2{margin:4px 0 0;font-size:1rem;font-weight:500;color:var(--muted)}
+  .student-form,.pre-test-card,.score-summary,.section-block{max-width:860px;margin:24px auto;background:#fff;border-radius:10px;box-shadow:var(--shadow)}
+  .student-form,.score-summary{padding:28px 32px}
+  .form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  label{display:block;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  input,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font:inherit;background:#fafaf8}
+  textarea{min-height:100px;resize:vertical}
+  .action-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .btn{border:none;border-radius:7px;padding:10px 18px;font:600 .9rem inherit;cursor:pointer}
+  .btn-primary{background:var(--navy);color:#fff}.btn-gold{background:var(--gold);color:#fff}
+  .btn-outline{background:#fff;border:1.5px solid var(--navy);color:var(--navy)}
+  .btn-danger{background:#fff;border:1.5px solid var(--danger);color:var(--danger)}
+  .autosave-bar{display:flex;justify-content:space-between;gap:16px;margin-top:12px;color:var(--muted);font-size:.82rem}
+  .autosave-badge{background:#e8f0e8;color:var(--ok);padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+  .pre-test-card{overflow:hidden}.pre-test-card .body{padding:28px 32px 22px;border-left:4px solid var(--navy)}
+  .pre-test-card .footer{padding:20px 32px;background:var(--soft);border-top:1px solid var(--border);text-align:center}
+  .pre-test-card h3,.sec-title,.score-summary h3,.task-label{margin:0 0 12px;font-family:Georgia,serif;color:var(--navy)}
+  .pre-test-card ul{margin:0;padding-left:18px}
+  .start-btn{padding:13px 52px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-size:1rem;font-weight:700;cursor:pointer}
+  .score-summary{display:none;text-align:center;border-top:4px solid var(--gold)}
+  .score-big{font-size:2.8rem;font-weight:700;color:var(--navy);margin:8px 0}.score-sub{color:var(--muted);font-size:.92rem}
+  .section-block{overflow:hidden;display:none}
+  .section-header{background:var(--navy);color:#fff;padding:15px 24px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+  .sec-title{margin:0;color:#fff;font-size:1.2rem}.sec-badge{background:var(--gold);padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+  .section-body{padding:24px 28px}
+  .page-nav{max-width:860px;margin:0 auto 24px;display:none;justify-content:space-between;align-items:center;gap:12px;background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:18px 24px}
+  .page-indicator{font-size:.88rem;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+  .page-actions{display:flex;gap:10px;align-items:center;justify-content:flex-end}
+  .instruction-box{background:var(--soft);border:1px solid var(--border);border-left:4px solid var(--gold);padding:14px 16px;border-radius:6px;margin-bottom:20px}
+  .question-block{margin-bottom:28px;padding-bottom:22px;border-bottom:1px solid #eee}.question-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+  .question-text{font-weight:700;color:var(--navy);font-size:1rem;margin-bottom:12px}.question-num{display:inline-block;background:var(--navy);color:#fff;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;margin-right:8px}
+  .choice-label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px;cursor:pointer}
+  .choice-label:hover{background:#fafafa}.choice-label.selected{border-color:#9bb6ff;background:var(--selected)}
+  .choice-label.correct{border-color:var(--correct);background:#edf8f1}.choice-label.wrong{border-color:var(--wrong);background:#fff0f1}
+  .choice-tag{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#eef1f6;color:var(--navy);font-size:.78rem;font-weight:700;flex:none}
+  .passage-box{background:#fbfaf7;border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:20px}
+  .passage-box p{margin:0 0 12px}.passage-box p:last-child{margin-bottom:0}
+  .audio-wrap{display:flex;gap:12px;align-items:center;background:#f0ede6;border:1px solid var(--border);padding:14px 16px;border-radius:10px;margin-bottom:20px;flex-wrap:wrap}
+  .audio-meta{min-width:220px}.audio-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;color:var(--muted)}.audio-note{font-size:.84rem;color:var(--muted)}
+  #timerWidget{position:fixed;top:18px;right:22px;background:var(--navy);color:#fff;border-radius:12px;padding:10px 18px;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.35);min-width:110px;text-align:center}
+  #timerWidget.warn{background:#b8952a}#timerWidget.crit{background:var(--wrong)}#timerWidget .label{font-size:.62rem;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.6)}#timerDisplay{font:700 1.6rem Georgia,serif}
+  @media (max-width:820px){.form-grid{grid-template-columns:1fr}.student-form,.score-summary,.pre-test-card .body,.pre-test-card .footer,.section-body{padding-left:20px;padding-right:20px}}
+  </style>
+</head>
+<body>
+<div class="top-banner">Entrance Examination iTP level 1</div>
+<div class="logo-bar"><div class="ets-badge">ETS</div><h1>Entrance Examination iTP level 1</h1><h2>Structure and Written Expression</h2></div>
+<div id="timerWidget"><div class="label">Time Left</div><div id="timerDisplay">15:00</div></div>
+<section class="student-form">
+  <div class="form-grid">
+    <div><label for="studentName">Student Name</label><input id="studentName" type="text"></div>
+    <div><label for="studentClass">Class</label><input id="studentClass" type="text"></div>
+    <div><label for="studentDate">Date</label><input id="studentDate" type="date"></div>
+  </div>
+  <div class="action-btns">
+    <button class="btn btn-primary" onclick="submitTest()">Submit Answers</button>
+    <button class="btn btn-gold" onclick="downloadHTML()">Download HTML</button>
+    <button class="btn btn-outline" onclick="printPage()">Print</button>
+    <button class="btn btn-danger" onclick="clearAll()">Restart Test</button>
+  </div>
+  <div class="autosave-bar"><span>Objective questions are scored when you submit.</span><span class="autosave-badge">Autosave On</span></div>
+</section>
+<section class="pre-test-card">
+  <div class="body">
+    <h3>Before You Begin</h3>
+    <ul>
+      <li>This section has 10 questions.</li>
+      <li>Click <strong>Start Test</strong> to begin the 15-minute timer.</li>
+      <li>Your answers autosave in this browser and are marked automatically when you submit.</li>
+      <li>If you reopen an active session, the button changes to <strong>Continue Test</strong>.</li>
+    </ul>
+  </div>
+  <div class="footer"><button class="start-btn" id="startBtn" onclick="startTimer()">Start Test</button></div>
+</section>
+<section class="score-summary" id="scoreSummary"><h3>Structure and Written Expression Score</h3><div class="score-big" id="scoreDisplay">-</div><div class="score-sub" id="scoreDetail"></div><button class="btn btn-danger" style="margin-top:16px" onclick="clearAll()">Restart Test</button></section>
+<section class="page-nav" id="pageNav">
+  <button class="btn btn-outline" id="prevPageBtn" onclick="goPrevPage()" disabled>Previous Page</button>
+  <div class="page-indicator" id="pageIndicator">Page 1 of 2</div>
+  <div class="page-actions"><button class="btn btn-primary" id="nextPageBtn" onclick="goNextPage()">Next Page</button><button class="btn btn-gold" onclick="submitTest()">Submit Answers</button></div>
+</section>
+
+      <section class="section-block">
+        <div class="section-header"><h3 class="sec-title">Structure</h3><span class="sec-badge">5 Questions</span></div>
+        <div class="section-body">
+          <div class="instruction-box">Questions 1-5. Choose the word or phrase that best completes each sentence.</div>
+          
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">1</span>The museum guide spoke slowly so that every visitor ______ the instructions clearly.</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q1" value="A">
+          <span class="choice-tag">A</span>
+          <span>understand</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q1" value="B">
+          <span class="choice-tag">B</span>
+          <span>understanding</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q1" value="C">
+          <span class="choice-tag">C</span>
+          <span>could understand</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q1" value="D">
+          <span class="choice-tag">D</span>
+          <span>understood to</span>
+        </label>
+      
+    </div>
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">2</span>Only after the storm ended ______ safe to reopen the bridge.</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q2" value="A">
+          <span class="choice-tag">A</span>
+          <span>was it</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q2" value="B">
+          <span class="choice-tag">B</span>
+          <span>it was</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q2" value="C">
+          <span class="choice-tag">C</span>
+          <span>it</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q2" value="D">
+          <span class="choice-tag">D</span>
+          <span>was</span>
+        </label>
+      
+    </div>
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">3</span>The students were excited ______ they had been chosen for the science fair.</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q3" value="A">
+          <span class="choice-tag">A</span>
+          <span>despite</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q3" value="B">
+          <span class="choice-tag">B</span>
+          <span>because</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q3" value="C">
+          <span class="choice-tag">C</span>
+          <span>unless</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q3" value="D">
+          <span class="choice-tag">D</span>
+          <span>during</span>
+        </label>
+      
+    </div>
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">4</span>A healthy forest depends on rain, sunlight, and soil rich ______ nutrients.</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q4" value="A">
+          <span class="choice-tag">A</span>
+          <span>from</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q4" value="B">
+          <span class="choice-tag">B</span>
+          <span>at</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q4" value="C">
+          <span class="choice-tag">C</span>
+          <span>to</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q4" value="D">
+          <span class="choice-tag">D</span>
+          <span>in</span>
+        </label>
+      
+    </div>
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">5</span>Neither the coach nor the players ______ ready to cancel the match.</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q5" value="A">
+          <span class="choice-tag">A</span>
+          <span>were</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q5" value="B">
+          <span class="choice-tag">B</span>
+          <span>was being</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q5" value="C">
+          <span class="choice-tag">C</span>
+          <span>has</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q5" value="D">
+          <span class="choice-tag">D</span>
+          <span>be</span>
+        </label>
+      
+    </div>
+        </div>
+      </section>
+      <section class="section-block">
+        <div class="section-header"><h3 class="sec-title">Written Expression</h3><span class="sec-badge">5 Questions</span></div>
+        <div class="section-body">
+          <div class="instruction-box">Questions 6-10. Choose the underlined part that must be changed.</div>
+          
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">6</span>The new library wing (A) was designed to provide students (B) with a quieter place (C) to study and read comfortablyly (D).</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q6" value="A">
+          <span class="choice-tag">A</span>
+          <span>was designed</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q6" value="B">
+          <span class="choice-tag">B</span>
+          <span>to provide students</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q6" value="C">
+          <span class="choice-tag">C</span>
+          <span>to study</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q6" value="D">
+          <span class="choice-tag">D</span>
+          <span>comfortablyly</span>
+        </label>
+      
+    </div>
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">7</span>Each of the volunteers (A) were asked (B) to arrive early (C) for the community clean-up (D).</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q7" value="A">
+          <span class="choice-tag">A</span>
+          <span>Each of the volunteers</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q7" value="B">
+          <span class="choice-tag">B</span>
+          <span>were asked</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q7" value="C">
+          <span class="choice-tag">C</span>
+          <span>to arrive early</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q7" value="D">
+          <span class="choice-tag">D</span>
+          <span>for the community clean-up</span>
+        </label>
+      
+    </div>
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">8</span>The photograph (A) on the wall, along with two maps, explain (B) how the town changed (C) over time (D).</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q8" value="A">
+          <span class="choice-tag">A</span>
+          <span>The photograph</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q8" value="B">
+          <span class="choice-tag">B</span>
+          <span>explain</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q8" value="C">
+          <span class="choice-tag">C</span>
+          <span>how the town changed</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q8" value="D">
+          <span class="choice-tag">D</span>
+          <span>over time</span>
+        </label>
+      
+    </div>
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">9</span>Although the path was (A) narrow, the hikers moved (B) careful enough (C) to reach the waterfall safely (D).</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q9" value="A">
+          <span class="choice-tag">A</span>
+          <span>Although the path was</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q9" value="B">
+          <span class="choice-tag">B</span>
+          <span>the hikers moved</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q9" value="C">
+          <span class="choice-tag">C</span>
+          <span>careful enough</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q9" value="D">
+          <span class="choice-tag">D</span>
+          <span>to reach the waterfall safely</span>
+        </label>
+      
+    </div>
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">10</span>The teacher reminded her class (A) that success in writing depends (B) on practice, patience, and revising your work carefully (C) before submitting them (D).</div>
+      
+        <label class="choice-label">
+          <input type="radio" name="q10" value="A">
+          <span class="choice-tag">A</span>
+          <span>The teacher reminded her class</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q10" value="B">
+          <span class="choice-tag">B</span>
+          <span>depends</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q10" value="C">
+          <span class="choice-tag">C</span>
+          <span>revising your work carefully</span>
+        </label>
+      
+        <label class="choice-label">
+          <input type="radio" name="q10" value="D">
+          <span class="choice-tag">D</span>
+          <span>before submitting them</span>
+        </label>
+      
+    </div>
+        </div>
+      </section>
+<script>
+const STORAGE_KEY="entrance_examination_itp_level_1_structure_and_written_expression_html";
+const ANSWER_KEY={"q1":"C","q2":"A","q3":"B","q4":"D","q5":"A","q6":"D","q7":"B","q8":"B","q9":"C","q10":"D"};
+const TOTAL_Q=10;
+const TOTAL_TIME=900;
+let timeLeft=TOTAL_TIME,timerInterval=null,testStarted=false,currentPage=0,deadlineTs=null;
+const IS_TEST_MODE=new URLSearchParams(location.search).get('mode')==='test';
+function blocks(){return Array.from(document.querySelectorAll('.section-block'))}
+function syncTime(){if(typeof deadlineTs==='number')timeLeft=Math.max(0,Math.ceil((deadlineTs-Date.now())/1000))}
+function updateTimer(){const m=Math.floor(timeLeft/60),s=timeLeft%60;document.getElementById('timerDisplay').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');const w=document.getElementById('timerWidget');w.classList.toggle('warn',timeLeft<=300&&timeLeft>60);w.classList.toggle('crit',timeLeft<=60)}
+function showCover(){document.querySelector('.pre-test-card').style.display='block';document.getElementById('timerWidget').style.display='none';blocks().forEach(b=>b.style.display='none');document.getElementById('pageNav').style.display='none'}
+function showPage(i){const bs=blocks();currentPage=Math.max(0,Math.min(i,bs.length-1));document.querySelector('.pre-test-card').style.display='none';bs.forEach((b,idx)=>b.style.display=idx===currentPage?'block':'none');updateNav()}
+function updateNav(){const bs=blocks(),nav=document.getElementById('pageNav');if(!testStarted||!bs.length){nav.style.display='none';return}nav.style.display='flex';document.getElementById('prevPageBtn').disabled=currentPage===0;document.getElementById('nextPageBtn').disabled=currentPage===bs.length-1;document.getElementById('pageIndicator').textContent='Page '+(currentPage+1)+' of '+bs.length}
+function goPrevPage(){showPage(currentPage-1);saveProgress()}function goNextPage(){showPage(currentPage+1);saveProgress()}
+function timerLoop(){clearInterval(timerInterval);timerInterval=setInterval(()=>{syncTime();updateTimer();saveProgress();if(timeLeft<=0){clearInterval(timerInterval);submitTest(true)}},1000)}
+function startTimer(){if(!document.getElementById('studentName').value.trim()){alert('Please enter the student name before starting.');return}if(testStarted){if(!IS_TEST_MODE&&deadlineTs&&timeLeft>0)location.href=location.pathname+'?mode=test';return}testStarted=true;currentPage=0;deadlineTs=Date.now()+timeLeft*1000;document.getElementById('startBtn').textContent='Continue Test';saveProgress();location.href=location.pathname+'?mode=test'}
+function collectState(){let answered=0,correct=0;const answers={};Object.keys(ANSWER_KEY).forEach(q=>{const chosen=document.querySelector('input[name="'+q+'"]:checked');if(chosen){answers[q]=chosen.value;answered++;if(chosen.value===ANSWER_KEY[q])correct++}});return{timeLeft,testStarted,currentPage,deadlineTs,scoreVisible:document.getElementById('scoreSummary').style.display==='block',score:{correct,answered},meta:{studentName:studentName.value,studentClass:studentClass.value,studentDate:studentDate.value},answers}}
+function restoreState(state){if(!state)return;Object.entries(state.meta||{}).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value});Object.entries(state.answers||{}).forEach(([q,value])=>{const input=document.querySelector('input[name="'+q+'"][value="'+value+'"]');if(input)input.checked=true});if(typeof state.timeLeft==='number')timeLeft=state.timeLeft;if(typeof state.currentPage==='number')currentPage=state.currentPage;if(typeof state.deadlineTs==='number')deadlineTs=state.deadlineTs;if(state.testStarted){syncTime();if(IS_TEST_MODE){testStarted=true;document.getElementById('startBtn').textContent='Continue Test';document.getElementById('timerWidget').style.display='block';showPage(currentPage);timerLoop()}else{if(timeLeft>0&&deadlineTs){testStarted=true;document.getElementById('startBtn').textContent='Continue Test'}else{testStarted=false;deadlineTs=null;currentPage=0;document.getElementById('startBtn').textContent='Start Test'}showCover()}}else{showCover()}if(state.scoreVisible&&state.score)renderScore(state.score.correct,state.score.answered);syncChoiceStyles()}
+function saveProgress(){localStorage.setItem(STORAGE_KEY,JSON.stringify(collectState()))}
+function scheduleSave(){setTimeout(saveProgress,200)}
+function syncChoiceStyles(){document.querySelectorAll('.choice-label').forEach(l=>l.classList.remove('selected'));document.querySelectorAll('input[type="radio"]:checked').forEach(i=>i.closest('.choice-label')?.classList.add('selected'))}
+function renderScore(correct,answered){const pct=Math.round(correct/TOTAL_Q*100);document.getElementById('scoreSummary').style.display='block';document.getElementById('scoreDisplay').textContent=correct+' / '+TOTAL_Q;document.getElementById('scoreDetail').textContent='Score: '+pct+'% - Correct: '+correct+' - Wrong: '+(answered-correct)+' - Unanswered: '+(TOTAL_Q-answered)}
+function submitTest(auto=false){let answered=0,correct=0;Object.keys(ANSWER_KEY).forEach(q=>{const chosen=document.querySelector('input[name="'+q+'"]:checked');if(chosen){answered++;if(chosen.value===ANSWER_KEY[q])correct++}});if(!auto&&answered<TOTAL_Q&&!confirm('You have '+(TOTAL_Q-answered)+' unanswered question(s). Submit anyway?'))return;clearInterval(timerInterval);Object.keys(ANSWER_KEY).forEach(q=>{document.querySelectorAll('input[name="'+q+'"]').forEach(inp=>{const label=inp.closest('.choice-label');label.classList.remove('selected');if(inp.value===ANSWER_KEY[q])label.classList.add('correct');else if(inp.checked)label.classList.add('wrong')})});renderScore(correct,answered);saveProgress();document.getElementById('scoreSummary').scrollIntoView({behavior:'smooth'})}
+function clearAll(){if(!confirm('Restart this test and clear all saved answers?'))return;localStorage.removeItem(STORAGE_KEY);location.href=location.pathname}
+function printPage(){window.print()}function downloadHTML(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([document.documentElement.outerHTML],{type:'text/html'}));a.download="Entrance Examination iTP level 1 - Structure and Written Expression.html";a.click()}
+document.querySelectorAll('input').forEach(i=>i.addEventListener('change',()=>{syncChoiceStyles();scheduleSave()}));
+['studentName','studentClass','studentDate'].forEach(id=>document.getElementById(id).addEventListener('input',scheduleSave));
+if(!studentDate.value)studentDate.value=new Date().toISOString().split('T')[0];
+try{restoreState(JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'))}catch(e){showCover()}
+if(!testStarted)showCover();
+</script>
+</body>
+</html>

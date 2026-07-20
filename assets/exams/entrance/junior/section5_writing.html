@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>绿山托福考试 Writing 答题纸 (Junior 班)</title>
+  <style>
+    :root {
+      --navy: #1a2b4a;
+      --navy-deep: #11192e;
+      --slate: #3d4f6b;
+      --gold: #a9762f;
+      --gold-soft: #f3ead9;
+      --paper: #fffefb;
+      --paper-tint: #f7f6f2;
+      --ink: #1f2429;
+      --muted: #5b6472;
+      --line: #d9dce1;
+      --line-strong: #b8bdc6;
+      --danger: #9a3324;
+      --shadow: 0 18px 44px rgba(17, 25, 46, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 20px;
+      font-family: "Source Sans Pro", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      line-height: 1.55;
+      background: #eceef1;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+    }
+
+    .school-band {
+      background: var(--navy);
+      color: #f2f4f8;
+      text-align: center;
+      padding: 18px 18px 16px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 19px;
+      letter-spacing: 0.3px;
+      border-bottom: 3px solid var(--gold);
+    }
+
+    .timer-bar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--navy-deep);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 10px 18px;
+      border-bottom: 3px solid var(--gold);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .timer-label {
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      font-family: "Source Sans Pro", "Segoe UI", Arial, sans-serif;
+    }
+
+    .timer-value {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      min-width: 64px;
+      text-align: center;
+    }
+
+    .timer-bar.time-low {
+      background: #5a1f17;
+      border-bottom-color: var(--danger);
+    }
+
+    .timer-bar.time-low .timer-value {
+      color: #ffd9d2;
+    }
+
+    .content { padding: 36px 44px 48px; }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 22px;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--slate);
+      white-space: nowrap;
+    }
+
+    .ets {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border: 2px solid var(--navy);
+      border-radius: 50%;
+      font-family: Georgia, serif;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      color: var(--navy);
+      position: relative;
+    }
+
+    .ets::before {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+    }
+
+    .brand-text {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.1px;
+      color: var(--navy-deep);
+    }
+
+    h1 {
+      margin: 0;
+      text-align: right;
+      color: var(--navy-deep);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+      font-weight: 700;
+    }
+
+    .student-card {
+      background: var(--paper-tint);
+      border: 1px solid var(--line);
+      padding: 18px 18px 16px;
+      margin-bottom: 16px;
+    }
+
+    .student-info {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr;
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: var(--slate);
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+      margin-top: 7px;
+      font-size: 15px;
+      outline: none;
+      background: var(--paper);
+      transition: 0.15s ease;
+      font-family: "Source Sans Pro", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(26, 43, 74, 0.12);
+    }
+
+    textarea { resize: vertical; line-height: 1.65; }
+
+    .top-actions, .footer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      justify-content: center;
+      margin: 18px 0;
+    }
+
+    .notice {
+      background: var(--paper-tint);
+      border-left: 3px solid var(--navy);
+      padding: 12px 16px;
+      margin: 16px 0 8px;
+      font-size: 14px;
+      color: var(--slate);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 8px 0 22px;
+      color: var(--muted);
+      font-size: 12.5px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold-soft);
+      color: #7a541f;
+      border: 1px solid rgba(169, 118, 47, 0.35);
+      border-radius: 2px;
+      padding: 5px 10px;
+      font-weight: 600;
+      font-size: 11.5px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .task {
+      border: 1px solid var(--line);
+      margin: 26px 0;
+      background: var(--paper);
+    }
+
+    .task[data-step], .cover-page[data-step] { display: none; }
+    .task[data-step].active-step, .cover-page[data-step].active-step { display: block; }
+
+    .cover-page {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      padding: 4px 0 6px;
+    }
+
+    .cover-instructions {
+      background: var(--paper-tint);
+      border-left: 3px solid var(--navy);
+      padding: 16px 20px;
+      margin: 18px 0;
+      font-size: 14.5px;
+      line-height: 1.7;
+    }
+
+    .cover-instructions strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--navy-deep);
+      font-size: 15px;
+    }
+
+    .cover-instructions ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .cover-instructions li { margin: 5px 0; }
+
+    .start-row {
+      display: flex;
+      justify-content: center;
+      margin: 28px 0 10px;
+    }
+
+    .start-btn {
+      font-size: 15px;
+      padding: 14px 32px;
+      letter-spacing: 0.4px;
+    }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin: 22px 0 6px;
+    }
+
+    .step-pill {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--line-strong);
+      background: var(--paper-tint);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .step-pill.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+    }
+
+    .step-pill.done {
+      background: var(--gold-soft);
+      border-color: var(--gold);
+      color: #7a541f;
+    }
+
+    .step-arrow {
+      color: var(--line-strong);
+      font-size: 15px;
+    }
+
+    .next-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .progress-note {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .progress-note.ready {
+      color: #2e5c31;
+      font-weight: 600;
+    }
+
+    #nextToTask2Btn:disabled {
+      background: var(--line-strong);
+      color: #fff;
+      cursor: not-allowed;
+      filter: none;
+    }
+
+    .submitted-banner {
+      background: var(--gold-soft);
+      border: 1px solid var(--gold);
+      border-left: 4px solid var(--gold);
+      color: #7a541f;
+      padding: 12px 18px;
+      margin-top: 22px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    select:disabled, textarea:disabled, input:disabled {
+      background: var(--paper-tint);
+      color: var(--ink);
+      opacity: 1;
+      cursor: not-allowed;
+    }
+
+    #submitTestBtn:disabled {
+      background: var(--line-strong);
+      color: #fff;
+      cursor: not-allowed;
+      filter: none;
+    }
+
+    .task-header {
+      background: var(--navy-deep);
+      color: #f2f4f8;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 3px solid var(--gold);
+    }
+
+    .task-title {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .time-badge {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 2px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .task-body { padding: 22px 24px; }
+
+    .instructions {
+      background: var(--paper-tint);
+      border-left: 3px solid var(--gold);
+      padding: 13px 16px;
+      margin-bottom: 18px;
+      font-size: 14.5px;
+      color: var(--ink);
+    }
+
+    .editable {
+      outline: none;
+      transition: box-shadow .15s ease;
+    }
+
+    .editable:focus {
+      box-shadow: 0 0 0 3px rgba(26, 43, 74, 0.14);
+    }
+
+    .editable-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: -6px;
+      margin-bottom: 14px;
+      font-style: italic;
+    }
+
+    .passage {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 22px 24px;
+      margin-bottom: 18px;
+      font-size: 16px;
+      line-height: 1.95;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+    }
+
+    .inline-select {
+      display: inline-block;
+      width: auto;
+      min-width: 132px;
+      max-width: 230px;
+      padding: 5px 26px 5px 9px;
+      margin: 0 3px;
+      border-radius: 2px;
+      border: 1.5px solid var(--line-strong);
+      background: var(--paper-tint);
+      color: var(--navy-deep);
+      font-weight: 600;
+      font-size: 13.5px;
+      font-family: "Source Sans Pro", "Segoe UI", Arial, sans-serif;
+      vertical-align: baseline;
+    }
+
+    .inline-select.answered {
+      background: var(--gold-soft);
+      border-color: var(--gold);
+      color: #7a541f;
+    }
+
+    .inline-select.correct {
+      background: #eaf3ea;
+      border-color: #4c7a4f;
+      color: #2e5c31;
+    }
+
+    .inline-select.incorrect {
+      background: #f7e9e7;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .score-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--navy-deep);
+      color: #f2f4f8;
+      padding: 12px 18px;
+      margin-bottom: 18px;
+      border-left: 4px solid var(--gold);
+    }
+
+    .score-banner-label {
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: rgba(242, 244, 248, 0.75);
+    }
+
+    .score-banner-value {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .inline-number {
+      color: var(--navy);
+      font-weight: 700;
+      font-family: "Source Sans Pro", "Segoe UI", Arial, sans-serif;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .teacher-options {
+      border: 1px dashed var(--line-strong);
+      padding: 14px;
+      background: var(--paper);
+      margin-bottom: 18px;
+    }
+
+    .teacher-options summary {
+      cursor: pointer;
+      color: var(--slate);
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .option-editor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(280px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .option-editor-card {
+      border: 1px solid var(--line);
+      padding: 11px;
+      background: var(--paper-tint);
+    }
+
+    .option-editor-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--navy-deep);
+      font-size: 13px;
+    }
+
+    .option-editor-row {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 8px;
+      align-items: center;
+      margin: 6px 0;
+    }
+
+    .option-editor-key {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line-strong);
+    }
+
+    .option-editor-key span {
+      font-weight: 600;
+      color: var(--slate);
+      font-size: 12px;
+    }
+
+    .option-editor-key select {
+      margin-top: 0;
+      padding: 6px 10px;
+      font-weight: 700;
+      color: var(--navy-deep);
+    }
+
+    .email-card {
+      background: var(--paper-tint);
+      border: 1px solid var(--line);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .email-meta {
+      font-family: "Courier New", monospace;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 13px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      font-size: 13.5px;
+      white-space: pre-wrap;
+      color: var(--slate);
+    }
+
+    .email-body {
+      white-space: pre-wrap;
+      line-height: 1.7;
+      background: var(--paper);
+      padding: 14px;
+      border: 1px solid var(--line);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 15px;
+    }
+
+    .writing-frame {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 18px;
+    }
+
+    .meta-line {
+      font-family: "Courier New", monospace;
+      margin: 5px 0;
+      color: var(--slate);
+      font-size: 13.5px;
+    }
+
+    #emailResponse {
+      min-height: 330px;
+      font-size: 15.5px;
+      line-height: 1.75;
+      margin-top: 14px;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .counter-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12.5px;
+      font-family: "Source Sans Pro", "Segoe UI", Arial, sans-serif;
+    }
+
+    .output {
+      margin-top: 20px;
+      background: var(--paper-tint);
+      border: 1px solid var(--line);
+      padding: 16px;
+      display: none;
+      white-space: pre-wrap;
+      font-family: "Courier New", monospace;
+      font-size: 13px;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 2px;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: 0.15s ease;
+      font-family: "Source Sans Pro", "Segoe UI", Arial, sans-serif;
+    }
+
+    button:hover { filter: brightness(0.95); }
+
+    .primary { background: var(--navy); color: #fff; }
+    .secondary { background: #fff; color: var(--slate); border-color: var(--line-strong); }
+    .teal { background: var(--slate); color: #fff; }
+    .orange { background: var(--gold); color: #fff; }
+    .danger { background: #fff; color: var(--danger); border-color: var(--danger); }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .page { box-shadow: none; border: 0; max-width: none; }
+      .content { padding: 26px 30px; }
+      .top-actions, .footer-actions, .output, .status-row, .editable-hint, .teacher-options, .step-indicator, .next-row, .timer-bar, .start-row, .cover-instructions { display: none !important; }
+      .task[data-step] { display: block !important; }
+      .cover-page[data-step] { display: block !important; }
+      .task { break-inside: avoid; }
+      textarea { border: 1px solid #999; }
+    }
+
+    @media (max-width: 900px) {
+      .topbar { grid-template-columns: 1fr; text-align: center; }
+      .brand { justify-content: center; }
+      h1 { text-align: center; }
+      .student-info { grid-template-columns: 1fr; }
+      .option-editor-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 14px 8px; }
+      .content { padding: 26px 16px; }
+      .brand-text { font-size: 18px; }
+      .ets { width: 46px; height: 46px; font-size: 11px; }
+      .task-title { font-size: 16px; }
+      .inline-select { min-width: 118px; max-width: 170px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="school-band editable" contenteditable="true" data-global="schoolHeader">绿山托福考试 答题纸 (Junior 班)</div>
+
+    <div id="timerBar" class="timer-bar" style="display:none;">
+      <span class="timer-label">Time Remaining</span>
+      <span id="timerValue" class="timer-value">20:00</span>
+    </div>
+
+    <div class="content">
+      <div class="topbar">
+        <div class="brand">
+          <span class="ets">ETS</span>
+          <span class="brand-text">TOEFL Junior</span>
+        </div>
+        <h1 class="editable" contenteditable="true" data-global="mainTitle">Writing Practice Test</h1>
+      </div>
+
+      <div class="cover-page" data-step="0">
+        <div class="student-card">
+          <div class="student-info">
+            <label>Student Name
+              <input id="studentName" type="text" placeholder="Enter student name" />
+            </label>
+            <label>Class
+              <input id="studentClass" type="text" placeholder="Junior 班" />
+            </label>
+            <label>Date
+              <input id="testDate" type="date" />
+            </label>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <button class="primary" onclick="saveNow()">Save Now</button>
+          <button class="orange" onclick="downloadSavedHTML()">Download Saved HTML</button>
+          <button class="teal" onclick="showWork()">Show / Copy Work</button>
+          <button class="secondary" onclick="downloadCSV()">Download CSV</button>
+          <button class="secondary" onclick="downloadTXT()">Download TXT</button>
+          <button class="secondary" onclick="window.print()">Print</button>
+          <button class="danger" onclick="clearAll()">Restart Test</button>
+        </div>
+
+        <div class="notice">
+          Task 1 is now a true fill-in task: students choose each answer directly inside the passage. No answer-choice section is shown at the bottom.
+        </div>
+
+        <div class="status-row">
+          <span class="pill">Autosave enabled</span>
+          <span id="saveStatus">Ready.</span>
+        </div>
+
+        <div class="cover-instructions editable" contenteditable="true" data-global="coverInstructions">
+          <strong>Before you begin:</strong>
+          <ul>
+            <li>This test has two writing tasks and one combined timer of 20 minutes.</li>
+            <li>Once you click "Start Test," the timer will begin and cannot be paused.</li>
+            <li>You must answer all 10 blanks in Task 1 before moving on to Task 2.</li>
+            <li>Once you move to Task 2, you cannot return to Task 1.</li>
+            <li>If time runs out, the test will submit automatically with whatever you have completed.</li>
+          </ul>
+        </div>
+
+        <div class="start-row">
+          <button id="startTestBtn" class="primary start-btn" type="button" onclick="startTest()">Start Test →</button>
+        </div>
+      </div>
+
+      <div id="stepIndicator" class="step-indicator" style="display:none;">
+        <span id="step1Pill" class="step-pill active">1. Read &amp; Choose</span>
+        <span class="step-arrow">→</span>
+        <span id="step2Pill" class="step-pill">2. E-mail Reply</span>
+      </div>
+
+      <section class="task" data-step="1">
+        <div class="task-header">
+          <div class="task-title editable" contenteditable="true" data-global="task1Title">TOEFL Junior Writing Task 1: Read & Choose</div>
+          <div class="time-badge editable" contenteditable="true" data-global="task1Time">Time: 10 minutes</div>
+        </div>
+
+        <div class="task-body">
+          <div class="instructions editable" contenteditable="true" data-global="task1Instructions">
+            Read the passage below. Ten words or phrases have been removed. For each blank, choose the best option directly in the blank.
+          </div>
+
+          <div class="editable-hint">Teacher can edit the headings and instructions. Use “Teacher option editor” to change the dropdown choices.</div>
+
+          <div id="passage" class="passage">
+            <p>
+              In many cities around the world, rooftops and empty lots
+              <span class="inline-number">(1)</span> <select class="inline-select" data-q="1"></select>
+              being turned into gardens and small farms. Once considered unusual, urban green spaces are now seen as a practical way to bring nature back into crowded neighborhoods. This shift shows how city planners
+              <span class="inline-number">(2)</span> <select class="inline-select" data-q="2"></select>
+              about the role that green space plays in daily life.
+            </p>
+            <p>
+              One major reason for this trend is environmental concern. In the past, city planning
+              <span class="inline-number">(3)</span> <select class="inline-select" data-q="3"></select>
+              mainly on buildings, roads, and parking. Today, architects design rooftop gardens, vertical walls of plants, and small urban forests to fight pollution and reduce heat. These green spaces help
+              <span class="inline-number">(4)</span> <select class="inline-select" data-q="4"></select>
+              residents, local wildlife, and the surrounding air quality. Cities have become places where nature and concrete can exist side by side.
+            </p>
+            <p>
+              Another reason green spaces matter so much is
+              <span class="inline-number">(5)</span> <select class="inline-select" data-q="5"></select>
+              they improve community life. Neighbors garden together, children learn where food comes from, and families enjoy fresh air close to home. These shared spaces help build stronger neighborhoods by encouraging
+              <span class="inline-number">(6)</span> <select class="inline-select" data-q="6"></select>
+              and cooperation among people who might not otherwise meet.
+            </p>
+            <p>
+              Of course, urban green projects
+              <span class="inline-number">(7)</span> <select class="inline-select" data-q="7"></select>
+              obstacles. Some buildings cannot support the weight of soil and plants, and not every neighborhood has access to funding or open land. However, many cities are finding creative solutions, such as lightweight container gardens and shared community plots, to expand green space anyway.
+            </p>
+            <p>
+              The future of urban farming looks promising
+              <span class="inline-number">(8)</span> <select class="inline-select" data-q="8"></select>
+              residents and city governments keep investing in it. When people use and care for these green spaces, they
+              <span class="inline-number">(9)</span> <select class="inline-select" data-q="9"></select>
+              to cool neighborhoods, grow food, and bring people together. In a world of growing cities, rooftop gardens and urban farms remain
+              <span class="inline-number">(10)</span> <select class="inline-select" data-q="10"></select>
+              of resilience, health, and community spirit.
+            </p>
+          </div>
+
+          <details class="teacher-options">
+            <summary>Teacher option editor</summary>
+            <div class="editable-hint" style="margin:8px 0 0;">Change the options or the correct answer here. The inline dropdowns will update automatically.</div>
+            <div id="optionEditor" class="option-editor-grid"></div>
+          </details>
+
+          <div class="next-row">
+            <span id="task1ProgressNote" class="progress-note">0 / 10 answered — answer every blank to continue</span>
+            <button id="nextToTask2Btn" class="primary" type="button" onclick="goToStep(2)" disabled>Next: Task 2 →</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="task" data-step="2">
+        <div class="task-header">
+          <div class="task-title editable" contenteditable="true" data-global="task2Title">TOEFL Junior Writing Task 2: E-mail</div>
+          <div class="time-badge editable" contenteditable="true" data-global="task2Time">Time: 7 minutes</div>
+        </div>
+
+        <div class="task-body">
+          <div class="instructions editable" contenteditable="true" data-global="task2Instructions">
+            Now you will read an e-mail. Then you will write a reply to the e-mail. Your reply should answer all of the questions in the e-mail you read. Write in complete sentences. When you are finished, check your writing for grammar, spelling, and punctuation.
+          </div>
+
+          <div class="email-card">
+            <div id="emailMeta" class="email-meta editable" contenteditable="true" data-global="emailMeta">From: Maria
+Sent: October 3, 2:15 P.M.
+To: Daniel
+Subject: Class Trip Suggestions</div>
+
+            <div id="emailBody" class="email-body editable" contenteditable="true" data-global="emailBody">Dear Daniel,
+
+I hope you're doing well! Our class is planning an end-of-term trip next month, and the teacher asked a few of us to help choose where to go. I'd love to hear your thoughts.
+
+We are still deciding on a few things, and I wanted to ask for your opinion.
+
+Where do you think our class should go for the trip? Why?
+
+Do you think we should bring our own lunch or buy food at the destination? Why?
+
+What is the best way to let everyone know the trip details and schedule?
+
+I'm really looking forward to this trip, and I hope you can help us plan it!
+
+Best,
+Maria</div>
+          </div>
+
+          <div class="writing-frame">
+            <div class="meta-line editable" contenteditable="true" data-global="replyFrom">From: Daniel</div>
+            <div class="meta-line editable" contenteditable="true" data-global="replyTo">To: Maria</div>
+            <div class="meta-line editable" contenteditable="true" data-global="replySubject">Subject: RE: Class Trip Suggestions</div>
+            <textarea id="emailResponse" placeholder="Write your reply here..."></textarea>
+            <div class="counter-row">
+              <span>Answer all questions in the email.</span>
+              <span><b id="wordCount">0</b> words</span>
+            </div>
+          </div>
+
+          <div class="next-row">
+            <span id="submitNote" class="progress-note">Once you submit, you cannot change your answers.</span>
+            <button id="submitTestBtn" class="primary" type="button" onclick="submitTest()">Submit Test</button>
+          </div>
+
+          <div id="submittedBanner" class="submitted-banner" style="display:none;">
+            Test submitted. Your answers are locked.
+          </div>
+
+          <div id="task1ScoreBanner" class="score-banner" style="display:none;">
+            <span class="score-banner-label">Task 1 score</span>
+            <span id="task1ScoreText" class="score-banner-value">0 / 10 correct</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-actions">
+        <button class="primary" onclick="saveNow()">Save Now</button>
+        <button class="orange" onclick="downloadSavedHTML()">Download Saved HTML</button>
+        <button class="teal" onclick="showWork()">Show / Copy Work</button>
+      </div>
+
+      <div id="output" class="output"></div>
+    </div>
+  </main>
+
+  <script id="embedded-save" type="application/json">{}</script>
+
+  <script>
+    const STORAGE_KEY = "green_mountain_writing_itp1";
+    const letters = ["A", "B", "C", "D"];
+    let saveTimer = null;
+
+    const defaultChoices = [
+      ["is", "are", "was", "were"],
+      ["thinks", "thought", "think", "thinking"],
+      ["focused", "were focusing", "focus", "had been focused"],
+      ["a", "an", "the", "— no article"],
+      ["that", "because", "why", "when"],
+      ["trust", "trusted", "trusting", "to trust"],
+      ["face", "faces", "are facing", "faced"],
+      ["so", "but", "when", "unless"],
+      ["continue", "continuing", "continued", "have continued"],
+      ["symbol", "symbols", "symbolic", "symbolizing"]
+    ];
+
+    // Correct letter for each of the 10 blanks, used for auto-marking Task 1.
+    // Teachers can change these via the "Teacher option editor" answer key fields.
+    const defaultAnswerKey = ["B", "C", "A", "D", "A", "A", "A", "C", "A", "B"];
+
+    function buildOptionEditor(choices, answerKey) {
+      const editor = document.getElementById("optionEditor");
+      editor.innerHTML = "";
+
+      choices.forEach((row, qIndex) => {
+        const q = qIndex + 1;
+        const card = document.createElement("div");
+        card.className = "option-editor-card";
+
+        const title = document.createElement("strong");
+        title.textContent = `Question ${q}`;
+        card.appendChild(title);
+
+        row.forEach((choice, i) => {
+          const line = document.createElement("div");
+          line.className = "option-editor-row";
+
+          const letter = document.createElement("span");
+          letter.textContent = `${letters[i]})`;
+
+          const input = document.createElement("input");
+          input.type = "text";
+          input.value = choice;
+          input.dataset.optionQ = q;
+          input.dataset.optionIndex = i;
+          input.addEventListener("input", () => {
+            refreshDropdown(q);
+            scheduleSave();
+          });
+
+          line.appendChild(letter);
+          line.appendChild(input);
+          card.appendChild(line);
+        });
+
+        const keyLine = document.createElement("div");
+        keyLine.className = "option-editor-row option-editor-key";
+
+        const keyLabel = document.createElement("span");
+        keyLabel.textContent = "Correct:";
+
+        const keySelect = document.createElement("select");
+        keySelect.dataset.answerKeyQ = q;
+        letters.forEach(letter => {
+          const opt = document.createElement("option");
+          opt.value = letter;
+          opt.textContent = letter;
+          keySelect.appendChild(opt);
+        });
+        keySelect.value = answerKey?.[qIndex] || defaultAnswerKey[qIndex];
+        keySelect.addEventListener("change", scheduleSave);
+
+        keyLine.appendChild(keyLabel);
+        keyLine.appendChild(keySelect);
+        card.appendChild(keyLine);
+
+        editor.appendChild(card);
+      });
+    }
+
+    function getAnswerKeyFromEditor() {
+      const key = [];
+      for (let q = 1; q <= 10; q++) {
+        const select = document.querySelector(`[data-answer-key-q="${q}"]`);
+        key.push(select ? select.value : defaultAnswerKey[q - 1]);
+      }
+      return key;
+    }
+
+    function getChoicesFromEditor() {
+      const choices = [];
+      for (let q = 1; q <= 10; q++) {
+        const row = [];
+        for (let i = 0; i < 4; i++) {
+          const input = document.querySelector(`[data-option-q="${q}"][data-option-index="${i}"]`);
+          row.push(input ? input.value : "");
+        }
+        choices.push(row);
+      }
+      return choices;
+    }
+
+    function refreshDropdown(q) {
+      const select = document.querySelector(`select[data-q="${q}"]`);
+      if (!select) return;
+
+      const oldValue = select.value;
+      const choices = getChoicesFromEditor()[q - 1];
+
+      select.innerHTML = "";
+      const blank = document.createElement("option");
+      blank.value = "";
+      blank.textContent = `(${q}) Choose`;
+      select.appendChild(blank);
+
+      choices.forEach((choice, i) => {
+        const option = document.createElement("option");
+        option.value = letters[i];
+        option.textContent = `${letters[i]}) ${choice}`;
+        select.appendChild(option);
+      });
+
+      select.value = oldValue;
+      updateSelectStyle(select);
+    }
+
+    function buildDropdowns(answers) {
+      for (let q = 1; q <= 10; q++) {
+        refreshDropdown(q);
+        const select = document.querySelector(`select[data-q="${q}"]`);
+        if (select) {
+          select.value = answers?.[q - 1]?.answer || "";
+          updateSelectStyle(select);
+          select.addEventListener("change", () => {
+            updateSelectStyle(select);
+            if (task1Checked) {
+              clearTask1ScoreDisplay();
+            }
+            updateTask1Progress();
+            scheduleSave();
+          });
+        }
+      }
+      updateTask1Progress();
+    }
+
+    function updateTask1Progress() {
+      const answered = collectTask1Answers().filter(row => row.answer).length;
+      const note = document.getElementById("task1ProgressNote");
+      const nextBtn = document.getElementById("nextToTask2Btn");
+      if (!note || !nextBtn) return;
+
+      if (answered >= 10) {
+        note.textContent = "All 10 answered — ready to continue";
+        note.classList.add("ready");
+        nextBtn.disabled = false;
+      } else {
+        note.textContent = `${answered} / 10 answered — answer every blank to continue`;
+        note.classList.remove("ready");
+        nextBtn.disabled = true;
+      }
+    }
+
+    let currentStep = 0;
+    const TEST_DURATION_SECONDS = 720;
+    let testStartTime = null; // epoch ms when the test was started
+    let timerInterval = null;
+
+    function goToStep(step) {
+      currentStep = step;
+
+      document.querySelectorAll(".cover-page[data-step]").forEach(section => {
+        section.classList.toggle("active-step", Number(section.dataset.step) === step);
+      });
+      document.querySelectorAll(".task[data-step]").forEach(section => {
+        section.classList.toggle("active-step", Number(section.dataset.step) === step);
+      });
+
+      const stepIndicator = document.getElementById("stepIndicator");
+      if (stepIndicator) stepIndicator.style.display = step === 0 ? "none" : "flex";
+
+      const step1Pill = document.getElementById("step1Pill");
+      const step2Pill = document.getElementById("step2Pill");
+      if (step1Pill && step2Pill) {
+        step1Pill.classList.toggle("active", step === 1);
+        step1Pill.classList.toggle("done", step !== 1 && step !== 0);
+        step2Pill.classList.toggle("active", step === 2);
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      scheduleSave();
+    }
+
+    function startTest() {
+      if (testStartTime) return; // already started, ignore double-clicks
+      testStartTime = Date.now();
+      goToStep(1);
+      showTimerBar();
+      runTimer();
+      scheduleSave();
+    }
+
+    function showTimerBar() {
+      const bar = document.getElementById("timerBar");
+      if (bar) bar.style.display = "flex";
+    }
+
+    function getSecondsRemaining() {
+      if (!testStartTime) return TEST_DURATION_SECONDS;
+      const elapsed = Math.floor((Date.now() - testStartTime) / 1000);
+      return Math.max(0, TEST_DURATION_SECONDS - elapsed);
+    }
+
+    function formatTime(totalSeconds) {
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
+      return `${m}:${String(s).padStart(2, "0")}`;
+    }
+
+    function runTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        const remaining = getSecondsRemaining();
+        updateTimerDisplay();
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          if (!testSubmitted) {
+            autoSubmitOnTimeUp();
+          }
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const remaining = getSecondsRemaining();
+      const valueEl = document.getElementById("timerValue");
+      const barEl = document.getElementById("timerBar");
+      if (valueEl) valueEl.textContent = formatTime(remaining);
+      if (barEl) barEl.classList.toggle("time-low", remaining <= 120);
+    }
+
+    function autoSubmitOnTimeUp() {
+      lockTest();
+      scoreTask1();
+      document.getElementById("submitNote").style.display = "none";
+      const submittedBanner = document.getElementById("submittedBanner");
+      if (submittedBanner) submittedBanner.textContent = "Time's up — the test was submitted automatically. Your answers are locked.";
+      // Make sure whichever task they were on is visible so they can see the result.
+      if (currentStep !== 2) goToStep(2);
+      scheduleSave();
+    }
+
+    function updateSelectStyle(select) {
+      select.classList.toggle("answered", Boolean(select.value));
+    }
+
+    function collectTask1Answers() {
+      const choices = getChoicesFromEditor();
+      const rows = [];
+
+      for (let q = 1; q <= 10; q++) {
+        const select = document.querySelector(`select[data-q="${q}"]`);
+        const answer = select ? select.value : "";
+        const index = letters.indexOf(answer);
+        rows.push({
+          question: q,
+          answer,
+          optionText: index >= 0 ? choices[q - 1][index] : ""
+        });
+      }
+
+      return rows;
+    }
+
+    let task1Checked = false;
+    let testSubmitted = false;
+
+    function scoreTask1() {
+      const answerKey = getAnswerKeyFromEditor();
+      const answers = collectTask1Answers();
+      let correctCount = 0;
+
+      answers.forEach((row, i) => {
+        const select = document.querySelector(`select[data-q="${row.question}"]`);
+        if (!select) return;
+
+        select.classList.remove("correct", "incorrect");
+
+        if (!row.answer) {
+          select.classList.add("incorrect");
+          return;
+        }
+
+        if (row.answer === answerKey[i]) {
+          select.classList.add("correct");
+          correctCount++;
+        } else {
+          select.classList.add("incorrect");
+        }
+      });
+
+      task1Checked = true;
+      renderTask1Score({ correct: correctCount, total: 10 });
+    }
+
+    function getTask1ScoreState() {
+      if (!task1Checked) return null;
+      const banner = document.getElementById("task1ScoreBanner");
+      if (!banner || banner.style.display === "none") return null;
+      return {
+        correct: Number(banner.dataset.correct || 0),
+        total: Number(banner.dataset.total || 10)
+      };
+    }
+
+    function renderTask1Score(score) {
+      task1Checked = true;
+      const banner = document.getElementById("task1ScoreBanner");
+      banner.style.display = "flex";
+      banner.dataset.correct = score.correct;
+      banner.dataset.total = score.total;
+      document.getElementById("task1ScoreText").textContent = `${score.correct} / ${score.total} correct`;
+
+      // Re-apply correct/incorrect classes to dropdowns to match the saved score state
+      const answerKey = getAnswerKeyFromEditor();
+      for (let q = 1; q <= 10; q++) {
+        const select = document.querySelector(`select[data-q="${q}"]`);
+        if (!select) continue;
+        select.classList.remove("correct", "incorrect");
+        if (!select.value) {
+          select.classList.add("incorrect");
+        } else if (select.value === answerKey[q - 1]) {
+          select.classList.add("correct");
+        } else {
+          select.classList.add("incorrect");
+        }
+      }
+    }
+
+    function clearTask1ScoreDisplay() {
+      task1Checked = false;
+      const banner = document.getElementById("task1ScoreBanner");
+      if (banner) banner.style.display = "none";
+      document.querySelectorAll(".inline-select").forEach(select => {
+        select.classList.remove("correct", "incorrect");
+      });
+    }
+
+    function submitTest() {
+      if (testSubmitted) return;
+      if (!confirm("Submit the test? You won't be able to change your answers after this.")) return;
+      lockTest();
+      scoreTask1();
+      scheduleSave();
+    }
+
+    function lockTest() {
+      testSubmitted = true;
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      updateTimerDisplay();
+
+      document.querySelectorAll(".inline-select").forEach(select => { select.disabled = true; });
+      const emailResponse = document.getElementById("emailResponse");
+      if (emailResponse) emailResponse.disabled = true;
+
+      const submitBtn = document.getElementById("submitTestBtn");
+      if (submitBtn) submitBtn.disabled = true;
+      const submitNote = document.getElementById("submitNote");
+      if (submitNote) submitNote.style.display = "none";
+
+      const submittedBanner = document.getElementById("submittedBanner");
+      if (submittedBanner) submittedBanner.style.display = "block";
+    }
+
+    function getWordCount(text) {
+      const words = text.trim().match(/\b[\w'-]+\b/g);
+      return words ? words.length : 0;
+    }
+
+    function updateWordCount() {
+      document.getElementById("wordCount").textContent = getWordCount(document.getElementById("emailResponse").value);
+    }
+
+    function setStatus(text) {
+      document.getElementById("saveStatus").textContent = text;
+    }
+
+    function collectState() {
+      const globals = {};
+      document.querySelectorAll("[data-global]").forEach(el => {
+        globals[el.dataset.global] = el.innerHTML;
+      });
+
+      return {
+        version: "2.0",
+        savedAt: new Date().toISOString(),
+        student: {
+          name: document.getElementById("studentName").value || "",
+          className: document.getElementById("studentClass").value || "",
+          date: document.getElementById("testDate").value || ""
+        },
+        globals,
+        choices: getChoicesFromEditor(),
+        answerKey: getAnswerKeyFromEditor(),
+        task1Answers: collectTask1Answers(),
+        task1Score: getTask1ScoreState(),
+        testSubmitted,
+        testStartTime,
+        currentStep,
+        emailResponse: document.getElementById("emailResponse").value || "",
+        wordCount: getWordCount(document.getElementById("emailResponse").value)
+      };
+    }
+
+    function applyState(state) {
+      if (!state) return;
+
+      if (state.student) {
+        document.getElementById("studentName").value = state.student.name || "";
+        document.getElementById("studentClass").value = state.student.className || "";
+        document.getElementById("testDate").value = state.student.date || "";
+      }
+
+      if (state.globals) {
+        Object.entries(state.globals).forEach(([key, value]) => {
+          const el = document.querySelector(`[data-global="${key}"]`);
+          if (el) el.innerHTML = value;
+        });
+      }
+
+      buildOptionEditor(state.choices || defaultChoices, state.answerKey || defaultAnswerKey);
+      buildDropdowns(state.task1Answers || []);
+
+      document.getElementById("emailResponse").value = state.emailResponse || "";
+  
+document.title = "Entrance Examination into Junior Class - Writing";
+document.querySelectorAll(".teacher-options, .editable-hint").forEach(el => {
+  el.style.display = "none";
+});
+const writingBrandText = document.querySelector(".brand-text");
+if (writingBrandText) writingBrandText.textContent = "Entrance Examination into Junior Class";
+const writingMainTitle = document.querySelector('[data-global="mainTitle"]');
+if (writingMainTitle) writingMainTitle.innerHTML = "Entrance Examination into Junior Class";
+const originalGoToStep = goToStep;
+goToStep = function(step) {
+  originalGoToStep(step === 1 ? 2 : step);
+  const stepArrow = document.querySelector(".step-arrow");
+  const step1Pill = document.getElementById("step1Pill");
+  const step2Pill = document.getElementById("step2Pill");
+  if (stepArrow) stepArrow.style.display = "none";
+  if (step1Pill) {
+    step1Pill.textContent = "1. E-mail Reply";
+    step1Pill.classList.add("active");
+    step1Pill.classList.remove("done");
+  }
+  if (step2Pill) step2Pill.style.display = "none";
+};
+startTest = function() {
+  if (testStartTime) return;
+  testStartTime = Date.now();
+  goToStep(2);
+  showTimerBar();
+  runTimer();
+  scheduleSave();
+};
+submitTest = function() {
+  if (testSubmitted) return;
+  if (!confirm("Submit the e-mail task? You won't be able to change your writing after this.")) return;
+  lockTest();
+  const submittedBanner = document.getElementById("submittedBanner");
+  if (submittedBanner) submittedBanner.textContent = "E-mail submitted. Your writing is saved and now needs teacher review.";
+  scheduleSave();
+};
+autoSubmitOnTimeUp = function() {
+  lockTest();
+  const submittedBanner = document.getElementById("submittedBanner");
+  if (submittedBanner) submittedBanner.textContent = "Time's up — the e-mail task was submitted automatically and saved for teacher review.";
+  if (currentStep !== 2) goToStep(2);
+  scheduleSave();
+};
+const task1Section = document.querySelector('.task[data-step="1"]');
+if (task1Section) task1Section.style.display = "none";
+const task2Title = document.querySelector('[data-global="task2Title"]');
+if (task2Title) task2Title.innerHTML = "Writing: E-mail Reply";
+const task2Time = document.querySelector('[data-global="task2Time"]');
+if (task2Time) task2Time.innerHTML = "Time: 12 minutes";
+const task1ScoreBanner = document.getElementById("task1ScoreBanner");
+if (task1ScoreBanner) task1ScoreBanner.style.display = "none";
+const submitNote = document.getElementById("submitNote");
+if (submitNote) submitNote.textContent = "This task autosaves while the student types. After submission, it is locked and ready for teacher review.";
+goToStep(0);
+
+    updateWordCount();
+      attachAutosaveListeners();
+
+      if (state.task1Score) {
+        renderTask1Score(state.task1Score);
+      } else {
+        clearTask1ScoreDisplay();
+      }
+
+      testStartTime = state.testStartTime || null;
+
+      if (testStartTime) {
+        showTimerBar();
+
+        if (state.testSubmitted) {
+          // Test was already submitted (manually or by time running out) before this save.
+          goToStep(state.currentStep === 2 ? 2 : 1);
+          lockTest();
+        } else if (getSecondsRemaining() <= 0) {
+          // Time ran out while the page was closed/reloaded — submit now.
+          goToStep(state.currentStep === 2 ? 2 : 1);
+          autoSubmitOnTimeUp();
+        } else {
+          // Test in progress — resume on whichever step they were on and restart the ticking clock.
+          goToStep(state.currentStep === 2 ? 2 : 1);
+          runTimer();
+        }
+      } else {
+        // Test never started — always land on the cover page regardless of any stale saved step.
+        goToStep(0);
+      }
+    }
+
+    function getEmbeddedState() {
+      try {
+        const raw = document.getElementById("embedded-save").textContent || "{}";
+        const parsed = JSON.parse(raw);
+        return Object.keys(parsed).length ? parsed : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function loadState() {
+      const embedded = getEmbeddedState();
+      if (embedded) {
+        applyState(embedded);
+        setStatus("Loaded answers embedded in this HTML file.");
+        return;
+      }
+
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          applyState(JSON.parse(raw));
+          setStatus("Loaded autosaved work from this browser.");
+          return;
+        }
+      } catch (e) {}
+
+      buildOptionEditor(defaultChoices, defaultAnswerKey);
+      buildDropdowns([]);
+      attachAutosaveListeners();
+      goToStep(0);
+      setStatus("Autosave ready.");
+    }
+
+    function attachAutosaveListeners() {
+      document.querySelectorAll("[contenteditable='true'], textarea, input").forEach(el => {
+        el.removeEventListener("input", scheduleSave);
+        el.addEventListener("input", scheduleSave);
+      });
+
+      document.getElementById("emailResponse").removeEventListener("input", updateWordCount);
+      document.getElementById("emailResponse").addEventListener("input", updateWordCount);
+    }
+
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      setStatus("Autosave pending...");
+      saveTimer = setTimeout(saveNow, 800);
+    }
+
+    function saveNow() {
+      const state = collectState();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        setStatus("Saved at " + new Date().toLocaleTimeString());
+      } catch (e) {
+        setStatus("Browser save failed. Download Saved HTML to keep answers.");
+      }
+    }
+
+    function formatWork() {
+      const state = collectState();
+      let text = `Student: ${state.student.name || "Unnamed Student"}\nClass: ${state.student.className || ""}\nDate: ${state.student.date || ""}\n\n`;
+
+      text += "Writing Task 1: Read & Choose\n";
+      const answerKey = state.answerKey || defaultAnswerKey;
+      state.task1Answers.forEach((row, i) => {
+        let mark = "[not submitted yet]";
+        if (state.testSubmitted) {
+          mark = row.answer ? (row.answer === answerKey[i] ? "[correct]" : `[incorrect, correct answer: ${answerKey[i]}]`) : "[no answer]";
+        }
+        text += `${row.question}. ${row.answer || "-"} ${row.optionText ? "(" + row.optionText + ")" : ""} ${mark}\n`;
+      });
+      if (state.testSubmitted && state.task1Score) {
+        text += `Task 1 Score: ${state.task1Score.correct} / ${state.task1Score.total}\n`;
+      } else {
+        text += "Task 1 Score: test not submitted yet\n";
+      }
+
+      text += `\nWriting Task 2: E-mail Reply (needs teacher review)\nWord Count: ${state.wordCount}\n\n`;
+      text += state.emailResponse || "-";
+      return text;
+    }
+
+    function showWork() {
+      saveNow();
+      const output = document.getElementById("output");
+      output.style.display = "block";
+      output.textContent = formatWork();
+      navigator.clipboard?.writeText(output.textContent).catch(() => {});
+    }
+
+    function downloadTXT() {
+      saveNow();
+      const state = collectState();
+      const blob = new Blob([formatWork()], { type: "text/plain;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName(state.student.name)}_${state.student.date || "no_date"}_writing_task.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadCSV() {
+      saveNow();
+      const state = collectState();
+      const answerKey = state.answerKey || defaultAnswerKey;
+      const rows = [["Student", "Class", "Date", "Task", "Question", "Answer", "Option Text", "Correct?", "Score", "Email Response", "Word Count"]];
+
+      state.task1Answers.forEach((row, i) => {
+        const isCorrect = state.testSubmitted ? (row.answer ? (row.answer === answerKey[i] ? "Yes" : "No") : "No answer") : "Not submitted yet";
+        rows.push([state.student.name, state.student.className, state.student.date, "Task 1", row.question, row.answer, row.optionText, isCorrect, "", "", ""]);
+      });
+
+      const scoreText = (state.testSubmitted && state.task1Score) ? `${state.task1Score.correct} / ${state.task1Score.total}` : "Test not submitted yet";
+      rows.push([state.student.name, state.student.className, state.student.date, "Task 1", "", "", "", "", scoreText, "", ""]);
+      rows.push([state.student.name, state.student.className, state.student.date, "Task 2", "", "", "", "", "", state.emailResponse, state.wordCount]);
+
+      const csv = rows.map(row => row.map(value => `"${String(value || "").replaceAll('"', '""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName(state.student.name)}_${state.student.date || "no_date"}_writing_task.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadSavedHTML() {
+      saveNow();
+      const state = collectState();
+      state.exportedAt = new Date().toISOString();
+      const json = JSON.stringify(state).replace(/</g, "\\u003c");
+
+      let source = document.documentElement.outerHTML;
+      source = source.replace(
+        /<script id="embedded-save" type="application\/json">[\s\S]*?<\/script>/,
+        `<script id="embedded-save" type="application/json">${json}<\/script>`
+      );
+
+      const blob = new Blob(["<!DOCTYPE html>\n" + source], { type: "text/html;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const name = document.getElementById("studentName").value || "student";
+      const date = document.getElementById("testDate").value || "no_date";
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName(name)}_${date}_saved_writing_test.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearAll() {
+      if (!confirm("Clear all student answers and browser autosave?")) return;
+
+      document.getElementById("studentName").value = "";
+      document.getElementById("studentClass").value = "";
+      document.getElementById("testDate").value = "";
+      document.getElementById("emailResponse").value = "";
+      document.getElementById("emailResponse").disabled = false;
+      document.querySelectorAll(".inline-select").forEach(select => {
+        select.value = "";
+        select.disabled = false;
+        updateSelectStyle(select);
+      });
+      clearTask1ScoreDisplay();
+      document.getElementById("output").style.display = "none";
+      updateWordCount();
+      updateTask1Progress();
+
+      testSubmitted = false;
+      document.getElementById("submitTestBtn").disabled = false;
+      document.getElementById("submitNote").style.display = "block";
+      document.getElementById("submittedBanner").style.display = "none";
+      document.getElementById("submittedBanner").textContent = "Test submitted. Your answers are locked.";
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      testStartTime = null;
+      document.getElementById("timerBar").style.display = "none";
+      document.getElementById("timerBar").classList.remove("time-low");
+      document.getElementById("timerValue").textContent = "20:00";
+
+      goToStep(0);
+
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      setStatus("Cleared.");
+    }
+
+    function safeName(text) {
+      return (text || "student").replace(/[^a-z0-9\u4e00-\u9fa5_-]+/gi, "_");
+    }
+
+    loadState();
+  </script>
+</body>
+</html>

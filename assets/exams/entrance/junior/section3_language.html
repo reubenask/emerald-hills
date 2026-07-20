@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Part 2 – Language Form and Meaning</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.7;
+    color: #1a1a1a;
+    background: #e9ebee;
+  }
+  .page-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fffefb;
+    min-height: 100vh;
+    box-shadow: 0 0 20px rgba(0,0,0,0.08);
+  }
+  .top-banner {
+    background: #1c2541;
+    color: #fff;
+    text-align: center;
+    padding: 18px 20px;
+    font-size: 1.3em;
+    font-weight: bold;
+    border-bottom: 4px solid #b8862f;
+  }
+  .cover-inner {
+    padding: 30px 40px 50px;
+  }
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 20px 0 6px;
+  }
+  .ets-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid #b8862f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #1c2541;
+    font-family: Georgia, serif;
+    flex-shrink: 0;
+  }
+  .logo-row h2 {
+    margin: 0;
+    color: #1c2541;
+    font-size: 1.8em;
+  }
+  .cover-inner > h3 {
+    text-align: center;
+    color: #1c2541;
+    font-size: 1.5em;
+    margin: 6px 0 25px;
+  }
+  hr.divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 0 0 25px;
+  }
+  .info-box {
+    background: #f3f1ec;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px 25px;
+    margin-bottom: 25px;
+  }
+  .info-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .info-field {
+    flex: 1;
+    min-width: 180px;
+  }
+  .info-field label {
+    display: block;
+    font-size: 0.78em;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    color: #1c2541;
+    margin-bottom: 6px;
+    font-family: Arial, sans-serif;
+  }
+  .info-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+    background: #fff;
+  }
+  .rules-box {
+    background: #f3f1ec;
+    border-left: 4px solid #1c2541;
+    border-radius: 0 6px 6px 0;
+    padding: 20px 25px;
+    margin-bottom: 30px;
+    font-family: Arial, sans-serif;
+  }
+  .rules-box strong {
+    display: block;
+    margin-bottom: 12px;
+    color: #1c2541;
+    font-size: 1.05em;
+  }
+  .rules-box ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .rules-box li {
+    margin-bottom: 8px;
+  }
+  #startBtn {
+    display: block;
+    margin: 0 auto;
+    padding: 16px 50px;
+    font-size: 1.15em;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    background: #1c2541;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #startBtn:hover {
+    background: #15203e;
+  }
+  #nameWarning {
+    text-align: center;
+    color: #c0392b;
+    font-family: Arial, sans-serif;
+    font-size: 0.9em;
+    margin-top: 12px;
+    display: none;
+  }
+  #testPage {
+    display: none;
+  }
+  .timer-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #1c2541;
+    color: #fff;
+    padding: 14px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid #b8862f;
+    font-family: Arial, sans-serif;
+  }
+  .timer-bar .student-info {
+    font-size: 0.95em;
+  }
+  .timer-bar .timer-display {
+    font-size: 1.3em;
+    font-weight: bold;
+    background: #15203e;
+    padding: 6px 18px;
+    border-radius: 6px;
+  }
+  .timer-bar .timer-display.low-time {
+    color: #ff6b6b;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .test-body {
+    padding: 30px 20px 80px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  h1 {
+    text-align: center;
+    border-bottom: 3px solid #1a6e6e;
+    padding-bottom: 10px;
+    color: #1a6e6e;
+  }
+  .directions {
+    background: #eef6f6;
+    border: 1px solid #1a6e6e;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 30px;
+  }
+  .directions h2 {
+    margin-top: 0;
+    font-size: 1.1em;
+  }
+  .passage-block {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px 25px;
+    margin-bottom: 25px;
+  }
+  .passage-header {
+    font-weight: bold;
+    margin-bottom: 12px;
+  }
+  .passage-text {
+    text-align: justify;
+  }
+  fieldset {
+    display: inline;
+    border: 2px solid #333;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin: 0 4px;
+    vertical-align: middle;
+    background: #fcfcf5;
+  }
+  fieldset legend {
+    font-weight: bold;
+    padding: 0 4px;
+  }
+  fieldset label {
+    display: block;
+    white-space: nowrap;
+    font-size: 0.95em;
+    cursor: pointer;
+  }
+  fieldset input {
+    margin-right: 4px;
+  }
+  .answered-correct fieldset {
+    border-color: #2a8c2a;
+    background: #eaf7ea;
+  }
+  .answered-incorrect fieldset {
+    border-color: #c0392b;
+    background: #fcebea;
+  }
+  #submitBtn {
+    display: block;
+    margin: 40px auto;
+    padding: 14px 40px;
+    font-size: 1.1em;
+    background: #1a6e6e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #submitBtn:hover {
+    background: #155656;
+  }
+  #results {
+    display: none;
+    text-align: center;
+    background: #fff;
+    border: 2px solid #1a6e6e;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+    font-size: 1.2em;
+  }
+  #results.show {
+    display: block;
+  }
+  .correct-mark, .incorrect-mark {
+    font-weight: bold;
+    margin-left: 8px;
+  }
+  .correct-mark { color: #2a8c2a; }
+  .incorrect-mark { color: #c0392b; }
+  .correct-answer-note {
+    font-size: 0.85em;
+    color: #c0392b;
+    display: block;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <div class="top-banner">绿山托福考试 答题纸 (Junior 班)</div>
+
+  <div id="coverPage">
+    <div class="cover-inner">
+      <div class="logo-row">
+        <div class="ets-circle">ETS</div>
+        <h2>TOEFL Junior</h2>
+      </div>
+      <h3>Reading Practice Test &mdash; Part 2: Language Form and Meaning</h3>
+      <hr class="divider">
+
+      <div class="info-box">
+        <div class="info-row">
+          <div class="info-field">
+            <label>STUDENT NAME</label>
+            <input type="text" id="studentName" placeholder="Enter student name">
+          </div>
+          <div class="info-field">
+            <label>CLASS</label>
+            <input type="text" id="studentClass" placeholder="Junior 班">
+          </div>
+          <div class="info-field">
+            <label>DATE</label>
+            <input type="date" id="testDate">
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-box">
+        <strong>Before you begin:</strong>
+        <ul>
+          <li>This test has 26 questions and one timer of 30 minutes.</li>
+          <li>Once you click "Start Test," the timer will begin and cannot be paused.</li>
+          <li>You may answer the questions in any order and review them before submitting.</li>
+          <li>Click "Submit Answers" when you are finished to see your score.</li>
+          <li>If time runs out, the test will submit automatically with whatever you have completed.</li>
+        </ul>
+      </div>
+
+      <button type="button" id="startBtn" onclick="startTest()">Start Test &rarr;</button>
+      <div id="nameWarning">Please enter the student name before starting.</div>
+    </div>
+  </div>
+
+  <div id="testPage">
+    <div class="timer-bar">
+      <div class="student-info" id="studentInfoDisplay"></div>
+      <div class="timer-display" id="timerDisplay">30:00</div>
+    </div>
+
+    <div class="test-body">
+
+<h1>Part 2 &ndash; Language Form and Meaning</h1>
+
+<div class="directions">
+  <h2>Directions</h2>
+  <p>In this section of the test, you will answer questions found in several different texts. Within each text are boxes that contain four possible ways to complete a sentence. Choose the word or words in each box that correctly complete each sentence.</p>
+  <p><em>Sample:</em> The idea that rocks last forever and that rocks <strong>(D) never</strong> change is not completely true. If you have ever stood next to a rushing river, you <strong>(D) may have seen</strong> the water hammering away at the rocks.</p>
+</div>
+
+<form id="quizForm">
+
+<div class="passage-block">
+  <div class="passage-header">Questions 1&ndash;4 refer to the following announcement.</div>
+  <div class="passage-text">
+    Next Saturday at 8 P.M., Denville Township Public Library
+    <fieldset data-q="1" data-answer="D">
+      <legend>1</legend>
+      <label><input type="radio" name="q1" value="A"> (A) hosted</label>
+      <label><input type="radio" name="q1" value="B"> (B) to host</label>
+      <label><input type="radio" name="q1" value="C"> (C) hosting</label>
+      <label><input type="radio" name="q1" value="D"> (D) will host</label>
+    </fieldset>
+    a talk for middle school students about
+    <fieldset data-q="2" data-answer="B">
+      <legend>2</legend>
+      <label><input type="radio" name="q2" value="A"> (A) improve</label>
+      <label><input type="radio" name="q2" value="B"> (B) improving</label>
+      <label><input type="radio" name="q2" value="C"> (C) it improves</label>
+      <label><input type="radio" name="q2" value="D"> (D) the improvement</label>
+    </fieldset>
+    study skills. Emily Walters, the guidance counselor at Denville High School, will discuss ways that students can use their study time more
+    <fieldset data-q="3" data-answer="C">
+      <legend>3</legend>
+      <label><input type="radio" name="q3" value="A"> (A) safely</label>
+      <label><input type="radio" name="q3" value="B"> (B) instantly</label>
+      <label><input type="radio" name="q3" value="C"> (C) efficiently</label>
+      <label><input type="radio" name="q3" value="D"> (D) wonderfully</label>
+    </fieldset>
+    and become better students. Ms. Walters will also be on hand afterward to answer any questions
+    <fieldset data-q="4" data-answer="B">
+      <legend>4</legend>
+      <label><input type="radio" name="q4" value="A"> (A) may students have</label>
+      <label><input type="radio" name="q4" value="B"> (B) that students may have</label>
+      <label><input type="radio" name="q4" value="C"> (C) students may have them</label>
+      <label><input type="radio" name="q4" value="D"> (D) they may be had by students</label>
+    </fieldset>
+    regarding the transition from middle school to high school.
+  </div>
+</div>
+
+<div class="passage-block">
+  <div class="passage-header">Questions 5&ndash;8 refer to the following notice.</div>
+  <div class="passage-text">
+    <fieldset data-q="5" data-answer="C">
+      <legend>5</legend>
+      <label><input type="radio" name="q5" value="A"> (A) Will be</label>
+      <label><input type="radio" name="q5" value="B"> (B) That there is</label>
+      <label><input type="radio" name="q5" value="C"> (C) There will be</label>
+      <label><input type="radio" name="q5" value="D"> (D) Because there will be</label>
+    </fieldset>
+    a group of foreign exchange students from our sister city of Avignon, France, visiting the school next month. There are approximately 20 students coming, and
+    <fieldset data-q="6" data-answer="D">
+      <legend>6</legend>
+      <label><input type="radio" name="q6" value="A"> (A) need they all places</label>
+      <label><input type="radio" name="q6" value="B"> (B) places all need they</label>
+      <label><input type="radio" name="q6" value="C"> (C) all places they need</label>
+      <label><input type="radio" name="q6" value="D"> (D) they all need places</label>
+    </fieldset>
+    to stay. If you can host an exchange student in your home, please
+    <fieldset data-q="7" data-answer="A">
+      <legend>7</legend>
+      <label><input type="radio" name="q7" value="A"> (A) ask</label>
+      <label><input type="radio" name="q7" value="B"> (B) tell</label>
+      <label><input type="radio" name="q7" value="C"> (C) say</label>
+      <label><input type="radio" name="q7" value="D"> (D) speak</label>
+    </fieldset>
+    to Ms. Duchamp. Students studying French are especially encouraged to host, as this is a great opportunity for students
+    <fieldset data-q="8" data-answer="C">
+      <legend>8</legend>
+      <label><input type="radio" name="q8" value="A"> (A) practiced</label>
+      <label><input type="radio" name="q8" value="B"> (B) to practice</label>
+      <label><input type="radio" name="q8" value="C"> (C) are practicing</label>
+      <label><input type="radio" name="q8" value="D"> (D) they practiced</label>
+    </fieldset>
+    their language skills!
+  </div>
+</div>
+
+<div class="passage-block">
+  <div class="passage-header">Questions 9&ndash;12 refer to the following notice on a bulletin board.</div>
+  <div class="passage-text">
+    Yesterday I found a wristwatch
+    <fieldset data-q="9" data-answer="C">
+      <legend>9</legend>
+      <label><input type="radio" name="q9" value="A"> (A) someone left it</label>
+      <label><input type="radio" name="q9" value="B"> (B) someone leaving</label>
+      <label><input type="radio" name="q9" value="C"> (C) that someone left</label>
+      <label><input type="radio" name="q9" value="D"> (D) was left by someone</label>
+    </fieldset>
+    in the library. If you think this watch might be yours, you should go to the school administrator's office. Tell Mr. Bryson you lost your watch and describe
+    <fieldset data-q="10" data-answer="D">
+      <legend>10</legend>
+      <label><input type="radio" name="q10" value="A"> (A) like it looks</label>
+      <label><input type="radio" name="q10" value="B"> (B) looking like</label>
+      <label><input type="radio" name="q10" value="C"> (C) that it looks like</label>
+      <label><input type="radio" name="q10" value="D"> (D) what it looks like</label>
+    </fieldset>
+    so he can make sure the watch I found belongs to you. Also, even if you haven't lost a watch, please
+    <fieldset data-q="11" data-answer="A">
+      <legend>11</legend>
+      <label><input type="radio" name="q11" value="A"> (A) tell</label>
+      <label><input type="radio" name="q11" value="B"> (B) hear</label>
+      <label><input type="radio" name="q11" value="C"> (C) share</label>
+      <label><input type="radio" name="q11" value="D"> (D) control</label>
+    </fieldset>
+    other students about the watch I found. It's a nice watch, and I'm sure the owner would like
+    <fieldset data-q="12" data-answer="B">
+      <legend>12</legend>
+      <label><input type="radio" name="q12" value="A"> (A) it getting back.</label>
+      <label><input type="radio" name="q12" value="B"> (B) to get it back.</label>
+      <label><input type="radio" name="q12" value="C"> (C) back to get it.</label>
+      <label><input type="radio" name="q12" value="D"> (D) it got back.</label>
+    </fieldset>
+  </div>
+</div>
+
+<div class="passage-block">
+  <div class="passage-header">Questions 13&ndash;18 refer to the following passage from a history book.</div>
+  <div class="passage-text">
+    The bookmarks we use today are often just narrow strips of thick paper that we insert between the pages of a book
+    <fieldset data-q="13" data-answer="D">
+      <legend>13</legend>
+      <label><input type="radio" name="q13" value="A"> (A) helps</label>
+      <label><input type="radio" name="q13" value="B"> (B) to help</label>
+      <label><input type="radio" name="q13" value="C"> (C) but help</label>
+      <label><input type="radio" name="q13" value="D"> (D) they help</label>
+    </fieldset>
+    us return to the place where we stopped reading. It is perhaps surprising that bookmarks have existed for as
+    <fieldset data-q="14" data-answer="D">
+      <legend>14</legend>
+      <label><input type="radio" name="q14" value="A"> (A) long</label>
+      <label><input type="radio" name="q14" value="B"> (B) long as</label>
+      <label><input type="radio" name="q14" value="C"> (C) longingly</label>
+      <label><input type="radio" name="q14" value="D"> (D) longer than</label>
+    </fieldset>
+    people have had books. Over time, bookmarks
+    <fieldset data-q="15" data-answer="C">
+      <legend>15</legend>
+      <label><input type="radio" name="q15" value="A"> (A) changes</label>
+      <label><input type="radio" name="q15" value="B"> (B) to change</label>
+      <label><input type="radio" name="q15" value="C"> (C) have changed</label>
+      <label><input type="radio" name="q15" value="D"> (D) to have changed</label>
+    </fieldset>
+    considerably. Nowadays,
+    <fieldset data-q="16" data-answer="D">
+      <legend>16</legend>
+      <label><input type="radio" name="q16" value="A"> (A) they have</label>
+      <label><input type="radio" name="q16" value="B"> (B) they are</label>
+      <label><input type="radio" name="q16" value="C"> (C) it does</label>
+      <label><input type="radio" name="q16" value="D"> (D) it is</label>
+    </fieldset>
+    usually made from inexpensive paper. Bookmarks in the past were often expensive items
+    <fieldset data-q="17" data-answer="A">
+      <legend>17</legend>
+      <label><input type="radio" name="q17" value="A"> (A) made</label>
+      <label><input type="radio" name="q17" value="B"> (B) making</label>
+      <label><input type="radio" name="q17" value="C"> (C) that made</label>
+      <label><input type="radio" name="q17" value="D"> (D) were made</label>
+    </fieldset>
+    of fine fabric or leather that was often richly decorated. Perhaps one reason bookmarks were relatively precious objects is
+    <fieldset data-q="18" data-answer="C">
+      <legend>18</legend>
+      <label><input type="radio" name="q18" value="A"> (A) of their quality</label>
+      <label><input type="radio" name="q18" value="B"> (B) they had quality</label>
+      <label><input type="radio" name="q18" value="C"> (C) that their quality</label>
+      <label><input type="radio" name="q18" value="D"> (D) they were of quality</label>
+    </fieldset>
+    had to suit the books they marked. Some early books were so expensive and finely made that it would have been unthinkable for a reader to mark them using an ordinary piece of cloth or other material that might damage the pages.
+  </div>
+</div>
+
+<div class="passage-block">
+  <div class="passage-header">Questions 19&ndash;26 refer to the following article from a science magazine.</div>
+  <div class="passage-text">
+    Scientists
+    <fieldset data-q="19" data-answer="C">
+      <legend>19</legend>
+      <label><input type="radio" name="q19" value="A"> (A) estimates</label>
+      <label><input type="radio" name="q19" value="B"> (B) estimating</label>
+      <label><input type="radio" name="q19" value="C"> (C) estimate</label>
+      <label><input type="radio" name="q19" value="D"> (D) to estimate</label>
+    </fieldset>
+    that every month more than a dozen plant and animal species become extinct. In some cases, human activity is
+    <fieldset data-q="20" data-answer="D">
+      <legend>20</legend>
+      <label><input type="radio" name="q20" value="A"> (A) failed</label>
+      <label><input type="radio" name="q20" value="B"> (B) scored</label>
+      <label><input type="radio" name="q20" value="C"> (C) caused</label>
+      <label><input type="radio" name="q20" value="D"> (D) blamed</label>
+    </fieldset>
+    for the disappearance of a species. However, extinction occurs naturally as well. It is a process that
+    <fieldset data-q="21" data-answer="D">
+      <legend>21</legend>
+      <label><input type="radio" name="q21" value="A"> (A) it took</label>
+      <label><input type="radio" name="q21" value="B"> (B) to have taken</label>
+      <label><input type="radio" name="q21" value="C"> (C) has to be taken</label>
+      <label><input type="radio" name="q21" value="D"> (D) has been taking</label>
+    </fieldset>
+    place throughout Earth's history. Long before humans existed, some plant and animal species disappeared.
+    <fieldset data-q="22" data-answer="B">
+      <legend>22</legend>
+      <label><input type="radio" name="q22" value="A"> (A) When occasional,</label>
+      <label><input type="radio" name="q22" value="B"> (B) Occasionally,</label>
+      <label><input type="radio" name="q22" value="C"> (C) An occasion,</label>
+      <label><input type="radio" name="q22" value="D"> (D) Occasion,</label>
+    </fieldset>
+    however, scientists discover that some species
+    <fieldset data-q="23" data-answer="C">
+      <legend>23</legend>
+      <label><input type="radio" name="q23" value="A"> (A) they thought it</label>
+      <label><input type="radio" name="q23" value="B"> (B) thinking it had</label>
+      <label><input type="radio" name="q23" value="C"> (C) thought to have</label>
+      <label><input type="radio" name="q23" value="D"> (D) having thought it</label>
+    </fieldset>
+    disappeared are not really extinct.
+    <fieldset data-q="24" data-answer="B">
+      <legend>24</legend>
+      <label><input type="radio" name="q24" value="A"> (A) It was a live animal discovered</label>
+      <label><input type="radio" name="q24" value="B"> (B) The discovery of a live animal</label>
+      <label><input type="radio" name="q24" value="C"> (C) They discovered a live animal</label>
+      <label><input type="radio" name="q24" value="D"> (D) A live animal was discovered</label>
+    </fieldset>
+    previously considered extinct is known as the Lazarus effect. A recent example of the Lazarus effect occurred in Laos, where explorers found
+    <fieldset data-q="25" data-answer="A">
+      <legend>25</legend>
+      <label><input type="radio" name="q25" value="A"> (A) a mouse-sized animal</label>
+      <label><input type="radio" name="q25" value="B"> (B) that was a mouse-sized animal</label>
+      <label><input type="radio" name="q25" value="C"> (C) an animal that the size a mouse</label>
+      <label><input type="radio" name="q25" value="D"> (D) out an animal the size of a mouse</label>
+    </fieldset>
+    called <em>Laonastes aenigmamus</em>. Before its discovery, this animal was thought to have been extinct
+    <fieldset data-q="26" data-answer="B">
+      <legend>26</legend>
+      <label><input type="radio" name="q26" value="A"> (A) in</label>
+      <label><input type="radio" name="q26" value="B"> (B) for</label>
+      <label><input type="radio" name="q26" value="C"> (C) since</label>
+      <label><input type="radio" name="q26" value="D"> (D) near to</label>
+    </fieldset>
+    eleven million years!
+  </div>
+</div>
+
+<button type="button" id="submitBtn" onclick="gradeQuiz(false)">Submit Answers</button>
+
+</form>
+
+<div id="results"></div>
+
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+const TEST_DURATION_SECONDS = 600;
+let timeRemaining = TEST_DURATION_SECONDS;
+let timerInterval = null;
+let hasSubmitted = false;
+
+
+document.title = "Entrance Examination into Junior Class - Language Form and Meaning";
+const languageTopBanner = document.querySelector(".top-banner");
+if (languageTopBanner) languageTopBanner.textContent = "Entrance Examination into Junior Class";
+const languageCoverH2 = document.querySelector(".logo-row h2");
+if (languageCoverH2) languageCoverH2.textContent = "Entrance Examination into Junior Class";
+const languageKeepHeaders = ["Questions 1–4 refer to the following announcement.","Questions 5–8 refer to the following notice."];
+document.querySelectorAll(".passage-block").forEach(block => {
+  const header = block.querySelector(".passage-header")?.textContent?.replace(/\s+/g, " ").trim() || "";
+  if (!languageKeepHeaders.includes(header)) {
+    block.remove();
+  }
+});
+const languageDirections = document.querySelector(".directions");
+if (languageDirections) {
+  const intro = languageDirections.querySelector("p");
+  if (intro) intro.textContent = "In this abridged section, answer the 8 questions found in the selected text passages. Choose the word or words that correctly complete each sentence.";
+}
+const languageTimer = document.getElementById("timerDisplay");
+if (languageTimer) languageTimer.textContent = "10:00";
+
+function startTest() {
+  const name = document.getElementById('studentName').value.trim();
+  if (!name) {
+    document.getElementById('nameWarning').style.display = 'block';
+    return;
+  }
+  document.getElementById('nameWarning').style.display = 'none';
+
+  const studentClass = document.getElementById('studentClass').value.trim() || 'Junior 班';
+  const testDate = document.getElementById('testDate').value;
+
+  let infoText = name + ' &nbsp;|&nbsp; ' + studentClass;
+  if (testDate) {
+    const d = new Date(testDate + 'T00:00:00');
+    infoText += ' &nbsp;|&nbsp; ' + d.toLocaleDateString();
+  }
+  document.getElementById('studentInfoDisplay').innerHTML = infoText;
+
+  document.getElementById('coverPage').style.display = 'none';
+  document.getElementById('testPage').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  timerInterval = setInterval(tickTimer, 1000);
+}
+
+function tickTimer() {
+  timeRemaining--;
+  updateTimerDisplay();
+  if (timeRemaining <= 0) {
+    clearInterval(timerInterval);
+    gradeQuiz(true);
+  }
+}
+
+function updateTimerDisplay() {
+  const minutes = Math.max(0, Math.floor(timeRemaining / 60));
+  const seconds = Math.max(0, timeRemaining % 60);
+  const display = document.getElementById('timerDisplay');
+  display.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+  if (timeRemaining <= 60) {
+    display.classList.add('low-time');
+  }
+}
+
+function gradeQuiz(timeExpired) {
+  if (hasSubmitted) return;
+  hasSubmitted = true;
+  if (timerInterval) clearInterval(timerInterval);
+
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').style.opacity = '0.6';
+
+  const fieldsets = document.querySelectorAll('fieldset[data-q]');
+  let correctCount = 0;
+  let unanswered = [];
+
+  fieldsets.forEach(fs => {
+    const qNum = fs.getAttribute('data-q');
+    const correctAnswer = fs.getAttribute('data-answer');
+    const selected = fs.querySelector('input[name="q' + qNum + '"]:checked');
+
+    fs.classList.remove('answered-correct', 'answered-incorrect');
+    const oldNote = fs.querySelector('.correct-answer-note');
+    if (oldNote) oldNote.remove();
+
+    if (!selected) {
+      unanswered.push(qNum);
+      return;
+    }
+
+    if (selected.value === correctAnswer) {
+      correctCount++;
+      fs.classList.add('answered-correct');
+    } else {
+      fs.classList.add('answered-incorrect');
+      const note = document.createElement('span');
+      note.className = 'correct-answer-note';
+      note.textContent = 'Correct answer: ' + correctAnswer;
+      fs.appendChild(note);
+    }
+  });
+
+  const total = fieldsets.length;
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.classList.add('show');
+
+  let message = '';
+  if (timeExpired) {
+    message += '<div style="color:#c0392b; margin-bottom:10px;">Time is up &mdash; your test was submitted automatically.</div>';
+  }
+  message += '<strong>Score: ' + correctCount + ' / ' + total + '</strong> (' +
+    Math.round((correctCount / total) * 100) + '%)';
+
+  if (unanswered.length > 0) {
+    message += '<br><span style="color:#c0392b; font-size:0.85em;">Unanswered: Question(s) ' + unanswered.join(', ') + '</span>';
+  }
+
+  resultsDiv.innerHTML = message;
+  resultsDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function restartTest(){
+  if(!confirm('Restart this test and clear saved progress?')) return;
+  try {
+    const prefix = location.pathname;
+    Object.keys(localStorage).forEach(key => {
+      if (key.includes(prefix) || key.includes(document.title) || key.includes('toefl') || key.includes('TOEFL') || key.includes('itp') || key.includes('ibt')) localStorage.removeItem(key);
+    });
+    Object.keys(sessionStorage).forEach(key => sessionStorage.removeItem(key));
+  } catch(e) {}
+  location.href = location.pathname;
+}
+
+</script>
+
+<div style="text-align:center;margin:24px auto;"><button onclick="restartTest()" style="margin:8px;padding:10px 16px;border:none;border-radius:6px;background:#c1121f;color:#fff;font-weight:700;cursor:pointer;">Restart Test</button></div>
+</body>
+</html>

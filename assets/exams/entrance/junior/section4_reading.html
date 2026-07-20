@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>绿山托福考试 答题纸 (Junior 班) - TOEFL Junior Reading</title>
+<style>
+  :root {
+    --navy: #1c2541;
+    --gold: #b8860b;
+    --paper: #fbf9f4;
+    --panel: #f1ede4;
+    --ink: #1f1d1a;
+    --rule: #c9c2b3;
+    --accent: #7a3b2e;
+    --correct: #2f5d3a;
+    --correct-bg: #e7f0e7;
+    --wrong: #8c2f2f;
+    --wrong-bg: #f6e8e6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Georgia", "Times New Roman", serif;
+    line-height: 1.5;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===== Branded header ===== */
+  .brand-header {
+    background: var(--navy);
+    color: #fff;
+    text-align: center;
+    padding: 18px 20px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-bottom: 4px solid var(--gold);
+  }
+  .brand-header .en { font-size: 0.95rem; font-weight: bold; }
+
+  .wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+  .cover-card {
+    border: 1px solid var(--rule);
+    margin-top: 24px;
+  }
+  .cover-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 32px 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .cover-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .ets-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.78rem;
+    color: var(--navy);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .ets-badge::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1.5px solid var(--gold);
+    border-radius: 50%;
+  }
+  .cover-header-left .name {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--navy);
+  }
+  .cover-header-right {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--navy);
+  }
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 0;
+  }
+  .field-panel {
+    background: var(--panel);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 24px 32px;
+    margin-bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+  .field-group { margin-bottom: 0; }
+  .field-label {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    color: #4a4636;
+    margin-bottom: 7px;
+    text-transform: uppercase;
+  }
+  .field-group input[type=text],
+  .field-group input[type=date] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.96rem;
+    padding: 11px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--ink);
+  }
+  .field-group input::placeholder { color: #9a958a; }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 20px 32px;
+    margin: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .btn {
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: bold;
+    padding: 10px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: #fff;
+    color: var(--navy);
+  }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn-navy:hover { background: #283861; }
+  .btn-gold { background: var(--gold); color: #fff; }
+  .btn-gold:hover { background: #a07309; }
+  .btn-outline { background: #fff; border-color: var(--rule); color: var(--navy); }
+  .btn-outline:hover { background: #f4f1e9; }
+  .btn-danger { background: #fff; border-color: var(--wrong); color: var(--wrong); }
+  .btn-danger:hover { background: var(--wrong-bg); }
+  .btn-start {
+    background: var(--navy);
+    color: #fff;
+    font-size: 1.02rem;
+    padding: 13px 36px;
+  }
+  .btn-start:hover { background: #283861; }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+
+  .info-banner {
+    background: var(--panel);
+    border-left: 4px solid var(--navy);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 16px 32px;
+    font-size: 0.92rem;
+    color: #3a362f;
+    margin: 0;
+  }
+  .autosave-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .autosave-tag {
+    background: var(--panel);
+    border: 1px solid #d8b574;
+    color: var(--gold);
+    font-weight: bold;
+    font-size: 0.76rem;
+    letter-spacing: 0.05em;
+    padding: 7px 13px;
+    border-radius: 3px;
+  }
+  .autosave-status {
+    font-size: 0.86rem;
+    color: #6b6457;
+  }
+
+  .begin-box {
+    background: var(--panel);
+    border-left: 4px solid var(--navy);
+    padding: 22px 32px 24px;
+  }
+  .begin-box h4 {
+    margin: 0 0 14px;
+    font-size: 1.02rem;
+    color: var(--ink);
+  }
+  .begin-box ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .begin-box li {
+    margin-bottom: 10px;
+    font-size: 0.94rem;
+    color: #3a362f;
+  }
+  .begin-box li:last-child { margin-bottom: 0; }
+
+  .start-section {
+    text-align: center;
+    padding: 32px 32px 36px;
+  }
+  .start-note {
+    font-size: 0.85rem;
+    color: #6b6457;
+    margin-top: 12px;
+  }
+  .bottom-btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  /* ===== Sticky exam timer bar ===== */
+  .timer-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--navy);
+    color: #fff;
+    border-bottom: 4px solid var(--gold);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .timer-bar .title-block { font-weight: bold; font-size: 1.05rem; }
+  .timer-bar .title-block .sub { font-weight: normal; font-size: 0.82rem; opacity: 0.85; }
+  .timer-pill {
+    background: #11182b;
+    border: 1px solid var(--gold);
+    border-radius: 5px;
+    padding: 8px 18px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+    font-family: "Courier New", monospace;
+  }
+  .timer-pill.low { color: #ffb3a7; border-color: #d96a5b; }
+
+  /* ===== Test content (reuses prior exam styling) ===== */
+  .sheet {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 0 40px;
+  }
+  .directions {
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+    color: #3a362f;
+  }
+  .passage-block { margin-bottom: 8px; }
+  .passage-label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+  .passage-title {
+    text-align: center;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 1.25rem;
+    margin: 0 0 18px;
+  }
+  .passage-heading { font-weight: bold; margin-bottom: 8px; }
+  .passage-text {
+    border: 1px solid var(--rule);
+    background: #fffdf9;
+    padding: 20px 24px;
+    margin-bottom: 36px;
+    font-size: 1rem;
+  }
+  .pline { display: flex; gap: 10px; }
+  .pline .num {
+    flex: 0 0 28px;
+    text-align: right;
+    color: #9a9384;
+    font-size: 0.85rem;
+    font-family: "Courier New", monospace;
+    padding-top: 1px;
+    user-select: none;
+  }
+  .pline .txt { flex: 1; }
+  .pgap { height: 14px; }
+  .questions-heading {
+    font-weight: bold;
+    font-size: 1.05rem;
+    margin: 0 0 16px;
+    padding-top: 8px;
+    border-top: 1px solid var(--rule);
+  }
+  .question { margin-bottom: 22px; padding-bottom: 6px; }
+  .q-stem { font-weight: bold; margin-bottom: 10px; }
+  .choices { display: flex; flex-direction: column; gap: 6px; padding-left: 4px; }
+  .choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .choice:hover { background: #f1ece0; }
+  .choice input[type=radio] { margin-top: 3px; accent-color: var(--accent); flex: 0 0 auto; }
+  .choice .letter { font-weight: bold; min-width: 1.2em; }
+  .choice.locked { cursor: default; }
+  .choice.locked:hover { background: inherit; }
+  .choice.is-correct { background: var(--correct-bg); border-color: var(--correct); }
+  .choice.is-wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+
+  .submit-bar {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to top, var(--paper) 70%, rgba(251,249,244,0));
+    padding: 24px 0 8px;
+    text-align: center;
+  }
+  #submitBtn {
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: bold;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+  }
+  #submitBtn:hover { background: #5e2d23; }
+  #submitBtn:disabled { background: #b9ab9c; cursor: default; }
+  .unanswered-note {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--wrong);
+    margin-top: 10px;
+    min-height: 1.1em;
+  }
+
+  .score-panel {
+    border: 2px solid var(--navy);
+    background: #fffdf9;
+    padding: 28px 28px;
+    margin: 32px auto;
+    text-align: center;
+    max-width: 760px;
+  }
+  .score-panel .label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6b6457;
+  }
+  .score-panel .big { font-size: 2.6rem; font-weight: bold; margin: 6px 0; color: var(--navy); }
+  .score-panel .breakdown { margin-top: 14px; font-size: 0.95rem; color: #3a362f; }
+  .score-panel .auto-note {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--wrong);
+    font-weight: bold;
+  }
+  .review-tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 8px;
+    padding: 1px 8px;
+    border-radius: 10px;
+  }
+  .review-tag.correct { background: var(--correct-bg); color: var(--correct); }
+  .review-tag.wrong { background: var(--wrong-bg); color: var(--wrong); }
+  .correct-answer-note {
+    font-size: 0.85rem;
+    margin-top: 6px;
+    padding-left: 4px;
+    color: var(--correct);
+    display: none;
+  }
+  .correct-answer-note.show { display: block; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,20,20,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 8px;
+    padding: 28px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .modal-box h3 { margin-top: 0; color: var(--navy); }
+  .modal-box textarea {
+    width: 100%;
+    height: 220px;
+    font-family: "Courier New", monospace;
+    font-size: 0.8rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 10px;
+  }
+  .modal-close-row { text-align: right; margin-top: 14px; }
+
+  @media print {
+    .timer-bar, .submit-bar, #submitBtn, .modal-overlay { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER SCREEN ===================== -->
+<div class="screen active" id="screen-cover">
+  <div class="brand-header">绿山托福考试 答题纸 (Junior 班)</div>
+  <div class="wrap">
+    <div class="cover-card">
+      <div class="cover-header-row">
+        <div class="cover-header-left">
+          <div class="ets-badge">ETS</div>
+          <div class="name">TOEFL Junior</div>
+        </div>
+        <div class="cover-header-right">Reading Practice Test</div>
+      </div>
+      <hr class="divider">
+
+      <div class="field-panel">
+        <div class="field-group">
+          <label class="field-label" for="studentName">Student Name</label>
+          <input type="text" id="studentName" placeholder="Enter student name">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="studentClass">Class</label>
+          <input type="text" id="studentClass" placeholder="Junior 班">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="examDate">Date</label>
+          <input type="date" id="examDate">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-navy" id="saveNowBtn">Save Now</button>
+        <button class="btn btn-gold" id="downloadHtmlBtn">Download Saved HTML</button>
+        <button class="btn btn-navy" id="showCopyBtn">Show / Copy Work</button>
+        <button class="btn btn-outline" id="downloadCsvBtn">Download CSV</button>
+        <button class="btn btn-outline" id="downloadTxtBtn">Download TXT</button>
+        <button class="btn btn-outline" id="printBtn">Print</button>
+        <button class="btn btn-danger" id="clearAllBtn">Clear All</button>
+      </div>
+
+      <div class="info-banner">
+        This test has 3 reading passages and 26 multiple-choice questions, answered directly under each question.
+      </div>
+
+      <div class="autosave-row">
+        <div class="autosave-tag">AUTOSAVE ENABLED</div>
+        <div class="autosave-status" id="autosaveStatus">Autosave ready.</div>
+      </div>
+
+      <div class="begin-box">
+        <h4>Before you begin:</h4>
+        <ul>
+          <li>This test has 3 reading passages and one combined timer of 30 minutes.</li>
+          <li>Once you click "Start Test," the timer will begin and cannot be paused.</li>
+          <li>You must answer all 26 questions before you can submit the test.</li>
+          <li>If time runs out, the test will submit automatically with whatever you have completed, and your score will be calculated right away.</li>
+        </ul>
+      </div>
+
+      <div class="start-section">
+        <button class="btn btn-start" id="nextBtn">Start Test →</button>
+        <div class="start-note">You will not be able to return to this page once the test begins.</div>
+      </div>
+    </div>
+
+    <div class="bottom-btn-row">
+      <button class="btn btn-navy" id="saveNowBtn2">Save Now</button>
+      <button class="btn btn-gold" id="downloadHtmlBtn2">Download Saved HTML</button>
+      <button class="btn btn-navy" id="showCopyBtn2">Show / Copy Work</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== TEST SCREEN ===================== -->
+<div class="screen" id="screen-test">
+  <div class="timer-bar">
+    <div class="title-block">
+      TOEFL Junior Reading Test
+      <div class="sub">绿山托福考试 (Junior 班)</div>
+    </div>
+    <div class="timer-pill" id="timerDisplay">30:00</div>
+  </div>
+
+  <div class="sheet">
+    <p class="directions">Read each passage carefully. Then choose the best answer for each question. There are three passages and 26 questions in total. Your score will be calculated automatically when you click <strong>Submit Test</strong>, or automatically when time runs out.</p>
+
+    <div id="examRoot"></div>
+
+    <div class="submit-bar">
+      <button id="submitBtn">Submit Test</button>
+      <div class="unanswered-note" id="unansweredNote"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== RESULTS SCREEN ===================== -->
+<div class="screen" id="screen-results">
+  <div class="brand-header">绿山托福考试 答题纸 (Junior 班)</div>
+  <div class="wrap" id="resultsWrap">
+    <!-- score panel + review injected here -->
+  </div>
+</div>
+
+<!-- ===================== COPY-WORK MODAL ===================== -->
+<div class="modal-overlay" id="copyModal">
+  <div class="modal-box">
+    <h3>Saved Work</h3>
+    <textarea id="copyTextarea" readonly></textarea>
+    <div class="modal-close-row">
+      <button class="btn btn-navy" id="closeCopyModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "toefl_junior_reading_itp1";
+const LETTERS = ["A", "B", "C", "D"];
+const EXAM_SECONDS = 720;
+const DATA = {
+  passages: [
+    {
+      label: "Passage 1",
+      title: "The Delivery Robot's First Day",
+      lines: [
+        "Mira was a customer service robot built in a large factory that",
+        "produced delivery machines for busy cities. From the moment she was",
+        "activated, she was programmed to be helpful, polite, and fast. Her",
+        "first task was simple: scan each package, confirm the address, and",
+        "deliver it before sunset. Mira had never left the factory before, so",
+        "everything outside felt new to her sensors.",
+        "",
+        "As she rolled down the sidewalk, Mira began to scan her surroundings.",
+        "She noticed a man doing landscaping in his front yard, pulling weeds",
+        "near a small shelter for his dog. A grasshopper jumped across her",
+        "path, and Mira paused to observe it before continuing. She had no",
+        "patience for delays, but she was curious about everything she saw,",
+        "since her experience until now had been limited to the factory floor.",
+        "",
+        "Halfway through her route, Mira detected a strange signal coming from",
+        "a nearby alley. She used her sensors to scan the area and noticed a",
+        "stray cat watching her from a distance. The cat made a soft sound, a",
+        "kind of vocal mimicry that almost sounded like a greeting. Mira was",
+        "not aggressive, so she simply continued on her way, careful not to",
+        "disturb the animal.",
+        "",
+        "Near the end of her shift, Mira accidentally dropped a package. She",
+        "felt something like worry, though her programming did not include an",
+        "emotion for that. Quickly, she located the package, confirmed it was",
+        "not damaged, and completed the delivery successfully. Her manager",
+        "later told her that her first day had been satisfactory, and that she",
+        "had accomplished her task without major problems.",
+        "",
+        "That night, back at the charging station, Mira reflected on her first",
+        "day outside the factory. She realized that the city was full of small",
+        "surprises, things her original programming could never have predicted.",
+        "Although she had been built only to deliver packages, she found",
+        "herself oddly curious about the wider world beyond her assigned route."
+      ],
+      questions: [
+        {
+          q: "What is the main idea of this passage?",
+          choices: [
+            "A robot fails to deliver any packages",
+            "A robot experiences her first day working outside a factory",
+            "A robot fights with a stray cat",
+            "A robot is reprogrammed by her manager"
+          ],
+          answer: 1
+        },
+        {
+          q: "In line 9, the word landscaping is closest in meaning to ___.",
+          choices: [
+            "building a fence",
+            "painting a house",
+            "caring for a yard or garden",
+            "walking a dog"
+          ],
+          answer: 2
+        },
+        {
+          q: "According to the passage, why does Mira pause near the grasshopper?",
+          choices: [
+            "She is afraid of insects",
+            "She is curious and wants to observe it",
+            "She needs to scan it for her delivery list",
+            "She is told to stop by her manager"
+          ],
+          answer: 1
+        },
+        {
+          q: "In line 18, the word mimicry is closest in meaning to ___.",
+          choices: [
+            "a loud alarm",
+            "a type of machine part",
+            "a kind of weather",
+            "an act of copying or imitating"
+          ],
+          answer: 3
+        },
+        {
+          q: "What happens after Mira drops the package?",
+          choices: [
+            "She ignores it and keeps walking",
+            "She calls her manager for help",
+            "She becomes aggressive toward the cat",
+            "She checks it for damage and completes the delivery"
+          ],
+          answer: 3
+        },
+        {
+          q: "What is the purpose of the last paragraph?",
+          choices: [
+            "To explain how delivery robots are built",
+            "To describe the inside of the factory",
+            "To show that Mira is now curious about the world beyond her task",
+            "To introduce a new character"
+          ],
+          answer: 2
+        }
+      ]
+    },
+    {
+      label: "Passage 2",
+      title: "The Island Survival Project",
+      lines: [
+        "Many people imagine wilderness survival as something only humans do,",
+        "but a recent school project asked junior students to research how",
+        "animals survive when their environment changes suddenly. One team",
+        "chose to study an island ecosystem after a terrible storm damaged",
+        "much of its forest and washed away several animal shelters.",
+        "",
+        "The students began by reading scientific reports about the island.",
+        "According to these reports, many small animals had been forced out of",
+        "their original homes and had to find new ones nearby, often in spots",
+        "adjacent to streams or rocky hills. Researchers had placed sensors",
+        "around the island to detect movement and emit a signal whenever an",
+        "animal passed by. This allowed scientists to track which creatures",
+        "survived the storm and which did not.",
+        "",
+        "One of the most surprising discoveries involved a small population of",
+        "birds that had developed a unique dialect of calls, different from",
+        "birds of the same species living elsewhere. Scientists believe this",
+        "dialect helped the birds recognize members of their own group after",
+        "the storm scattered them across the island. The students were",
+        "fascinated by this and spent a full week trying to decipher the",
+        "patterns in the recorded bird calls, numbering each sound in sequence",
+        "so they would not lose track of which came first.",
+        "",
+        "At one point, the students noticed that several recordings seemed out",
+        "of sequence, almost as if two different calls had been mixed",
+        "together. Their teacher explained that this was a common technical",
+        "problem, not a sign that the birds were behaving strangely. Once the",
+        "files were corrected, the patterns became much clearer, and the",
+        "project gained real momentum.",
+        "",
+        "The team also studied the island's insect population, including a",
+        "type of grasshopper that had become unusually numerous after the",
+        "storm cleared away its natural predators. Without natural enemies to",
+        "stalk and hunt them, the grasshoppers multiplied quickly, which in",
+        "turn provided more food for surviving birds. This connection between",
+        "storm damage, insect numbers, and bird survival became the central",
+        "focus of the students' final report.",
+        "",
+        "Throughout the project, the students were warned to be concerned",
+        "about littering near the research site, since even small amounts of",
+        "trash could affect delicate animal habitats. They were also reminded",
+        "that real field researchers must have patience, since useful data",
+        "often takes weeks or months to gather. One student admitted that she",
+        "had expected the project to be easy, but she came to see that good",
+        "research is rarely fast or simple.",
+        "",
+        "In their final presentation, the team explained that survival after a",
+        "disaster is almost never about strength alone. It depends on",
+        "adaptation, communication, and the ability of a community, whether of",
+        "birds, insects, or people, to reorganize itself after everything",
+        "familiar has been disrupted. Their teacher said the project exceeded",
+        "her expectations, and she encouraged the students to consider it as a",
+        "model for future independent research."
+      ],
+      questions: [
+        {
+          q: "What is the main topic of this passage?",
+          choices: [
+            "A team of students researching how an island's animals survived a storm",
+            "A vacation trip to study ocean wildlife",
+            "A factory that builds sensors for tracking birds",
+            "A storm that destroyed an entire island"
+          ],
+          answer: 0
+        },
+        {
+          q: "In line 10, the word adjacent is closest in meaning to ___.",
+          choices: [
+            "far away from",
+            "located next to",
+            "hidden inside",
+            "opposite to"
+          ],
+          answer: 1
+        },
+        {
+          q: "According to the passage, what did the sensors on the island do?",
+          choices: [
+            "They fed the animals automatically",
+            "They recorded weather patterns only",
+            "They detected movement and emitted a signal",
+            "They were used to scare away predators"
+          ],
+          answer: 2
+        },
+        {
+          q: "Why did the students think the bird dialect was important?",
+          choices: [
+            "It made the birds louder than other birds",
+            "It proved the birds were not native to the island",
+            "It stopped the birds from migrating",
+            "It may have helped scattered birds recognize their own group"
+          ],
+          answer: 3
+        },
+        {
+          q: "In line 21, the word sequence is closest in meaning to ___.",
+          choices: [
+            "a type of bird call",
+            "a recording device",
+            "an order or series",
+            "a research report"
+          ],
+          answer: 2
+        },
+        {
+          q: "What was the cause of the recordings appearing out of sequence?",
+          choices: [
+            "The birds were behaving unusually",
+            "A technical problem mixed different calls together",
+            "The students recorded the wrong island",
+            "The storm had damaged the recording equipment"
+          ],
+          answer: 1
+        },
+        {
+          q: "According to the passage, why did the grasshopper population grow?",
+          choices: [
+            "Their predators had been reduced by the storm",
+            "Students released new grasshoppers onto the island",
+            "The birds stopped eating them",
+            "The weather became colder"
+          ],
+          answer: 0
+        },
+        {
+          q: "What is the purpose of the paragraph about littering and patience (lines 39-45)?",
+          choices: [
+            "To criticize the students for failing the project",
+            "To describe a different research site",
+            "To introduce a new island animal",
+            "To explain rules that real field researchers must follow"
+          ],
+          answer: 3
+        },
+        {
+          q: "What is the main lesson the students reached in their final presentation?",
+          choices: [
+            "Strength alone determines survival after a disaster",
+            "Survival depends on adaptation, communication, and community",
+            "Birds are more intelligent than insects",
+            "Storms are too dangerous to study safely"
+          ],
+          answer: 1
+        }
+      ]
+    },
+    {
+      label: "Passage 3",
+      title: "Service Units and the Numbering Problem",
+      lines: [
+        "In a large warehouse on the edge of the city, a company called",
+        "BrightPath Logistics operated dozens of service robots, each one",
+        "referred to as a \"unit.\" Every unit was given a personal number when",
+        "it left the factory, and this number allowed workers to track each",
+        "machine's location, battery strength, and task history. The system",
+        "had worked well for years, but a new problem emerged after the",
+        "company expanded.",
+        "",
+        "The trouble began when a technician named Mr. Alvarez noticed that",
+        "several units were behaving strangely. Unit 47, in particular, seemed",
+        "obsessed with scanning the same shelf over and over, even though its",
+        "assigned task had nothing to do with that shelf. At first, Mr. Alvarez",
+        "assumed Unit 47 was simply damaged, since its solar panel had been",
+        "exposed to dust for weeks and its battery rarely reached full",
+        "strength. He examined the unit closely, but he could not find any",
+        "obvious defect.",
+        "",
+        "Curious, Mr. Alvarez decided to review the unit's project log, a",
+        "record of every task the robot had completed. He discovered that Unit",
+        "47 had been given two different numbers by accident during a system",
+        "update. The factory's numbering software had assigned the same",
+        "sequence to two robots at once, which meant Unit 47 was receiving",
+        "instructions meant for a completely different machine stored in a",
+        "nearby shelter. Confused by conflicting commands, the robot tried to",
+        "accomplish two unrelated tasks simultaneously, which explained its",
+        "strange behavior.",
+        "",
+        "This discovery concerned the entire technical team, since an error in",
+        "the numbering system could affect dozens of other units across the",
+        "warehouse. If left uncorrected, the problem seemed almost impossible",
+        "to manage by hand, given how many robots depended on accurate",
+        "numbering to receive the right instructions. Mr. Alvarez explained to",
+        "his manager that the issue was not really about strength or hardware",
+        "at all; it was a software problem that had quietly grown out of",
+        "control.",
+        "",
+        "To confirm his theory, Mr. Alvarez ran a diagnostic scan that emitted",
+        "a signal to every unit in the warehouse, asking each one to report",
+        "its assigned number. The results confirmed that at least twelve units",
+        "were out of sequence, sharing numbers with other machines. Some",
+        "units, he noted, seemed unusually calm and comfortable despite the",
+        "error, simply waiting for new instructions, while others, like Unit",
+        "47, appeared almost obsessed with completing impossible, overlapping",
+        "tasks.",
+        "",
+        "The team worked through the night to reassign numbers correctly. Each",
+        "unit had to be deactivated briefly, examined, and then reactivated",
+        "with a corrected number confirmed by two separate technicians. This",
+        "was slow, careful work; the technicians could not afford to rush,",
+        "since a second mistake could create even more confusion than the",
+        "first. Mr. Alvarez reminded his team that patience mattered more than",
+        "speed when fixing a problem at this scale.",
+        "",
+        "As the technicians worked, they noticed something unexpected. Unit 47,",
+        "once it received its corrected number and proper task, began",
+        "assisting nearby units rather than simply returning to its original",
+        "assignment. It offered assistance to a slower unit struggling to",
+        "locate an item, almost as if curiosity, not just programming, guided",
+        "its actions. One technician joked that Unit 47 had become something",
+        "like an expert mentor to the newer machines on the floor, despite",
+        "having caused the entire problem in the first place.",
+        "",
+        "By morning, every unit in the warehouse had been confirmed,",
+        "reactivated, and tested. None were found to be defective in any",
+        "permanent way; the entire incident had been the result of a software",
+        "origin error rather than a hardware one. Mr. Alvarez wrote a detailed",
+        "report explaining what had gone wrong and recommended that the",
+        "company add an extra confirmation step whenever new numbering",
+        "sequences were created. His manager agreed that the protection of",
+        "such a large investment in robotic units was essential to the",
+        "company's future.",
+        "",
+        "In the weeks that followed, the warehouse returned to its normal",
+        "rhythm. Workers joked that Unit 47 had earned a kind of celebrity",
+        "status among the machines, since its strange behavior had revealed",
+        "a flaw that might otherwise have caused far greater damage later.",
+        "Mr. Alvarez kept a personal note about the case, partly because it",
+        "reminded him that even a small, overlooked error in a single number",
+        "could create surprisingly large consequences across an entire system.",
+        "The case became a kind of informal training story for new",
+        "technicians, a reminder that careful checking, not speed, kept the",
+        "warehouse running safely."
+      ],
+      questions: [
+        {
+          q: "What is the main idea of this passage?",
+          choices: [
+            "A robot named Unit 47 destroys warehouse equipment",
+            "A new factory is built to replace damaged robots",
+            "A numbering error causes confusing behavior in service robots, and a technician solves it",
+            "Workers go on vacation while robots run the warehouse"
+          ],
+          answer: 2
+        },
+        {
+          q: "In line 11, the word obsessed is closest in meaning to ___.",
+          choices: [
+            "bored with",
+            "afraid of",
+            "confused about",
+            "excessively focused on"
+          ],
+          answer: 3
+        },
+        {
+          q: "According to the passage, what did Mr. Alvarez first assume was wrong with Unit 47?",
+          choices: [
+            "It had been given two numbers",
+            "It had stopped working completely",
+            "It was damaged because of dust and low battery strength",
+            "It had been stolen from the warehouse"
+          ],
+          answer: 2
+        },
+        {
+          q: "Why was Unit 47 trying to accomplish two unrelated tasks at once?",
+          choices: [
+            "It was testing new software on purpose",
+            "It wanted to finish faster than other units",
+            "Its manager gave it extra work",
+            "It had received instructions meant for a different unit due to a numbering error"
+          ],
+          answer: 3
+        },
+        {
+          q: "In line 30, the word impossible is closest in meaning to ___.",
+          choices: [
+            "very easy",
+            "somewhat likely",
+            "not able to be done",
+            "already finished"
+          ],
+          answer: 2
+        },
+        {
+          q: "What did the diagnostic scan in lines 37-39 reveal?",
+          choices: [
+            "That all units needed new batteries",
+            "That at least twelve units were out of sequence",
+            "That the warehouse had lost power",
+            "That only Unit 47 had a numbering problem"
+          ],
+          answer: 1
+        },
+        {
+          q: "Why does the passage mention that some units seemed \"comfortable despite the error\" (line 41)?",
+          choices: [
+            "To prove that the error did not really exist",
+            "To show that not every affected unit behaved the same way",
+            "To suggest that comfort settings caused the problem",
+            "To explain why Unit 47 was deactivated"
+          ],
+          answer: 1
+        },
+        {
+          q: "What is the purpose of the paragraph describing the all-night reassignment process (lines 46-52)?",
+          choices: [
+            "To explain why the warehouse closed permanently",
+            "To describe how Unit 47 was built originally",
+            "To list every technician's job title",
+            "To show how carefully and slowly the technicians worked to avoid new mistakes"
+          ],
+          answer: 3
+        },
+        {
+          q: "According to the passage, what did Unit 47 do after receiving its corrected number?",
+          choices: [
+            "It shut down permanently",
+            "It began assisting other units out of apparent curiosity",
+            "It refused to complete any more tasks",
+            "It scanned the same shelf again"
+          ],
+          answer: 1
+        },
+        {
+          q: "In line 70, the word essential is closest in meaning to ___.",
+          choices: [
+            "very important",
+            "very expensive",
+            "very old",
+            "very fast"
+          ],
+          answer: 0
+        },
+        {
+          q: "What is the main lesson suggested by the final paragraph?",
+          choices: [
+            "Robots should never be trusted with numbering systems",
+            "Celebrity status motivates robots to work harder",
+            "Warehouses should avoid using technology entirely",
+            "Careful checking, rather than speed, prevents larger problems"
+          ],
+          answer: 3
+        }
+      ]
+    }
+  ]
+};
+
+/* ============== STATE ============== */
+let timerInterval = null;
+
+DATA.passages = [DATA.passages[1]];
+document.title = "Entrance Examination into Junior Class - Reading";
+const readingBrandHeader = document.querySelector(".brand-header");
+if (readingBrandHeader) readingBrandHeader.textContent = "Entrance Examination into Junior Class";
+const readingCoverName = document.querySelector(".cover-header-left .name");
+if (readingCoverName) readingCoverName.textContent = "Entrance Examination into Junior Class";
+const readingTitleBlock = document.querySelector(".title-block");
+if (readingTitleBlock) readingTitleBlock.innerHTML = "Entrance Examination into Junior Class<div class=\"sub\">Reading Test</div>";
+const readingCoverList = Array.from(document.querySelectorAll("#screen-cover li"));
+if (readingCoverList[0]) readingCoverList[0].textContent = "This abridged reading test has 1 passage and 9 multiple-choice questions.";
+if (readingCoverList[1]) readingCoverList[1].textContent = "This version focuses on the middle-length passage.";
+if (readingCoverList[2]) readingCoverList[2].textContent = "Your score is calculated automatically when you submit the test.";
+const readingDirections = document.querySelector(".directions");
+if (readingDirections) {
+  readingDirections.textContent = "Read the passage carefully. Then choose the best answer for each question. This abridged test has 9 questions. Your score will be calculated automatically when you click Submit Test, or automatically when time runs out.";
+}
+const readingTimerLabel = document.getElementById("timerDisplay");
+if (readingTimerLabel) readingTimerLabel.textContent = "12:00";
+
+let secondsLeft = EXAM_SECONDS;
+let examStarted = false;
+let examFinished = false;
+let autoSubmitted = false;
+const allQuestionMeta = []; // {passageIdx, qIdx, answer, qNum}
+
+/* ============== SCREEN NAVIGATION ============== */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* ============== AUTOSAVE / STORAGE ============== */
+function getCoverData() {
+  return {
+    studentName: document.getElementById("studentName").value,
+    studentClass: document.getElementById("studentClass").value,
+    examDate: document.getElementById("examDate").value
+  };
+}
+
+function collectAnswers() {
+  const answers = {};
+  allQuestionMeta.forEach(meta => {
+    const selected = document.querySelector(`input[name="q${meta.qNum}"]:checked`);
+    answers[meta.qNum] = selected ? parseInt(selected.value, 10) : null;
+  });
+  return answers;
+}
+
+function buildSaveObject() {
+  return {
+    savedAt: new Date().toISOString(),
+    cover: getCoverData(),
+    examStarted,
+    examFinished,
+    secondsLeft,
+    answers: examStarted ? collectAnswers() : {}
+  };
+}
+
+function persistToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(buildSaveObject()));
+    const statusEl = document.getElementById("autosaveStatus");
+    if (statusEl) {
+      const t = new Date();
+      statusEl.textContent = `Last saved at ${t.toLocaleTimeString()}.`;
+    }
+  } catch (e) {
+    console.warn("Autosave failed:", e);
+  }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function restoreCoverFields() {
+  const saved = loadFromStorage();
+  if (!saved || !saved.cover) return;
+  document.getElementById("studentName").value = saved.cover.studentName || "";
+  document.getElementById("studentClass").value = saved.cover.studentClass || "";
+  document.getElementById("examDate").value = saved.cover.examDate || "";
+}
+
+["studentName", "studentClass", "examDate"].forEach(id => {
+  document.getElementById(id).addEventListener("input", () => persistToStorage());
+});
+
+function handleSaveNow() {
+  persistToStorage();
+}
+document.getElementById("saveNowBtn").addEventListener("click", handleSaveNow);
+document.getElementById("saveNowBtn2").addEventListener("click", handleSaveNow);
+
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+  if (!confirm("This will erase all saved answers and student info. Continue?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById("studentName").value = "";
+  document.getElementById("studentClass").value = "";
+  document.getElementById("examDate").value = "";
+  document.getElementById("autosaveStatus").textContent = "Autosave ready.";
+});
+
+/* ============== EXPORT HELPERS ============== */
+function buildPlainTextSummary() {
+  const cover = getCoverData();
+  let lines = [];
+  lines.push("绿山托福考试 答题纸 (Junior 班)");
+  lines.push("TOEFL Junior - Reading Practice Test");
+  lines.push("");
+  lines.push(`Student Name: ${cover.studentName || ""}`);
+  lines.push(`Class: ${cover.studentClass || ""}`);
+  lines.push(`Date: ${cover.examDate || ""}`);
+  lines.push("");
+
+  if (examFinished) {
+    const result = gradeOnly();
+    lines.push(`SCORE: ${result.correctCount} / ${result.total} (${result.pct}%)`);
+    DATA.passages.forEach((p, i) => {
+      lines.push(`${p.label}: ${result.perPassage[i].correct} / ${result.perPassage[i].total}`);
+    });
+    lines.push("");
+    lines.push("Answer Review:");
+    allQuestionMeta.forEach(meta => {
+      const ans = result.answersUsed[meta.qNum];
+      const selLetter = ans === null || ans === undefined ? "(blank)" : LETTERS[ans];
+      const correctLetter = LETTERS[meta.answer];
+      lines.push(`Q${meta.qNum}: Student answered ${selLetter} | Correct answer: ${correctLetter}`);
+    });
+  } else {
+    lines.push("Status: In progress (not yet submitted)");
+    lines.push("");
+    const answers = collectAnswers();
+    allQuestionMeta.forEach(meta => {
+      const ans = answers[meta.qNum];
+      const selLetter = ans === null || ans === undefined ? "(blank)" : LETTERS[ans];
+      lines.push(`Q${meta.qNum}: ${selLetter}`);
+    });
+  }
+  return lines.join("\n");
+}
+
+function buildCsvSummary() {
+  const cover = getCoverData();
+  let rows = [];
+  rows.push(["Student Name", "Class", "Date"].join(","));
+  rows.push([csvEscape(cover.studentName), csvEscape(cover.studentClass), csvEscape(cover.examDate)].join(","));
+  rows.push("");
+  rows.push(["Question", "Selected Answer", "Correct Answer", "Result"].join(","));
+
+  let result = null;
+  if (examFinished) result = gradeOnly();
+  const answers = examFinished ? result.answersUsed : collectAnswers();
+
+  allQuestionMeta.forEach(meta => {
+    const ans = answers[meta.qNum];
+    const selLetter = ans === null || ans === undefined ? "" : LETTERS[ans];
+    const correctLetter = LETTERS[meta.answer];
+    const isCorrect = ans === meta.answer;
+    const resultText = examFinished ? (isCorrect ? "Correct" : "Incorrect") : "";
+    rows.push([`Q${meta.qNum}`, selLetter, correctLetter, resultText].join(","));
+  });
+
+  if (examFinished) {
+    rows.push("");
+    rows.push(["Total Score", `${result.correctCount}/${result.total}`, `${result.pct}%`].join(","));
+  }
+  return rows.join("\n");
+}
+
+function csvEscape(value) {
+  const v = (value || "").toString();
+  if (v.includes(",") || v.includes('"') || v.includes("\n")) {
+    return `"${v.replace(/"/g, '""')}"`;
+  }
+  return v;
+}
+
+function downloadFile(filename, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById("downloadTxtBtn").addEventListener("click", () => {
+  downloadFile("toefl_junior_reading_summary.txt", buildPlainTextSummary(), "text/plain");
+});
+
+document.getElementById("downloadCsvBtn").addEventListener("click", () => {
+  downloadFile("toefl_junior_reading_summary.csv", buildCsvSummary(), "text/csv");
+});
+
+document.getElementById("printBtn").addEventListener("click", () => {
+  window.print();
+});
+
+function handleShowCopy() {
+  document.getElementById("copyTextarea").value = buildPlainTextSummary();
+  document.getElementById("copyModal").classList.add("active");
+}
+document.getElementById("showCopyBtn").addEventListener("click", handleShowCopy);
+document.getElementById("showCopyBtn2").addEventListener("click", handleShowCopy);
+
+document.getElementById("closeCopyModal").addEventListener("click", () => {
+  document.getElementById("copyModal").classList.remove("active");
+});
+
+function handleDownloadHtml() {
+  persistToStorage();
+  const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  downloadFile("toefl_junior_reading_saved.html", fullHtml, "text/html");
+}
+document.getElementById("downloadHtmlBtn").addEventListener("click", handleDownloadHtml);
+document.getElementById("downloadHtmlBtn2").addEventListener("click", handleDownloadHtml);
+
+/* ============== BUILD EXAM DOM ============== */
+function buildExamDom() {
+  const root = document.getElementById("examRoot");
+  root.innerHTML = "";
+  let globalQNum = 0;
+
+  DATA.passages.forEach((passage, pIdx) => {
+    const block = document.createElement("div");
+    block.className = "passage-block";
+
+    const label = document.createElement("div");
+    label.className = "passage-label";
+    label.textContent = passage.label;
+    block.appendChild(label);
+
+    const title = document.createElement("p");
+    title.className = "passage-title";
+    title.textContent = passage.title;
+    block.appendChild(title);
+
+    const heading = document.createElement("div");
+    heading.className = "passage-heading";
+    heading.textContent = "Passage";
+    block.appendChild(heading);
+
+    const textBox = document.createElement("div");
+    textBox.className = "passage-text";
+
+    passage.lines.forEach((line, i) => {
+      const lineNum = i + 1;
+      if (line === "") {
+        const gap = document.createElement("div");
+        gap.className = "pgap";
+        textBox.appendChild(gap);
+        return;
+      }
+      const row = document.createElement("div");
+      row.className = "pline";
+      const numEl = document.createElement("div");
+      numEl.className = "num";
+      numEl.textContent = (lineNum % 5 === 0) ? lineNum : "";
+      const txtEl = document.createElement("div");
+      txtEl.className = "txt";
+      txtEl.textContent = line;
+      row.appendChild(numEl);
+      row.appendChild(txtEl);
+      textBox.appendChild(row);
+    });
+
+    block.appendChild(textBox);
+
+    const qHeading = document.createElement("div");
+    qHeading.className = "questions-heading";
+    qHeading.textContent = "Questions";
+    block.appendChild(qHeading);
+
+    passage.questions.forEach((item, qIdx) => {
+      globalQNum++;
+      const qNum = globalQNum;
+      allQuestionMeta.push({ passageIdx: pIdx, qIdx, answer: item.answer, qNum });
+
+      const qDiv = document.createElement("div");
+      qDiv.className = "question";
+      qDiv.id = `q-${qNum}`;
+
+      const stem = document.createElement("div");
+      stem.className = "q-stem";
+      stem.textContent = `${qNum}. ${item.q}`;
+      qDiv.appendChild(stem);
+
+      const choicesDiv = document.createElement("div");
+      choicesDiv.className = "choices";
+
+      item.choices.forEach((choiceText, cIdx) => {
+        const choiceLabel = document.createElement("label");
+        choiceLabel.className = "choice";
+        choiceLabel.dataset.qnum = qNum;
+        choiceLabel.dataset.cidx = cIdx;
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `q${qNum}`;
+        radio.value = cIdx;
+        radio.addEventListener("change", () => persistToStorage());
+
+        const letterSpan = document.createElement("span");
+        letterSpan.className = "letter";
+        letterSpan.textContent = `(${LETTERS[cIdx]})`;
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = choiceText;
+
+        choiceLabel.appendChild(radio);
+        choiceLabel.appendChild(letterSpan);
+        choiceLabel.appendChild(textSpan);
+        choicesDiv.appendChild(choiceLabel);
+      });
+
+      qDiv.appendChild(choicesDiv);
+
+      const correctNote = document.createElement("div");
+      correctNote.className = "correct-answer-note";
+      correctNote.id = `note-${qNum}`;
+      qDiv.appendChild(correctNote);
+
+      block.appendChild(qDiv);
+    });
+
+    root.appendChild(block);
+  });
+}
+
+function restoreAnswers() {
+  const saved = loadFromStorage();
+  if (!saved || !saved.answers) return;
+  Object.keys(saved.answers).forEach(qNum => {
+    const val = saved.answers[qNum];
+    if (val === null || val === undefined) return;
+    const radio = document.querySelector(`input[name="q${qNum}"][value="${val}"]`);
+    if (radio) radio.checked = true;
+  });
+}
+
+/* ============== TIMER ============== */
+function formatTime(totalSeconds) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function startTimer() {
+  const display = document.getElementById("timerDisplay");
+  display.textContent = formatTime(secondsLeft);
+
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      secondsLeft = 0;
+      display.textContent = formatTime(secondsLeft);
+      clearInterval(timerInterval);
+      autoSubmitted = true;
+      submitExam();
+      return;
+    }
+    display.textContent = formatTime(secondsLeft);
+    if (secondsLeft <= 60) display.classList.add("low");
+    if (secondsLeft % 15 === 0) persistToStorage();
+  }, 1000);
+}
+
+/* ============== START / NEXT ============== */
+document.getElementById("nextBtn").addEventListener("click", () => {
+  persistToStorage();
+  buildExamDom();
+  restoreAnswers();
+  examStarted = true;
+  persistToStorage();
+  showScreen("screen-test");
+  startTimer();
+});
+
+/* ============== GRADING ============== */
+function gradeOnly() {
+  let correctCount = 0;
+  const perPassage = DATA.passages.map(() => ({ correct: 0, total: 0 }));
+  const answersUsed = {};
+
+  allQuestionMeta.forEach(meta => {
+    perPassage[meta.passageIdx].total++;
+    const selected = document.querySelector(`input[name="q${meta.qNum}"]:checked`);
+    const selectedIdx = selected ? parseInt(selected.value, 10) : null;
+    answersUsed[meta.qNum] = selectedIdx;
+    if (selectedIdx === meta.answer) {
+      correctCount++;
+      perPassage[meta.passageIdx].correct++;
+    }
+  });
+
+  const total = allQuestionMeta.length;
+  const pct = Math.round((correctCount / total) * 100);
+  return { correctCount, total, pct, perPassage, answersUsed };
+}
+
+function submitExam() {
+  if (examFinished) return;
+  clearInterval(timerInterval);
+  examFinished = true;
+  persistToStorage();
+  renderResults();
+  showScreen("screen-results");
+}
+
+document.getElementById("submitBtn").addEventListener("click", () => {
+  const unanswered = allQuestionMeta.filter(meta => {
+    const selected = document.querySelector(`input[name="q${meta.qNum}"]:checked`);
+    return !selected;
+  });
+
+  if (unanswered.length > 0) {
+    const nums = unanswered.map(m => m.qNum).join(", ");
+    document.getElementById("unansweredNote").textContent =
+      `Please answer all questions before submitting. Missing: ${nums}`;
+    const first = document.getElementById(`q-${unanswered[0].qNum}`);
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  document.getElementById("unansweredNote").textContent = "";
+  submitExam();
+});
+
+function renderResults() {
+  const result = gradeOnly();
+  const wrap = document.getElementById("resultsWrap");
+  wrap.innerHTML = "";
+
+  const cover = getCoverData();
+  const infoP = document.createElement("p");
+  infoP.style.textAlign = "center";
+  infoP.style.color = "#6b6457";
+  infoP.style.marginTop = "20px";
+  infoP.textContent = `${cover.studentName || "Student"} — ${cover.studentClass || ""} — ${cover.examDate || ""}`;
+  wrap.appendChild(infoP);
+
+  const panel = document.createElement("div");
+  panel.className = "score-panel";
+
+  const labelEl = document.createElement("div");
+  labelEl.className = "label";
+  labelEl.textContent = "Your Score";
+
+  const bigEl = document.createElement("div");
+  bigEl.className = "big";
+  bigEl.textContent = `${result.correctCount} / ${result.total} (${result.pct}%)`;
+
+  const breakdown = document.createElement("div");
+  breakdown.className = "breakdown";
+  breakdown.innerHTML = DATA.passages.map((p, i) =>
+    `${p.label}: ${result.perPassage[i].correct} / ${result.perPassage[i].total}`
+  ).join(" &nbsp;|&nbsp; ");
+
+  panel.appendChild(labelEl);
+  panel.appendChild(bigEl);
+  panel.appendChild(breakdown);
+
+  if (autoSubmitted) {
+    const autoNote = document.createElement("div");
+    autoNote.className = "auto-note";
+    autoNote.textContent = "Time expired — your test was submitted automatically.";
+    panel.appendChild(autoNote);
+  }
+
+  wrap.appendChild(panel);
+
+  // Review section: lock + mark all questions, move existing examRoot content into results
+  const examRoot = document.getElementById("examRoot");
+  allQuestionMeta.forEach(meta => {
+    const selectedIdx = result.answersUsed[meta.qNum];
+    const isCorrect = selectedIdx === meta.answer;
+
+    const choiceLabels = document.querySelectorAll(`label[data-qnum="${meta.qNum}"]`);
+    choiceLabels.forEach(label => {
+      label.classList.add("locked");
+      const cIdx = parseInt(label.dataset.cidx, 10);
+      const radio = label.querySelector("input");
+      radio.disabled = true;
+      if (cIdx === meta.answer) {
+        label.classList.add("is-correct");
+      } else if (cIdx === selectedIdx && !isCorrect) {
+        label.classList.add("is-wrong");
+      }
+    });
+
+    const stem = document.querySelector(`#q-${meta.qNum} .q-stem`);
+    const tag = document.createElement("span");
+    tag.className = `review-tag ${isCorrect ? "correct" : "wrong"}`;
+    tag.textContent = isCorrect ? "Correct" : "Incorrect";
+    stem.appendChild(tag);
+
+    if (!isCorrect) {
+      const note = document.getElementById(`note-${meta.qNum}`);
+      if (note) {
+        note.textContent = `Correct answer: (${LETTERS[meta.answer]})`;
+        note.classList.add("show");
+      }
+    }
+  });
+
+  const reviewHeading = document.createElement("p");
+  reviewHeading.style.fontWeight = "bold";
+  reviewHeading.style.fontSize = "1.1rem";
+  reviewHeading.style.borderTop = "1px solid #c9c2b3";
+  reviewHeading.style.paddingTop = "20px";
+  reviewHeading.style.marginTop = "20px";
+  reviewHeading.textContent = "Answer Review";
+  wrap.appendChild(reviewHeading);
+
+  const reviewSheet = document.createElement("div");
+  reviewSheet.className = "sheet";
+  reviewSheet.style.padding = "0";
+  reviewSheet.appendChild(examRoot);
+  wrap.appendChild(reviewSheet);
+
+  const exportRow = document.createElement("div");
+  exportRow.className = "btn-row";
+  exportRow.style.marginTop = "24px";
+
+  const dlTxt = document.createElement("button");
+  dlTxt.className = "btn btn-outline";
+  dlTxt.textContent = "Download TXT";
+  dlTxt.addEventListener("click", () => downloadFile("toefl_junior_reading_results.txt", buildPlainTextSummary(), "text/plain"));
+
+  const dlCsv = document.createElement("button");
+  dlCsv.className = "btn btn-outline";
+  dlCsv.textContent = "Download CSV";
+  dlCsv.addEventListener("click", () => downloadFile("toefl_junior_reading_results.csv", buildCsvSummary(), "text/csv"));
+
+  const printB = document.createElement("button");
+  printB.className = "btn btn-outline";
+  printB.textContent = "Print Results";
+  printB.addEventListener("click", () => window.print());
+
+  exportRow.appendChild(dlTxt);
+  exportRow.appendChild(dlCsv);
+  exportRow.appendChild(printB);
+  wrap.appendChild(exportRow);
+}
+
+/* ============== INIT ============== */
+restoreCoverFields();
+persistToStorage();
+
+function restartTest(){
+  if(!confirm('Restart this test and clear saved progress?')) return;
+  try {
+    const prefix = location.pathname;
+    Object.keys(localStorage).forEach(key => {
+      if (key.includes(prefix) || key.includes(document.title) || key.includes('toefl') || key.includes('TOEFL') || key.includes('itp') || key.includes('ibt')) localStorage.removeItem(key);
+    });
+    Object.keys(sessionStorage).forEach(key => sessionStorage.removeItem(key));
+  } catch(e) {}
+  location.href = location.pathname;
+}
+
+</script>
+<div style="text-align:center;margin:24px auto;"><button onclick="restartTest()" style="margin:8px;padding:10px 16px;border:none;border-radius:6px;background:#c1121f;color:#fff;font-weight:700;cursor:pointer;">Restart Test</button></div>
+</body>
+</html>

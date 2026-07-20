@@ -215,6 +215,23 @@
       background: rgba(255,253,247,0.72);
     }
 
+    .entrance-file-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .entrance-file-frame {
+      width: 100%;
+      min-height: min(76vh, 860px);
+      border: 1px solid rgba(31,122,92,0.18);
+      border-radius: 14px;
+      background: #fffdf7;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35);
+    }
+
     .entrance-meta {
       display: flex;
       flex-wrap: wrap;
@@ -4351,6 +4368,52 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return entranceLevels().find((level) => level.key === levelKey) || entranceLevels()[0];
     }
 
+    const entranceExamFiles = {
+      "Primary Step 1": {
+        Speaking: "assets/exams/entrance/primary-step-1/section1_speaking.html",
+        Listening: "assets/exams/entrance/primary-step-1/section2_listening.html",
+        "Language Form & Meaning": "assets/exams/entrance/primary-step-1/section3_language.html",
+        Reading: "assets/exams/entrance/primary-step-1/section4_reading.html",
+        Writing: "assets/exams/entrance/primary-step-1/section5_writing.html"
+      },
+      "Primary Step 2": {
+        Speaking: "assets/exams/entrance/primary-step-2/section1_speaking.html",
+        Listening: "assets/exams/entrance/primary-step-2/section2_listening.html",
+        "Language Form & Meaning": "assets/exams/entrance/primary-step-2/section3_language.html",
+        Reading: "assets/exams/entrance/primary-step-2/section4_reading.html",
+        Writing: "assets/exams/entrance/primary-step-2/section5_writing.html"
+      },
+      Junior: {
+        Speaking: "assets/exams/entrance/junior/section1_speaking.html",
+        Listening: "assets/exams/entrance/junior/section2_listening.html",
+        "Language Form & Meaning": "assets/exams/entrance/junior/section3_language.html",
+        Reading: "assets/exams/entrance/junior/section4_reading.html",
+        Writing: "assets/exams/entrance/junior/section5_writing.html"
+      },
+      "ITP Level 1": {
+        "Listening Comprehension": "assets/exams/entrance/itp-level-1/Entrance Examination iTP level 1 - Listening Comprehension.html",
+        "Structure and Written Expression": "assets/exams/entrance/itp-level-1/Entrance Examination iTP level 1 - Structure and Written Expression.html",
+        "Reading Comprehension": "assets/exams/entrance/itp-level-1/Entrance Examination iTP level 1 - Reading Comprehension.html",
+        Speaking: "assets/exams/entrance/itp-level-1/Entrance Examination iTP level 1 - Speaking.html"
+      },
+      "ITP Level 2": {
+        "Listening Comprehension": "assets/exams/entrance/itp-level-2/Entrance Examination iTP level 2 - Listening Comprehension.html",
+        "Structure and Written Expression": "assets/exams/entrance/itp-level-2/Entrance Examination iTP level 2 - Structure and Written Expression.html",
+        "Vocabulary and Reading Comprehension": "assets/exams/entrance/itp-level-2/Entrance Examination iTP level 2 - Vocabulary and Reading Comprehension.html",
+        Speaking: "assets/exams/entrance/itp-level-2/Entrance Examination iTP level 2 - Speaking.html"
+      },
+      iBT: {
+        Reading: "assets/exams/entrance/ibt/reading.html",
+        Listening: "assets/exams/entrance/ibt/listening.html",
+        Writing: "assets/exams/entrance/ibt/writing.html",
+        Speaking: "assets/exams/entrance/ibt/speaking.html"
+      }
+    };
+
+    function entranceExamFileFor(levelKey, section) {
+      return entranceExamFiles[levelKey] && entranceExamFiles[levelKey][section] || "";
+    }
+
     function defaultGuestSectionExam(levelKey, section) {
       const level = entranceLevelMeta(levelKey);
       const template = templateFor(level.program, section, level.className);
@@ -5547,15 +5610,17 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function renderPublicGuest() {
       const bank = store.guestExam;
       const level = entranceLevelMeta(publicGuestLevel);
-      const sections = Object.keys(bank[level.key].sections);
+      const fileSections = Object.keys(entranceExamFiles[level.key] || {});
+      const sections = fileSections.length ? fileSections : Object.keys(bank[level.key].sections);
       if (!sections.includes(publicGuestSection)) publicGuestSection = sections[0];
       const exam = bank[level.key].sections[publicGuestSection];
+      const entranceFile = entranceExamFileFor(level.key, publicGuestSection);
       const questions = exam.questions || [];
       const answerCount = Number(exam.answerCount) || Math.max(questions.length, 1);
       $("#publicContent").innerHTML = `
         <div class="public-panel">
           <h1>Entrance Examination</h1>
-          <p>Choose the level and complete the mini entrance section. Each level follows a short version of its real exam structure.</p>
+          <p>Choose the level and section. The selected entrance exam opens below using the uploaded exam file for that level.</p>
           <div class="public-selector">
             <div>
               <strong>Level</strong>
@@ -5570,39 +5635,47 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
               </div>
             </div>
           </div>
-          <form onsubmit="submitGuestExam(event)">
-            <div class="grid">
-              <div class="field"><label>Guest name</label><input id="guestName" required placeholder="Full name"></div>
-              <div class="field"><label>Contact</label><input id="guestContact" required placeholder="Phone, WeChat, or email"></div>
+          <div class="entrance-exam-card">
+            <h2>${escapeHtml(exam.title || `${level.label} ${publicGuestSection}`)}</h2>
+            <p>${entranceFile ? "This section is loaded from the uploaded entrance exam pack." : escapeHtml(exam.instructions || "No uploaded file has been mapped for this section yet.")}</p>
+            <div class="entrance-meta">
+              <span class="tag green">${escapeHtml(level.program)}</span>
+              <span class="tag blue">${escapeHtml(level.className)}</span>
+              <span class="tag blue">${escapeHtml(publicGuestSection)}</span>
+              ${entranceFile ? `<span class="tag green">Uploaded exam file</span>` : `<span class="tag red">Needs file</span>`}
             </div>
-            <div class="entrance-exam-card">
-              <h2>${escapeHtml(exam.title || `${level.label} ${publicGuestSection}`)}</h2>
-              <p>${escapeHtml(exam.instructions || "")}</p>
-              <div class="entrance-meta">
-                <span class="tag green">${escapeHtml(level.program)}</span>
-                <span class="tag blue">${escapeHtml(level.className)}</span>
-                <span class="tag blue">${escapeHtml(publicGuestSection)}</span>
-                <span class="tag green">${answerCount} answer slot${answerCount === 1 ? "" : "s"}</span>
+            ${entranceFile ? `
+              <div class="entrance-file-actions">
+                <a class="primary-btn" href="${escapeHtml(entranceFile)}">Open selected section</a>
+                <span class="muted">The exam also appears in the preview below.</span>
               </div>
+              <iframe class="entrance-file-frame" src="${escapeHtml(entranceFile)}" title="${escapeHtml(level.label)} ${escapeHtml(publicGuestSection)} entrance exam"></iframe>
+            ` : `
               ${exam.timingPlan ? `<div class="speaking-prompt-card"><strong>Timing guide</strong><p>${escapeHtml(exam.timingPlan).replace(/\n/g, "<br>")}</p></div>` : ""}
               ${renderPublicMedia(exam)}
-            </div>
-            <div class="grid">
-              ${Array.from({ length: answerCount }, (_, index) => {
-                const prompt = questions[index] || `${publicGuestSection} answer ${index + 1}`;
-                const isSpeaking = publicGuestSection === "Speaking";
-                return `
-                <div class="field">
-                  <label>${isSpeaking ? "Speaking task" : "Question"} ${index + 1}</label>
-                  <p>${escapeHtml(prompt)}</p>
-                  ${isSpeaking ? `<button class="secondary-btn" type="button" onclick="speakGuestPrompt(${index})">Play prompt</button>` : ""}
-                  <textarea class="guest-answer" required placeholder="${isSpeaking ? "Paste recording link or write your spoken response note" : "Type your answer"}"></textarea>
+              <form onsubmit="submitGuestExam(event)">
+                <div class="grid">
+                  <div class="field"><label>Guest name</label><input id="guestName" required placeholder="Full name"></div>
+                  <div class="field"><label>Contact</label><input id="guestContact" required placeholder="Phone, WeChat, or email"></div>
                 </div>
-              `;
-              }).join("")}
-            </div>
-            <button class="primary-btn" type="submit">Submit entrance exam</button>
-          </form>
+                <div class="grid">
+                  ${Array.from({ length: answerCount }, (_, index) => {
+                    const prompt = questions[index] || `${publicGuestSection} answer ${index + 1}`;
+                    const isSpeaking = publicGuestSection === "Speaking";
+                    return `
+                    <div class="field">
+                      <label>${isSpeaking ? "Speaking task" : "Question"} ${index + 1}</label>
+                      <p>${escapeHtml(prompt)}</p>
+                      ${isSpeaking ? `<button class="secondary-btn" type="button" onclick="speakGuestPrompt(${index})">Play prompt</button>` : ""}
+                      <textarea class="guest-answer" required placeholder="${isSpeaking ? "Paste recording link or write your spoken response note" : "Type your answer"}"></textarea>
+                    </div>
+                  `;
+                  }).join("")}
+                </div>
+                <button class="primary-btn" type="submit">Submit entrance exam</button>
+              </form>
+            `}
+          </div>
         </div>
       `;
     }
