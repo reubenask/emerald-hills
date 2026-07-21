@@ -4,6 +4,10 @@ export type Program = "Primary" | "Junior" | "ITP" | "iBT";
 
 export type WorkCategory = "Exercise" | "Homework" | "Monthly Test" | "Mock Exam";
 
+export type MigrationStatus = "live-html" | "react-shell" | "ready-next" | "future";
+
+export type PlatformOwner = "student" | "teacher" | "admin" | "public" | "shared";
+
 export interface Profile {
   id: string;
   full_name: string;
@@ -38,4 +42,27 @@ export interface TypingGame {
   title: string;
   file: string;
   description: string;
+}
+
+export interface PlatformModule {
+  id: string;
+  title: string;
+  zhTitle: string;
+  owner: PlatformOwner;
+  status: MigrationStatus;
+  source: string;
+  route: string;
+  description: string;
+}
+
+export interface MigrationPhase {
+  title: string;
+  body: string;
+  items: string[];
+}
+
+export interface DataEntity {
+  name: string;
+  purpose: string;
+  examples: string[];
 }

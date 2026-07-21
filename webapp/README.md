@@ -1,6 +1,8 @@
-# Green Mountain TOEFL Webapp
+# Emerald Hills TOEFL Webapp
 
-Production foundation for the Green Mountain TOEFL Academy platform.
+React + Vite + TypeScript migration shell for the Emerald Hills TOEFL Academy platform.
+
+The current production-style prototype still lives at `../platform.html`. This app is the safe migration layer: it documents the modules, embeds the current HTML platform, and gives us typed React boundaries so the platform can move feature by feature without breaking the working demo.
 
 ## Stack
 
@@ -14,29 +16,32 @@ Production foundation for the Green Mountain TOEFL Academy platform.
 
 ## Setup
 
-1. Install Node tooling with npm, pnpm, or yarn.
-2. Create a Supabase project.
-3. Run `../supabase/schema.sql` in the Supabase SQL editor.
-4. Copy `.env.example` to `.env.local`.
-5. Fill in:
+```bash
+npm install
+npm run dev
+```
+
+The React app can open the current HTML platform through the “Current HTML Platform” view.
+
+## Supabase Environment
+
+Create `.env.local` from `.env.example`:
 
 ```bash
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-public-anon-key
 ```
 
-6. Install and run:
+Until these are configured, the app still renders as a migration shell but does not make database calls.
 
-```bash
-npm install
-npm run dev
-```
+## Migration Plan
 
-## Account Rules
-
-- Public self-signup should create student accounts only.
-- Teacher and admin accounts should be created by an existing admin or a protected Supabase Edge Function.
-- The first admin should be created manually in Supabase or by a one-time protected script.
+1. Keep `../platform.html` live while React becomes the shell.
+2. Define shared data contracts for accounts, students, assignments, submissions, scores, monthly reviews, lesson notes, files, messages, and audit logs.
+3. Move authentication into Supabase Auth.
+4. Move scores and reviews next because teacher, admin, and student views must share one source.
+5. Move lesson notes and semester overview so the overview is generated from saved lesson notes.
+6. Move assignments, exams, submissions, guest entrance testing, gallery, and typing progress.
 
 ## Build
 
@@ -44,6 +49,6 @@ npm run dev
 npm run build
 ```
 
-## Important
+## Production Note
 
-The legacy `platform.html` remains useful for fast demo testing. Real production accounts, uploads, scoring, timers, and messages should be moved into this app and Supabase.
+React improves maintainability, but it does not create real security by itself. Production launch still needs Supabase/Auth/Postgres/Storage or an equivalent backend, row-level security, backups, and audit logs.
