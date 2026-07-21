@@ -293,7 +293,7 @@ function startTimerLoop() {
   timerInterval = setInterval(() => {
     syncTimeLeftFromDeadline();
     updateTimerDisplay();
-    if (timeLeft <= 0) { clearInterval(timerInterval); timerInterval = null; submitTest(true); }
+    if (timeLeft <= 0) { clearInterval(timerInterval); timerInterval = null; /* Entrance timer disabled: guests submit manually. */ }
   }, 1000);
 }
 
@@ -360,7 +360,7 @@ function submitTest(auto = false) {
   document.getElementById('scoreDetail').textContent = `Score: ${pct}%  -  Correct: ${correct}  -  Wrong: ${answered - correct}  -  Unanswered: ${TOTAL_Q - answered}`;
   saveProgress();
   document.getElementById('scoreSummary').scrollIntoView({ behavior:'smooth' });
-  if (auto) alert('Time is up. Your listening test has been submitted.');
+  if (auto) alert('Please press Submit when you are finished.');
 }
 
 function collectState() {
@@ -444,6 +444,65 @@ renderListeningQ1PictureChoices();
 try { restoreState(JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')); } catch (err) {}
 if (!testStarted) showCoverView();
 updateTimerDisplay();
+</script>
+<script id="eh-entrance-manual-submit-bridge">
+(function () {
+  function clearKnownTimers() {
+    try { if (typeof timerInterval !== 'undefined' && timerInterval) { clearInterval(timerInterval); timerInterval = null; } } catch (error) {}
+    try { if (typeof countdownInterval !== 'undefined' && countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; } } catch (error) {}
+    try { if (typeof activeTimerInterval !== 'undefined' && activeTimerInterval) { clearInterval(activeTimerInterval); activeTimerInterval = null; } } catch (error) {}
+  }
+
+  function unlockManualSubmit() {
+    clearKnownTimers();
+    var timer = document.getElementById('timerWidget');
+    if (timer) timer.style.display = 'none';
+    var timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) timerDisplay.textContent = 'Manual submit';
+    document.querySelectorAll('[data-timer], .timer, .timer-box, .timer-panel').forEach(function (node) {
+      node.style.display = 'none';
+    });
+    document.querySelectorAll('button, input[type="submit"]').forEach(function (control) {
+      var label = (control.textContent || control.value || '').toLowerCase();
+      if (label.includes('submit') || label.includes('answer')) {
+        control.disabled = false;
+        control.removeAttribute('disabled');
+        control.title = '';
+      }
+    });
+  }
+
+  window.autoSubmit = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  var originalStartTimer = window.startTimer;
+  window.startTimer = function () {
+    if (typeof originalStartTimer === 'function') {
+      try { originalStartTimer.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  var originalStartTest = window.startTest;
+  window.startTest = function () {
+    if (typeof originalStartTest === 'function') {
+      try { originalStartTest.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  window.tickTimer = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  window.addEventListener('DOMContentLoaded', unlockManualSubmit);
+  window.addEventListener('load', unlockManualSubmit);
+  setTimeout(unlockManualSubmit, 250);
+  setInterval(unlockManualSubmit, 1000);
+})();
 </script>
 </body>
 </html>

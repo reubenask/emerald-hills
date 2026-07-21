@@ -433,7 +433,7 @@ function showCover(){document.querySelector('.pre-test-card').style.display='blo
 function showPage(i){const bs=blocks();currentPage=Math.max(0,Math.min(i,bs.length-1));document.querySelector('.pre-test-card').style.display='none';bs.forEach((b,idx)=>b.style.display=idx===currentPage?'block':'none');updateNav()}
 function updateNav(){const bs=blocks(),nav=document.getElementById('pageNav');if(!testStarted||!bs.length){nav.style.display='none';return}nav.style.display='flex';document.getElementById('prevPageBtn').disabled=currentPage===0;document.getElementById('nextPageBtn').disabled=currentPage===bs.length-1;document.getElementById('pageIndicator').textContent='Page '+(currentPage+1)+' of '+bs.length}
 function goPrevPage(){showPage(currentPage-1);saveProgress()}function goNextPage(){showPage(currentPage+1);saveProgress()}
-function timerLoop(){clearInterval(timerInterval);timerInterval=setInterval(()=>{syncTime();updateTimer();saveProgress();if(timeLeft<=0){clearInterval(timerInterval);submitTest(true)}},1000)}
+function timerLoop(){clearInterval(timerInterval);timerInterval=setInterval(()=>{syncTime();updateTimer();saveProgress();if(timeLeft<=0){clearInterval(timerInterval);/* Entrance timer disabled: guests submit manually. */}},1000)}
 function startTimer(){if(!document.getElementById('studentName').value.trim()){alert('Please enter the student name before starting.');return}if(testStarted){if(!IS_TEST_MODE&&deadlineTs&&timeLeft>0)location.href=location.pathname+'?mode=test';return}testStarted=true;currentPage=0;deadlineTs=Date.now()+timeLeft*1000;document.getElementById('startBtn').textContent='Continue Test';saveProgress();location.href=location.pathname+'?mode=test'}
 function collectState(){let answered=0,correct=0;const answers={};Object.keys(ANSWER_KEY).forEach(q=>{const chosen=document.querySelector('input[name="'+q+'"]:checked');if(chosen){answers[q]=chosen.value;answered++;if(chosen.value===ANSWER_KEY[q])correct++}});return{timeLeft,testStarted,currentPage,deadlineTs,scoreVisible:document.getElementById('scoreSummary').style.display==='block',score:{correct,answered},meta:{studentName:studentName.value,studentClass:studentClass.value,studentDate:studentDate.value},answers}}
 function restoreState(state){if(!state)return;Object.entries(state.meta||{}).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value});Object.entries(state.answers||{}).forEach(([q,value])=>{const input=document.querySelector('input[name="'+q+'"][value="'+value+'"]');if(input)input.checked=true});if(typeof state.timeLeft==='number')timeLeft=state.timeLeft;if(typeof state.currentPage==='number')currentPage=state.currentPage;if(typeof state.deadlineTs==='number')deadlineTs=state.deadlineTs;if(state.testStarted){syncTime();if(IS_TEST_MODE){testStarted=true;document.getElementById('startBtn').textContent='Continue Test';document.getElementById('timerWidget').style.display='block';showPage(currentPage);timerLoop()}else{if(timeLeft>0&&deadlineTs){testStarted=true;document.getElementById('startBtn').textContent='Continue Test'}else{testStarted=false;deadlineTs=null;currentPage=0;document.getElementById('startBtn').textContent='Start Test'}showCover()}}else{showCover()}if(state.scoreVisible&&state.score)renderScore(state.score.correct,state.score.answered);syncChoiceStyles()}
@@ -449,6 +449,65 @@ document.querySelectorAll('input').forEach(i=>i.addEventListener('change',()=>{s
 if(!studentDate.value)studentDate.value=new Date().toISOString().split('T')[0];
 try{restoreState(JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'))}catch(e){showCover()}
 if(!testStarted)showCover();
+</script>
+<script id="eh-entrance-manual-submit-bridge">
+(function () {
+  function clearKnownTimers() {
+    try { if (typeof timerInterval !== 'undefined' && timerInterval) { clearInterval(timerInterval); timerInterval = null; } } catch (error) {}
+    try { if (typeof countdownInterval !== 'undefined' && countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; } } catch (error) {}
+    try { if (typeof activeTimerInterval !== 'undefined' && activeTimerInterval) { clearInterval(activeTimerInterval); activeTimerInterval = null; } } catch (error) {}
+  }
+
+  function unlockManualSubmit() {
+    clearKnownTimers();
+    var timer = document.getElementById('timerWidget');
+    if (timer) timer.style.display = 'none';
+    var timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) timerDisplay.textContent = 'Manual submit';
+    document.querySelectorAll('[data-timer], .timer, .timer-box, .timer-panel').forEach(function (node) {
+      node.style.display = 'none';
+    });
+    document.querySelectorAll('button, input[type="submit"]').forEach(function (control) {
+      var label = (control.textContent || control.value || '').toLowerCase();
+      if (label.includes('submit') || label.includes('answer')) {
+        control.disabled = false;
+        control.removeAttribute('disabled');
+        control.title = '';
+      }
+    });
+  }
+
+  window.autoSubmit = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  var originalStartTimer = window.startTimer;
+  window.startTimer = function () {
+    if (typeof originalStartTimer === 'function') {
+      try { originalStartTimer.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  var originalStartTest = window.startTest;
+  window.startTest = function () {
+    if (typeof originalStartTest === 'function') {
+      try { originalStartTest.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  window.tickTimer = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  window.addEventListener('DOMContentLoaded', unlockManualSubmit);
+  window.addEventListener('load', unlockManualSubmit);
+  setTimeout(unlockManualSubmit, 250);
+  setInterval(unlockManualSubmit, 1000);
+})();
 </script>
 </body>
 </html>

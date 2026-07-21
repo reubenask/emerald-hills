@@ -204,11 +204,11 @@ function showPage(index){const blocks=sectionBlocks();if(!blocks.length)return;c
 function goPrevPage(){showPage(currentPage-1)}
 function goNextPage(){showPage(currentPage+1)}
 function syncTimeLeftFromDeadline(){if(typeof deadlineTs==='number')timeLeft=Math.max(0,Math.ceil((deadlineTs-Date.now())/1000))}
-function startTimerLoop(){if(timerInterval||typeof deadlineTs!=='number')return;syncTimeLeftFromDeadline();updateTimerDisplay();timerInterval=setInterval(()=>{syncTimeLeftFromDeadline();updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);timerInterval=null;submitTest(true);}},1000)}
+function startTimerLoop(){if(timerInterval||typeof deadlineTs!=='number')return;syncTimeLeftFromDeadline();updateTimerDisplay();timerInterval=setInterval(()=>{syncTimeLeftFromDeadline();updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);timerInterval=null;/* Entrance timer disabled: guests submit manually. */}},1000)}
 function startTimer(){if(!document.getElementById('studentName').value.trim()){alert('Please enter the student name before starting.');return;}if(testStarted){if(!IS_TEST_MODE&&typeof deadlineTs==='number'&&timeLeft>0){location.href=location.pathname+'?mode=test'}return;}testStarted=true;document.getElementById('startBtn').disabled=true;document.getElementById('startBtn').textContent='Continue Test';currentPage=0;deadlineTs=Date.now()+(timeLeft*1000);saveProgress();location.href=location.pathname+'?mode=test'}
 function updateTimerDisplay(){const m=Math.floor(timeLeft/60),s=timeLeft%60;document.getElementById('timerDisplay').textContent=m+':'+String(s).padStart(2,'0');const box=document.getElementById('timerWidget');box.classList.toggle('warn',timeLeft<=180&&timeLeft>60);box.classList.toggle('crit',timeLeft<=60)}
 function syncChoiceStyles(){document.querySelectorAll('.choice-label').forEach(label=>{const input=label.querySelector('input');label.classList.toggle('selected',input.checked)})}
-function submitTest(auto=false){if(timerInterval)clearInterval(timerInterval);timerInterval=null;let answered=0,correct=0;Q_NAMES.forEach(q=>{const chosen=document.querySelector(`input[name="${q}"]:checked`);document.querySelectorAll(`input[name="${q}"]`).forEach(inp=>{const label=inp.closest('.choice-label');label.classList.remove('correct','wrong');if(inp.value===ANSWER_KEY[q])label.classList.add('correct');if(inp.checked&&inp.value!==ANSWER_KEY[q])label.classList.add('wrong')});if(chosen)answered+=1;if(chosen&&chosen.value===ANSWER_KEY[q])correct+=1});const pct=Math.round((correct/TOTAL_Q)*100);document.getElementById('scoreSummary').style.display='block';document.getElementById('scoreDisplay').textContent=correct+' / '+TOTAL_Q;document.getElementById('scoreDetail').textContent=`Score: ${pct}%  -  Correct: ${correct}  -  Wrong: ${answered-correct}  -  Unanswered: ${TOTAL_Q-answered}`;saveProgress();document.getElementById('scoreSummary').scrollIntoView({behavior:'smooth'});if(auto)alert('Time is up. Your reading test has been submitted.')}
+function submitTest(auto=false){if(timerInterval)clearInterval(timerInterval);timerInterval=null;let answered=0,correct=0;Q_NAMES.forEach(q=>{const chosen=document.querySelector(`input[name="${q}"]:checked`);document.querySelectorAll(`input[name="${q}"]`).forEach(inp=>{const label=inp.closest('.choice-label');label.classList.remove('correct','wrong');if(inp.value===ANSWER_KEY[q])label.classList.add('correct');if(inp.checked&&inp.value!==ANSWER_KEY[q])label.classList.add('wrong')});if(chosen)answered+=1;if(chosen&&chosen.value===ANSWER_KEY[q])correct+=1});const pct=Math.round((correct/TOTAL_Q)*100);document.getElementById('scoreSummary').style.display='block';document.getElementById('scoreDisplay').textContent=correct+' / '+TOTAL_Q;document.getElementById('scoreDetail').textContent=`Score: ${pct}%  -  Correct: ${correct}  -  Wrong: ${answered-correct}  -  Unanswered: ${TOTAL_Q-answered}`;saveProgress();document.getElementById('scoreSummary').scrollIntoView({behavior:'smooth'});if(auto)alert('Please press Submit when you are finished.')}
 function collectState(){const state={timeLeft,testStarted,currentPage,deadlineTs,scoreVisible:document.getElementById('scoreSummary').style.display==='block',score:null,meta:{},answers:{}};['studentName','studentClass','studentDate'].forEach(id=>state.meta[id]=document.getElementById(id).value);let answered=0,correct=0;Q_NAMES.forEach(q=>{const chosen=document.querySelector(`input[name="${q}"]:checked`);if(chosen){state.answers[q]=chosen.value;answered+=1;if(chosen.value===ANSWER_KEY[q])correct+=1}});state.score={correct,answered};return state}
 function restoreState(state){if(!state)return;Object.entries(state.meta||{}).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value});Object.entries(state.answers||{}).forEach(([q,value])=>{const input=document.querySelector(`input[name="${q}"][value="${value}"]`);if(input)input.checked=true});if(typeof state.timeLeft==='number')timeLeft=state.timeLeft;if(typeof state.currentPage==='number')currentPage=state.currentPage;if(typeof state.deadlineTs==='number')deadlineTs=state.deadlineTs;if(state.testStarted){syncTimeLeftFromDeadline();if(IS_TEST_MODE){testStarted=true;document.getElementById('startBtn').disabled=true;document.getElementById('startBtn').textContent='Continue Test';document.getElementById('timerWidget').style.display='block';showPage(currentPage);startTimerLoop()}else{if(timeLeft>0&&typeof deadlineTs==='number'){testStarted=true;document.getElementById('startBtn').disabled=false;document.getElementById('startBtn').textContent='Continue Test'}else{testStarted=false;deadlineTs=null;currentPage=0;document.getElementById('startBtn').disabled=false;document.getElementById('startBtn').textContent='Start Test'}showCoverView()}}else{document.getElementById('startBtn').disabled=false;document.getElementById('startBtn').textContent='Start Test';showCoverView()}if(state.scoreVisible&&state.score){const pct=Math.round((state.score.correct/TOTAL_Q)*100);document.getElementById('scoreSummary').style.display='block';document.getElementById('scoreDisplay').textContent=state.score.correct+' / '+TOTAL_Q;document.getElementById('scoreDetail').textContent=`Score: ${pct}%  -  Correct: ${state.score.correct}  -  Wrong: ${state.score.answered-state.score.correct}  -  Unanswered: ${TOTAL_Q-state.score.answered}`;}syncChoiceStyles()}
 function saveProgress(){localStorage.setItem(STORAGE_KEY,JSON.stringify(collectState()))}
@@ -220,6 +220,65 @@ document.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{
 try{restoreState(JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'))}catch(err){}
 if(!testStarted)showCoverView()
 updateTimerDisplay();
+</script>
+<script id="eh-entrance-manual-submit-bridge">
+(function () {
+  function clearKnownTimers() {
+    try { if (typeof timerInterval !== 'undefined' && timerInterval) { clearInterval(timerInterval); timerInterval = null; } } catch (error) {}
+    try { if (typeof countdownInterval !== 'undefined' && countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; } } catch (error) {}
+    try { if (typeof activeTimerInterval !== 'undefined' && activeTimerInterval) { clearInterval(activeTimerInterval); activeTimerInterval = null; } } catch (error) {}
+  }
+
+  function unlockManualSubmit() {
+    clearKnownTimers();
+    var timer = document.getElementById('timerWidget');
+    if (timer) timer.style.display = 'none';
+    var timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) timerDisplay.textContent = 'Manual submit';
+    document.querySelectorAll('[data-timer], .timer, .timer-box, .timer-panel').forEach(function (node) {
+      node.style.display = 'none';
+    });
+    document.querySelectorAll('button, input[type="submit"]').forEach(function (control) {
+      var label = (control.textContent || control.value || '').toLowerCase();
+      if (label.includes('submit') || label.includes('answer')) {
+        control.disabled = false;
+        control.removeAttribute('disabled');
+        control.title = '';
+      }
+    });
+  }
+
+  window.autoSubmit = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  var originalStartTimer = window.startTimer;
+  window.startTimer = function () {
+    if (typeof originalStartTimer === 'function') {
+      try { originalStartTimer.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  var originalStartTest = window.startTest;
+  window.startTest = function () {
+    if (typeof originalStartTest === 'function') {
+      try { originalStartTest.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  window.tickTimer = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  window.addEventListener('DOMContentLoaded', unlockManualSubmit);
+  window.addEventListener('load', unlockManualSubmit);
+  setTimeout(unlockManualSubmit, 250);
+  setInterval(unlockManualSubmit, 1000);
+})();
 </script>
 </body>
 </html>

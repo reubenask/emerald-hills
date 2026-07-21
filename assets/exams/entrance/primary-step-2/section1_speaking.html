@@ -314,7 +314,7 @@ function startTimerLoop() {
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       timerInterval = null;
-      alert('Time is up. Please finish your last response.');
+      alert('Please press Submit when you are finished.');
     }
   }, 1000);
 }
@@ -532,6 +532,65 @@ resetMeter(1); resetMeter(2); resetMeter(3);
 try { restoreState(JSON.parse(sessionStorage.getItem(STORAGE_KEY) || 'null')); } catch (err) {}
 if (!testStarted) showCoverView();
 updateTimerDisplay();
+</script>
+<script id="eh-entrance-manual-submit-bridge">
+(function () {
+  function clearKnownTimers() {
+    try { if (typeof timerInterval !== 'undefined' && timerInterval) { clearInterval(timerInterval); timerInterval = null; } } catch (error) {}
+    try { if (typeof countdownInterval !== 'undefined' && countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; } } catch (error) {}
+    try { if (typeof activeTimerInterval !== 'undefined' && activeTimerInterval) { clearInterval(activeTimerInterval); activeTimerInterval = null; } } catch (error) {}
+  }
+
+  function unlockManualSubmit() {
+    clearKnownTimers();
+    var timer = document.getElementById('timerWidget');
+    if (timer) timer.style.display = 'none';
+    var timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) timerDisplay.textContent = 'Manual submit';
+    document.querySelectorAll('[data-timer], .timer, .timer-box, .timer-panel').forEach(function (node) {
+      node.style.display = 'none';
+    });
+    document.querySelectorAll('button, input[type="submit"]').forEach(function (control) {
+      var label = (control.textContent || control.value || '').toLowerCase();
+      if (label.includes('submit') || label.includes('answer')) {
+        control.disabled = false;
+        control.removeAttribute('disabled');
+        control.title = '';
+      }
+    });
+  }
+
+  window.autoSubmit = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  var originalStartTimer = window.startTimer;
+  window.startTimer = function () {
+    if (typeof originalStartTimer === 'function') {
+      try { originalStartTimer.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  var originalStartTest = window.startTest;
+  window.startTest = function () {
+    if (typeof originalStartTest === 'function') {
+      try { originalStartTest.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  window.tickTimer = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  window.addEventListener('DOMContentLoaded', unlockManualSubmit);
+  window.addEventListener('load', unlockManualSubmit);
+  setTimeout(unlockManualSubmit, 250);
+  setInterval(unlockManualSubmit, 1000);
+})();
 </script>
 </body>
 </html>

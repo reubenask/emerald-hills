@@ -507,7 +507,7 @@
           <li>This test has 3 reading passages and one combined timer of 30 minutes.</li>
           <li>Once you click "Start Test," the timer will begin and cannot be paused.</li>
           <li>You must answer all 26 questions before you can submit the test.</li>
-          <li>If time runs out, the test will submit automatically with whatever you have completed, and your score will be calculated right away.</li>
+          <li>There is no timer for this entrance exam. Submit when you are finished, and your score will be calculated right away.</li>
         </ul>
       </div>
 
@@ -537,7 +537,7 @@
   </div>
 
   <div class="sheet">
-    <p class="directions">Read each passage carefully. Then choose the best answer for each question. There are three passages and 26 questions in total. Your score will be calculated automatically when you click <strong>Submit Test</strong>, or automatically when time runs out.</p>
+    <p class="directions">Read each passage carefully. Then choose the best answer for each question. There are three passages and 26 questions in total. Your score will be calculated automatically when you click <strong>Submit Test</strong>, .</p>
 
     <div id="examRoot"></div>
 
@@ -1045,7 +1045,7 @@ if (readingCoverList[1]) readingCoverList[1].textContent = "This version focuses
 if (readingCoverList[2]) readingCoverList[2].textContent = "Your score is calculated automatically when you submit the test.";
 const readingDirections = document.querySelector(".directions");
 if (readingDirections) {
-  readingDirections.textContent = "Read the passage carefully. Then choose the best answer for each question. This abridged test has 9 questions. Your score will be calculated automatically when you click Submit Test, or automatically when time runs out.";
+  readingDirections.textContent = "Read the passage carefully. Then choose the best answer for each question. This abridged test has 9 questions. Your score will be calculated automatically when you click Submit Test, .";
 }
 const readingTimerLabel = document.getElementById("timerDisplay");
 if (readingTimerLabel) readingTimerLabel.textContent = "12:00";
@@ -1507,7 +1507,7 @@ function renderResults() {
   if (autoSubmitted) {
     const autoNote = document.createElement("div");
     autoNote.className = "auto-note";
-    autoNote.textContent = "Time expired — your test was submitted automatically.";
+    autoNote.textContent = "Submitted. Your test was saved for review.";
     panel.appendChild(autoNote);
   }
 
@@ -1605,5 +1605,64 @@ function restartTest(){
 
 </script>
 <div style="text-align:center;margin:24px auto;"><button onclick="restartTest()" style="margin:8px;padding:10px 16px;border:none;border-radius:6px;background:#c1121f;color:#fff;font-weight:700;cursor:pointer;">Restart Test</button></div>
+<script id="eh-entrance-manual-submit-bridge">
+(function () {
+  function clearKnownTimers() {
+    try { if (typeof timerInterval !== 'undefined' && timerInterval) { clearInterval(timerInterval); timerInterval = null; } } catch (error) {}
+    try { if (typeof countdownInterval !== 'undefined' && countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; } } catch (error) {}
+    try { if (typeof activeTimerInterval !== 'undefined' && activeTimerInterval) { clearInterval(activeTimerInterval); activeTimerInterval = null; } } catch (error) {}
+  }
+
+  function unlockManualSubmit() {
+    clearKnownTimers();
+    var timer = document.getElementById('timerWidget');
+    if (timer) timer.style.display = 'none';
+    var timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) timerDisplay.textContent = 'Manual submit';
+    document.querySelectorAll('[data-timer], .timer, .timer-box, .timer-panel').forEach(function (node) {
+      node.style.display = 'none';
+    });
+    document.querySelectorAll('button, input[type="submit"]').forEach(function (control) {
+      var label = (control.textContent || control.value || '').toLowerCase();
+      if (label.includes('submit') || label.includes('answer')) {
+        control.disabled = false;
+        control.removeAttribute('disabled');
+        control.title = '';
+      }
+    });
+  }
+
+  window.autoSubmit = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  var originalStartTimer = window.startTimer;
+  window.startTimer = function () {
+    if (typeof originalStartTimer === 'function') {
+      try { originalStartTimer.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  var originalStartTest = window.startTest;
+  window.startTest = function () {
+    if (typeof originalStartTest === 'function') {
+      try { originalStartTest.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  window.tickTimer = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  window.addEventListener('DOMContentLoaded', unlockManualSubmit);
+  window.addEventListener('load', unlockManualSubmit);
+  setTimeout(unlockManualSubmit, 250);
+  setInterval(unlockManualSubmit, 1000);
+})();
+</script>
 </body>
 </html>

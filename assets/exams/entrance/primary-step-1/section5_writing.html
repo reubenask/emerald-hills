@@ -197,7 +197,7 @@ function showPage(index){const blocks=sectionBlocks();if(!blocks.length)return;c
 function goPrevPage(){showPage(currentPage-1)}
 function goNextPage(){showPage(currentPage+1)}
 function syncTimeLeftFromDeadline(){if(typeof deadlineTs==='number')timeLeft=Math.max(0,Math.ceil((deadlineTs-Date.now())/1000))}
-function startTimerLoop(){if(timerInterval||typeof deadlineTs!=='number')return;syncTimeLeftFromDeadline();updateTimerDisplay();timerInterval=setInterval(()=>{syncTimeLeftFromDeadline();updateTimerDisplay();if(timeLeft<=0){submitTest(true)}},1000)}
+function startTimerLoop(){if(timerInterval||typeof deadlineTs!=='number')return;syncTimeLeftFromDeadline();updateTimerDisplay();timerInterval=setInterval(()=>{syncTimeLeftFromDeadline();updateTimerDisplay();if(timeLeft<=0){/* Entrance timer disabled: guests submit manually. */}},1000)}
 function startTimer(){if(!document.getElementById('studentName').value.trim()){alert('Please enter the student name before starting.');return;}if(testStarted){if(!IS_TEST_MODE&&typeof deadlineTs==='number'&&timeLeft>0){location.href=location.pathname+'?mode=test'}return;}testStarted=true;document.getElementById('startBtn').disabled=true;document.getElementById('startBtn').textContent='Continue Test';currentPage=0;deadlineTs=Date.now()+(timeLeft*1000);saveProgress();location.href=location.pathname+'?mode=test'}
 function updateTimerDisplay(){const m=Math.floor(timeLeft/60),s=timeLeft%60;document.getElementById('timerDisplay').textContent=m+':'+String(s).padStart(2,'0');const box=document.getElementById('timerWidget');box.classList.toggle('warn',timeLeft<=180&&timeLeft>60);box.classList.toggle('crit',timeLeft<=60)}
 function normalizeAnswer(value){return value.toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim()}
@@ -232,7 +232,7 @@ function submitTest(auto=false){
   renderScore(correct,answered);
   saveProgress();
   document.getElementById('scoreSummary').scrollIntoView({behavior:'smooth'});
-  if(auto) alert('Time is up. Your writing answers have been submitted.');
+  if(auto) alert('Please press Submit when you are finished.');
 }
 function computeAutoScore(){let correct=0,answered=0;Object.entries(FLEXIBLE_ANSWERS).forEach(([id,expectedList])=>{const value=normalizeAnswer(document.getElementById(id).value);if(!value)return;answered+=1;if(expectedList.some(expected=>{const target=normalizeAnswer(expected);return value===target || (id==='wq3' && value.includes('party'))}))correct+=1});return{correct,answered}}
 function collectState(){const ids=['studentName','studentClass','studentDate','wq1','wq2a','wq2b','wq3','part2_1','part2_2','part2_3','part2_4','part2_5','pictureWriting','sentenceSupport','spelling','grammar','content','handwriting','teacherNotes'];const score=computeAutoScore();const state={timeLeft,testStarted,currentPage,deadlineTs,scoreVisible:document.getElementById('scoreSummary').style.display==='block',score,values:{}};ids.forEach(id=>state.values[id]=document.getElementById(id).value);return state}
@@ -247,6 +247,65 @@ document.querySelectorAll('audio[data-expected]').forEach(audio=>{audio.addEvent
 try{restoreState(JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'))}catch(err){}
 if(!testStarted)showCoverView()
 updateTimerDisplay();
+</script>
+<script id="eh-entrance-manual-submit-bridge">
+(function () {
+  function clearKnownTimers() {
+    try { if (typeof timerInterval !== 'undefined' && timerInterval) { clearInterval(timerInterval); timerInterval = null; } } catch (error) {}
+    try { if (typeof countdownInterval !== 'undefined' && countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; } } catch (error) {}
+    try { if (typeof activeTimerInterval !== 'undefined' && activeTimerInterval) { clearInterval(activeTimerInterval); activeTimerInterval = null; } } catch (error) {}
+  }
+
+  function unlockManualSubmit() {
+    clearKnownTimers();
+    var timer = document.getElementById('timerWidget');
+    if (timer) timer.style.display = 'none';
+    var timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) timerDisplay.textContent = 'Manual submit';
+    document.querySelectorAll('[data-timer], .timer, .timer-box, .timer-panel').forEach(function (node) {
+      node.style.display = 'none';
+    });
+    document.querySelectorAll('button, input[type="submit"]').forEach(function (control) {
+      var label = (control.textContent || control.value || '').toLowerCase();
+      if (label.includes('submit') || label.includes('answer')) {
+        control.disabled = false;
+        control.removeAttribute('disabled');
+        control.title = '';
+      }
+    });
+  }
+
+  window.autoSubmit = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  var originalStartTimer = window.startTimer;
+  window.startTimer = function () {
+    if (typeof originalStartTimer === 'function') {
+      try { originalStartTimer.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  var originalStartTest = window.startTest;
+  window.startTest = function () {
+    if (typeof originalStartTest === 'function') {
+      try { originalStartTest.apply(this, arguments); } catch (error) {}
+    }
+    unlockManualSubmit();
+  };
+
+  window.tickTimer = function () {
+    unlockManualSubmit();
+    return false;
+  };
+
+  window.addEventListener('DOMContentLoaded', unlockManualSubmit);
+  window.addEventListener('load', unlockManualSubmit);
+  setTimeout(unlockManualSubmit, 250);
+  setInterval(unlockManualSubmit, 1000);
+})();
 </script>
 </body>
 </html>
