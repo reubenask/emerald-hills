@@ -6,6 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Emerald Hills TOEFL Platform</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
@@ -4699,84 +4700,126 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return [...seeded, ...mergedSaved].sort((a, b) => String(b.endMonth || "").localeCompare(String(a.endMonth || "")) || String(b.startMonth || "").localeCompare(String(a.startMonth || "")));
     }
 
+    const operationalStorageKeys = [
+      "gm_students",
+      "gm_accounts",
+      "gm_assignments",
+      "gm_submissions",
+      "gm_reviews",
+      "gm_messages",
+      "gm_admin_notes",
+      "gm_test_sessions",
+      "gm_lesson_notes",
+      "gm_semester_overviews",
+      "gm_guest_exam",
+      "gm_guest_submissions",
+      "gm_gallery_items"
+    ];
+    const maxLocalUploadBytes = 1_500_000;
+    let lastStorageError = "";
+
+    function safeStorageRead(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw === null ? fallback : JSON.parse(raw);
+      } catch (error) {
+        lastStorageError = `Could not read ${key}. The saved value may be damaged.`;
+        console.error(lastStorageError, error);
+        return fallback;
+      }
+    }
+
+    function safeStorageWrite(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        lastStorageError = "";
+        return true;
+      } catch (error) {
+        lastStorageError = `Could not save ${key}. Browser storage may be full or unavailable.`;
+        console.error(lastStorageError, error);
+        window.alert(`${lastStorageError}\n\nExport an admin backup before making more changes.`);
+        return false;
+      }
+    }
+
     const store = {
       get students() {
-        return mergeSeededStudents(JSON.parse(localStorage.getItem("gm_students") || "null") || students);
+        return mergeSeededStudents(safeStorageRead("gm_students", null) || students);
       },
       set students(value) {
-        localStorage.setItem("gm_students", JSON.stringify(value));
+        safeStorageWrite("gm_students", value);
       },
       get accounts() {
-        return mergeSeededAccounts(JSON.parse(localStorage.getItem("gm_accounts") || "[]"));
+        return mergeSeededAccounts(safeStorageRead("gm_accounts", []));
       },
       set accounts(value) {
-        localStorage.setItem("gm_accounts", JSON.stringify(value));
+        safeStorageWrite("gm_accounts", value);
       },
       get assignments() {
-        return mergeSeededAssignments(JSON.parse(localStorage.getItem("gm_assignments") || "null") || starterAssignments);
+        return mergeSeededAssignments(safeStorageRead("gm_assignments", null) || starterAssignments);
       },
       set assignments(value) {
-        localStorage.setItem("gm_assignments", JSON.stringify(value));
+        safeStorageWrite("gm_assignments", value);
       },
       get submissions() {
-        return JSON.parse(localStorage.getItem("gm_submissions") || "[]");
+        return safeStorageRead("gm_submissions", []);
       },
       set submissions(value) {
-        localStorage.setItem("gm_submissions", JSON.stringify(value));
+        safeStorageWrite("gm_submissions", value);
       },
       get reviews() {
-        return mergeSeededReviews(JSON.parse(localStorage.getItem("gm_reviews") || "[]"));
+        return mergeSeededReviews(safeStorageRead("gm_reviews", []));
       },
       set reviews(value) {
-        localStorage.setItem("gm_reviews", JSON.stringify(value));
+        safeStorageWrite("gm_reviews", value);
       },
       get messages() {
-        return JSON.parse(localStorage.getItem("gm_messages") || "[]");
+        return safeStorageRead("gm_messages", []);
       },
       set messages(value) {
-        localStorage.setItem("gm_messages", JSON.stringify(value));
+        safeStorageWrite("gm_messages", value);
       },
       get adminNotes() {
-        return JSON.parse(localStorage.getItem("gm_admin_notes") || "[]");
+        return safeStorageRead("gm_admin_notes", []);
       },
       set adminNotes(value) {
-        localStorage.setItem("gm_admin_notes", JSON.stringify(value));
+        safeStorageWrite("gm_admin_notes", value);
       },
       get testSessions() {
-        return JSON.parse(localStorage.getItem("gm_test_sessions") || "{}");
+        return safeStorageRead("gm_test_sessions", {});
       },
       set testSessions(value) {
-        localStorage.setItem("gm_test_sessions", JSON.stringify(value));
+        safeStorageWrite("gm_test_sessions", value);
       },
       get lessonNotes() {
-        return mergeSeededLessonNotes(JSON.parse(localStorage.getItem("gm_lesson_notes") || "[]"));
+        return mergeSeededLessonNotes(safeStorageRead("gm_lesson_notes", []));
       },
       set lessonNotes(value) {
-        localStorage.setItem("gm_lesson_notes", JSON.stringify(value));
+        safeStorageWrite("gm_lesson_notes", value);
       },
       get semesterOverviews() {
-        return mergeSeededSemesterOverviews(JSON.parse(localStorage.getItem("gm_semester_overviews") || "[]"));
+        return mergeSeededSemesterOverviews(safeStorageRead("gm_semester_overviews", []));
       },
       set semesterOverviews(value) {
-        localStorage.setItem("gm_semester_overviews", JSON.stringify(value));
+        safeStorageWrite("gm_semester_overviews", value);
       },
       get guestExam() {
-        return normalizeGuestExamBank(JSON.parse(localStorage.getItem("gm_guest_exam") || "null")) || defaultGuestExam;
+        return normalizeGuestExamBank(safeStorageRead("gm_guest_exam", null)) || defaultGuestExam;
       },
       set guestExam(value) {
-        localStorage.setItem("gm_guest_exam", JSON.stringify(value));
+        safeStorageWrite("gm_guest_exam", value);
       },
       get guestSubmissions() {
-        return JSON.parse(localStorage.getItem("gm_guest_submissions") || "[]");
+        return safeStorageRead("gm_guest_submissions", []);
       },
       set guestSubmissions(value) {
-        localStorage.setItem("gm_guest_submissions", JSON.stringify(value));
+        safeStorageWrite("gm_guest_submissions", value);
       },
       get galleryItems() {
-        return normalizeGalleryItems(JSON.parse(localStorage.getItem("gm_gallery_items") || "null"));
+        return normalizeGalleryItems(safeStorageRead("gm_gallery_items", null));
       },
       set galleryItems(value) {
-        localStorage.setItem("gm_gallery_items", JSON.stringify(value));
+        safeStorageWrite("gm_gallery_items", value);
       }
     };
 
@@ -4847,6 +4890,15 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         '"': "&quot;",
         "'": "&#39;"
       }[character]));
+    }
+
+    function safeResourceUrl(value = "", allowData = false) {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      if (/^(https?:|blob:)/i.test(raw)) return raw;
+      if (allowData && /^data:(image|audio|video|application\/pdf|text\/plain)[;,]/i.test(raw)) return raw;
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(raw) && !raw.startsWith("//")) return raw;
+      return "";
     }
 
     function jsString(value = "") {
@@ -4926,6 +4978,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function addAccount(account) {
       if (!account.name || !account.username || !account.email || !account.gender || !account.password) {
         window.alert("Please enter name, username, email, gender, and password.");
+        return false;
+      }
+      if (String(account.password).length < 8) {
+        window.alert("Use a password with at least 8 characters.");
         return false;
       }
       if (usernameExists(account.username)) {
@@ -5125,10 +5181,10 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function saveActiveSession() {
       if (!currentUser) return;
-      localStorage.setItem("gm_active_session", JSON.stringify({
+      safeStorageWrite("gm_active_session", {
         role,
         username: currentUser.username
-      }));
+      });
     }
 
     function clearActiveSession() {
@@ -5154,12 +5210,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     }
 
     function restoreActiveSession() {
-      let session = null;
-      try {
-        session = JSON.parse(localStorage.getItem("gm_active_session") || "null");
-      } catch (error) {
-        session = null;
-      }
+      const session = safeStorageRead("gm_active_session", null);
       if (!session || !session.username || !session.role) return false;
       const account = store.accounts.find((item) => item.role === session.role && item.username === session.username);
       if (!account) {
@@ -5201,11 +5252,12 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const avatar = $("#userAvatar");
       const student = role === "student" ? currentStudentRecord() : null;
       const photo = currentUser.photo || (student && student.photo);
+      const safePhoto = safeResourceUrl(photo, true);
       const gender = currentUser.gender || (student && student.gender) || "";
       avatar.classList.toggle("female", gender === "female");
       avatar.classList.toggle("male", gender === "male");
-      if (photo) {
-        avatar.innerHTML = `<img src="${photo}" alt="${currentUser.name}">`;
+      if (safePhoto) {
+        avatar.innerHTML = `<img src="${escapeHtml(safePhoto)}" alt="${escapeHtml(currentUser.name)}">`;
       } else {
         avatar.textContent = gender === "female" ? "F" : gender === "male" ? "M" : initials(currentUser.name);
       }
@@ -5234,6 +5286,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const file = $("#studentProfilePhoto").files[0];
       if (!file || !currentStudentRecord()) return;
       const photo = await readUploadedMaterial(file);
+      if (!photo) return;
       currentUser.photo = photo.dataUrl;
       store.accounts = store.accounts.map((account) => account.role === "student" && account.username === currentUser.username ? { ...account, photo: photo.dataUrl } : account);
       store.students = store.students.map((student) => student.name === currentUser.name && student.program === currentUser.program && student.className === currentUser.className ? { ...student, photo: photo.dataUrl } : student);
@@ -5246,6 +5299,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const file = $(`#adminPhoto${index}`).files[0];
       if (!file) return;
       const photo = await readUploadedMaterial(file);
+      if (!photo) return;
       const students = store.students;
       students[index] = { ...students[index], photo: photo.dataUrl };
       store.students = students;
@@ -5280,6 +5334,58 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         store.adminNotes = store.adminNotes.filter((note) => note.student !== selected.name);
       }
       render();
+    }
+
+    function buildOperationalBackup() {
+      const data = {};
+      operationalStorageKeys.forEach((key) => {
+        data[key] = safeStorageRead(key, null);
+      });
+      return {
+        format: "emerald-hills-local-backup",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        data
+      };
+    }
+
+    function exportOperationalBackup() {
+      if (stopIfNotAllowed("admin")) return;
+      const backup = buildOperationalBackup();
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `emerald-hills-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    async function importOperationalBackup(input) {
+      if (stopIfNotAllowed("admin")) return;
+      const file = input && input.files ? input.files[0] : null;
+      if (!file) return;
+      try {
+        const backup = JSON.parse(await file.text());
+        if (backup.format !== "emerald-hills-local-backup" || backup.version !== 1 || !backup.data || typeof backup.data !== "object") {
+          throw new Error("This is not a supported Emerald Hills backup.");
+        }
+        const knownValues = operationalStorageKeys.filter((key) => Object.prototype.hasOwnProperty.call(backup.data, key));
+        if (!knownValues.length) throw new Error("The backup contains no recognized platform data.");
+        const confirmed = window.confirm(`Restore ${knownValues.length} data collections from ${backup.exportedAt || "this backup"}?\n\nCurrent browser data will be replaced. Export a fresh backup first if needed.`);
+        if (!confirmed) {
+          input.value = "";
+          return;
+        }
+        knownValues.forEach((key) => safeStorageWrite(key, backup.data[key]));
+        window.alert("Backup restored. The platform will reload now.");
+        window.location.reload();
+      } catch (error) {
+        console.error("Backup import failed", error);
+        window.alert(error.message || "The backup could not be restored.");
+        input.value = "";
+      }
     }
 
     function logout() {
@@ -5791,12 +5897,14 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const blocks = [];
       if (item.media && item.media.dataUrl) {
         const type = item.media.type || "";
-        if (type.startsWith("image/")) blocks.push(`<div class="media-preview"><img src="${item.media.dataUrl}" alt="${escapeHtml(item.media.name || "Guest exam media")}"></div>`);
-        if (type.startsWith("audio/")) blocks.push(`<div class="media-preview"><audio controls src="${item.media.dataUrl}"></audio></div>`);
-        if (type.startsWith("video/")) blocks.push(`<div class="media-preview"><video controls src="${item.media.dataUrl}"></video></div>`);
-        if (type === "application/pdf") blocks.push(`<div class="media-preview"><a class="primary-btn" href="${item.media.dataUrl}" target="_blank" rel="noopener">Open uploaded PDF</a></div>`);
+        const uploadedUrl = safeResourceUrl(item.media.dataUrl, true);
+        if (uploadedUrl && type.startsWith("image/")) blocks.push(`<div class="media-preview"><img src="${escapeHtml(uploadedUrl)}" alt="${escapeHtml(item.media.name || "Guest exam media")}"></div>`);
+        if (uploadedUrl && type.startsWith("audio/")) blocks.push(`<div class="media-preview"><audio controls src="${escapeHtml(uploadedUrl)}"></audio></div>`);
+        if (uploadedUrl && type.startsWith("video/")) blocks.push(`<div class="media-preview"><video controls src="${escapeHtml(uploadedUrl)}"></video></div>`);
+        if (uploadedUrl && type === "application/pdf") blocks.push(`<div class="media-preview"><a class="primary-btn" href="${escapeHtml(uploadedUrl)}" target="_blank" rel="noopener noreferrer">Open uploaded PDF</a></div>`);
       }
-      if (item.mediaUrl) blocks.push(`<div class="media-preview"><a class="primary-btn" href="${escapeHtml(item.mediaUrl)}" target="_blank" rel="noopener">Open media link</a></div>`);
+      const mediaUrl = safeResourceUrl(item.mediaUrl);
+      if (mediaUrl) blocks.push(`<div class="media-preview"><a class="primary-btn" href="${escapeHtml(mediaUrl)}" target="_blank" rel="noopener noreferrer">Open media link</a></div>`);
       return blocks.join("");
     }
 
@@ -5807,21 +5915,23 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
           <div class="gallery-item-body">
             <h3>${escapeHtml(item.title || `Gallery item ${index + 1}`)}</h3>
             <p>${escapeHtml(item.description || "")}</p>
-            ${item.mediaUrl ? `<a class="tag green" href="${escapeHtml(item.mediaUrl)}" target="_blank" rel="noopener">Open link</a>` : ""}
+            ${safeResourceUrl(item.mediaUrl) ? `<a class="tag green" href="${escapeHtml(safeResourceUrl(item.mediaUrl))}" target="_blank" rel="noopener noreferrer">Open link</a>` : ""}
           </div>
         </article>
       `;
     }
 
     function renderGalleryMedia(item) {
-      if (item.imageSrc) {
-        return `<img src="${escapeHtml(item.imageSrc)}" alt="${escapeHtml(item.title || "Gallery image")}">`;
+      const imageSrc = safeResourceUrl(item.imageSrc, true);
+      if (imageSrc) {
+        return `<img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(item.title || "Gallery image")}">`;
       }
       if (item.media && item.media.dataUrl) {
         const type = item.media.type || "";
-        if (type.startsWith("image/")) return `<img src="${item.media.dataUrl}" alt="${escapeHtml(item.title || "Gallery image")}">`;
-        if (type.startsWith("video/")) return `<video controls src="${item.media.dataUrl}"></video>`;
-        if (type.startsWith("audio/")) return `<div class="gallery-item-body"><audio controls src="${item.media.dataUrl}"></audio></div>`;
+        const mediaUrl = safeResourceUrl(item.media.dataUrl, true);
+        if (mediaUrl && type.startsWith("image/")) return `<img src="${escapeHtml(mediaUrl)}" alt="${escapeHtml(item.title || "Gallery image")}">`;
+        if (mediaUrl && type.startsWith("video/")) return `<video controls src="${escapeHtml(mediaUrl)}"></video>`;
+        if (mediaUrl && type.startsWith("audio/")) return `<div class="gallery-item-body"><audio controls src="${escapeHtml(mediaUrl)}"></audio></div>`;
       }
       return "";
     }
@@ -7899,6 +8009,15 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     window.addEventListener("message", (event) => {
       const data = event.data || {};
       if (!data || data.type !== "eh-exam-submitted" || !activeAssignmentId) return;
+      const examFrame = document.querySelector(".external-exam-frame");
+      if (!examFrame || event.source !== examFrame.contentWindow) {
+        console.warn("Ignored exam submission from an unrecognized window.");
+        return;
+      }
+      if (window.location.protocol !== "file:" && event.origin !== window.location.origin) {
+        console.warn("Ignored exam submission from an unrecognized origin.");
+        return;
+      }
       recordExternalExamSubmission(activeAssignmentId, data);
     });
 
@@ -8313,20 +8432,22 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const mediaBlocks = [];
       if (assignment.media && assignment.media.dataUrl) {
         const type = assignment.media.type || "";
-        if (type.startsWith("image/")) {
-          mediaBlocks.push(`<div class="media-preview"><img src="${assignment.media.dataUrl}" alt="${assignment.media.name}"></div>`);
-        } else if (type.startsWith("audio/")) {
-          mediaBlocks.push(`<div class="media-preview"><audio controls src="${assignment.media.dataUrl}"></audio><p>${assignment.media.name}</p></div>`);
-        } else if (type.startsWith("video/")) {
-          mediaBlocks.push(`<div class="media-preview"><video controls src="${assignment.media.dataUrl}"></video><p>${assignment.media.name}</p></div>`);
-        } else if (type === "application/pdf") {
-          mediaBlocks.push(`<div class="media-preview"><a class="primary-btn" href="${assignment.media.dataUrl}" target="_blank">Open uploaded PDF</a><p>${assignment.media.name}</p></div>`);
-        } else {
-          mediaBlocks.push(`<div class="media-preview"><a class="primary-btn" href="${assignment.media.dataUrl}" target="_blank">Open uploaded file</a><p>${assignment.media.name}</p></div>`);
+        const uploadedUrl = safeResourceUrl(assignment.media.dataUrl, true);
+        if (uploadedUrl && type.startsWith("image/")) {
+          mediaBlocks.push(`<div class="media-preview"><img src="${escapeHtml(uploadedUrl)}" alt="${escapeHtml(assignment.media.name)}"></div>`);
+        } else if (uploadedUrl && type.startsWith("audio/")) {
+          mediaBlocks.push(`<div class="media-preview"><audio controls src="${escapeHtml(uploadedUrl)}"></audio><p>${escapeHtml(assignment.media.name)}</p></div>`);
+        } else if (uploadedUrl && type.startsWith("video/")) {
+          mediaBlocks.push(`<div class="media-preview"><video controls src="${escapeHtml(uploadedUrl)}"></video><p>${escapeHtml(assignment.media.name)}</p></div>`);
+        } else if (uploadedUrl && type === "application/pdf") {
+          mediaBlocks.push(`<div class="media-preview"><a class="primary-btn" href="${escapeHtml(uploadedUrl)}" target="_blank" rel="noopener noreferrer">Open uploaded PDF</a><p>${escapeHtml(assignment.media.name)}</p></div>`);
+        } else if (uploadedUrl) {
+          mediaBlocks.push(`<div class="media-preview"><a class="primary-btn" href="${escapeHtml(uploadedUrl)}" target="_blank" rel="noopener noreferrer">Open uploaded file</a><p>${escapeHtml(assignment.media.name)}</p></div>`);
         }
       }
-      if (assignment.mediaUrl) {
-        mediaBlocks.push(`<div class="media-preview"><a class="primary-btn" href="${assignment.mediaUrl}" target="_blank">Open teacher media link</a></div>`);
+      const teacherMediaUrl = safeResourceUrl(assignment.mediaUrl);
+      if (teacherMediaUrl) {
+        mediaBlocks.push(`<div class="media-preview"><a class="primary-btn" href="${escapeHtml(teacherMediaUrl)}" target="_blank" rel="noopener noreferrer">Open teacher media link</a></div>`);
       }
       return mediaBlocks.join("");
     }
@@ -9268,10 +9389,22 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function readUploadedMaterial(file) {
       if (!file) return Promise.resolve(null);
+      if (file.size > maxLocalUploadBytes) {
+        window.alert(
+          `${file.name} is too large for this browser-only pilot.\n\n` +
+          `The limit is ${(maxLocalUploadBytes / 1_000_000).toFixed(1)} MB. ` +
+          "Use a compressed file or a teacher media link. Larger files require server storage."
+        );
+        return Promise.resolve(null);
+      }
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve({ name: file.name, type: file.type, dataUrl: reader.result });
-        reader.onerror = reject;
+        reader.onerror = () => {
+          console.error("Could not read uploaded file", reader.error);
+          window.alert(`Could not read ${file.name}. Please choose the file again.`);
+          resolve(null);
+        };
         reader.readAsDataURL(file);
       });
     }
@@ -9432,6 +9565,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       if (file.size > 1500000) throw new Error(`${file.name} is larger than the 1.5 MB limit for this browser-based version.`);
       const previewText = await extractOfficeLessonPreview(file);
       const uploaded = await readUploadedMaterial(file);
+      if (!uploaded) throw new Error(`${file.name} could not be stored in this browser.`);
       return { ...uploaded, previewText };
     }
 
@@ -9925,6 +10059,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function renderStudentRecordCard(student, options = {}) {
       const { submissions, reviews, assignedWork, notes, latestReview, latestScoredReview } = studentRecordBundle(student);
+      const profilePhoto = safeResourceUrl(student.photo, true);
       const latestScores = latestScoredReview && latestScoredReview.scores ? latestScoredReview.scores : {};
       const overall = reviewDerivedOverall(latestScoredReview) !== null ? reviewDerivedOverall(latestScoredReview) : student.score;
       const sourceLabel = latestScoredReview ? (latestScoredReview.source || latestScoredReview.month || "Monthly review") : "No scored record yet";
@@ -9937,7 +10072,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         <article class="card student-record-card">
           <div class="topline compact">
             <div class="profile-row">
-              <div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div>
+              <div class="avatar small">${profilePhoto ? `<img src="${escapeHtml(profilePhoto)}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div>
               <div>
                 <h3>${escapeHtml(student.name)}</h3>
                 <p>${escapeHtml(student.studentId || "No ID yet")} · ${escapeHtml(student.program)} · ${escapeHtml(student.className)}</p>
@@ -10584,18 +10719,33 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       $("#adminAccounts").innerHTML = `
         ${pageHeader("Account Management", "账号管理", "Only admins can remove student or teacher accounts.", `<div class="toolbar"><button class="${adminAccountRoleFilter === "all" ? "primary-btn" : "ghost-btn"}" onclick="openAdminAccounts('all')">All</button><button class="${adminAccountRoleFilter === "student" ? "primary-btn" : "ghost-btn"}" onclick="openAdminAccounts('student')">Students</button><button class="${adminAccountRoleFilter === "teacher" ? "primary-btn" : "ghost-btn"}" onclick="openAdminAccounts('teacher')">Teachers</button><button class="${adminAccountRoleFilter === "admin" ? "primary-btn" : "ghost-btn"}" onclick="openAdminAccounts('admin')">Admins</button></div>`)}
         <p class="muted">${escapeHtml(roleLabel)} · ${accountEntries.length}</p>
+        <article class="card">
+          <div class="split">
+            <div>
+              <h3>Local data backup</h3>
+              <p>Export students, accounts, assignments, scores, reviews, lesson notes, messages, guest records, and gallery data from this browser. Restore the file on this same browser if local data is damaged or cleared.</p>
+              <p class="muted">This protects the current pilot only. It does not synchronize different devices; the planned server migration is still required for shared live data.</p>
+              ${lastStorageError ? `<p class="danger-text"><strong>Storage warning:</strong> ${escapeHtml(lastStorageError)}</p>` : ""}
+            </div>
+            <div class="toolbar">
+              <button class="primary-btn" type="button" onclick="exportOperationalBackup()">Export backup</button>
+              <label class="secondary-btn" for="adminBackupFile">Restore backup</label>
+              <input id="adminBackupFile" class="hidden" type="file" accept="application/json,.json" onchange="importOperationalBackup(this)" />
+            </div>
+          </div>
+        </article>
         <div class="table-card">
           <table>
             <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Email</th><th>ID / Class</th><th>Created</th><th>Actions</th></tr></thead>
             <tbody>
               ${accountEntries.map(({ account, index }) => `
                 <tr>
-                  <td><strong>${account.name}</strong></td>
-                  <td>${account.role}</td>
-                  <td>${account.username}</td>
-                  <td>${account.email || "Not added yet"}</td>
-                  <td>${account.accountId || account.studentId || "Assigns at next login"}<br>${account.program || "All Programs"} · ${account.className || "-"}</td>
-                  <td>${account.createdAt || "-"}</td>
+                  <td><strong>${escapeHtml(account.name)}</strong></td>
+                  <td>${escapeHtml(account.role)}</td>
+                  <td>${escapeHtml(account.username)}</td>
+                  <td>${escapeHtml(account.email || "Not added yet")}</td>
+                  <td>${escapeHtml(account.accountId || account.studentId || "Assigns at next login")}<br>${escapeHtml(account.program || "All Programs")} · ${escapeHtml(account.className || "-")}</td>
+                  <td>${escapeHtml(account.createdAt || "-")}</td>
                   <td>${account.role === "admin" ? "Protected" : `<button class="danger-btn" type="button" onclick="deleteAccount(${index})">Delete account</button>`}</td>
                 </tr>
               `).join("") || `<tr><td colspan="7">No ${adminAccountRoleFilter === "all" ? "" : adminAccountRoleFilter + " "}accounts registered yet.</td></tr>`}
@@ -10832,7 +10982,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
                       <td>
                         <button class="link-btn" type="button" onclick="openStudentRecord('adminRecords', '${escapeHtml(studentFocusKey(student))}', '${escapeHtml(student.program)}', '${escapeHtml(student.className)}')" aria-label="Open full details for ${escapeHtml(student.name)}">
                           <div class="profile-row">
-                            <div class="avatar small">${student.photo ? `<img src="${student.photo}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div>
+                            <div class="avatar small">${safeResourceUrl(student.photo, true) ? `<img src="${escapeHtml(safeResourceUrl(student.photo, true))}" alt="${escapeHtml(student.name)}">` : initials(student.name)}</div>
                             <strong>${escapeHtml(student.name)}</strong>
                           </div>
                         </button>
@@ -10995,7 +11145,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
             <h3>Annotate submission</h3>
             <div class="field"><label>Submission</label><select id="adminSubmission">${store.submissions.map((submission, index) => {
               const assignment = store.assignments.find((item) => item.id === submission.assignmentId) || {};
-              return `<option value="${index}">${submission.student} · ${assignment.title || "Assignment"} · ${submission.submittedAt}</option>`;
+              return `<option value="${index}">${escapeHtml(submission.student)} · ${escapeHtml(assignment.title || "Assignment")} · ${escapeHtml(submission.submittedAt || "")}</option>`;
             }).join("")}</select></div>
             <div class="field"><label>Admin score / evaluation</label><input id="adminScore" placeholder="Optional admin score"></div>
             <div class="field"><label>Comment / annotation</label><textarea id="adminComment" placeholder="Write an admin note, quality comment, or evaluation."></textarea></div>
@@ -11011,9 +11161,9 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
     function renderAdminNote(note) {
       return `
         <article class="message-item">
-          <small>${note.date} · ${note.student} · ${note.assignment}</small>
-          <strong>${note.score || "Admin note"}</strong>
-          <p>${note.comment}</p>
+          <small>${escapeHtml(note.date || "")} · ${escapeHtml(note.student || "")} · ${escapeHtml(note.assignment || "")}</small>
+          <strong>${escapeHtml(note.score || "Admin note")}</strong>
+          <p>${escapeHtml(note.comment || "")}</p>
         </article>
       `;
     }
@@ -11050,7 +11200,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       return `
         <div class="empty">
           <p>${escapeHtml(sheet.name || "Uploaded answer sheet")} is attached. This file type may not preview in the browser.</p>
-          <a class="secondary-btn" href="${sheet.dataUrl}" target="_blank" rel="noopener">Open uploaded script</a>
+          <a class="secondary-btn" href="${escapeHtml(safeResourceUrl(sheet.dataUrl, true))}" target="_blank" rel="noopener noreferrer">Open uploaded script</a>
         </div>
       `;
     }
