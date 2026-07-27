@@ -5730,13 +5730,12 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
       const questions = exam.questions || [];
       const answerCount = Number(exam.answerCount) || Math.max(questions.length, 1);
       const hasGuestAccess = publicGuestRegistry
-        && publicGuestRegistry.level === publicGuestLevel
-        && publicGuestRegistry.section === publicGuestSection;
+        && publicGuestRegistry.level === publicGuestLevel;
       const registry = publicGuestRegistry || {};
       const registryForm = `
         <form class="guest-registry-card" onsubmit="startGuestEntrance(event)">
           <h2>Applicant registry</h2>
-          <p>Fill in the applicant details first. The selected entrance exam unlocks only after this step.</p>
+          <p>Register once for this level. The same applicant details unlock every entrance-exam section in ${escapeHtml(level.label)}.</p>
           <div class="grid">
             <div class="field"><label>Guest name</label><input id="guestName" required placeholder="Full name" value="${escapeHtml(registry.name || "")}"></div>
             <div class="field"><label>Age</label><input id="guestAge" type="number" min="3" max="99" required placeholder="Age" value="${escapeHtml(registry.age || "")}"></div>
@@ -5836,8 +5835,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         age: $("#guestAge").value.trim(),
         contactType: $("#guestContactType").value,
         contact: $("#guestContact").value.trim(),
-        level: publicGuestLevel,
-        section: publicGuestSection
+        level: publicGuestLevel
       };
       renderPublicGuest();
     }
@@ -5852,7 +5850,6 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     function setPublicGuestSection(section) {
       publicGuestSection = section;
-      publicGuestRegistry = null;
       renderPublicGuest();
     }
 
@@ -5938,8 +5935,8 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
 
     async function submitGuestExam(event) {
       event.preventDefault();
-      if (!publicGuestRegistry || publicGuestRegistry.level !== publicGuestLevel || publicGuestRegistry.section !== publicGuestSection) {
-        window.alert("Please fill in the applicant registry before starting the entrance exam.");
+      if (!publicGuestRegistry || publicGuestRegistry.level !== publicGuestLevel) {
+        window.alert("Please register for this entrance-exam level before starting a section.");
         renderPublicGuest();
         return;
       }
@@ -5974,8 +5971,7 @@ Currently improving: Yaya's reading shows the most obvious progress, and her lis
         reviewedBy: ""
       });
       store.guestSubmissions = submissions;
-      publicGuestRegistry = null;
-      window.alert("Entrance exam submitted. The school will review it and contact you.");
+      window.alert(`Entrance exam submitted. Your ${level.label} registration remains active for the other sections.`);
       renderPublicGuest();
     }
 

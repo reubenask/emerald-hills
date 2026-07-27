@@ -34,7 +34,8 @@ const requiredPatterns = [
   ["safe resource URL validation", /function safeResourceUrl\(/],
   ["local upload size limit", /const maxLocalUploadBytes = 1_500_000/],
   ["new-account password minimum", /String\(account\.password\)\.length < 8/],
-  ["avatar resource validation", /safeResourceUrl\(photo, true\)/]
+  ["avatar resource validation", /safeResourceUrl\(photo, true\)/],
+  ["level-wide guest registration", /publicGuestRegistry\.level === publicGuestLevel/]
 ];
 
 requiredPatterns.forEach(([label, pattern]) => {
@@ -43,6 +44,14 @@ requiredPatterns.forEach(([label, pattern]) => {
 
 if (/JSON\.parse\(localStorage\.getItem\(/.test(source)) {
   failures.push("Direct JSON.parse(localStorage.getItem(...)) remains outside the safe storage layer.");
+}
+
+if (/publicGuestRegistry\.section === publicGuestSection/.test(source)) {
+  failures.push("Guest registration is incorrectly scoped to one entrance-exam section.");
+}
+
+if (/function setPublicGuestSection\(section\)\s*{\s*publicGuestSection = section;\s*publicGuestRegistry = null;/.test(source)) {
+  failures.push("Changing entrance-exam sections clears the applicant registry.");
 }
 
 if (failures.length) {
