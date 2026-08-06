@@ -771,6 +771,28 @@
       .motion-streaks { transition: none; }
       .car.finished { animation: none; }
     }
+
+    /* Keep the lane label above the first lane and make the prompt read naturally. */
+    .track::before {
+      top: 0 !important;
+      left: 126px !important;
+      transform: translateY(-100%) !important;
+      z-index: 5 !important;
+      line-height: 1 !important;
+    }
+  .prompt .current {
+    padding: 0 !important;
+    color: inherit !important;
+    background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  @media (max-width: 640px) {
+    .track::before {
+      left: 98px !important;
+    }
+  }
 </style>
 </head>
 <body>
