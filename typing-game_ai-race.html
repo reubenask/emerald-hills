@@ -1359,13 +1359,16 @@
       $("#resultOverlay").hidden = true;
       capture.disabled = false;
       active = true;
-      capture.focus();
+      capture.value = typed;
+      requestAnimationFrame(() => capture.focus({ preventScroll: true }));
     }
 
     function startRace() {
       resetRace();
       difficulty.value = setupDifficulty.value;
-      beginCountdown(armRace);
+      // Start immediately. A countdown looked active but could leave the text
+      // field unfocused, making the race appear frozen after Play was pressed.
+      armRace();
     }
 
     function completeRace() {
@@ -1438,59 +1441,86 @@
       }
     }
 
-    capture.addEventListener("keydown", (event) => {
-      if (!active) {
-        event.preventDefault();
-        return;
+    function acceptIncomingText(value) {
+      if (!active || finished || !value) return;
+      for (const character of value) {
+        handleCharacterEntry(character);
+        if (finished) break;
       }
-      if (event.metaKey || event.ctrlKey || event.altKey) {
-        if (event.key.toLowerCase() === "v") event.preventDefault();
-        return;
-      }
-      if (event.key === "Tab") return;
-      if (event.key === "Backspace" || event.key === "Delete") {
-        event.preventDefault();
-        if (!typed.length) return;
-        typed = typed.slice(0, -1);
-        refreshTypedState();
-        return;
-      }
-      if (event.key === "Enter") {
-        event.preventDefault();
-        return;
-      }
-      if (event.key.length !== 1) {
-        event.preventDefault();
-        return;
-      }
-      event.preventDefault();
-      handleCharacterEntry(event.key);
-    });
+    }
 
-    capture.addEventListener("beforeinput", (event) => {
-      if (!active) {
+    function removeLastTypedCharacter() {
+      if (!active || finished || !typed) return;
+      typed = typed.slice(0, -1);
+      streak = 0;
+      updateStreakUI();
+      refreshTypedState();
+    }
+
+    capture.addEventListener("keydown", (event) => {
+      if (!active || finished) {
         event.preventDefault();
         return;
       }
-      if (event.inputType.startsWith("delete")) {
+
+      if (event.key === "Backspace") {
+        event.preventDefault();
+        removeLastTypedCharacter();
+        return;
+      }
+
+      if (event.key === "Enter" || event.key === "Tab") {
         event.preventDefault();
         return;
       }
-      if (event.inputType === "insertFromPaste" || event.inputType === "insertFromDrop") {
+
+      if (event.metaKey || event.ctrlKey || event.altKey) {
+        if (["v", "x"].includes(event.key.toLowerCase())) event.preventDefault();
+        return;
+      }
+
+      // Desktop keyboards: score the physical key immediately. Depending on
+      // a later input event made some browsers leave the race at 0% progress.
+      if (event.key.length === 1) {
         event.preventDefault();
+        handleCharacterEntry(event.key);
       }
     });
 
     capture.addEventListener("input", () => {
-      if (capture.value !== typed) capture.value = typed;
+      if (!active || finished) {
+        capture.value = typed;
+        return;
+      }
+      const nativeValue = capture.value;
+      if (nativeValue === typed) return;
+
+      // Keydown handles physical keyboards. This remains a fallback for
+      // virtual keyboards and IME text entry, where keydown may not expose
+      // the completed character.
+      if (typed.startsWith(nativeValue)) {
+        typed = nativeValue;
+        refreshTypedState();
+        return;
+      }
+
+      const entered = nativeValue.startsWith(typed)
+        ? nativeValue.slice(typed.length)
+        : nativeValue;
+      capture.value = typed;
+      acceptIncomingText(entered);
+      if (!finished) capture.value = typed;
     });
 
     capture.addEventListener("paste", (event) => event.preventDefault());
+    capture.addEventListener("pointerdown", () => {
+      if (active && !finished) requestAnimationFrame(() => capture.focus({ preventScroll: true }));
+    });
     difficulty.addEventListener("change", () => {
       setupDifficulty.value = difficulty.value;
       if ($("#startOverlay").hidden) {
         resetRace();
-        beginCountdown(armRace);
+        armRace();
       }
     });
     setupDifficulty.addEventListener("change", () => { difficulty.value = setupDifficulty.value; });
