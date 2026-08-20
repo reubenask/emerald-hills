@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI Typing Race | Emerald Hills</title>
+  <title>AI Typing Race</title>
   <style>
     :root {
       color-scheme: dark;
@@ -126,7 +126,7 @@
     .prompt .remaining { color: #7f8aa5; }
     .prompt.wrong { animation: wrongFlash .16s linear; }
     @keyframes wrongFlash { 50% { border-color: #ff6076; box-shadow: inset 0 0 30px rgba(255,96,118,.12); } }
-    .capture { width: 100%; min-height: 56px; margin-top: 12px; padding: 15px 16px; resize: none; border: 1px solid rgba(32,228,206,.45); border-radius: 6px; outline: none; color: var(--text); background: #060a16; font: 16px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .capture { width: 100%; min-height: 110px; margin-top: 12px; padding: 15px 16px; resize: none; border: 1px solid rgba(32,228,206,.45); border-radius: 6px; outline: none; color: var(--text); background: #060a16; font: 16px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .capture:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(32,228,206,.1); }
     .typing-help { margin: 9px 0 0; color: var(--muted); font-size: 12px; }
 
@@ -381,12 +381,13 @@
     .prompt .current { padding: 2px 5px; color: var(--cyan); background: transparent; border: 2px solid var(--cyan); box-shadow: 0 0 12px rgba(39,231,225,.22); }
     .prompt .remaining { color: #8d9ab5; }
     .capture {
-      min-height: 68px;
-      padding: 19px 20px;
+      min-height: 130px;
+      padding: 22px 24px;
       border-color: var(--cyan);
       border-radius: 8px;
       background: #030814;
-      font-size: 18px;
+      font-size: 20px;
+      line-height: 1.6;
       box-shadow: inset 0 0 24px rgba(39,231,225,.025);
     }
     .capture::placeholder { color: #56627a; }
@@ -881,7 +882,7 @@
 <body>
   <div class="shell">
     <header class="topbar">
-      <div class="brand"><span class="brand-mark">EH</span><div>Emerald Hills<small>Typing Centre</small></div></div>
+      <div class="brand"><span class="brand-mark">🏁</span><div>AI Typing Race<small>Type to win</small></div></div>
       <nav class="nav-actions" aria-label="Game navigation">
         <button class="ghost" id="soundToggle" type="button" aria-pressed="false">🔇 Sound</button>
         <button class="ghost" id="backButton" type="button">Back / Quit</button>
@@ -963,7 +964,7 @@
         <div class="typing-zone">
           <span class="streak-pill" id="streakPill"><span aria-hidden="true">🔥</span> Streak <strong id="streakCount">0</strong></span>
           <p class="prompt" id="prompt" aria-live="polite"></p>
-          <textarea class="capture" id="capture" rows="2" autocomplete="off" autocapitalize="off" spellcheck="false" disabled aria-label="Type the displayed passage" placeholder="Start typing here…"></textarea>
+          <textarea class="capture" id="capture" rows="3" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Type the displayed passage" placeholder="Start typing here…"></textarea>
           <p class="typing-help">The clock measures active typing time. Leaving this tab pauses the race.</p>
         </div>
 
@@ -981,7 +982,7 @@
             </div>
             <div class="result-actions">
               <button class="primary" id="againButton" type="button">Race again</button>
-              <button class="ghost" id="resultHomeButton" type="button">Typing Centre</button>
+              <button class="ghost" id="resultHomeButton" type="button">Home</button>
             </div>
             <p class="suggestion-line" id="suggestedDifficultyText"></p>
             <button class="ghost" id="applySuggestedDifficulty" type="button" hidden>Use this difficulty next race</button>
@@ -1042,6 +1043,10 @@
     function safeSet(key, value) {
       try { localStorage.setItem(key, value); } catch (err) { /* storage unavailable */ }
     }
+
+    // Where "Home" / "Back" / "Typing Centre" navigation should go once this is embedded
+    // on your site. Point this at your own homepage or games hub - change this one line.
+    const HOME_URL = "/";
 
     /**
      * Inline SVG component factory for the standalone game page.
@@ -1117,11 +1122,6 @@
     let soundOn = safeGet("ehAiRaceSound") === "on";
     let audioCtx = null;
     let countdownTimer = 0;
-
-    function typingCentreUrl() {
-      const suffix = location.search.includes("guest=") ? "" : location.search;
-      return `platform.html${suffix}#typing-centre`;
-    }
 
     function refreshSoundButton() {
       soundToggle.textContent = soundOn ? "🔊 Sound" : "🔇 Sound";
@@ -1206,7 +1206,7 @@
 
     function goBack() {
       if (history.length > 1) history.back();
-      else location.href = typingCentreUrl();
+      else location.href = HOME_URL;
     }
 
     function elapsedMs(now = Date.now()) {
@@ -1339,7 +1339,7 @@
       streak = 0;
       updateStreakUI();
       capture.value = "";
-      capture.disabled = true;
+      capture.disabled = false;
       countdownOverlay.hidden = true;
       cars.forEach((car) => {
         car.style.transform = "translate(0, -50%)";
@@ -1359,16 +1359,13 @@
       $("#resultOverlay").hidden = true;
       capture.disabled = false;
       active = true;
-      capture.value = typed;
-      requestAnimationFrame(() => capture.focus({ preventScroll: true }));
+      capture.focus();
     }
 
     function startRace() {
       resetRace();
       difficulty.value = setupDifficulty.value;
-      // Start immediately. A countdown looked active but could leave the text
-      // field unfocused, making the race appear frozen after Play was pressed.
-      armRace();
+      beginCountdown(armRace);
     }
 
     function completeRace() {
@@ -1441,86 +1438,62 @@
       }
     }
 
-    function acceptIncomingText(value) {
-      if (!active || finished || !value) return;
-      for (const character of value) {
-        handleCharacterEntry(character);
-        if (finished) break;
-      }
-    }
-
-    function removeLastTypedCharacter() {
-      if (!active || finished || !typed) return;
-      typed = typed.slice(0, -1);
-      streak = 0;
-      updateStreakUI();
-      refreshTypedState();
-    }
-
     capture.addEventListener("keydown", (event) => {
-      if (!active || finished) {
+      if (!active) {
         event.preventDefault();
         return;
       }
-
-      if (event.key === "Backspace") {
-        event.preventDefault();
-        removeLastTypedCharacter();
-        return;
-      }
-
-      if (event.key === "Enter" || event.key === "Tab") {
-        event.preventDefault();
-        return;
-      }
-
       if (event.metaKey || event.ctrlKey || event.altKey) {
-        if (["v", "x"].includes(event.key.toLowerCase())) event.preventDefault();
+        if (event.key.toLowerCase() === "v") event.preventDefault();
         return;
       }
-
-      // Desktop keyboards: score the physical key immediately. Depending on
-      // a later input event made some browsers leave the race at 0% progress.
-      if (event.key.length === 1) {
+      if (event.key === "Tab") return;
+      if (event.key === "Backspace" || event.key === "Delete") {
         event.preventDefault();
-        handleCharacterEntry(event.key);
+        if (!typed.length) return;
+        typed = typed.slice(0, -1);
+        refreshTypedState();
+        return;
+      }
+      if (event.key === "Enter") {
+        event.preventDefault();
+        return;
+      }
+      if (event.key.length !== 1) {
+        event.preventDefault();
+        return;
+      }
+      event.preventDefault();
+      handleCharacterEntry(event.key);
+    });
+
+    capture.addEventListener("beforeinput", (event) => {
+      if (!active) {
+        event.preventDefault();
+        return;
+      }
+      if (event.inputType.startsWith("delete")) {
+        event.preventDefault();
+        return;
+      }
+      if (event.inputType === "insertFromPaste" || event.inputType === "insertFromDrop") {
+        event.preventDefault();
       }
     });
 
     capture.addEventListener("input", () => {
-      if (!active || finished) {
-        capture.value = typed;
-        return;
-      }
-      const nativeValue = capture.value;
-      if (nativeValue === typed) return;
-
-      // Keydown handles physical keyboards. This remains a fallback for
-      // virtual keyboards and IME text entry, where keydown may not expose
-      // the completed character.
-      if (typed.startsWith(nativeValue)) {
-        typed = nativeValue;
-        refreshTypedState();
-        return;
-      }
-
-      const entered = nativeValue.startsWith(typed)
-        ? nativeValue.slice(typed.length)
-        : nativeValue;
-      capture.value = typed;
-      acceptIncomingText(entered);
-      if (!finished) capture.value = typed;
+      if (capture.value !== typed) capture.value = typed;
     });
 
     capture.addEventListener("paste", (event) => event.preventDefault());
-    capture.addEventListener("pointerdown", () => {
-      if (active && !finished) requestAnimationFrame(() => capture.focus({ preventScroll: true }));
+    capture.addEventListener("focus", () => {
+      if (!$("#startOverlay").hidden && !finished) startRace();
     });
     difficulty.addEventListener("change", () => {
       setupDifficulty.value = difficulty.value;
       if ($("#startOverlay").hidden) {
         resetRace();
-        armRace();
+        beginCountdown(armRace);
       }
     });
     setupDifficulty.addEventListener("change", () => { difficulty.value = setupDifficulty.value; });
@@ -1561,8 +1534,8 @@
       $("#startOverlay").hidden = false;
     });
     $("#backButton").addEventListener("click", goBack);
-    $("#homeButton").addEventListener("click", () => { location.href = "platform.html"; });
-    $("#resultHomeButton").addEventListener("click", () => { location.href = typingCentreUrl(); });
+    $("#homeButton").addEventListener("click", () => { location.href = HOME_URL; });
+    $("#resultHomeButton").addEventListener("click", () => { location.href = HOME_URL; });
 
     refreshSoundButton();
     resetRace();
