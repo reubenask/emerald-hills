@@ -1046,7 +1046,7 @@
 
     // Where "Home" / "Back" / "Typing Centre" navigation should go once this is embedded
     // on your site. Point this at your own homepage or games hub - change this one line.
-    const HOME_URL = "/";
+    const HOME_URL = "https://reubenask.github.io/emerald-hills/platform.html";
 
     /**
      * Inline SVG component factory for the standalone game page.
@@ -1205,8 +1205,7 @@
     }
 
     function goBack() {
-      if (history.length > 1) history.back();
-      else location.href = HOME_URL;
+      location.href = HOME_URL;
     }
 
     function elapsedMs(now = Date.now()) {
