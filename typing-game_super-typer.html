@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Super Typer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#111318; --fg:#e8e8e8; --muted:#9aa0aa; --btn:#2a2e37; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); font-family:"Press Start 2P", monospace; }
+  body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:16px; box-sizing:border-box; overflow:hidden; }
+  canvas { display:block; image-rendering:pixelated; border:4px solid #000; box-shadow:0 0 0 2px #333; cursor:text; }
+  .bar { display:flex; gap:12px; align-items:center; font-size:9px; color:var(--muted); flex-wrap:wrap; justify-content:center; line-height:1.6; }
+  button { font:inherit; font-size:9px; color:var(--fg); background:var(--btn); border:2px solid #000; padding:8px 10px; cursor:pointer; }
+  button:hover { background:#3a404c; }
+  #kb { position:fixed; left:0; top:0; width:1px; height:1px; opacity:0; font-size:16px; border:0; padding:0; }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div class="bar">
+  <button id="homeBtn">← TYPING CENTRE</button>
+  <button id="musicBtn">MUSIC: ON</button>
+  <button id="sfxBtn">SFX: ON</button>
+  <button id="pauseBtn">PAUSE</button>
+  <span>TYPE TO STOMP · BACKSPACE = SWITCH TARGET · ESC = PAUSE</span>
+</div>
+<input id="kb" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Typing input">
+
+<script>
+(() => {
+// ---------- constants ----------
+const W = 400, H = 225, GROUND = 193, HOME = 60, SCROLL = 40;
+const FONT = '"Press Start 2P", monospace';
+const cv = document.getElementById('game');
+const ctx = cv.getContext('2d');
+const kb = document.getElementById('kb');
+let S = 1;
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = Math.max(200, Math.min(innerWidth - 40, (innerHeight - 110) * W / H));
+  let s = cssW * dpr / W;
+  if (s >= 2) s = Math.floor(s);
+  S = s;
+  cv.width = Math.round(W * s);
+  cv.height = Math.round(H * s);
+  cv.style.width = (cv.width / dpr) + 'px';
+  cv.style.height = (cv.height / dpr) + 'px';
+}
+addEventListener('resize', resize);
+resize();
+
+// ---------- words ----------
+const SHORT = `cat dog sun run hop jump coin star pipe fish bird tree rock leaf king cake moon bell drum fire ice wind rain ship boat frog duck bear wolf lion goat hat cap box key map pen cup egg owl bat bee ant yak zip fox jam kite lamp mud nut oak pig quiz rug sky toy van web yes zoo gem hill lake vine wave
+  apple bake band barn bath bean bike blue boot bowl bread brush bug bus cave chair chip clap clay coat corn cow crab cry desk dish door dot drop ear east farm fast fig flag flip fog foot fork game gift girl glad glue gold grass gum hand harp heat hen home horn hug ink inch jar jet joy kid kiss knee lake lamb lid lip log lunch mask milk mint mop mouse nap neck nest net note oven pan park pear pie pink pond pool pot pup quick quilt rat ring road rope rose sand sea seed shoe sing sock song soup step sweet tail tap tent toe top town tub up van vest wall wax well wing wish wood yarn year yell yolk zone`.split(/\s+/);
+const MEDIUM = `brick flame cloud jumps coins stars plant shell castle bridge hammer flower turtle rocket bounce sprint pixel dragon forest island jungle magic ninja ocean queen river shadow tiger under velvet water yellow zebra glider orbit quest knight frozen badge
+  anchor basket button candle carrot circle copper desert dinner engine farmer finger garden ginger guitar helmet honest insect jacket kettle ladder lemon market meadow mirror monkey napkin needle orange pencil pepper planet pocket puzzle rabbit ribbon saddle silver singer spider summer tunnel unique valley violin wallet window winter wizard yogurt`.split(/\s+/);
+// academic vocabulary for TOEFL practice, mixed in as stage 1 gets harder
+const ACADEMIC = `analyze approach assess benefit concept consist context create data define derive economy evident factor finance formula function identify income indicate interpret involve issue labor legal method occur percent period policy principle process require research respond role section sector source specific structure theory vary achieve acquire affect alternative aspect assist category chapter commission community complex compute conclude conduct consequent construct consume credit culture design distinct element equate evaluate feature final focus impact injury institute invest item journal maintain normal obtain participate perceive positive potential previous primary purchase range region regulate relevant reside resource restrict secure seek select site strategy survey text tradition transfer`.split(/\s+/);
+const PHRASES = [
+  'red hot pepper', 'jump over logs', 'big green pipe', 'coins in blocks', 'a happy frog',
+  'run very fast', 'the castle gate', 'under the sea', 'stars are bright', 'keep on typing',
+  'look out below', 'zip and zoom', 'eat your greens', 'fly so high', 'hop skip jump',
+  'it is fun', 'music makes joy', 'never give up', 'open the door', 'pizza for lunch',
+  'quick brown fox', 'ride the wave', 'sing a song', 'time to play', 'very good job',
+  'warm sunny day', 'you are great', 'dance all night', 'great big hug', 'blue sky above',
+  'all day long', 'bring your book', 'catch the bus', 'do your best', 'every single day',
+  'find the answer', 'go to class', 'have a seat', 'in the morning', 'just for fun',
+  'kind and helpful', 'learn new words', 'make a plan', 'next to me', 'on the table',
+  'practice every day', 'quiet the room', 'read the passage', 'speak up clearly', 'take a note',
+  'use your mind', 'very well done', 'write an essay', 'yes of course', 'zoom right past',
+  'ask a question', 'build a bridge', 'clean your desk', 'drink some water', 'eat a snack',
+  'follow the rules', 'give a speech', 'hold on tight', 'improve your score', 'join the team',
+  'keep it simple', 'listen with care', 'meet new friends', 'notice the details', 'open your notebook',
+  'pass the test', 'raise your hand', 'share the idea', 'try once more', 'walk to school',
+];
+const SENTENCES = [
+  'the quick fox jumps over logs', 'never stop typing and keep smiling', 'a little frog sat on a rock',
+  'bright stars shine in the sky', 'cats like to nap in the sun', 'dragons guard the golden treasure',
+  'every coin you grab adds points', 'friends make every day better', 'go jump on the brown critter',
+  'happy plumbers fix pipes all day', 'if you practice you will improve', 'jump high and land on top',
+  'keep calm and type the words', 'lava bubbles under the castle', 'music fills the air with joy',
+  'open the door to the castle', 'pizza tastes great after a long day', 'rain falls softly on the hills',
+  'slow and steady wins the race', 'turtles hide inside green shells', 'under the sea the fish swim',
+  'we love to play this game', 'you are doing a great job', 'zoom past the clouds like a rocket',
+  'the sun is very warm', 'birds sing in the morning',
+  'reading every day builds a strong vocabulary', 'students should review their notes after class',
+  'the lecture explained how volcanoes form', 'scientists collect data to test a theory',
+  'a good essay has a clear idea', 'listen to the speaker and take notes',
+  'practice makes your typing faster and smoother', 'many animals migrate when the seasons change',
+  'the library is open until nine tonight', 'clear examples make an argument stronger',
+  'plants need sunlight water and good soil', 'every great writer was once a beginner',
+  'ask questions when you do not understand', 'the museum has a new dinosaur exhibit',
+  'ancient cities were built near rivers', 'our team finished the project on time',
+  'bees help flowers grow by carrying pollen', 'a healthy breakfast gives you more energy',
+  'the professor asked for a summary', 'keep your eyes on the screen',
+  'oceans cover most of the earth', 'learning a language opens many doors',
+  'the bridge connects the two busy towns', 'try to answer every question you can',
+  'good sleep helps your brain remember things', 'the moon changes shape during the month',
+  'young readers enjoy stories about brave heroes', 'climate affects how farmers grow their food',
+  'we will discuss the results next week', 'honest feedback helps everyone improve',
+  'quiet practice leads to loud success', 'volunteers cleaned the beach on saturday',
+  'many inventions began as simple ideas', 'zebras live in large groups together',
+];
+
+// goal = enemies to stomp to clear the stage; speed/interval ramp from start to end of the stage
+const STAGES = [
+  { name: 'WORDS',          goal: 12, speed: [24, 34], interval: [3.2, 2.2], maxW: 3, tempo: 132, wrap: 18,
+    pool: p => { const r = Math.random(); return r < p * .35 ? ACADEMIC : r < p ? MEDIUM : SHORT; } },
+  { name: '3-WORD PHRASES', goal: 8,  speed: [22, 27], interval: [6.5, 5.5], maxW: 2, tempo: 140, wrap: 10,
+    pool: () => PHRASES },
+  { name: 'SENTENCES',      goal: 6,  speed: [15, 18], interval: [2, 2],     maxW: 1, tempo: 148, wrap: 18,
+    pool: () => SENTENCES },
+];
+
+// ---------- sprites ----------
+function sprite(rows, pal) {
+  const w = Math.max(...rows.map(r => r.length)), h = rows.length;
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d');
+  rows.forEach((r, y) => [...r].forEach((ch, x) => {
+    if (pal[ch]) { g.fillStyle = pal[ch]; g.fillRect(x, y, 1, 1); }
+  }));
+  return c;
+}
+
+const heroPal = { R:'#d82800', S:'#ffc89a', G:'#2ca02c', B:'#2850e0', K:'#5a2a00' };
+const heroHead = [
+  '....RRRR....',
+  '...RRRRRR...',
+  '..RRRRRRRRRR',
+  '..KKSSSS....',
+  '..KSSSKSS...',
+  '..KSSSKSSS..',
+  '...SSSSSSS..',
+  '....SSSS....',
+];
+const bodyRun  = ['...GGGGGG...', '..SGGGGGGS..', '..S.GGGG.S..'];
+const bodyJump = ['S..GGGGGG..S', '.SGGGGGGGGS.', '...GGGGGG...'];
+const legsA = ['...BBBBBB...', '...BB..BB...', '...BB..BB...', '..KKK..KKK..', '..KKK..KKK..'];
+const legsB = ['...BBBBBB...', '..BB....BB..', '.BB......BB.', '.KKK....KKK.', 'KKK......KKK'];
+const HERO = {
+  runA: sprite([...heroHead, ...bodyRun, ...legsA], heroPal),
+  runB: sprite([...heroHead, ...bodyRun, ...legsB], heroPal),
+  jump: sprite([...heroHead, ...bodyJump, ...legsB], heroPal),
+};
+
+const enemyBody = [
+  '.......KK.......',
+  '......KNNK......',
+  '....NNNNNNNN....',
+  '...NNNNNNNNNN...',
+  '..NNNWWWWWWNNN..',
+  '..NNWWWWWWWWNN..',
+  '.NNNWWWKKWWWNNN.',
+  '.NNNWWWKKWWWNNN.',
+  '.NNNNWWWWWWNNNN.',
+  '.NNNNNNNNNNNNNN.',
+  '..NNTTTTTTTTNN..',
+  '..NNNTTTTTTNNN..',
+  '...NNNNNNNNNN...',
+];
+const feetA = ['..KKKK....KKKK..', '.KKKKK....KKKKK.'];
+const feetB = ['...KKKK..KKKK...', '..KKKKK..KKKKK..'];
+function enemySet(n) {
+  const pal = { N:n, K:'#2a1200', W:'#fff', T:'#f0c090' };
+  return { a: sprite([...enemyBody, ...feetA], pal), b: sprite([...enemyBody, ...feetB], pal) };
+}
+const ENEMY = { normal: enemySet('#b85a1c'), fast: enemySet('#c0182a') };
+
+const blockPal = { O:'#c84c0c', Y:'#fca044', K:'#000' };
+const QBLOCK = sprite([
+  '.OOOOOOOOOOOOOO.',
+  'OYYYYYYYYYYYYYYK',
+  'OYKYYYYYYYYYYKYK',
+  'OYYYYOOOOOYYYYYK',
+  'OYYYOOKKKOOYYYYK',
+  'OYYYOOKYYOOKYYYK',
+  'OYYYYKKYYOOKYYYK',
+  'OYYYYYYYOOKKYYYK',
+  'OYYYYYYOOKKYYYYK',
+  'OYYYYYYOOKYYYYYK',
+  'OYYYYYYYKKYYYYYK',
+  'OYYYYYYOOYYYYYYK',
+  'OYYYYYYOOKYYYYYK',
+  'OYKYYYYYKKYYYKYK',
+  'OYYYYYYYYYYYYYYK',
+  'KKKKKKKKKKKKKKKK',
+], blockPal);
+const USED = sprite([
+  '.KKKKKKKKKKKKKK.',
+  'KOOOOOOOOOOOOOOK',
+  'KOKOOOOOOOOOOKOK',
+  ...Array(10).fill('KOOOOOOOOOOOOOOK'),
+  'KOKOOOOOOOOOOKOK',
+  'KOOOOOOOOOOOOOOK',
+  '.KKKKKKKKKKKKKK.',
+], { O:'#9c4a00', K:'#000' });
+
+const COIN = sprite([
+  '...KK...', '..KYYK..', '.KYWYYK.', '.KYWYOK.', '.KYWYOK.',
+  '.KYWYOK.', '.KYWYOK.', '.KYYYOK.', '..KYYK..', '...KK...',
+], { K:'#000', Y:'#fcd000', W:'#fff8c0', O:'#c88000' });
+
+const MUSH = sprite([
+  '.....GGGGGG.....',
+  '...GGWWGGGGGG...',
+  '..GWWWWGGGWWGG..',
+  '.GGWWWWGGGWWWGG.',
+  '.GGGWWGGGGGWWGG.',
+  'GGGGGGGGGGGGGGGG',
+  'GWWGGGWWWWGGGWWG',
+  'GWWWGGWWWWGGWWWG',
+  '.GGGGGGGGGGGGGG.',
+  '...SSSKSSKSSS...',
+  '...SSSKSSKSSS...',
+  '...SSSSSSSSSS...',
+  '....SSSSSSSS....',
+], { G:'#18a018', W:'#fff', S:'#ffd8a8', K:'#000' });
+
+// blobby scenery shapes, drawn per-pixel so edges stay crisp
+function blob(w, h, circles, fill, line, shade) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d');
+  const inside = (x, y) => {
+    if (x < 0 || x >= w || y < 0) return false;
+    if (y >= h) return true;
+    return circles.some(([cx, cy, r]) => (x + .5 - cx) ** 2 + (y + .5 - cy) ** 2 <= r * r);
+  };
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (!inside(x, y)) continue;
+    const edge = !inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1);
+    g.fillStyle = edge ? line : (shade && y > h * .62 ? shade : fill);
+    g.fillRect(x, y, 1, 1);
+  }
+  return c;
+}
+const CLOUD = blob(48, 22, [[12, 13, 9], [24, 10, 10], [36, 13, 9]], '#fff', '#000', '#a8e0ff');
+const HILL = blob(80, 36, [[40, 44, 40]], '#00a800', '#000');
+const HILL_S = blob(48, 20, [[24, 26, 24]], '#00a800', '#000');
+const BUSH = blob(48, 16, [[10, 14, 9], [24, 10, 11], [38, 14, 9]], '#80d010', '#000');
+{ // hill spots
+  const g = HILL.getContext('2d'); g.fillStyle = '#000';
+  [[30, 14], [44, 20], [36, 26]].forEach(([x, y]) => g.fillRect(x, y, 2, 4));
+}
+
+const BRICK = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 16;
+  const g = c.getContext('2d');
+  g.fillStyle = '#c84c0c'; g.fillRect(0, 0, 16, 16);
+  g.fillStyle = '#ffb08c';
+  g.fillRect(0, 0, 15, 1); g.fillRect(0, 8, 16, 1); g.fillRect(0, 0, 1, 7); g.fillRect(8, 8, 1, 7);
+  g.fillStyle = '#000';
+  g.fillRect(0, 7, 16, 1); g.fillRect(0, 15, 16, 1); g.fillRect(15, 0, 1, 7); g.fillRect(7, 8, 1, 7);
+  return c;
+})();
+
+const P = 1200;
+const SCENERY = [
+  { img: CLOUD, x: 40, y: 22, f: .25 }, { img: CLOUD, x: 330, y: 48, f: .25 },
+  { img: CLOUD, x: 610, y: 18, f: .25 }, { img: CLOUD, x: 900, y: 40, f: .25 },
+  { img: HILL, x: 0, y: GROUND - 36, f: .5 }, { img: HILL_S, x: 300, y: GROUND - 20, f: .5 },
+  { img: HILL, x: 620, y: GROUND - 36, f: .5 }, { img: HILL_S, x: 960, y: GROUND - 20, f: .5 },
+  { img: BUSH, x: 200, y: GROUND - 16, f: 1 }, { img: BUSH, x: 520, y: GROUND - 16, f: 1 },
+  { img: BUSH, x: 860, y: GROUND - 16, f: 1 },
+];
+
+// ---------- audio ----------
+let ac = null, sfxOn = true, musicOn = true, musicGain = null;
+function ensureAudio() {
+  if (!ac) {
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      musicGain = ac.createGain();
+      musicGain.gain.value = musicOn ? 1 : 0;
+      musicGain.connect(ac.destination);
+    } catch (e) {}
+  }
+  if (ac && ac.state === 'suspended') ac.resume();
+}
+const mtof = m => 440 * 2 ** ((m - 69) / 12);
+function tone(f0, f1, dur, type = 'square', vol = .06, delay = 0) {
+  if (!ac || !sfxOn) return;
+  playNote(ac.destination, f0, f1, ac.currentTime + delay, dur, type, vol);
+}
+function playNote(dest, f0, f1, t, dur, type, vol) {
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(f0, t);
+  if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g).connect(dest);
+  o.start(t); o.stop(t + dur + .02);
+}
+// plays a list of [midi, delay, duration] notes
+const seq = (notes, type = 'square', vol = .05) => notes.forEach(([m, d, l]) => tone(mtof(m), 0, l, type, vol, d));
+
+// letters climb a major pentatonic scale as you get through the word, so finishing it "rises" to a peak
+const SCALE = [72, 74, 76, 79, 81, 84, 86, 88, 91, 93, 96];
+const sfx = {
+  key: frac => {
+    const m = SCALE[Math.min(SCALE.length - 1, Math.floor(frac * SCALE.length))];
+    tone(mtof(m), 0, .09, 'triangle', .09);
+    tone(mtof(m + 12), 0, .04, 'square', .012);
+  },
+  miss:  () => tone(110, 90, .08, 'square', .05),
+  done:  perfect => {
+    seq([[84, 0, .08], [88, .06, .08], [91, .12, .08], [96, .18, .22]], 'square', .04);
+    if (perfect) seq([[100, .3, .12], [103, .38, .25]], 'triangle', .07);
+  },
+  jump:  () => tone(320, 820, .16, 'square', .04),
+  stomp: () => { tone(260, 70, .12, 'triangle', .14); tone(mtof(91), 0, .1, 'square', .03, .08); },
+  coin:  () => seq([[83, 0, .07], [88, .07, .3]], 'square', .05),
+  yum:   () => seq([[76, 0, .1], [79, .09, .1], [88, .18, .1], [84, .27, .1], [86, .36, .1], [91, .45, .25]]),
+  combo: () => seq([[79, 0, .08], [84, .08, .08], [88, .16, .08], [91, .24, .08], [96, .32, .3]], 'square', .05),
+  hurt:  () => tone(500, 90, .4, 'sawtooth', .06),
+  over:  () => seq([[67, 0, .25], [64, .22, .25], [60, .44, .25], [55, .66, .5]], 'triangle', .1),
+  start: () => seq([[72, 0, .12], [76, .12, .12], [79, .24, .12], [84, .36, .3]]),
+  clear: () => {
+    seq([[72, 0, .12], [76, .12, .12], [79, .24, .12], [84, .36, .3], [79, .66, .12], [84, .78, .6]]);
+    seq([[48, 0, .36], [55, .36, .3], [48, .66, .7]], 'triangle', .12);
+  },
+  win: () => {
+    seq([[72, 0, .1], [76, .1, .1], [79, .2, .1], [84, .3, .1], [88, .4, .1], [91, .5, .3],
+         [88, .8, .1], [91, .9, .1], [96, 1, .9]]);
+    seq([[48, 0, .5], [53, .5, .3], [55, .8, .2], [60, 1, .9]], 'triangle', .12);
+    seq([[76, 1, .9], [79, 1, .9]], 'triangle', .05);
+  },
+};
+
+// background music: an original, cheerful 8-bar loop (8th-note melody, quarter-note bass)
+const MELODY = [
+  76, 79, 84, 79, 76, 79, 81, 79,  77, 81, 84, 81, 79, 77, 76, 74,
+  74, 79, 83, 86, 84, 83, 81, 79,  76, 79, 84, 88, 86, 84, 0, 0,
+  81, 84, 88, 84, 81, 84, 83, 81,  77, 81, 84, 89, 88, 84, 81, 77,
+  79, 83, 86, 91, 89, 86, 83, 79,  84, 0, 79, 0, 76, 0, 72, 0,
+];
+const BASS = [
+  48, 55, 48, 55, 41, 48, 41, 48, 43, 50, 43, 50, 48, 55, 48, 55,
+  45, 52, 45, 52, 41, 48, 41, 48, 43, 50, 43, 50, 48, 43, 48, 0,
+];
+const music = { timer: null, step: 0, next: 0, tempo: 132 };
+function startMusic(tempo) {
+  if (!ac) return;
+  stopMusic();
+  music.tempo = tempo; music.step = 0; music.next = ac.currentTime + .1;
+  music.timer = setInterval(scheduleMusic, 40);
+}
+function stopMusic() { clearInterval(music.timer); music.timer = null; }
+function scheduleMusic() {
+  const st = 60 / music.tempo / 2;
+  while (music.next < ac.currentTime + .25) {
+    const s = music.step, t = music.next;
+    if (MELODY[s]) playNote(musicGain, mtof(MELODY[s]), 0, t, st * .9, 'square', .022);
+    if (s % 2 === 0 && BASS[s / 2]) playNote(musicGain, mtof(BASS[s / 2]), 0, t, st * 1.8, 'triangle', .09);
+    if (s % 2 === 1) playNote(musicGain, 6000, 3000, t, .03, 'square', .006);
+    music.next += st;
+    music.step = (s + 1) % MELODY.length;
+  }
+}
+
+// ---------- state ----------
+let best = 0;
+try { best = +localStorage.getItem('superTyperBest') || 0; } catch (e) {}
+
+let state = 'title';        // title | playing | paused | clear | over | win
+let off = 0, clock = 0;
+let hero, enemies, blocks, items, popups, praise, lock;
+let score, coins, lives, stage, cleared, stageDone, doneT, combo, bestCombo;
+let correct, wrong, playTime, spawnT, blockT, banner, shake;
+
+const cfg = () => STAGES[stage];
+const prog = () => Math.min(1, cleared / cfg().goal);
+const lerp = (a, b, p) => a + (b - a) * p;
+
+function resetStage() {
+  hero = { x: HOME, y: GROUND - 16, act: null, queue: [], inv: 0 };
+  enemies = []; blocks = []; items = [];
+  lock = null; cleared = 0; stageDone = false; doneT = 0;
+  spawnT = 1.5; blockT = 5; banner = 2.5;
+}
+
+function resetAll() {
+  stage = 0;
+  score = 0; coins = 0; lives = 3; combo = 0; bestCombo = 0;
+  correct = 0; wrong = 0; playTime = 0; shake = 0;
+  popups = []; praise = null;
+  resetStage();
+}
+resetAll();
+
+function start() {
+  ensureAudio();
+  resetAll();
+  state = 'playing';
+  sfx.start();
+  startMusic(cfg().tempo);
+}
+
+function nextStage() {
+  stage++;
+  resetStage();
+  state = 'playing';
+  sfx.start();
+  startMusic(cfg().tempo);
+}
+
+function saveBest() {
+  if (score > best) { best = score; try { localStorage.setItem('superTyperBest', best); } catch (e) {} }
+}
+
+function gameOver() {
+  state = 'over';
+  stopMusic(); saveBest(); sfx.over();
+}
+
+function stageClear() {
+  stopMusic();
+  score += 1000;
+  if (stage === STAGES.length - 1) {
+    state = 'win'; saveBest(); sfx.win();
+  } else {
+    state = 'clear'; lives = Math.min(5, lives + 1); sfx.clear();
+  }
+}
+
+function isTargetable(t) {
+  if (t.kind === 'enemy') return t.state === 'walk';
+  return t.state === 'idle' && t.x > 20 && t.x < W - 20;
+}
+const targets = () => [...enemies, ...blocks].filter(isTargetable);
+
+function pickWord(pool) {
+  const live = [...enemies, ...blocks].filter(t => t.state === 'walk' || t.state === 'idle');
+  const used = new Set(live.map(t => t.word[0]));
+  for (let i = 0; i < 40; i++) {
+    const w = pool[Math.random() * pool.length | 0];
+    if (!used.has(w[0])) return w;
+  }
+  return null;
+}
+
+function spawnEnemy() {
+  const c = cfg();
+  const fast = stage === 0 && prog() > .4 && Math.random() < .2;
+  const word = pickWord(fast ? SHORT : c.pool(prog()));
+  if (!word) return false;
+  // keep labels from overlapping: wait until the newest enemy has walked far enough in
+  const newest = enemies.filter(e => e.state === 'walk').sort((a, b) => b.x - a.x)[0];
+  if (newest && (W + 8) - newest.x < 12 + (labelWidth(newest.word) + labelWidth(word)) / 2) return false;
+  enemies.push({
+    kind: 'enemy', word, typed: 0, err: 0, mistakes: 0, fast,
+    x: W + 8, y: GROUND - 15, speed: lerp(c.speed[0], c.speed[1], prog()) * (fast ? 1.5 : 1) * (.9 + Math.random() * .2),
+    state: 'walk', anim: Math.random(), t: 0, vy: 0,
+  });
+  return true;
+}
+
+function spawnBlock() {
+  const word = pickWord(SHORT);
+  if (!word) return;
+  blocks.push({ kind: 'block', word, typed: 0, err: 0, mistakes: 0, x: W + 8, y: GROUND - (stage === 2 ? 84 : 64), state: 'idle', bump: 0 });
+}
+
+function popup(text, x, y, color = '#fff') { popups.push({ text, x, y, t: 0, color }); }
+function cheer(text) { praise = { text, t: 0 }; }
+
+// ---------- typing ----------
+function handleChar(ch) {
+  if (state !== 'playing' || stageDone) return;
+  ch = ch.toLowerCase();
+  if (!/^[a-z ]$/.test(ch)) return;
+  if (!lock) {
+    if (ch === ' ') return;   // a stray space between words isn't a mistake
+    const cands = targets().filter(t => t.word[0] === ch).sort((a, b) => a.x - b.x);
+    if (!cands.length) return miss();
+    lock = cands[0];
+    lock.typed = 0;
+  }
+  if (lock.word[lock.typed] === ch) {
+    lock.typed++; correct++;
+    sfx.key(lock.typed / lock.word.length);
+    if (lock.typed === lock.word.length) complete(lock);
+  } else {
+    miss();
+  }
+}
+
+function miss() {
+  wrong++; combo = 0; sfx.miss();
+  if (lock) { lock.err = .25; lock.mistakes++; }
+}
+
+function releaseLock() {
+  if (lock) { lock.typed = 0; lock = null; }
+}
+
+const PRAISE = ['NICE!', 'GOOD JOB!', 'GREAT!', 'SUPER!', 'WELL DONE!'];
+function complete(t) {
+  lock = null;
+  combo++; bestCombo = Math.max(bestCombo, combo);
+  const perfect = t.mistakes === 0;
+  const pts = t.word.length * 10 + Math.min(combo, 20) * 5 + (perfect ? 20 : 0);
+  score += pts;
+  popup('+' + pts, t.x + 8, t.y - 14, '#ffd700');
+  if (combo % 5 === 0) { cheer(combo >= 10 ? 'AMAZING!' : 'AWESOME!'); sfx.combo(); }
+  else { cheer(perfect ? 'PERFECT!' : PRAISE[Math.random() * PRAISE.length | 0]); sfx.done(perfect); }
+  t.state = t.kind === 'enemy' ? 'stunned' : 'claimed';
+  hero.queue.push(t);
+}
+
+// ---------- hero movement ----------
+function startGo(target) {
+  const fromX = hero.x, fromY = hero.y;
+  let toX = target.x + 2, toY, h;
+  if (target.kind === 'enemy') { toY = GROUND - 28; h = 36; }
+  else { toY = target.y + 16; h = 10; }
+  const T = .28 + Math.abs(toX - fromX) / 700;
+  if (target.kind === 'block') toX -= SCROLL * T;
+  hero.act = { kind: 'go', target, fromX, fromY, toX, toY, h, T, t: 0 };
+  sfx.jump();
+}
+function startBack() {
+  const d = Math.abs(hero.x - HOME);
+  hero.act = { kind: 'back', fromX: hero.x, fromY: hero.y, toX: HOME, toY: GROUND - 16, h: 14, T: .22 + d / 900, t: 0 };
+}
+
+function arrive(target) {
+  if (target.kind === 'enemy') {
+    target.state = 'squashed'; target.t = .45;
+    sfx.stomp();
+    cleared++;
+    if (cleared >= cfg().goal) { stageDone = true; doneT = 1.2; }
+  } else {
+    target.state = 'used'; target.bump = .2;
+    if (lives < 5 && Math.random() < .18) {
+      items.push({ kind: 'mush', x: target.x, y: target.y, t: 0 });
+      lives++; sfx.yum(); popup('1UP', target.x + 8, target.y - 20, '#7cfc00');
+    } else {
+      items.push({ kind: 'coin', x: target.x + 4, y: target.y - 10, t: 0 });
+      coins++; score += 50; sfx.coin();
+      if (coins % 25 === 0) { lives++; setTimeout(sfx.yum, 300); popup('1UP', HOME, GROUND - 40, '#7cfc00'); }
+    }
+  }
+}
+
+function hurt(e) {
+  e.state = 'dead'; e.vy = -120;
+  if (lock === e) lock = null;
+  if (hero.inv > 0) return;
+  lives--; hero.inv = 1.6; shake = .3; combo = 0;
+  sfx.hurt();
+  popup('OUCH!', HOME + 6, GROUND - 34, '#ff5050');
+  if (lives <= 0) gameOver();
+}
+
+// ---------- update ----------
+function update(dt) {
+  if (state === 'paused') return;
+  clock += dt;
+  if (state !== 'over') off += SCROLL * dt;
+  shake = Math.max(0, shake - dt);
+  for (const p of popups) p.t += dt;
+  popups = popups.filter(p => p.t < .9);
+  if (praise) { praise.t += dt; if (praise.t > 1) praise = null; }
+  if (state !== 'playing') return;
+
+  playTime += dt;
+  banner = Math.max(0, banner - dt);
+  hero.inv = Math.max(0, hero.inv - dt);
+  const c = cfg();
+
+  // spawning: never put more enemies out than are still needed to clear the stage
+  if (!stageDone) {
+    spawnT -= dt;
+    if (spawnT <= 0) {
+      const active = enemies.filter(e => e.state === 'walk' || e.state === 'stunned').length;
+      const room = enemies.filter(e => e.state === 'walk').length < c.maxW && active < c.goal - cleared;
+      spawnT = room && !spawnEnemy() ? .3 : lerp(c.interval[0], c.interval[1], prog()) * (.7 + Math.random() * .6);
+    }
+    blockT -= dt;
+    if (blockT <= 0) { spawnBlock(); blockT = 6 + Math.random() * 6; }
+  }
+
+  // enemies
+  for (const e of enemies) {
+    e.err = Math.max(0, e.err - dt);
+    if (e.state === 'walk') {
+      e.x -= e.speed * dt; e.anim += dt;
+      if (e.x < HOME + 4) hurt(e);
+    } else if (e.state === 'squashed') {
+      e.t -= dt; e.x -= SCROLL * dt;
+    } else if (e.state === 'dead') {
+      e.vy += 420 * dt; e.y += e.vy * dt; e.x -= 20 * dt;
+    }
+  }
+  enemies = enemies.filter(e => !(e.state === 'squashed' && e.t <= 0) && e.y < H + 20);
+  if (state !== 'playing') return;   // a hit may have ended the game
+
+  // blocks
+  for (const b of blocks) {
+    b.x -= SCROLL * dt;
+    b.bump = Math.max(0, b.bump - dt);
+    b.err = Math.max(0, b.err - dt);
+  }
+  blocks = blocks.filter(b => b.x > -20);
+
+  // items
+  for (const it of items) { it.t += dt; it.x -= SCROLL * dt; }
+  items = items.filter(it => it.t < (it.kind === 'coin' ? .6 : 1));
+
+  if (lock && !isTargetable(lock)) releaseLock();
+
+  // hero
+  if (!hero.act && hero.queue.length) startGo(hero.queue.shift());
+  const a = hero.act;
+  if (a) {
+    a.t += dt;
+    const p = Math.min(1, a.t / a.T);
+    hero.x = a.fromX + (a.toX - a.fromX) * p;
+    hero.y = a.fromY + (a.toY - a.fromY) * p - 4 * a.h * p * (1 - p);
+    if (p >= 1) {
+      if (a.kind === 'go') {
+        arrive(a.target);
+        if (hero.queue.length) startGo(hero.queue.shift()); else startBack();
+      } else {
+        hero.act = null; hero.y = GROUND - 16;
+      }
+    }
+  }
+
+  if (stageDone && !hero.act && !hero.queue.length) {
+    doneT -= dt;
+    if (doneT <= 0) stageClear();
+  }
+}
+
+// ---------- drawing ----------
+function txt(s, x, y, color = '#fff', align = 'left', size = 8) {
+  ctx.font = `${size}px ${FONT}`;
+  ctx.textAlign = align; ctx.textBaseline = 'top';
+  ctx.fillStyle = '#000'; ctx.fillText(s, x + 1, y + 1);
+  ctx.fillStyle = color; ctx.fillText(s, x, y);
+}
+
+// split into lines of at most `max` chars, breaking after spaces; returns [start, end) index pairs
+function wrap(s, max) {
+  const lines = [];
+  let start = 0;
+  while (start < s.length) {
+    if (s.length - start <= max) { lines.push([start, s.length]); break; }
+    let cut = s.lastIndexOf(' ', start + max);
+    if (cut <= start) cut = start + max - 1;
+    lines.push([start, cut + 1]);
+    start = cut + 1;
+  }
+  return lines;
+}
+
+function labelWidth(word) {
+  return Math.max(...wrap(word, cfg().wrap).map(([a, b]) => word.slice(a, b).trimEnd().length)) * 8;
+}
+
+function drawLabel(t, cx, bottom, clampRight) {
+  const word = t.word.toUpperCase();
+  const lines = wrap(word, cfg().wrap);
+  const w = labelWidth(word);
+  const h = lines.length * 11;
+  let x = Math.round(Math.max(5, cx - w / 2));
+  if (clampRight) x = Math.min(W - w - 5, x);
+  const y = bottom - h;
+  const active = lock === t;
+  ctx.fillStyle = 'rgba(0,0,0,.65)';
+  ctx.fillRect(x - 3, y - 2, w + 6, h + 1);
+  if (active) { ctx.strokeStyle = t.err ? '#ff4040' : '#ffd700'; ctx.lineWidth = 1; ctx.strokeRect(x - 3.5, y - 2.5, w + 7, h + 2); }
+  ctx.font = `8px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  lines.forEach(([a, b], li) => {
+    for (let i = a; i < b; i++) {
+      const cx = x + (i - a) * 8, cy = y + li * 11;
+      const done = active && i < t.typed;
+      ctx.fillStyle = done ? '#ffd700' : (t.err && i === t.typed ? '#ff4040' : '#fff');
+      ctx.fillText(word[i], cx, cy);
+      if (active && i === t.typed) { ctx.fillStyle = '#ffd700'; ctx.fillRect(cx, cy + 8, 7, 1); }
+    }
+  });
+}
+
+function drawWorld() {
+  ctx.fillStyle = '#6b8cff';
+  ctx.fillRect(0, 0, W, H);
+  for (const s of SCENERY) {
+    const sx = Math.round(((s.x - off * s.f) % P + P) % P - 100);
+    if (sx < W && sx + s.img.width > 0) ctx.drawImage(s.img, sx, s.y);
+  }
+  const gx = -Math.round(off % 16);
+  for (let x = gx; x < W; x += 16) {
+    ctx.drawImage(BRICK, x, GROUND);
+    ctx.drawImage(BRICK, x, GROUND + 16);
+  }
+}
+
+function drawHero() {
+  if (hero.inv > 0 && Math.floor(clock * 12) % 2) return;
+  let img;
+  if (hero.act || hero.y < GROUND - 16.5) img = HERO.jump;
+  else if (state === 'over') img = HERO.runA;
+  else img = Math.floor(clock * 9) % 2 ? HERO.runA : HERO.runB;
+  ctx.drawImage(img, Math.round(hero.x), Math.round(hero.y));
+}
+
+function drawEntities() {
+  for (const b of blocks) {
+    const by = Math.round(b.y - Math.sin((b.bump / .2) * Math.PI) * 4);
+    ctx.drawImage(b.state === 'used' ? USED : QBLOCK, Math.round(b.x), by);
+  }
+  for (const it of items) {
+    if (it.kind === 'coin') {
+      const p = it.t / .6;
+      const y = it.y - 40 * Math.sin(p * Math.PI * .9);
+      const sx = Math.abs(Math.cos(it.t * 18));
+      ctx.save();
+      ctx.translate(Math.round(it.x + 4), Math.round(y));
+      ctx.scale(Math.max(.15, sx), 1);
+      ctx.drawImage(COIN, -4, 0);
+      ctx.restore();
+    } else {
+      const y = it.y - Math.min(1, it.t / .4) * 14;
+      ctx.drawImage(MUSH, Math.round(it.x), Math.round(y));
+    }
+  }
+  for (const e of enemies) {
+    const set = e.fast ? ENEMY.fast : ENEMY.normal;
+    const x = Math.round(e.x), y = Math.round(e.y);
+    if (e.state === 'squashed') {
+      ctx.drawImage(set.a, x, GROUND - 6, 16, 6);
+    } else if (e.state === 'dead') {
+      ctx.save(); ctx.translate(x, y + 15); ctx.scale(1, -1); ctx.drawImage(set.a, 0, 0); ctx.restore();
+    } else {
+      const img = e.state === 'stunned' ? set.a : (Math.floor(e.anim * 6) % 2 ? set.a : set.b);
+      const jx = e.state === 'stunned' ? Math.round(Math.sin(clock * 50)) : 0;
+      ctx.drawImage(img, x + jx, y);
+    }
+  }
+}
+
+function drawLabels() {
+  // locked target last so it sits on top
+  const list = targets().sort((a, b) => (a === lock) - (b === lock));
+  const single = cfg().maxW === 1;
+  for (const t of list) drawLabel(t, t.x + 8, t.y - 4, t.kind === 'block' || single);
+}
+
+function wpm() { return playTime > 5 ? Math.round(correct / 5 / (playTime / 60)) : 0; }
+function accuracy() { return correct + wrong ? Math.round(100 * correct / (correct + wrong)) : 100; }
+
+function drawHUD() {
+  const cols = [['SCORE', String(score).padStart(6, '0'), 12], ['COINS', '×' + String(coins).padStart(2, '0'), 100],
+                ['STAGE', `${stage + 1} ${cleared}/${cfg().goal}`, 170], ['LIVES', '♥'.repeat(Math.max(0, Math.min(lives, 5))), 262],
+                ['WPM', String(wpm()), 346]];
+  for (const [label, val, x] of cols) {
+    txt(label, x, 8);
+    txt(val, x, 19, label === 'LIVES' ? '#ff5a5a' : '#fff');
+  }
+  // stage progress bar
+  ctx.fillStyle = '#000'; ctx.fillRect(170, 30, 58, 4);
+  ctx.fillStyle = '#7cfc00'; ctx.fillRect(171, 31, Math.round(56 * prog()), 2);
+  if (combo >= 3 && state === 'playing') txt(`COMBO ×${combo}`, W / 2, 40, '#ffd700', 'center');
+}
+
+const RAINBOW = ['#ffd700', '#ff7ab8', '#7cfc00', '#5ad7ff', '#ffa040'];
+function drawPraise() {
+  if (!praise) return;
+  const p = praise.t;
+  const size = p < .12 ? 8 : 16;
+  const color = RAINBOW[Math.floor(p * 12) % RAINBOW.length];
+  txt(praise.text, W / 2, 62 - p * 10, color, 'center', size);
+}
+
+function drawPlaque(y) {
+  const x = 90, w = 220, h = 78;
+  ctx.fillStyle = '#000'; ctx.fillRect(x + 3, y + 3, w, h);
+  ctx.fillStyle = '#c84c0c'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#ffb08c'; ctx.fillRect(x, y, w, 2); ctx.fillRect(x, y, 2, h);
+  ctx.fillStyle = '#5a1a00'; ctx.fillRect(x, y + h - 2, w, 2); ctx.fillRect(x + w - 2, y, 2, h);
+  ctx.fillStyle = '#fcd8a8';
+  [[5, 5], [w - 8, 5], [5, h - 8], [w - 8, h - 8]].forEach(([a, b]) => ctx.fillRect(x + a, y + b, 3, 3));
+  txt('SUPER', x + 18, y + 12, '#fcd8a8', 'left', 16);
+  txt('TYPER', x + w / 2, y + 36, '#fcd8a8', 'center', 28);
+}
+
+function overlay(alpha = .55) { ctx.fillStyle = `rgba(0,0,0,${alpha})`; ctx.fillRect(0, 0, W, H); }
+const blink = () => Math.floor(clock * 2.5) % 2 === 0;
+
+function statRows(y) {
+  const rows = [['SCORE', score], ['BEST', best], ['WPM', wpm()], ['ACCURACY', accuracy() + '%'], ['BEST COMBO', bestCombo]];
+  rows.forEach(([k, v], i) => { txt(k, 120, y + i * 13); txt(String(v), 280, y + i * 13, '#ffd700', 'right'); });
+}
+
+function draw() {
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  if (shake > 0) ctx.translate(Math.round((Math.random() - .5) * 4), Math.round((Math.random() - .5) * 4));
+
+  drawWorld();
+  drawEntities();
+  drawHero();
+  if (state === 'playing' || state === 'paused') drawLabels();
+  for (const p of popups) txt(p.text, p.x, p.y - p.t * 22, p.color, 'center');
+
+  if (state === 'title') {
+    drawPlaque(16);
+    txt(`TOP- ${String(best).padStart(6, '0')}`, W / 2, 102, '#fff', 'center');
+    STAGES.forEach((s, i) => txt(`STAGE ${i + 1}: ${s.name}`, W / 2, 120 + i * 12, '#fff', 'center'));
+    if (blink()) txt('PRESS ENTER TO START', W / 2, 164, '#ffd700', 'center');
+    return;
+  }
+
+  drawHUD();
+  if (state === 'playing') drawPraise();
+
+  if (banner > 0 && state === 'playing') {
+    txt(`STAGE ${stage + 1}`, W / 2, 74, '#fff', 'center', 16);
+    txt(cfg().name, W / 2, 96, '#ffd700', 'center');
+  }
+  if (state === 'paused') {
+    overlay();
+    txt('PAUSED', W / 2, 88, '#fff', 'center', 16);
+    txt('PRESS ESC TO RESUME', W / 2, 116, '#ffd700', 'center');
+  }
+  if (state === 'clear') {
+    overlay(.6);
+    txt(`STAGE ${stage + 1} CLEAR!`, W / 2, 50, RAINBOW[Math.floor(clock * 8) % RAINBOW.length], 'center', 16);
+    txt('BONUS +1000   EXTRA LIFE!', W / 2, 74, '#7cfc00', 'center');
+    txt(`NEXT: ${STAGES[stage + 1].name}`, W / 2, 92, '#fff', 'center');
+    txt(`SCORE ${score}   WPM ${wpm()}   ACC ${accuracy()}%`, W / 2, 112, '#fff', 'center');
+    if (blink()) txt(`PRESS ENTER FOR STAGE ${stage + 2}`, W / 2, 160, '#ffd700', 'center');
+  }
+  if (state === 'win') {
+    overlay(.6);
+    txt('YOU WIN!', W / 2, 44, RAINBOW[Math.floor(clock * 8) % RAINBOW.length], 'center', 16);
+    statRows(74);
+    if (blink()) txt('PRESS ENTER TO PLAY AGAIN', W / 2, 160, '#ffd700', 'center');
+  }
+  if (state === 'over') {
+    overlay(.7);
+    txt('GAME OVER', W / 2, 44, '#fff', 'center', 16);
+    txt(`REACHED STAGE ${stage + 1}`, W / 2, 64, '#ffd700', 'center');
+    statRows(84);
+    if (blink()) txt('PRESS ENTER TO PLAY AGAIN', W / 2, 160, '#ffd700', 'center');
+  }
+}
+
+// ---------- input ----------
+function togglePause() {
+  if (state === 'playing') { state = 'paused'; stopMusic(); }
+  else if (state === 'paused') { state = 'playing'; startMusic(cfg().tempo); }
+  pauseBtn.textContent = state === 'paused' ? 'RESUME' : 'PAUSE';
+}
+
+function onEnter() {
+  if (state === 'title' || state === 'over' || state === 'win') start();
+  else if (state === 'clear') nextStage();
+}
+
+kb.addEventListener('input', () => {
+  const v = kb.value; kb.value = '';
+  ensureAudio();
+  for (const ch of v) handleChar(ch);
+});
+
+addEventListener('keydown', e => {
+  ensureAudio();
+  if (e.key === 'Escape') { togglePause(); e.preventDefault(); return; }
+  if (e.key === 'Enter') { onEnter(); e.preventDefault(); return; }
+  if (e.key === 'Backspace') { releaseLock(); e.preventDefault(); return; }
+  if (e.key.length === 1 && !e.metaKey && !e.ctrlKey && document.activeElement !== kb) {
+    handleChar(e.key);
+    e.preventDefault();
+    kb.focus({ preventScroll: true });
+  }
+});
+
+cv.addEventListener('pointerdown', () => {
+  ensureAudio();
+  kb.focus({ preventScroll: true });
+  onEnter();
+});
+
+document.getElementById('homeBtn').addEventListener('click', () => {
+  window.location.href = 'https://reubenask.github.io/emerald-hills/platform.html';
+});
+const musicBtn = document.getElementById('musicBtn');
+const sfxBtn = document.getElementById('sfxBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+musicBtn.addEventListener('click', () => {
+  ensureAudio();
+  musicOn = !musicOn; musicBtn.textContent = 'MUSIC: ' + (musicOn ? 'ON' : 'OFF');
+  if (musicGain) musicGain.gain.value = musicOn ? 1 : 0;
+  kb.focus({ preventScroll: true });
+});
+sfxBtn.addEventListener('click', () => {
+  sfxOn = !sfxOn; sfxBtn.textContent = 'SFX: ' + (sfxOn ? 'ON' : 'OFF');
+  kb.focus({ preventScroll: true });
+});
+pauseBtn.addEventListener('click', () => { togglePause(); kb.focus({ preventScroll: true }); });
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && state === 'playing') togglePause();
+});
+
+// ---------- loop ----------
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000);
+  last = now;
+  update(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+
+const fontReady = document.fonts ? document.fonts.load(`8px ${FONT}`).catch(() => {}) : Promise.resolve();
+Promise.race([fontReady, new Promise(r => setTimeout(r, 1500))]).then(() => {
+  kb.focus({ preventScroll: true });
+  requestAnimationFrame(frame);
+});
+})();
+</script>
+</body>
+</html>
