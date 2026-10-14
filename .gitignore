@@ -5,3 +5,4 @@ dist/
 build/
 *.tsbuildinfo
 supabase/.local/
+Trial Outputs/
