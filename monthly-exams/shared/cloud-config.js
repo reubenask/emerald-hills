@@ -1,0 +1,2 @@
+// Public connection settings only. Never put a Gemini or service-role secret here.
+window.MONTHLY_CLOUD_CONFIG = {url:'https://vknfagvmdirmpgtjlhjr.supabase.co',publicKey:'sb_publishable_g85Loxtt0VYr3KCmAlf3lg_ukHXxCdj',gatewayKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrbmZhZ3ZtZGlybXBndGpsaGpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5NTU2NjAsImV4cCI6MjEwNzUzMTY2MH0.yWZK7VL0jcuaRz-v8wtgGTtqUfsxPwWWaX5xFdoiMfE'};
