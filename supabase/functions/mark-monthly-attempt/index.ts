@@ -13,7 +13,7 @@ import ibtKey from "./keys/ibt.json" with { type: "json" };
 import primaryRubric from "./rubrics/primary-step2.json" with { type: "json" };
 import itpRubric from "./rubrics/itp.json" with { type: "json" };
 import ibtRubric from "./rubrics/ibt.json" with { type: "json" };
-import { type Add, markObjective, type Note } from "./objective.ts";
+import { markObjective, type Note } from "./objective.ts";
 import { markWithGemini } from "./ai.ts";
 import { buildReport, sendReport } from "./report.ts";
 
