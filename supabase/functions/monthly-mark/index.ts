@@ -30,7 +30,7 @@ async function gemini(prompt: string, audio?: {data:string,mime:string}) {
     method:'POST',headers:{'x-goog-api-key':key,'Content-Type':'application/json'},
     body:JSON.stringify({model,store:false,input}),signal:AbortSignal.timeout(55000)
   });
-  if(!r.ok)throw Error('Provider HTTP '+r.status);
+  if(!r.ok)throw Error('Provider HTTP '+r.status+' '+(await r.text()).slice(0,400));
   const result=await r.json();
   const text=result.output_text || (result.outputs||[]).map((p:any)=>p.text||'').join('');
   if(!text.trim())throw Error('Provider returned no output');
