@@ -1,0 +1,54 @@
+{
+ "exam_id": "itp",
+ "level": "TOEFL ITP / Junior preparation (roughly CEFR A2-B2)",
+ "tasks": [
+  {
+   "section": "writing", "task_key": "task2-email", "kind": "writing", "answer": "email", "max_score": 5,
+   "prompt": "Reply to Maria's email about the end-of-term class trip. Answer all three questions with reasons, in complete sentences: (1) Where should the class go, and why? (2) Should students bring their own lunch or buy food there, and why? (3) What is the best way to let everyone know the trip details and schedule?",
+   "criteria": [
+    {"name": "Task completion", "max": 2, "guide": "2 = answers all three questions with a reason for each; 1 = answers two, or reasons missing; 0 = answers one or none."},
+    {"name": "Language", "max": 2, "guide": "2 = mostly accurate grammar and suitable vocabulary; 1 = noticeable errors that sometimes obscure meaning; 0 = very limited."},
+    {"name": "Email conventions", "max": 1, "guide": "1 = greeting, friendly tone and closing; 0 = missing."}
+   ]
+  },
+  {
+   "section": "writing", "task_key": "task3-opinion", "kind": "writing", "answer": "opinion", "max_score": 5,
+   "prompt": "Your school has an empty outdoor area. Some students want a vegetable garden, others want a place for sports. Which should the school choose, and why? About 100-150 words: state your opinion, give two reasons and a specific example, use linking words, finish with a conclusion.",
+   "criteria": [
+    {"name": "Position and support", "max": 2, "guide": "2 = clear opinion, two reasons and a specific example; 1 = opinion with thin or one reason; 0 = no clear position."},
+    {"name": "Organisation", "max": 1, "guide": "1 = linking words and a conclusion; 0 = list of unconnected sentences."},
+    {"name": "Language", "max": 2, "guide": "2 = mostly accurate and varied; 1 = frequent errors; 0 = very limited. Do not penalise length between 80 and 180 words."}
+   ]
+  },
+  {
+   "section": "speaking", "task_key": "task1-read-aloud", "kind": "speaking", "clip": "speaking-1", "max_score": 5,
+   "prompt": "Read the passage aloud with natural pacing and intonation. 60 seconds.",
+   "reference": "Wild Robots. The concept of a wild robot is maybe the most fascinating intersection of technology and nature. The narrative involves a programmed machine learning to survive among wild animals on a remote island. In this unique environment, adaptation is seen as a necessary part of the survival cycle. Animals initially believe that machines should be treated with caution, not with immediate trust. It is also shown that during this adjustment, the robot has the ability to override its own coding to connect with the natural world. Nests are made to shelter an orphaned bird. The robot can learn the animals' complex languages, and the machine brings warmth to the forest, so the wildlife can survive the freezing winter.",
+   "criteria": [
+    {"name": "Accuracy", "max": 2, "guide": "Compare with the reference: 2 = almost every word correct; 1 = several omissions or misreadings; 0 = large parts missing."},
+    {"name": "Pronunciation and intonation", "max": 2, "guide": "2 = clear with natural stress; 1 = some unclear words or flat delivery; 0 = mostly unintelligible."},
+    {"name": "Fluency", "max": 1, "guide": "1 = steady pace; 0 = word-by-word or many restarts."}
+   ]
+  },
+  {
+   "section": "speaking", "task_key": "task2-picture-narration", "kind": "speaking", "clip": "speaking-2", "max_score": 5,
+   "prompt": "Tell the story in pictures 1-6 (father Daniel, daughter Emma). Describe each picture and connect them using first, next, then, finally. 60 seconds.",
+   "reference": "TEACHER TO ADD: one line per picture.",
+   "criteria": [
+    {"name": "Task completion", "max": 2, "guide": "2 = connected story covering the pictures; 1 = some pictures described separately; 0 = off topic or silent."},
+    {"name": "Language", "max": 2, "guide": "2 = mostly correct, varied narration with sequencing words; 1 = simple or frequently incorrect; 0 = single words."},
+    {"name": "Delivery", "max": 1, "guide": "1 = understandable and reasonably fluent; 0 = hard to follow."}
+   ]
+  },
+  {
+   "section": "speaking", "task_key": "task3-listen-speak", "kind": "speaking", "clip": "speaking-3", "max_score": 5,
+   "prompt": "Listen to the class lesson and task prompt, then respond. 45 seconds preparation, 60 seconds speaking.",
+   "reference": "TEACHER TO ADD: the task prompt question and the main points of the lesson a good answer should mention.",
+   "criteria": [
+    {"name": "Content", "max": 2, "guide": "2 = answers the prompt using accurate points from the lesson; 1 = partly accurate or general; 0 = unrelated."},
+    {"name": "Language", "max": 2, "guide": "2 = mostly accurate and coherent; 1 = frequent errors; 0 = very limited."},
+    {"name": "Delivery", "max": 1, "guide": "1 = understandable and reasonably fluent; 0 = hard to follow."}
+   ]
+  }
+ ]
+}

@@ -1,0 +1,523 @@
+{
+ "exam_id": "ibt",
+ "exam_version": "monthly-ibt-october-2026-v1",
+ "format": "sections",
+ "sections": {
+  "vocabulary": [
+   {
+    "id": "q1",
+    "key": 0,
+    "answer": "trial"
+   },
+   {
+    "id": "q2",
+    "key": 3,
+    "answer": "optional"
+   },
+   {
+    "id": "q3",
+    "key": 2,
+    "answer": "thrown away"
+   },
+   {
+    "id": "q4",
+    "key": 1,
+    "answer": "easy to reach"
+   },
+   {
+    "id": "q5",
+    "key": 0,
+    "answer": "track"
+   },
+   {
+    "id": "q6",
+    "key": 3,
+    "answer": "first"
+   },
+   {
+    "id": "q7",
+    "key": 2,
+    "answer": "useful"
+   },
+   {
+    "id": "q8",
+    "key": 1,
+    "answer": "small"
+   },
+   {
+    "id": "q9",
+    "key": 0,
+    "answer": "change"
+   },
+   {
+    "id": "q10",
+    "key": 3,
+    "answer": "extend"
+   },
+   {
+    "id": "q11",
+    "key": 2,
+    "answer": "shelter from direct sunlight"
+   },
+   {
+    "id": "q12",
+    "key": 1,
+    "answer": "the same everywhere"
+   },
+   {
+    "id": "q13",
+    "key": 0,
+    "answer": "evaluated"
+   },
+   {
+    "id": "q14",
+    "key": 3,
+    "answer": "considerable"
+   },
+   {
+    "id": "q15",
+    "key": 2,
+    "answer": "prove"
+   },
+   {
+    "id": "q16",
+    "key": 1,
+    "answer": "in agreement"
+   },
+   {
+    "id": "q17",
+    "key": 0,
+    "answer": "suggest"
+   },
+   {
+    "id": "q18",
+    "key": 3,
+    "answer": "assign"
+   },
+   {
+    "id": "q19",
+    "key": 2,
+    "answer": "give first attention to"
+   },
+   {
+    "id": "q20",
+    "key": 1,
+    "answer": "improve"
+   },
+   {
+    "id": "q21",
+    "key": 0,
+    "answer": "opposes"
+   },
+   {
+    "id": "q22",
+    "key": 3,
+    "answer": "hand in"
+   },
+   {
+    "id": "q23",
+    "key": 2,
+    "answer": "dependable"
+   },
+   {
+    "id": "q24",
+    "key": 1,
+    "answer": "believable"
+   },
+   {
+    "id": "q25",
+    "key": 0,
+    "answer": "keep"
+   },
+   {
+    "id": "q26",
+    "key": 3,
+    "answer": "adaptable"
+   },
+   {
+    "id": "q27",
+    "key": 2,
+    "answer": "different"
+   },
+   {
+    "id": "q28",
+    "key": 1,
+    "answer": "show"
+   },
+   {
+    "id": "q29",
+    "key": 0,
+    "answer": "acquire"
+   },
+   {
+    "id": "q30",
+    "key": 3,
+    "answer": "limited"
+   },
+   {
+    "id": "q31",
+    "key": 2,
+    "answer": "differ"
+   },
+   {
+    "id": "q32",
+    "key": 1,
+    "answer": "make easier"
+   },
+   {
+    "id": "q33",
+    "key": 0,
+    "answer": "slow"
+   },
+   {
+    "id": "q34",
+    "key": 3,
+    "answer": "give reasons for"
+   },
+   {
+    "id": "q35",
+    "key": 2,
+    "answer": "clearly stated"
+   },
+   {
+    "id": "q36",
+    "key": 1,
+    "answer": "gain an advantage"
+   },
+   {
+    "id": "q37",
+    "key": 0,
+    "answer": "admits"
+   },
+   {
+    "id": "q38",
+    "key": 3,
+    "answer": "sufficient"
+   },
+   {
+    "id": "q39",
+    "key": 2,
+    "answer": "decrease"
+   },
+   {
+    "id": "q40",
+    "key": 1,
+    "answer": "brief"
+   },
+   {
+    "id": "q41",
+    "key": 0,
+    "answer": "adjust"
+   },
+   {
+    "id": "q42",
+    "key": 3,
+    "answer": "help cause"
+   },
+   {
+    "id": "q43",
+    "key": 2,
+    "answer": "large"
+   },
+   {
+    "id": "q44",
+    "key": 1,
+    "answer": "possible to carry out"
+   },
+   {
+    "id": "q45",
+    "key": 0,
+    "answer": "settle"
+   },
+   {
+    "id": "q46",
+    "key": 3,
+    "answer": "removes"
+   },
+   {
+    "id": "q47",
+    "key": 2,
+    "answer": "modify"
+   },
+   {
+    "id": "q48",
+    "key": 1,
+    "answer": "limited-access"
+   },
+   {
+    "id": "q49",
+    "key": 0,
+    "answer": "possible consequences"
+   },
+   {
+    "id": "q50",
+    "key": 3,
+    "answer": "work together"
+   }
+  ],
+  "reading": [
+   {
+    "id": "q1",
+    "key": 0,
+    "answer": "purchase"
+   },
+   {
+    "id": "q2",
+    "key": 3,
+    "answer": "ancient"
+   },
+   {
+    "id": "q3",
+    "key": 2,
+    "answer": "role"
+   },
+   {
+    "id": "q4",
+    "key": 1,
+    "answer": "avoid"
+   },
+   {
+    "id": "q5",
+    "key": 0,
+    "answer": "recommended"
+   },
+   {
+    "id": "q6",
+    "key": 3,
+    "answer": "To explain new booking rules"
+   },
+   {
+    "id": "q7",
+    "key": 2,
+    "answer": "Two hours"
+   },
+   {
+    "id": "q8",
+    "key": 1,
+    "answer": "The room may be reassigned"
+   },
+   {
+    "id": "q9",
+    "key": 0,
+    "answer": "Water in a closed bottle"
+   },
+   {
+    "id": "q10",
+    "key": 3,
+    "answer": "A student using an individual quiet-study desk"
+   },
+   {
+    "id": "q11",
+    "key": 2,
+    "answer": "Green infrastructure can complement conventional flood control"
+   },
+   {
+    "id": "q12",
+    "key": 1,
+    "answer": "The amount of water can exceed their capacity"
+   },
+   {
+    "id": "q13",
+    "key": 0,
+    "answer": "It lets water pass through its surface"
+   },
+   {
+    "id": "q14",
+    "key": 3,
+    "answer": "Improved water quality"
+   },
+   {
+    "id": "q15",
+    "key": 2,
+    "answer": "blocked"
+   },
+   {
+    "id": "q16",
+    "key": 1,
+    "answer": "It can reduce the effectiveness of a rain garden"
+   },
+   {
+    "id": "q17",
+    "key": 0,
+    "answer": "To show that location affects performance"
+   },
+   {
+    "id": "q18",
+    "key": 3,
+    "answer": "Some residents may lack time for regular maintenance"
+   },
+   {
+    "id": "q19",
+    "key": 2,
+    "answer": "Supportive, while recognizing limitations"
+   },
+   {
+    "id": "q20",
+    "key": 1,
+    "answer": "Use several coordinated approaches to manage rainwater"
+   }
+  ]
+ },
+ "arrangements": [
+  {
+   "id": "s0",
+   "context": "Where can I find the workshop schedule?",
+   "answer": "You can find it on the department website.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ],
+    [
+     0,
+     2,
+     1,
+     3
+    ]
+   ]
+  },
+  {
+   "id": "s1",
+   "context": "Did you finish the report?",
+   "answer": "I will submit it after I check the figures.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ],
+    [
+     3,
+     0,
+     2,
+     1
+    ]
+   ]
+  },
+  {
+   "id": "s2",
+   "context": "Why was the meeting postponed?",
+   "answer": "The speaker was unable to travel because of the storm.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ],
+    [
+     0,
+     2,
+     1,
+     3
+    ]
+   ]
+  },
+  {
+   "id": "s3",
+   "context": "Do you know where the new laboratory is?",
+   "answer": "It is next to the building that houses the library.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ]
+   ]
+  },
+  {
+   "id": "s4",
+   "context": "Can we begin the experiment now?",
+   "answer": "We need to wait until the equipment has cooled down.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ],
+    [
+     3,
+     0,
+     2,
+     1
+    ]
+   ]
+  },
+  {
+   "id": "s5",
+   "context": "What did the professor ask us to do?",
+   "answer": "She asked us to explain why the results were different.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ]
+   ]
+  },
+  {
+   "id": "s6",
+   "context": "How was the lecture?",
+   "answer": "It was more interesting than I had expected.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ]
+   ]
+  },
+  {
+   "id": "s7",
+   "context": "Are you joining the field trip?",
+   "answer": "I would like to know how much the trip costs.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ]
+   ]
+  },
+  {
+   "id": "s8",
+   "context": "What should I include in my application?",
+   "answer": "You should include the documents that were listed in the email.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ]
+   ]
+  },
+  {
+   "id": "s9",
+   "context": "Will the project be ready on time?",
+   "answer": "We can finish it if everyone completes their part.",
+   "acceptedOrders": [
+    [
+     1,
+     3,
+     0,
+     2
+    ],
+    [
+     3,
+     0,
+     2,
+     1
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,453 @@
+{
+ "exam_id": "primary-step2",
+ "exam_version": "primary-step2-monthly-2026-v1",
+ "format": "booklet",
+ "sections": {
+  "reading": [
+   {
+    "id": "r0",
+    "key": "1",
+    "answer": "Birds"
+   },
+   {
+    "id": "r1",
+    "key": "0",
+    "answer": "Her grandfather"
+   },
+   {
+    "id": "r2",
+    "key": "3",
+    "answer": "It was her birthday."
+   },
+   {
+    "id": "r3",
+    "key": "2",
+    "answer": "In the library"
+   },
+   {
+    "id": "r4",
+    "key": "1",
+    "answer": "Reading some long words"
+   },
+   {
+    "id": "r5",
+    "key": "0",
+    "answer": "On Friday"
+   },
+   {
+    "id": "r6",
+    "key": "3",
+    "answer": "She had not spoken in front of the class before."
+   },
+   {
+    "id": "r7",
+    "key": "2",
+    "answer": "By holding the book while she talked"
+   },
+   {
+    "id": "r8",
+    "key": "1",
+    "answer": "They practised together."
+   },
+   {
+    "id": "r9",
+    "key": "0",
+    "answer": "A friend helps a girl share her book with the class."
+   },
+   {
+    "id": "r10",
+    "key": "3",
+    "answer": "On Saturday morning"
+   },
+   {
+    "id": "r11",
+    "key": "2",
+    "answer": "By the lake"
+   },
+   {
+    "id": "r12",
+    "key": "1",
+    "answer": "Sandwiches"
+   },
+   {
+    "id": "r13",
+    "key": "0",
+    "answer": "A red ball"
+   },
+   {
+    "id": "r14",
+    "key": "3",
+    "answer": "It began to rain."
+   },
+   {
+    "id": "r15",
+    "key": "2",
+    "answer": "Ducks swimming"
+   },
+   {
+    "id": "r16",
+    "key": "1",
+    "answer": "Sad because something you wanted did not happen"
+   },
+   {
+    "id": "r17",
+    "key": "0",
+    "answer": "He made up a guessing game."
+   },
+   {
+    "id": "r18",
+    "key": "3",
+    "answer": "The rain stopped."
+   },
+   {
+    "id": "r19",
+    "key": "2",
+    "answer": "They picked up their rubbish."
+   }
+  ],
+  "vocabulary": [
+   {
+    "id": "v0",
+    "key": "1",
+    "answer": "a person who lives near you"
+   },
+   {
+    "id": "v1",
+    "key": "0",
+    "answer": "the area around the place where you live"
+   },
+   {
+    "id": "v2",
+    "key": "3",
+    "answer": "very good or exciting"
+   },
+   {
+    "id": "v3",
+    "key": "2",
+    "answer": "a very large area of salt water"
+   },
+   {
+    "id": "v4",
+    "key": "1",
+    "answer": "to take air into your body and let it out"
+   },
+   {
+    "id": "v5",
+    "key": "0",
+    "answer": "to take something to the person or place waiting for it"
+   },
+   {
+    "id": "v6",
+    "key": "3",
+    "answer": "so surprising or good that it makes you say wow"
+   },
+   {
+    "id": "v7",
+    "key": "2",
+    "answer": "pictures or events you see in your mind while sleeping"
+   },
+   {
+    "id": "v8",
+    "key": "1",
+    "answer": "a small sea fish, often orange with white stripes"
+   },
+   {
+    "id": "v9",
+    "key": "0",
+    "answer": "happening often or found in many places"
+   },
+   {
+    "id": "v10",
+    "key": "3",
+    "answer": "a soft object with small holes that can hold water"
+   },
+   {
+    "id": "v11",
+    "key": "2",
+    "answer": "a part of a fish that helps it move and balance in water"
+   },
+   {
+    "id": "v12",
+    "key": "1",
+    "answer": "to look around a place and learn about it"
+   },
+   {
+    "id": "v13",
+    "key": "0",
+    "answer": "a person who studies how things in the world work"
+   },
+   {
+    "id": "v14",
+    "key": "3",
+    "answer": "to stop someone from continuing by speaking or doing something"
+   },
+   {
+    "id": "v15",
+    "key": "2",
+    "answer": "to be unable to move out of a place"
+   },
+   {
+    "id": "v16",
+    "key": "1",
+    "answer": "right away, with no waiting"
+   },
+   {
+    "id": "v17",
+    "key": "0",
+    "answer": "to cut or hold something with the teeth"
+   },
+   {
+    "id": "v18",
+    "key": "3",
+    "answer": "I am very hungry"
+   },
+   {
+    "id": "v19",
+    "key": "2",
+    "answer": "a person who goes under water to swim or work"
+   },
+   {
+    "id": "v20",
+    "key": "1",
+    "answer": "to get away from a place where you are trapped"
+   },
+   {
+    "id": "v21",
+    "key": "0",
+    "answer": "to take or hold something quickly"
+   },
+   {
+    "id": "v22",
+    "key": "3",
+    "answer": "to move or do something less quickly"
+   },
+   {
+    "id": "v23",
+    "key": "2",
+    "answer": "a water tank or place where fish and other water animals are kept"
+   },
+   {
+    "id": "v24",
+    "key": "1",
+    "answer": "very dirty"
+   },
+   {
+    "id": "v25",
+    "key": "0",
+    "answer": "nice to look at"
+   },
+   {
+    "id": "v26",
+    "key": "3",
+    "answer": "to wash something with water"
+   },
+   {
+    "id": "v27",
+    "key": "2",
+    "answer": "likely to happen, but not certain"
+   },
+   {
+    "id": "v28",
+    "key": "1",
+    "answer": "a wait that makes something happen later"
+   },
+   {
+    "id": "v29",
+    "key": "0",
+    "answer": "a woman"
+   }
+  ],
+  "language": [
+   {
+    "id": "g0",
+    "key": "1",
+    "answer": "walks"
+   },
+   {
+    "id": "g1",
+    "key": "0",
+    "answer": "arrives"
+   },
+   {
+    "id": "g2",
+    "key": "3",
+    "answer": "eat"
+   },
+   {
+    "id": "g3",
+    "key": "2",
+    "answer": "works"
+   },
+   {
+    "id": "g4",
+    "key": "1",
+    "answer": "leave"
+   },
+   {
+    "id": "g5",
+    "key": "0",
+    "answer": "reads"
+   },
+   {
+    "id": "g6",
+    "key": "3",
+    "answer": "drew"
+   },
+   {
+    "id": "g7",
+    "key": "2",
+    "answer": "visited"
+   },
+   {
+    "id": "g8",
+    "key": "1",
+    "answer": "slept"
+   },
+   {
+    "id": "g9",
+    "key": "0",
+    "answer": "forgot"
+   },
+   {
+    "id": "g10",
+    "key": "3",
+    "answer": "learned"
+   },
+   {
+    "id": "g11",
+    "key": "2",
+    "answer": "found"
+   },
+   {
+    "id": "g12",
+    "key": "1",
+    "answer": "is running"
+   },
+   {
+    "id": "g13",
+    "key": "0",
+    "answer": "are making"
+   },
+   {
+    "id": "g14",
+    "key": "3",
+    "answer": "is playing"
+   },
+   {
+    "id": "g15",
+    "key": "2",
+    "answer": "am drinking"
+   },
+   {
+    "id": "g16",
+    "key": "1",
+    "answer": "is sleeping"
+   },
+   {
+    "id": "g17",
+    "key": "0",
+    "answer": "are cleaning"
+   },
+   {
+    "id": "g18",
+    "key": "3",
+    "answer": "was playing"
+   },
+   {
+    "id": "g19",
+    "key": "2",
+    "answer": "were watching"
+   },
+   {
+    "id": "g20",
+    "key": "1",
+    "answer": "was cooking"
+   },
+   {
+    "id": "g21",
+    "key": "0",
+    "answer": "were walking"
+   },
+   {
+    "id": "g22",
+    "key": "3",
+    "answer": "was tidying"
+   },
+   {
+    "id": "g23",
+    "key": "2",
+    "answer": "were flying"
+   },
+   {
+    "id": "g24",
+    "key": "1",
+    "answer": "have read"
+   },
+   {
+    "id": "g25",
+    "key": "0",
+    "answer": "has lost"
+   },
+   {
+    "id": "g26",
+    "key": "3",
+    "answer": "have sung"
+   },
+   {
+    "id": "g27",
+    "key": "2",
+    "answer": "has washed"
+   },
+   {
+    "id": "g28",
+    "key": "1",
+    "answer": "have lived"
+   },
+   {
+    "id": "g29",
+    "key": "0",
+    "answer": "has visited"
+   },
+   {
+    "id": "g30",
+    "key": "3",
+    "answer": "had left"
+   },
+   {
+    "id": "g31",
+    "key": "2",
+    "answer": "had eaten"
+   },
+   {
+    "id": "g32",
+    "key": "1",
+    "answer": "had rained"
+   },
+   {
+    "id": "g33",
+    "key": "0",
+    "answer": "had moved"
+   },
+   {
+    "id": "g34",
+    "key": "3",
+    "answer": "had decorated"
+   },
+   {
+    "id": "g35",
+    "key": "2",
+    "answer": "had finished"
+   },
+   {
+    "id": "g36",
+    "key": "1",
+    "answer": "shows"
+   },
+   {
+    "id": "g37",
+    "key": "0",
+    "answer": "wrote"
+   }
+  ]
+ }
+}

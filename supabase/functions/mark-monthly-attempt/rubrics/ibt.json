@@ -1,0 +1,46 @@
+{
+ "exam_id": "ibt",
+ "level": "TOEFL iBT (CEFR B1-C1)",
+ "tasks": [
+  {
+   "section": "writing", "task_key": "task2-email", "kind": "writing", "answer": "email", "max_score": 5,
+   "prompt": "Write an email to Ms. Carter, the campus room coordinator. The workshop room booking shows the wrong date and the invited speaker is only available on the original date. Explain the error and give the intended date; describe why changing the date would be difficult; request a solution and suggest an alternative room if necessary.",
+   "criteria": [
+    {"name": "Task completion", "max": 2, "guide": "2 = all three points addressed clearly; 1 = one point missing or vague; 0 = mostly off task."},
+    {"name": "Language", "max": 2, "guide": "2 = accurate, varied grammar and vocabulary; 1 = noticeable errors; 0 = errors obscure meaning."},
+    {"name": "Register", "max": 1, "guide": "1 = polite, appropriate formal email; 0 = inappropriate tone or format."}
+   ]
+  },
+  {
+   "section": "writing", "task_key": "task3-academic-discussion", "kind": "writing", "answer": "discussion", "max_score": 5,
+   "prompt": "Professor Lee asks whether universities should allow students to use AI tools for assignments (with disclosure and checking) or restrict them to protect independent thinking. Maya supports allowing with rules; Daniel favours restrictions. Contribute your own view, at least 100 words, with reasons and an example; do not copy either student.",
+   "criteria": [
+    {"name": "Contribution", "max": 2, "guide": "2 = clear stance that adds a new idea, with reasons and an example; 1 = stance with general support or repeats a classmate; 0 = no relevant stance."},
+    {"name": "Organisation", "max": 1, "guide": "1 = linking words and a conclusion; 0 = disorganised."},
+    {"name": "Language", "max": 2, "guide": "2 = accurate, varied academic language; 1 = noticeable errors; 0 = errors obscure meaning. Under 100 words caps the total at 3."}
+   ]
+  },
+  {"section": "speaking", "task_key": "repeat-1", "kind": "repeat", "clip": "repeat-1", "max_score": 5, "reference": "TEACHER TO ADD: sentence 1 text"},
+  {"section": "speaking", "task_key": "repeat-2", "kind": "repeat", "clip": "repeat-2", "max_score": 5, "reference": "TEACHER TO ADD: sentence 2 text"},
+  {"section": "speaking", "task_key": "repeat-3", "kind": "repeat", "clip": "repeat-3", "max_score": 5, "reference": "TEACHER TO ADD: sentence 3 text"},
+  {"section": "speaking", "task_key": "repeat-4", "kind": "repeat", "clip": "repeat-4", "max_score": 5, "reference": "TEACHER TO ADD: sentence 4 text"},
+  {"section": "speaking", "task_key": "repeat-5", "kind": "repeat", "clip": "repeat-5", "max_score": 5, "reference": "TEACHER TO ADD: sentence 5 text"},
+  {"section": "speaking", "task_key": "repeat-6", "kind": "repeat", "clip": "repeat-6", "max_score": 5, "reference": "TEACHER TO ADD: sentence 6 text"},
+  {"section": "speaking", "task_key": "repeat-7", "kind": "repeat", "clip": "repeat-7", "max_score": 5, "reference": "TEACHER TO ADD: sentence 7 text"},
+  {"section": "speaking", "task_key": "interview-1", "kind": "speaking", "clip": "interview-1", "max_score": 5, "prompt": "Interview on artificial intelligence in education, question 1. 45 seconds.", "reference": "TEACHER TO ADD: question 1 text", "criteria": "interview"},
+  {"section": "speaking", "task_key": "interview-2", "kind": "speaking", "clip": "interview-2", "max_score": 5, "prompt": "Interview on artificial intelligence in education, question 2. 45 seconds.", "reference": "TEACHER TO ADD: question 2 text", "criteria": "interview"},
+  {"section": "speaking", "task_key": "interview-3", "kind": "speaking", "clip": "interview-3", "max_score": 5, "prompt": "Interview on artificial intelligence in education, question 3. 45 seconds.", "reference": "TEACHER TO ADD: question 3 text", "criteria": "interview"},
+  {"section": "speaking", "task_key": "interview-4", "kind": "speaking", "clip": "interview-4", "max_score": 5, "prompt": "Interview on artificial intelligence in education, question 4. 45 seconds.", "reference": "TEACHER TO ADD: question 4 text", "criteria": "interview"}
+ ],
+ "shared_criteria": {
+  "repeat": [
+   {"name": "Accuracy", "max": 3, "guide": "Compare the transcript with the reference sentence: 3 = exact or one small slip; 2 = meaning kept with minor omissions; 1 = partial; 0 = unrelated or silent."},
+   {"name": "Pronunciation", "max": 2, "guide": "2 = clear; 1 = some words unclear; 0 = unintelligible."}
+  ],
+  "interview": [
+   {"name": "Relevance and development", "max": 2, "guide": "2 = answers the question directly with reasons or an example; 1 = relevant but thin; 0 = off topic or silent."},
+   {"name": "Language", "max": 2, "guide": "2 = accurate, varied; 1 = noticeable errors; 0 = very limited."},
+   {"name": "Delivery", "max": 1, "guide": "1 = clear and fluent; 0 = hard to follow."}
+  ]
+ }
+}

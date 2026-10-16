@@ -1,0 +1,644 @@
+{
+ "exam_id": "itp",
+ "exam_version": "junior-monthly-2026-v1",
+ "format": "booklet",
+ "sections": {
+  "vocabulary": [
+   {
+    "id": "v0",
+    "key": "1",
+    "answer": "terrible"
+   },
+   {
+    "id": "v1",
+    "key": "0",
+    "answer": "very funny"
+   },
+   {
+    "id": "v2",
+    "key": "3",
+    "answer": "valuable"
+   },
+   {
+    "id": "v3",
+    "key": "2",
+    "answer": "of no use"
+   },
+   {
+    "id": "v4",
+    "key": "1",
+    "answer": "extreme"
+   },
+   {
+    "id": "v5",
+    "key": "0",
+    "answer": "skilled"
+   },
+   {
+    "id": "v6",
+    "key": "3",
+    "answer": "safe"
+   },
+   {
+    "id": "v7",
+    "key": "2",
+    "answer": "uncomfortable"
+   },
+   {
+    "id": "v8",
+    "key": "1",
+    "answer": "unattractive"
+   },
+   {
+    "id": "v9",
+    "key": "0",
+    "answer": "gentle"
+   },
+   {
+    "id": "v10",
+    "key": "3",
+    "answer": "amazing"
+   },
+   {
+    "id": "v11",
+    "key": "2",
+    "answer": "strange"
+   },
+   {
+    "id": "v12",
+    "key": "1",
+    "answer": "stiff"
+   },
+   {
+    "id": "v13",
+    "key": "0",
+    "answer": "earlier"
+   },
+   {
+    "id": "v14",
+    "key": "3",
+    "answer": "sensible"
+   },
+   {
+    "id": "v15",
+    "key": "2",
+    "answer": "unhappy"
+   },
+   {
+    "id": "v16",
+    "key": "1",
+    "answer": "worried about"
+   },
+   {
+    "id": "v17",
+    "key": "0",
+    "answer": "hidden"
+   },
+   {
+    "id": "v18",
+    "key": "3",
+    "answer": "bendable"
+   },
+   {
+    "id": "v19",
+    "key": "2",
+    "answer": "disregard"
+   },
+   {
+    "id": "v20",
+    "key": "1",
+    "answer": "save"
+   },
+   {
+    "id": "v21",
+    "key": "0",
+    "answer": "smell"
+   },
+   {
+    "id": "v22",
+    "key": "3",
+    "answer": "disturb"
+   },
+   {
+    "id": "v23",
+    "key": "2",
+    "answer": "separate"
+   },
+   {
+    "id": "v24",
+    "key": "1",
+    "answer": "take advantage of"
+   },
+   {
+    "id": "v25",
+    "key": "0",
+    "answer": "created"
+   },
+   {
+    "id": "v26",
+    "key": "3",
+    "answer": "try"
+   },
+   {
+    "id": "v27",
+    "key": "2",
+    "answer": "continue"
+   },
+   {
+    "id": "v28",
+    "key": "1",
+    "answer": "give advice to"
+   },
+   {
+    "id": "v29",
+    "key": "0",
+    "answer": "reveal"
+   },
+   {
+    "id": "v30",
+    "key": "3",
+    "answer": "work out"
+   },
+   {
+    "id": "v31",
+    "key": "2",
+    "answer": "join"
+   },
+   {
+    "id": "v32",
+    "key": "1",
+    "answer": "animal"
+   },
+   {
+    "id": "v33",
+    "key": "0",
+    "answer": "new arrival"
+   },
+   {
+    "id": "v34",
+    "key": "3",
+    "answer": "area"
+   },
+   {
+    "id": "v35",
+    "key": "2",
+    "answer": "physical harm"
+   },
+   {
+    "id": "v36",
+    "key": "1",
+    "answer": "information supporting a conclusion"
+   },
+   {
+    "id": "v37",
+    "key": "0",
+    "answer": "period"
+   },
+   {
+    "id": "v38",
+    "key": "3",
+    "answer": "Bias"
+   },
+   {
+    "id": "v39",
+    "key": "2",
+    "answer": "trailblazer"
+   },
+   {
+    "id": "v40",
+    "key": "1",
+    "answer": "self-respect"
+   },
+   {
+    "id": "v41",
+    "key": "0",
+    "answer": "student"
+   },
+   {
+    "id": "v42",
+    "key": "3",
+    "answer": "contentment"
+   },
+   {
+    "id": "v43",
+    "key": "2",
+    "answer": "dinner"
+   },
+   {
+    "id": "v44",
+    "key": "1",
+    "answer": "danger"
+   },
+   {
+    "id": "v45",
+    "key": "0",
+    "answer": "behavior"
+   },
+   {
+    "id": "v46",
+    "key": "3",
+    "answer": "occasion"
+   },
+   {
+    "id": "v47",
+    "key": "2",
+    "answer": "an operation"
+   },
+   {
+    "id": "v48",
+    "key": "1",
+    "answer": "Finally"
+   },
+   {
+    "id": "v49",
+    "key": "0",
+    "answer": "courteously"
+   }
+  ],
+  "language": [
+   {
+    "id": "g0",
+    "key": "1",
+    "answer": "goes"
+   },
+   {
+    "id": "g1",
+    "key": "0",
+    "answer": "eats"
+   },
+   {
+    "id": "g2",
+    "key": "3",
+    "answer": "go"
+   },
+   {
+    "id": "g3",
+    "key": "2",
+    "answer": "live"
+   },
+   {
+    "id": "g4",
+    "key": "1",
+    "answer": "brushes"
+   },
+   {
+    "id": "g5",
+    "key": "0",
+    "answer": "ate"
+   },
+   {
+    "id": "g6",
+    "key": "3",
+    "answer": "went"
+   },
+   {
+    "id": "g7",
+    "key": "2",
+    "answer": "finished"
+   },
+   {
+    "id": "g8",
+    "key": "1",
+    "answer": "played"
+   },
+   {
+    "id": "g9",
+    "key": "0",
+    "answer": "sang"
+   },
+   {
+    "id": "g10",
+    "key": "3",
+    "answer": "are playing"
+   },
+   {
+    "id": "g11",
+    "key": "2",
+    "answer": "is cooking"
+   },
+   {
+    "id": "g12",
+    "key": "1",
+    "answer": "is sleeping"
+   },
+   {
+    "id": "g13",
+    "key": "0",
+    "answer": "am writing"
+   },
+   {
+    "id": "g14",
+    "key": "3",
+    "answer": "are building"
+   },
+   {
+    "id": "g15",
+    "key": "2",
+    "answer": "was watching"
+   },
+   {
+    "id": "g16",
+    "key": "1",
+    "answer": "were playing"
+   },
+   {
+    "id": "g17",
+    "key": "0",
+    "answer": "was reading"
+   },
+   {
+    "id": "g18",
+    "key": "3",
+    "answer": "were eating"
+   },
+   {
+    "id": "g19",
+    "key": "2",
+    "answer": "was washing"
+   },
+   {
+    "id": "g20",
+    "key": "1",
+    "answer": "have finished"
+   },
+   {
+    "id": "g21",
+    "key": "0",
+    "answer": "has been"
+   },
+   {
+    "id": "g22",
+    "key": "3",
+    "answer": "have eaten"
+   },
+   {
+    "id": "g23",
+    "key": "2",
+    "answer": "has lost"
+   },
+   {
+    "id": "g24",
+    "key": "1",
+    "answer": "have lived"
+   },
+   {
+    "id": "g25",
+    "key": "0",
+    "answer": "had"
+   },
+   {
+    "id": "g26",
+    "key": "3",
+    "answer": "had eaten"
+   },
+   {
+    "id": "g27",
+    "key": "2",
+    "answer": "had left"
+   },
+   {
+    "id": "g28",
+    "key": "1",
+    "answer": "had"
+   },
+   {
+    "id": "g29",
+    "key": "0",
+    "answer": "had eaten"
+   },
+   {
+    "id": "g30",
+    "key": "3",
+    "answer": "Moreover"
+   },
+   {
+    "id": "g31",
+    "key": "2",
+    "answer": "Additionally"
+   },
+   {
+    "id": "g32",
+    "key": "1",
+    "answer": "However"
+   },
+   {
+    "id": "g33",
+    "key": "0",
+    "answer": "Therefore"
+   },
+   {
+    "id": "g34",
+    "key": "3",
+    "answer": "because"
+   },
+   {
+    "id": "g35",
+    "key": "2",
+    "answer": "Although"
+   },
+   {
+    "id": "g36",
+    "key": "1",
+    "answer": "Next"
+   },
+   {
+    "id": "g37",
+    "key": "0",
+    "answer": "Similarly"
+   },
+   {
+    "id": "g38",
+    "key": "3",
+    "answer": "as well as"
+   },
+   {
+    "id": "g39",
+    "key": "2",
+    "answer": "For example"
+   },
+   {
+    "id": "g40",
+    "key": "1",
+    "answer": "has"
+   },
+   {
+    "id": "g41",
+    "key": "0",
+    "answer": "does"
+   },
+   {
+    "id": "g42",
+    "key": "3",
+    "answer": "can swim very well"
+   },
+   {
+    "id": "g43",
+    "key": "2",
+    "answer": "heavier"
+   },
+   {
+    "id": "g44",
+    "key": "1",
+    "answer": "most interesting"
+   },
+   {
+    "id": "g45",
+    "key": "0",
+    "answer": "but"
+   },
+   {
+    "id": "g46",
+    "key": "3",
+    "answer": "who"
+   },
+   {
+    "id": "g47",
+    "key": "2",
+    "answer": "was broken"
+   },
+   {
+    "id": "g48",
+    "key": "1",
+    "answer": "will stay"
+   },
+   {
+    "id": "g49",
+    "key": "0",
+    "answer": "are"
+   }
+  ],
+  "reading": [
+   {
+    "id": "r0",
+    "key": "1",
+    "answer": "A robot experiences her first day working outside a factory"
+   },
+   {
+    "id": "r1",
+    "key": "2",
+    "answer": "caring for a yard or garden"
+   },
+   {
+    "id": "r2",
+    "key": "1",
+    "answer": "She is curious and wants to observe it"
+   },
+   {
+    "id": "r3",
+    "key": "3",
+    "answer": "an act of copying or imitating"
+   },
+   {
+    "id": "r4",
+    "key": "3",
+    "answer": "She checks it for damage and completes the delivery"
+   },
+   {
+    "id": "r5",
+    "key": "2",
+    "answer": "To show that Mira is now curious about the world beyond her task"
+   },
+   {
+    "id": "r6",
+    "key": "0",
+    "answer": "A team of students researching how an island's animals survived a storm"
+   },
+   {
+    "id": "r7",
+    "key": "1",
+    "answer": "located next to"
+   },
+   {
+    "id": "r8",
+    "key": "2",
+    "answer": "They detected movement and emitted a signal"
+   },
+   {
+    "id": "r9",
+    "key": "3",
+    "answer": "It may have helped scattered birds recognize their own group"
+   },
+   {
+    "id": "r10",
+    "key": "2",
+    "answer": "an order or series"
+   },
+   {
+    "id": "r11",
+    "key": "1",
+    "answer": "A technical problem mixed different calls together"
+   },
+   {
+    "id": "r12",
+    "key": "0",
+    "answer": "Their predators had been reduced by the storm"
+   },
+   {
+    "id": "r13",
+    "key": "3",
+    "answer": "To explain rules that real field researchers must follow"
+   },
+   {
+    "id": "r14",
+    "key": "1",
+    "answer": "Survival depends on adaptation, communication, and community"
+   }
+  ]
+ },
+ "blanks": {
+  "section": "writing",
+  "task": "task1-blanks",
+  "items": [
+   {
+    "id": "writing-blank-1",
+    "answer": "are",
+    "confirm": false
+   },
+   {
+    "id": "writing-blank-2",
+    "answer": "think",
+    "confirm": false
+   },
+   {
+    "id": "writing-blank-3",
+    "answer": "focused",
+    "confirm": true
+   },
+   {
+    "id": "writing-blank-4",
+    "answer": "— no article",
+    "confirm": false
+   },
+   {
+    "id": "writing-blank-5",
+    "answer": "that",
+    "confirm": false
+   },
+   {
+    "id": "writing-blank-6",
+    "answer": "trust",
+    "confirm": false
+   },
+   {
+    "id": "writing-blank-7",
+    "answer": "face",
+    "confirm": true
+   },
+   {
+    "id": "writing-blank-8",
+    "answer": "when",
+    "confirm": true
+   },
+   {
+    "id": "writing-blank-9",
+    "answer": "continue",
+    "confirm": false
+   },
+   {
+    "id": "writing-blank-10",
+    "answer": "symbols",
+    "confirm": false
+   }
+  ]
+ }
+}
