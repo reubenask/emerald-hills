@@ -1,5 +1,6 @@
 -- Run once after monthly-exams.sql. Adds what automatic marking needs:
--- marking status on attempts, AI/teacher source and transcripts on reviews, and a totals view.
+-- marking status on attempts, report cards, AI/teacher source and transcripts on reviews,
+-- and a totals view.
 begin;
 
 alter table public.monthly_exam_attempts
@@ -58,4 +59,23 @@ left join lateral (
   from public.monthly_exam_reviews r where r.attempt_id=a.id group by section_key) x
 ) s on true;
 grant select on public.monthly_exam_totals to authenticated;
+
+-- Report card per attempt, written by the marking function. Students see it
+-- only after results are released.
+create table public.monthly_exam_reports (
+ attempt_id uuid primary key references public.monthly_exam_attempts(id) on delete cascade,
+ html text not null,
+ scores jsonb not null default '{}'::jsonb,
+ total numeric not null,
+ total_max numeric not null,
+ sent_to text,
+ sent_at timestamptz,
+ updated_at timestamptz not null default now()
+);
+alter table public.monthly_exam_reports enable row level security;
+revoke all on public.monthly_exam_reports from public, anon, authenticated;
+grant select on public.monthly_exam_reports to authenticated;
+create policy monthly_report_read on public.monthly_exam_reports for select to authenticated
+ using(public.monthly_is_teacher() or exists(select 1 from public.monthly_exam_attempts a
+  where a.id=attempt_id and a.student_id=auth.uid() and a.results_released));
 commit;

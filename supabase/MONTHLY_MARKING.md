@@ -1,18 +1,35 @@
-# Monthly exam auto-marking
+# Monthly exam auto-marking and report cards
 
-When a student presses **Submit All**, the exam page sends their answers and recordings to Supabase and calls the `mark-monthly-attempt` Edge Function. The function scores every multiple-choice, dropdown and sentence-ordering item from the answer keys, then uses Gemini to transcribe each speaking recording and score writing and speaking against the rubrics. Scores land in `monthly_exam_reviews`, and `monthly_exam_totals` gives one row per student with section scores and the overall total.
+When a student presses **Submit All**, the exam page sends their answers and recordings to Supabase and calls the `mark-monthly-attempt` Edge Function. That function:
+
+1. **Auto-marks objective items from the answer keys**: Vocabulary, Language Form and Meaning, Reading, the ITP Writing Task 1 dropdowns, and iBT Writing Task 1 (Build a Sentence).
+2. **Marks writing with the marking skill** (`functions/mark-monthly-attempt/skill.ts`) through your Gemini API key. No answer key is needed.
+3. **Transcribes each speaking recording first**, then marks the transcript with the same skill and scores delivery from the audio.
+4. **Builds a report card** with section scores, percentages, the total, per-criterion comments and speaking transcripts, then **emails it** to the address in `REPORT_EMAIL_TO`.
 
 Nothing is sent until `monthly-exams/cloud-config.js` is filled in, so the pages keep working offline as before.
 
-## Flow
+## The marking skill
 
-1. Student finishes all sections and presses Submit All.
-2. `cloud-submit.js` signs the student in anonymously, creates a `monthly_exam_attempts` row, uploads recordings to the private `monthly-speaking` bucket as `<student_id>/<attempt_id>/<clip>.webm`, and marks the attempt `submitted`.
-3. It calls `mark-monthly-attempt`, which writes one review row per section or task:
-   - `source = 'auto'`: objective items scored from `functions/mark-monthly-attempt/keys/*.json`.
-   - `source = 'ai'`: writing and speaking scored by Gemini with the transcript and per-criterion comments in `feedback`.
-4. `marking_status` becomes `marked`, or `needs_teacher` when something needs a person (see `marking_notes`).
-5. A teacher checks the marks, edits any row (it becomes `source = 'teacher'` and is never overwritten by re-marking), then sets `results_released = true` so the student can see them.
+Every writing task and every free-speaking transcript is marked on five criteria, each 0-4:
+
+| Criterion | What it checks |
+|---|---|
+| Structure | The parts the task type needs. Email: greeting, purpose, each question answered with a reason, closing, sign-off. Opinion: topic sentence, two reasons, example, conclusion. Discussion post: stance, reasons, example, goes beyond classmates, conclusion. Story: characters, order, ending. Spoken answer: introduction, points with details, closing. |
+| Grammar | Range and accuracy for the level |
+| Vocabulary | Range, precision and register for the level |
+| Linking words | Cohesion and range of linkers for the level |
+| Logic and development | Clear order, reasons and examples |
+
+Speaking adds **Delivery** (pronunciation and fluency, 0-4), scored from the audio. Read-aloud tasks are marked on accuracy against the passage, pronunciation, and fluency and intonation. Primary Step 2 Writing Task 2 (ten linking-word sentences) is one point per correct sentence.
+
+The descriptors are calibrated per level, so the same answer scores higher at Primary than at iBT:
+
+- **Primary** (CEFR A1-A2): simple sentences, everyday words, and, but, because, then.
+- **ITP** (CEFR A2-B2): compound and complex sentences, topic vocabulary, however, therefore, for example.
+- **iBT** (CEFR B2-C1): wide range of structures, academic vocabulary, natural cohesion, developed argument.
+
+To change how anything is marked, edit `skill.ts`. Task prompts and which criteria apply to which task are in `rubrics/*.json`.
 
 ## Setup (once)
 
@@ -23,26 +40,27 @@ Nothing is sent until `monthly-exams/cloud-config.js` is filled in, so the pages
    ```bash
    supabase functions deploy mark-monthly-attempt
    supabase secrets set GEMINI_API_KEY=... GEMINI_MODEL=gemini-2.5-flash
+   supabase secrets set RESEND_API_KEY=... REPORT_EMAIL_TO=you@example.com REPORT_EMAIL_FROM="Emerald Hills <reports@yourdomain>"
    ```
-   `GEMINI_MODEL` is optional; use whichever Gemini model your key has access to.
-5. Put the project URL and anon key in `monthly-exams/cloud-config.js`. Never put the Gemini key or service-role key there.
+   `GEMINI_MODEL` is optional. `REPORT_EMAIL_TO` can be a comma-separated list. If the email secrets are missing, report cards are still saved in `monthly_exam_reports`, just not emailed. Resend needs a verified sending domain for `REPORT_EMAIL_FROM`.
+5. Put the project URL and anon key in `monthly-exams/cloud-config.js`. Never put the Gemini, Resend or service-role key there.
 
 ## Before the first real sitting
 
-Fill in every rubric `reference` that starts with `TEACHER TO ADD` in `functions/mark-monthly-attempt/rubrics/`:
+- iBT Speaking Task 1: add the seven listen-and-repeat sentences to `rubrics/ibt.json` (they exist only as audio). Until then those recordings are transcribed and listed for the teacher but not scored.
+- ITP Writing Task 1: confirm blanks 3, 7 and 8 in `tools/extract_monthly_keys.cjs`, set `confirm` to false, and rerun `node tools/extract_monthly_keys.cjs`.
 
-- Primary Step 2: the writing picture story, speaking picture story, and video retell.
-- ITP: the speaking picture narration and the listening/speaking lesson.
-- iBT: the seven listen-and-repeat sentences and four interview questions (these exist only as audio in the page). Until they are filled in, those recordings are transcribed but not scored.
+## What teachers see
 
-Also confirm the ITP Writing Task 1 blank answers marked `confirm: true` in `tools/extract_monthly_keys.cjs` (blanks 3, 7 and 8), then set `confirm` to false and rerun `node tools/extract_monthly_keys.cjs`.
+- `monthly_exam_totals`: one row per student with section scores and the total.
+- `monthly_exam_reports`: the report card HTML and per-section percentages (same keys as the platform's monthly review scores).
+- `monthly_exam_reviews`: every mark with criteria comments and transcripts. Editing a row sets it to `source = 'teacher'`; re-marking never overwrites it.
+- Attempts with `marking_status = 'needs_teacher'` list what to check in `marking_notes`, and their report card says "Provisional".
 
-## Re-marking
-
-A teacher can re-mark an attempt by calling the function with `{ "attempt_id": "...", "force": true }` while signed in. Teacher-edited rows are kept.
+A teacher can re-mark an attempt (and resend its report) by calling the function with `{ "attempt_id": "...", "force": true }` while signed in.
 
 ## Tests
 
 ```bash
-cd supabase/functions/mark-monthly-attempt && deno test objective.test.ts
+cd supabase/functions/mark-monthly-attempt && deno test --allow-env
 ```

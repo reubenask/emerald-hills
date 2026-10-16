@@ -1,52 +1,59 @@
 {
  "exam_id": "primary-step2",
- "level": "TOEFL Primary Step 2 (young learners, roughly CEFR A2-B1)",
+ "level": "primary",
  "tasks": [
   {
-   "section": "writing", "task_key": "task1-picture-story", "kind": "writing", "answer": "writing-story1", "max_score": 10,
-   "prompt": "Look at the four pictures in order. Write a story of about 6-8 sentences. Say who is in the story, what happens, and how it ends. Characters: Maya (the girl), Sam (the boy), Maya's mother, and a puppy.",
-   "reference": "TEACHER TO ADD: one line per picture describing what happens, so the marker can check the story follows the pictures.",
-   "criteria": [
-    {"name": "Task completion", "max": 4, "guide": "4 = clear beginning, middle and end that follows all four pictures and names the characters; 2 = follows some pictures or has no ending; 0 = off topic or blank."},
-    {"name": "Grammar", "max": 3, "guide": "3 = mostly accurate past tense and sentence structure; 2 = errors but meaning clear; 1 = frequent errors that obscure meaning."},
-    {"name": "Vocabulary and linking", "max": 3, "guide": "3 = varied, appropriate words and sequencing words (first, then, finally); 1 = very limited or repetitive."}
-   ]
+   "section": "writing",
+   "task_key": "task1-picture-story",
+   "kind": "writing",
+   "genre": "story",
+   "answer": "writing-story1",
+   "prompt": "Look at the four pictures in order. Write a story of about 6-8 sentences. Say who is in the story, what happens, and how it ends. Characters: Maya (the girl), Sam (the boy), Maya's mother, and a puppy."
   },
   {
-   "section": "writing", "task_key": "task2-make-sentences", "kind": "sentences", "answer_prefix": "writing-link", "max_score": 10,
+   "section": "writing",
+   "task_key": "task2-make-sentences",
+   "kind": "sentences",
+   "answer_prefix": "writing-link",
    "prompt": "Write one complete sentence for each linking word or expression. Use the given expression in your sentence. Write your own ideas; do not copy the example (I enjoy drawing, and I also enjoy reading).",
-   "items": ["both", "similarly", "also", "in the same way", "however", "on the other hand", "in contrast", "while", "whereas", "overall"],
-   "guide": "1 point per sentence when it is a complete sentence, uses the given expression correctly for its meaning (addition, similarity, contrast, summary), and is not a copy of the example. Minor spelling errors are fine. 0 if missing, a fragment, the wrong meaning, or copied."
+   "items": [
+    "both",
+    "similarly",
+    "also",
+    "in the same way",
+    "however",
+    "on the other hand",
+    "in contrast",
+    "while",
+    "whereas",
+    "overall"
+   ],
+   "guide": "1 point per sentence when it is a complete sentence, uses the given expression correctly for its meaning (addition, similarity, contrast, summary), and is not a copy of the example. Minor spelling errors are fine. 0 if missing, a fragment, the wrong meaning, or copied.",
+   "max_score": 10
   },
   {
-   "section": "speaking", "task_key": "task1-read-aloud", "kind": "speaking", "clip": "speaking-1", "max_score": 5,
-   "prompt": "Read the passage aloud clearly. 60 seconds.",
-   "reference": "The School Garden. Lily and Ben visit their school garden on Friday. The sun is warm, and the flowers are bright. Lily gives water to a young bean plant. Ben sees a yellow butterfly near a flower. He points to it and smiles. The children enjoy looking after the garden. They hope the plants will grow tall and strong. Before they leave, they pull out some weeds and collect their tools. Their teacher thanks them for helping. Next week, they will return to check the beans and draw pictures of the flowers. Gardening makes their school a beautiful place for everyone to enjoy.",
-   "criteria": [
-    {"name": "Accuracy", "max": 2, "guide": "Compare the transcript with the reference: 2 = almost every word read correctly; 1 = several omissions or misreadings; 0 = large parts missing."},
-    {"name": "Pronunciation", "max": 2, "guide": "2 = easy to understand; 1 = some words hard to understand; 0 = mostly unintelligible."},
-    {"name": "Fluency", "max": 1, "guide": "1 = steady pace with few long pauses; 0 = word-by-word or many restarts."}
-   ]
+   "section": "speaking",
+   "task_key": "task1-read-aloud",
+   "kind": "read-aloud",
+   "clip": "speaking-1",
+   "prompt": "Read the passage aloud clearly.",
+   "reference": "The School Garden. Lily and Ben visit their school garden on Friday. The sun is warm, and the flowers are bright. Lily gives water to a young bean plant. Ben sees a yellow butterfly near a flower. He points to it and smiles. The children enjoy looking after the garden. They hope the plants will grow tall and strong. Before they leave, they pull out some weeds and collect their tools. Their teacher thanks them for helping. Next week, they will return to check the beans and draw pictures of the flowers. Gardening makes their school a beautiful place for everyone to enjoy."
   },
   {
-   "section": "speaking", "task_key": "task2-picture-story", "kind": "speaking", "clip": "speaking-2", "max_score": 5,
-   "prompt": "Look at the six pictures and tell a complete story using first, next, then, finally. Characters: Mia (yellow shirt), Leo (green shirt), and a park keeper (blue clothes). 60 seconds.",
-   "reference": "TEACHER TO ADD: one line per picture.",
-   "criteria": [
-    {"name": "Task completion", "max": 2, "guide": "2 = tells a connected story covering the pictures with an ending; 1 = describes some pictures without connecting them; 0 = off topic or almost silent."},
-    {"name": "Language", "max": 2, "guide": "2 = mostly correct sentences with suitable vocabulary and sequencing words; 1 = simple or frequently incorrect; 0 = single words only."},
-    {"name": "Delivery", "max": 1, "guide": "1 = understandable and reasonably fluent; 0 = hard to follow."}
-   ]
+   "section": "speaking",
+   "task_key": "task2-picture-story",
+   "kind": "speaking",
+   "genre": "spoken-story",
+   "clip": "speaking-2",
+   "prompt": "Look at the six pictures and tell a complete story using first, next, then, finally. Characters: Mia (yellow shirt), Leo (green shirt), and a park keeper (blue clothes). 60 seconds."
   },
   {
-   "section": "speaking", "task_key": "task3-video-retell", "kind": "speaking", "clip": "speaking-3", "max_score": 5,
-   "prompt": "Watch the short video, then retell it: who you saw, what happened, and how it ended. 60 seconds.",
-   "reference": "TEACHER TO ADD: a short summary of the video's characters and events.",
-   "criteria": [
-    {"name": "Content", "max": 2, "guide": "2 = names who, what happened and the ending; 1 = partial; 0 = unrelated or silent."},
-    {"name": "Language", "max": 2, "guide": "2 = mostly correct past-tense narration; 1 = frequent errors or very simple; 0 = single words."},
-    {"name": "Delivery", "max": 1, "guide": "1 = understandable and reasonably fluent; 0 = hard to follow."}
-   ]
+   "section": "speaking",
+   "task_key": "task3-video-retell",
+   "kind": "speaking",
+   "genre": "spoken-story",
+   "clip": "speaking-3",
+   "prompt": "Watch the short video, then retell it: who you saw, what happened, and how it ended. 60 seconds."
   }
  ]
 }
