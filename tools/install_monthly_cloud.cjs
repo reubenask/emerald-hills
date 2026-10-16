@@ -1,8 +1,8 @@
 const fs=require('fs'),path=require('path'),root=path.resolve(__dirname,'..');
-for(const [exam,files] of [['itp',['monthly-exams/junior/index.html']],['ibt',['monthly-exams/ibt/Start Here.html','monthly-exams/ibt/Vocabulary.html','monthly-exams/ibt/Reading.html','monthly-exams/ibt/Writing.html','monthly-exams/ibt/Speaking.html']]])for(const file of files){
+for(const [exam,files] of [['primary-step2',['monthly-exams/primary-step2/index.html']],['itp',['monthly-exams/junior/index.html']],['ibt',['monthly-exams/ibt/Start Here.html','monthly-exams/ibt/Vocabulary.html','monthly-exams/ibt/Reading.html','monthly-exams/ibt/Writing.html','monthly-exams/ibt/Speaking.html']]])for(const file of files){
  const target=path.join(root,file);if(!fs.existsSync(target))continue;
  let html=fs.readFileSync(target,'utf8');
- html=html.replace(/<html([^>]*)>/,'<html$1 data-cloud-exam="'+exam+'">').replace(/ data-cloud-exam="(itp|ibt)" data-cloud-exam="(itp|ibt)"/,' data-cloud-exam="'+exam+'"');
+ html=html.replace(/<html([^>]*)>/,'<html$1 data-cloud-exam="'+exam+'">').replace(/ data-cloud-exam="([a-z0-9-]+)" data-cloud-exam="([a-z0-9-]+)"/,' data-cloud-exam="'+exam+'"');
  const scripts='<script src="../shared/cloud-config.js"></script><script src="../shared/cloud-client.js"></script><script src="../shared/exam-cloud.js"></script>';
  if(!html.includes('shared/exam-cloud.js'))html=html.replace('</body>',scripts+'</body>');
  // Old cover statements describe the manual-only version; retain original section controls.
