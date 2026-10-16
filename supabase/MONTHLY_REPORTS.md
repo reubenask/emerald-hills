@@ -11,7 +11,7 @@ Writing and speaking are marked like a teacher marking a script, on Structure an
 
 ## Steps (in Supabase, once)
 
-1. **SQL editor:** run `supabase/monthly-ai-all-classes.sql`, then `supabase/catalog/primary-step2.sql`.
+1. **SQL editor:** run `supabase/monthly-ai-all-classes.sql`, then `supabase/catalog/primary-step2.sql`, then `supabase/catalog/itp-speaking3-lesson.sql`.
 2. **Edge Functions → Secrets:** check that these exist:
    - `GEMINI_API_KEY`
    - `RESEND_API_KEY`
