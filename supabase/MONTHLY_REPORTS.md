@@ -1,0 +1,32 @@
+# Monthly exam marking and report cards: going live
+
+All three monthly exams (Primary Step 2, ITP, iBT) use the same flow:
+
+1. The student ticks the consent box and finishes the test. Answers and recordings are saved to Supabase as they go.
+2. On Submit All, the objective sections are marked from the answer keys. These are Vocabulary, Language Form and Meaning, Reading, ITP Writing Task 1, and iBT Build a Sentence.
+3. The page immediately starts marking writing and speaking through the `monthly-mark` function and Gemini. Speaking is transcribed first, then marked.
+4. When everything is marked, the report card is emailed to `REPORT_EMAIL_TO`. The email subject includes the student's name and class. The student can also open the full report page.
+
+Writing and speaking are marked like a teacher marking a script, on Structure and task fulfilment, Logic and development, Grammar, Vocabulary and Linking words (plus Delivery for speaking). The expectations are set for each level (Primary, ITP or iBT). Each task's feedback lists every mistake with its correction and the reason, suggests better linking words, and gives a corrected version of the student's own response.
+
+## Steps (in Supabase, once)
+
+1. **SQL editor:** run `supabase/monthly-ai-all-classes.sql`, then `supabase/catalog/primary-step2.sql`, then `supabase/catalog/itp-speaking3-lesson.sql`.
+2. **Edge Functions → Secrets:** check that these exist:
+   - `GEMINI_API_KEY`
+   - `RESEND_API_KEY`
+   - `REPORT_EMAIL_TO`: where reports go; use commas for several addresses.
+   - `REPORT_EMAIL_FROM` (optional): for example `Emerald Hills <reports@yourschool.com>`. It needs a domain verified in Resend. Without it, Resend only delivers to the address you signed up to Resend with.
+3. **Redeploy `monthly-mark`:** run `node tools/build_monthly_mark_function.cjs` and paste `supabase/.local/monthly-mark-deploy.ts` into the function editor, the same way it was first deployed.
+4. **Merge the PR** so GitHub Pages publishes the updated exam pages.
+
+## Rebuilding
+
+- After changing the Primary exam page: run `node tools/build_primary_ai_catalog.cjs`, then run the new `supabase/catalog/primary-step2.sql`.
+- After changing the ITP or iBT pages: run `node tools/build_monthly_ai_catalog.cjs` on the machine that has the source files.
+- Tests: `node tools/test_monthly_marking.mjs` (it uses whichever catalogs are built).
+
+## Notes
+
+- Primary Step 2 students are children. The consent box says that the teacher has the school's and the parent's permission to send their work to Google Gemini. Make sure that is true before using it with a class.
+- Marking runs while the exam page stays open after submission (about one task every 10-30 seconds). If a student closes the page early, opening the report page finishes the marking and sends the email.
