@@ -1,0 +1,110 @@
+{
+ "exam_id": "ibt",
+ "level": "ibt",
+ "tasks": [
+  {
+   "section": "writing",
+   "task_key": "task2-email",
+   "kind": "writing",
+   "genre": "email",
+   "answer": "email",
+   "prompt": "Write an email to Ms. Carter, the campus room coordinator. The workshop room booking shows the wrong date and the invited speaker is only available on the original date. Explain the error and give the intended date; describe why changing the date would be difficult; request a solution and suggest an alternative room if necessary."
+  },
+  {
+   "section": "writing",
+   "task_key": "task3-academic-discussion",
+   "kind": "writing",
+   "genre": "discussion",
+   "answer": "discussion",
+   "prompt": "Professor Lee asks whether universities should allow students to use AI tools for assignments (with disclosure and checking) or restrict them to protect independent thinking. Maya supports allowing with rules; Daniel favours restrictions. Contribute your own view, at least 100 words, with reasons and an example; do not copy either student."
+  },
+  {
+   "section": "speaking",
+   "task_key": "repeat-1",
+   "kind": "repeat",
+   "clip": "repeat-1",
+   "prompt": "Listen to one sentence and repeat it exactly.",
+   "reference": "TEACHER TO ADD: sentence 1 text"
+  },
+  {
+   "section": "speaking",
+   "task_key": "repeat-2",
+   "kind": "repeat",
+   "clip": "repeat-2",
+   "prompt": "Listen to one sentence and repeat it exactly.",
+   "reference": "TEACHER TO ADD: sentence 2 text"
+  },
+  {
+   "section": "speaking",
+   "task_key": "repeat-3",
+   "kind": "repeat",
+   "clip": "repeat-3",
+   "prompt": "Listen to one sentence and repeat it exactly.",
+   "reference": "TEACHER TO ADD: sentence 3 text"
+  },
+  {
+   "section": "speaking",
+   "task_key": "repeat-4",
+   "kind": "repeat",
+   "clip": "repeat-4",
+   "prompt": "Listen to one sentence and repeat it exactly.",
+   "reference": "TEACHER TO ADD: sentence 4 text"
+  },
+  {
+   "section": "speaking",
+   "task_key": "repeat-5",
+   "kind": "repeat",
+   "clip": "repeat-5",
+   "prompt": "Listen to one sentence and repeat it exactly.",
+   "reference": "TEACHER TO ADD: sentence 5 text"
+  },
+  {
+   "section": "speaking",
+   "task_key": "repeat-6",
+   "kind": "repeat",
+   "clip": "repeat-6",
+   "prompt": "Listen to one sentence and repeat it exactly.",
+   "reference": "TEACHER TO ADD: sentence 6 text"
+  },
+  {
+   "section": "speaking",
+   "task_key": "repeat-7",
+   "kind": "repeat",
+   "clip": "repeat-7",
+   "prompt": "Listen to one sentence and repeat it exactly.",
+   "reference": "TEACHER TO ADD: sentence 7 text"
+  },
+  {
+   "section": "speaking",
+   "task_key": "interview-1",
+   "kind": "speaking",
+   "genre": "spoken-response",
+   "clip": "interview-1",
+   "prompt": "Interview on artificial intelligence in education, question 1. Answer immediately, 45 seconds."
+  },
+  {
+   "section": "speaking",
+   "task_key": "interview-2",
+   "kind": "speaking",
+   "genre": "spoken-response",
+   "clip": "interview-2",
+   "prompt": "Interview on artificial intelligence in education, question 2. Answer immediately, 45 seconds."
+  },
+  {
+   "section": "speaking",
+   "task_key": "interview-3",
+   "kind": "speaking",
+   "genre": "spoken-response",
+   "clip": "interview-3",
+   "prompt": "Interview on artificial intelligence in education, question 3. Answer immediately, 45 seconds."
+  },
+  {
+   "section": "speaking",
+   "task_key": "interview-4",
+   "kind": "speaking",
+   "genre": "spoken-response",
+   "clip": "interview-4",
+   "prompt": "Interview on artificial intelligence in education, question 4. Answer immediately, 45 seconds."
+  }
+ ]
+}
