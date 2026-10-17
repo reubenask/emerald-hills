@@ -137,10 +137,15 @@ ${lesson?`LESSON THE STUDENT LISTENED TO (trusted transcript; check the student'
   const moderation=await moderate(spec,attempt.exam_id,rubric,result,{response,transcript});
   return {status:'complete',result:{...result,needsTeacherReview:result.needsTeacherReview||!!spec.forceTeacherReview,moderation,teacherApproval:'pending',...(spec.section==='speaking'?{transcript,transcriptSource:raw.source||'gemini'}:{response}),model:lastModel,markedAt:new Date().toISOString()}};
 }
+// iBT pages save studentName/studentClass/studentDate; the other tests save name/className/date.
+function studentOf(state:any) {
+  const s=state?.student||{}, t=(v:any)=>String(v||'').trim().slice(0,150);
+  return {name:t(s.name||s.studentName),className:t(s.className||s.studentClass),date:t(s.date||s.studentDate)};
+}
 async function emailReport(attempt:any, catalog:any, report:any) {
   const key=env('RESEND_API_KEY'), to=env('REPORT_EMAIL_TO');
   if(!key||!to)return false;
-  const {subject,html}=reportEmail({exam:attempt.exam_id,student:attempt.response_state.student,submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,scorecard:scorecard(catalog,report.objective,report.jobs)});
+  const {subject,html}=reportEmail({exam:attempt.exam_id,student:studentOf(attempt.response_state),submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,scorecard:scorecard(catalog,report.objective,report.jobs)});
   const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
     body:JSON.stringify({from:env('REPORT_EMAIL_FROM')||'Emerald Hills Reports <onboarding@resend.dev>',to:to.split(',').map(s=>s.trim()).filter(Boolean),subject,html})});
   if(!r.ok)throw Error('Resend HTTP '+r.status+' '+(await r.text()).slice(0,300));
@@ -165,13 +170,15 @@ Deno.serve(async (req:Request) => {
       if(body.adultConfirmed!==true&&body.consentConfirmed!==true)throw new PublicError('Processing agreement required.');
       const response=body.response;
       if(!response||typeof response.answers!=='object')throw new PublicError('Invalid responses.');
-      if(body.attemptId){const a=await owned(body.attemptId,user.id);if(a.exam_id!==body.exam)throw new PublicError('Wrong exam.');if(a.status!=='draft')return json({attemptId:a.id,locked:true});await db('monthly_exam_attempts?id=eq.'+a.id,'PATCH',{response_state:response,student_name:String(response.student?.name||'').slice(0,150),class_name:String(response.student?.className||'').slice(0,150)});return json({attemptId:a.id});}
+      if(body.attemptId){const a=await owned(body.attemptId,user.id);if(a.exam_id!==body.exam)throw new PublicError('Wrong exam.');if(a.status!=='draft')return json({attemptId:a.id,locked:true});await db('monthly_exam_attempts?id=eq.'+a.id,'PATCH',{response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});return json({attemptId:a.id});}
       const count=await db('monthly_exam_attempts?student_id=eq.'+user.id+'&exam_id=eq.'+body.exam+'&created_at=gte.'+new Date(Date.now()-86400000).toISOString()+'&select=id');if(count.length>=5)throw new PublicError('Daily attempt limit reached. Ask your teacher for help.',429);
-      const rows=await db('monthly_exam_attempts','POST',{student_id:user.id,exam_id:body.exam,exam_version:catalog.version,response_state:response,student_name:String(response.student?.name||'').slice(0,150),class_name:String(response.student?.className||'').slice(0,150)});return json({attemptId:rows[0].id});
+      const rows=await db('monthly_exam_attempts','POST',{student_id:user.id,exam_id:body.exam,exam_version:catalog.version,response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});return json({attemptId:rows[0].id});
     }
     const attempt=await owned(body.attemptId,user.id),catalog=await catalogFor(attempt.exam_id);
     if(body.action==='submit') {
       if(!catalog.sections.every((s:any)=>attempt.response_state.submitted?.[s.id]===true)||attempt.response_state.final!==true)throw new PublicError('Submit all exam sections first.');
+      const who=studentOf(attempt.response_state);
+      if(!who.name||!who.className||!who.date)throw new PublicError('Enter your name, class and date at the top of the test, then submit again.');
       if(attempt.status==='draft')await db('monthly_exam_attempts?id=eq.'+attempt.id,'PATCH',{status:'submitted'});
       const old=await db('monthly_ai_reports?attempt_id=eq.'+attempt.id+'&select=attempt_id');
       if(!old.length)await db('monthly_ai_reports','POST',{attempt_id:attempt.id,catalog_version:catalog.version,objective:objectiveReport(catalog,attempt.response_state.answers),jobs:catalog.tasks.map((t:any)=>({id:t.id,section:t.section,title:t.title,prompt:t.prompt,target:t.target||null,response:t.section==='writing'?taskResponse(t,attempt.response_state.answers):null,status:'pending',tries:0}))});
@@ -203,6 +210,14 @@ Deno.serve(async (req:Request) => {
       const report=claimed[0];for(const j of report.jobs)if(j.status==='error'&&j.tries<3){j.status='pending';delete j.error;}
       await db('monthly_ai_reports?attempt_id=eq.'+attempt.id,'PATCH',{jobs:report.jobs,lease_until:null});return json({retried:true});
     }
+    // Refresh Report: send back for marking only the tasks that have no mark yet; completed ones are kept as they are.
+    if(body.action==='refresh') {
+      const claimed=await db('rpc/monthly_claim_marking','POST',{p_attempt:attempt.id});if(!claimed.length)return json({busy:true});
+      const report=claimed[0];let reset=0;
+      for(const j of report.jobs)if(j.status==='error'||(j.status==='missing'&&j.section==='speaking')){j.status='pending';j.tries=0;delete j.error;delete j.result;reset++;}
+      const patch:any={jobs:report.jobs,lease_until:null};if(reset)patch.emailed_at=null;
+      await db('monthly_ai_reports?attempt_id=eq.'+attempt.id,'PATCH',patch);return json({reset});
+    }
     if(body.action==='report') {
       const report=rows[0];
       const audio=Object.fromEntries(await Promise.all(catalog.tasks.filter((t:any)=>t.section==='speaking').map(async(t:any)=>{
@@ -210,7 +225,7 @@ Deno.serve(async (req:Request) => {
         const r=await fetch(base+'/storage/v1/object/sign/monthly-speaking/'+path,{method:'POST',headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:3600})});
         if(!r.ok)return [t.id,null];const d=await r.json();return [t.id,base+'/storage/v1'+d.signedURL];
       })));
-      return json({attemptId:attempt.id,exam:attempt.exam_id,student:attempt.response_state.student,submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,audio,scorecard:scorecard(catalog,report.objective,report.jobs),rubricVersion:RUBRIC_VERSION,rubricSources:RUBRIC_SOURCES});
+      return json({attemptId:attempt.id,exam:attempt.exam_id,student:studentOf(attempt.response_state),submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,audio,scorecard:scorecard(catalog,report.objective,report.jobs),rubricVersion:RUBRIC_VERSION,rubricSources:RUBRIC_SOURCES});
     }
     throw new PublicError('Unknown action.');
   } catch(e) {return json({error:e instanceof PublicError?e.message:'The marking service could not complete this request. Your saved responses are unchanged.'},e instanceof PublicError?e.status:503);}
