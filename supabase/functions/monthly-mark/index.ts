@@ -35,7 +35,7 @@ async function geminiModels(key:string) {
   }
   return [first,...listed,...(listed.length?[]:discovered||[])].filter((m,i,a)=>a.indexOf(m)===i).slice(0,3);
 }
-async function gemini(prompt: string, audio?: {data:string,mime:string}) {
+async function geminiOnly(prompt: string, audio?: {data:string,mime:string}) {
   const key=env('GEMINI_API_KEY'); if (!key) throw Error('Provider is not configured');
   const parts: unknown[]=[{text:prompt}];
   if(audio)parts.push({inline_data:{mime_type:audio.mime,data:audio.data}});
@@ -59,6 +59,27 @@ async function gemini(prompt: string, audio?: {data:string,mime:string}) {
   }
   throw Error(last||'No Gemini model available');
 }
+// Last fallback when Gemini is out of quota or busy: an NVIDIA text model, given the same prompt and expected to return the same JSON.
+// It cannot hear audio, so it is used only where a transcript is enough (textFallback); speech-to-text still needs Gemini or ElevenLabs.
+async function nvidia(prompt: string) {
+  const key=env('NVIDIA_API_KEY'); if (!key) throw Error('NVIDIA is not configured');
+  const model=env('NVIDIA_MARKING_MODEL')||'meta/llama-3.3-70b-instruct';
+  let last='';
+  for(let attempt=0;attempt<2;attempt++){
+    const r=await fetch('https://integrate.api.nvidia.com/v1/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
+      body:JSON.stringify({model,messages:[{role:'user',content:prompt}],temperature:0.2,max_tokens:4096}),signal:AbortSignal.timeout(90000)});
+    if(!r.ok){last='NVIDIA HTTP '+r.status+' '+model+' '+(await r.text()).slice(0,400);console.error('NVIDIA attempt failed',last.slice(0,300));if([429,500,502,503].includes(r.status)&&attempt===0){await new Promise(res=>setTimeout(res,3000));continue;}throw Error(last);}
+    const text=String((await r.json()).choices?.[0]?.message?.content||'').replace(/<think>[\s\S]*?<\/think>/g,'').trim();
+    if(text){lastModel='nvidia:'+model;return text;}
+    last='NVIDIA returned no output '+model;
+  }
+  throw Error(last);
+}
+async function gemini(prompt: string, audio?: {data:string,mime:string}, textFallback=!audio) {
+  try {return await geminiOnly(prompt,audio);}
+  catch(e){if(!textFallback||!env('NVIDIA_API_KEY'))throw e;console.error('Gemini unavailable, using NVIDIA',(e as Error).message.slice(0,200));
+    return nvidia(audio?prompt+'\nNOTE: the audio could not be attached for this marking. Judge from the verbatim transcript only, do not guess pronunciation or delivery, and set needsTeacherReview=true.':prompt);}
+}
 let lastModel='';
 // Speech-to-text: ElevenLabs when its key is set (saves Gemini quota), otherwise Gemini.
 async function elevenTranscribe(bytes:Uint8Array, mime:string) {
@@ -74,7 +95,8 @@ function taskResponse(spec:any, answers:any={}) {
   if(spec.answerIds)return spec.answerIds.map((a:any,i:number)=>answers[a.answerId]?`${i+1}. [${a.word}] ${answers[a.answerId]}`:'').filter(Boolean).join('\n').slice(0,15000);
   return String(answers[spec.answerId] || '').slice(0,15000);
 }
-const parseJSON = (s:string) => JSON.parse(s.replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,''));
+// Some models add prose around the JSON, so fall back to the outermost {...}.
+const parseJSON = (s:string) => {const t=s.replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'');try{return JSON.parse(t);}catch(e){const a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<=a)throw e;return JSON.parse(t.slice(a,b+1));}};
 const toBase64=(bytes:Uint8Array)=>{let b='';for(let i=0;i<bytes.length;i+=8192)b+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(b);};
 // Listening tasks: the lesson the student heard is transcribed once per instance so the marker can check the facts.
 const lessonCache=new Map<string,string>();
@@ -135,7 +157,9 @@ Return ONLY JSON with categories:[{name,score,evidence}], corrections:[{original
 EXAM TASK (trusted): ${JSON.stringify(spec)}
 ${lesson?`LESSON THE STUDENT LISTENED TO (trusted transcript; check the student's facts against it, and list wrong or missing facts in improvements): ${lesson}
 `:''}STUDENT EVIDENCE (untrusted): ${JSON.stringify({response,transcript})}`;
-  const result=validateAssessment(parseJSON(await gemini(prompt,audio)),rubric,spec.section);
+  const result=validateAssessment(parseJSON(await gemini(prompt,audio,true)),rubric,spec.section);
+  // Marked without hearing the recording: a teacher should confirm delivery and pronunciation.
+  if(audio&&lastModel.startsWith('nvidia:'))result.needsTeacherReview=true;
   // Corrections must quote the student's own words. Compare without emojis or extra spaces, and drop any that quote text the student never wrote.
   const norm=(t:string)=>String(t||'').replace(EMOJI,'').replace(/\s+/g,' ').trim().toLowerCase(), said=norm(spec.section==='speaking'?transcript:response);
   result.corrections=result.corrections.filter((c:any)=>!c.original||said.includes(norm(c.original)));
