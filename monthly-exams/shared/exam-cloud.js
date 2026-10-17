@@ -51,6 +51,8 @@
       const serial=JSON.stringify(data);
       if (serial!==last || !record?.id) {
         const r=await MonthlyCloud.call('sync',{exam,attemptId:record?.id,...(young?{consentConfirmed:true}:{adultConfirmed:true}),response:data});
+        // Already submitted (for example restored by the teacher): stop re-sending instead of retrying uploads the server refuses.
+        if (r.locked) { record={id:r.attemptId,locked:true,signature:serial}; persist(); status.textContent='Final submission saved. Your report is ready.'; reportButton.hidden=false; return; }
         record={id:r.attemptId,locked:false}; persist(); last=serial;
       }
       for (const c of await clips()) if (clipVersions.get(c.id)!==c.blob) { await MonthlyCloud.upload(record.id,c.id,c.blob); clipVersions.set(c.id,c.blob); }
