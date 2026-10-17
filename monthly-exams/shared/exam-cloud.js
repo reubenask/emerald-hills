@@ -14,15 +14,18 @@
   let syncing = false, finalising = false, last = '', clipVersions = new Map();
   const showError = e => { status.textContent = e.message || 'Cloud saving failed. Your browser autosave is unchanged.'; };
   function ibtStates() { const s = {}; for (const id of ['vocabulary','reading','writing','speaking']) { try { s[id] = JSON.parse(localStorage.getItem('monthly-ibt-october-2026-v1-'+id) || 'null'); } catch { s[id] = null; } } return s; }
+  // iBT pages use studentName/studentClass/studentDate; send one shape to the server.
+  function normal(st) { st = st || {}; const t = v => String(v || '').trim(); return { name: t(st.name || st.studentName), className: t(st.className || st.studentClass), date: t(st.date || st.studentDate) }; }
+  function missingDetails() { const st = snapshot().student; return !st.name || !st.className || !st.date; }
   function snapshot() {
-    if (exam !== 'ibt') return { student: structuredClone(state.student), answers: structuredClone(state.answers), submitted: Object.fromEntries(Object.entries(state.sections).map(([id,s]) => [id, !!s.submitted])), final: state.final };
+    if (exam !== 'ibt') return { student: normal(state.student), answers: structuredClone(state.answers), submitted: Object.fromEntries(Object.entries(state.sections).map(([id,s]) => [id, !!s.submitted])), final: state.final };
     const s = ibtStates(), answers = {};
     for (const id of ['vocabulary','reading']) for (const [q,value] of Object.entries(s[id]?.answers || {})) answers[id+'-'+q.replace(/^q/,'')] = value;
     for (const [q,value] of Object.entries(s.writing?.orders || {})) answers['arrangement-'+q.replace(/^s/,'')] = value;
     answers.email = s.writing?.answers?.email || ''; answers.discussion = s.writing?.answers?.discussion || '';
     let released = false; try { const release = JSON.parse(localStorage.getItem('monthly-ibt-october-2026-v1-results') || 'null'); released = !!release && release.signature === JSON.stringify(['vocabulary','writing','reading','speaking'].map(id => s[id]?.submittedAt || s[id]?.submitted)); } catch {}
-    let student = {}; try { student = JSON.parse(localStorage.getItem('monthly-ibt-student') || '{}'); } catch {}
-    if (!student.name) student = s.writing?.student || s.vocabulary?.student || {};
+    let identity = {}; try { identity = JSON.parse(localStorage.getItem('monthly-ibt-october-2026-v1-identity') || '{}') || {}; } catch {}
+    const student = normal(Object.assign({}, s.speaking?.student, s.reading?.student, s.vocabulary?.student, s.writing?.student, identity));
     return { student, answers, submitted: Object.fromEntries(Object.entries(s).map(([id,v]) => [id, !!v?.submitted])), final: released };
   }
   async function clips() {
@@ -74,7 +77,7 @@
   }
   reportButton.onclick=()=>{if(record?.locked && snapshot().final)location.href='../report.html?exam='+exam+'&attempt='+encodeURIComponent(record.id);};
   // Preserve the established final confirmation and restart behaviour.
-  if(typeof submitAll==='function') { const original=submitAll; window.submitAll=function(...args){ const r=original.apply(this,args); if(snapshot().final){ if(!consent.checked)status.textContent=(young?'To send this test for marking, tick the box above. Your browser submission is saved.':'To send this test for marking, tick the consent box above. Your browser submission is saved.');else sync().catch(showError); } return r; }; }
+  if(typeof submitAll==='function') { const original=submitAll; window.submitAll=function(...args){ if(missingDetails()){ alert('Enter your name, class and date at the top of the page before you submit.'); status.textContent='Submission blocked: enter your name, class and date at the top of the page.'; return; } const r=original.apply(this,args); if(snapshot().final){ if(!consent.checked)status.textContent=(young?'To send this test for marking, tick the box above. Your browser submission is saved.':'To send this test for marking, tick the consent box above. Your browser submission is saved.');else sync().catch(showError); } return r; }; }
   setInterval(()=>{ if(!snapshot().final)reportButton.hidden=true; sync().catch(showError); },15000);
   window.addEventListener('pageshow',()=>sync().catch(showError));
   sync().catch(showError);

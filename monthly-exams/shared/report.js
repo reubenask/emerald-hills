@@ -5,11 +5,11 @@
  let report,processing=false;
  const list=a=>'<ul>'+(a||[]).map(s=>'<li>'+safe(s)+'</li>').join('')+'</ul>';
  function render(r){
-  report=r;$('identity').textContent=({'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}[r.exam]||r.exam)+' · '+(r.student?.name||'Student')+' · '+(r.student?.className||'')+' · Submitted '+new Date(r.submittedAt).toLocaleString();
+  report=r;$('identity').textContent=({'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}[r.exam]||r.exam)+' · '+(r.student?.name||'Student')+' · '+(r.student?.className||'')+(r.student?.date?' · '+r.student.date:'')+' · Submitted '+new Date(r.submittedAt).toLocaleString();
   const sc=r.scorecard;
   $('report').hidden=false;$('download').disabled=false;$('print').disabled=false;
   const errors=r.jobs.filter(j=>j.status==='error'),pending=r.jobs.filter(j=>j.status==='pending');
-  $('retry').hidden=!errors.some(j=>j.tries<3);
+  $('retry').hidden=!errors.length;
   $('working').textContent=sc.complete?'Your practice report is ready.'+(sc.needsTeacherReview?' Some responses are flagged for teacher review.':''):errors.length?'Some AI marking requests could not complete. Objective feedback is available below; incomplete sections have no final score. Retry or ask your teacher to review.': 'Waiting for your results: '+r.jobs.filter(j=>['complete','missing'].includes(j.status)).length+' of '+r.jobs.length+' speaking/writing responses processed. Keep this page open.';
   const summary='<section class="panel"><h2>Score Card</h2><div class="scoregrid">'+sc.sections.map(s=>'<div class="score"><span>'+safe(s.title)+'</span><strong>'+(s.percentage===null?'Pending':s.percentage+'%')+'</strong><small>'+(s.score===null?'Awaiting marking':s.score+' / '+s.maxScore)+'</small></div>').join('')+'</div><p class="overall">Overall: '+(sc.overall===null?'Pending':sc.overall+' / 100')+'</p><p>'+safe(sc.weighting)+'</p><p class="notice">'+safe(sc.disclaimer)+'</p></section>';
   const objectives=r.objective.map(s=>'<section class="panel"><h2>'+safe(s.title)+' · '+s.score+' / '+s.maxScore+'</h2>'+s.items.map((q,i)=>'<article class="item '+(q.correct?'correct':'incorrect')+'"><h3>'+(i+1)+'. '+safe(q.question)+'</h3><p class="tag">'+(q.correct?'Correct':'Incorrect or unanswered')+'</p><p><b>Your answer:</b> '+safe(q.selected)+'</p><p><b>Correct answer:</b> '+safe(q.answer)+'</p><p><b>Why:</b> '+safe(q.explanation)+'</p></article>').join('')+'</section>').join('');
@@ -19,7 +19,9 @@
  }
  async function load(){const r=await MonthlyCloud.call('report',{attemptId});render(r);return r;}
  async function run(){if(processing)return;processing=true;$('refresh').disabled=true;try{let r=await load();while(r.jobs.some(j=>j.status==='pending')){const step=await MonthlyCloud.call('process',{attemptId});if(step.busy){$('working').textContent='Another request is processing this report. Refresh shortly to continue.';break;}r=await load();}}catch(e){$('working').textContent=e.message;}finally{processing=false;$('refresh').disabled=false;}}
- $('refresh').onclick=run;$('retry').onclick=async()=>{try{await MonthlyCloud.call('retry',{attemptId});await run();}catch(e){$('working').textContent=e.message;}};
+ // Refresh sends only the unmarked tasks back for marking, then finishes them.
+ const refresh=async()=>{if(processing)return;try{$('working').textContent='Checking for unmarked speaking and writing…';await MonthlyCloud.call('refresh',{attemptId});}catch(e){$('working').textContent=e.message;return;}await run();};
+ $('refresh').onclick=refresh;$('retry').onclick=refresh;
  $('print').onclick=()=>window.print();
  $('download').onclick=async()=>{
   $('download').disabled=true;
