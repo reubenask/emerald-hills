@@ -136,7 +136,9 @@ EXAM TASK (trusted): ${JSON.stringify(spec)}
 ${lesson?`LESSON THE STUDENT LISTENED TO (trusted transcript; check the student's facts against it, and list wrong or missing facts in improvements): ${lesson}
 `:''}STUDENT EVIDENCE (untrusted): ${JSON.stringify({response,transcript})}`;
   const result=validateAssessment(parseJSON(await gemini(prompt,audio)),rubric,spec.section);
-  for(const c of result.corrections)if(c.original && !(spec.section==='speaking'?transcript:response).toLowerCase().includes(c.original.toLowerCase()))throw Error('Correction cites text absent from student response');
+  // Corrections must quote the student's own words. Compare without emojis or extra spaces, and drop any that quote text the student never wrote.
+  const norm=(t:string)=>String(t||'').replace(EMOJI,'').replace(/\s+/g,' ').trim().toLowerCase(), said=norm(spec.section==='speaking'?transcript:response);
+  result.corrections=result.corrections.filter((c:any)=>!c.original||said.includes(norm(c.original)));
   for(const k of ['corrections','linkingSuggestions','strengths','improvements','improvedResponse','categories'])if(k in result)result[k]=plain(result[k]);
   const moderation=await moderate(spec,attempt.exam_id,rubric,result,{response,transcript});
   return {status:'complete',result:{...result,needsTeacherReview:result.needsTeacherReview||!!spec.forceTeacherReview,moderation,teacherApproval:'pending',...(spec.section==='speaking'?{transcript,transcriptSource:raw.source||'gemini'}:{response}),model:lastModel,markedAt:new Date().toISOString()}};
@@ -155,6 +157,35 @@ async function emailReport(attempt:any, catalog:any, report:any) {
   if(!r.ok)throw Error('Resend HTTP '+r.status+' '+(await r.text()).slice(0,300));
   return true;
 }
+// Marks the next unmarked task of a claimed report, then emails the report once nothing is left.
+// Failed jobs are retried automatically, up to three tries in total.
+async function markNext(attempt:any, catalog:any, report:any) {
+  const job=report.jobs.find((j:any)=>j.status==='pending')||report.jobs.find((j:any)=>j.status==='error'&&j.tries<3);
+  if(job) {
+    job.tries++;
+    try {Object.assign(job,await assess(job,attempt,catalog));}
+    catch(e){console.error('Marking failed',job.id,(e as Error).message);job.status='error';job.cause=String((e as Error).message).slice(0,300);job.error='AI marking is temporarily unavailable. No score has been assigned. Retry or request teacher review.';}
+  }
+  const patch:any={jobs:report.jobs,lease_until:null,updated_at:new Date().toISOString()};
+  if(!report.jobs.some((j:any)=>j.status==='pending'||(j.status==='error'&&j.tries<3))&&!report.emailed_at){
+    try{const sent=await emailReport(attempt,catalog,report);if(sent)patch.emailed_at=new Date().toISOString();}
+    catch(e){console.error('Report email failed',(e as Error).message);}
+  }
+  await db('monthly_ai_reports?attempt_id=eq.'+attempt.id,'PATCH',patch);
+  return {processed:job?.id||null,emailed:!!patch.emailed_at};
+}
+// Scheduled server check: finishes submitted tests whose student closed the page, one task per test per run.
+async function sweep() {
+  const reports=await db('monthly_ai_reports?emailed_at=is.null&select=attempt_id,jobs,updated_at&order=updated_at.asc&limit=50');
+  const due=reports.filter((r:any)=>r.jobs.some((j:any)=>j.status==='pending'||(j.status==='error'&&j.tries<3))||r.jobs.every((j:any)=>['complete','missing','error'].includes(j.status)));
+  const done:any[]=[];
+  for(const r of due.slice(0,Number(env('SWEEP_BATCH')||3))) {
+    const rows=await db('monthly_exam_attempts?id=eq.'+r.attempt_id+'&status=eq.submitted&select=*');if(!rows[0])continue;
+    const claimed=await db('rpc/monthly_claim_marking','POST',{p_attempt:r.attempt_id});if(!claimed.length)continue;
+    done.push({attempt:r.attempt_id,...await markNext(rows[0],await catalogFor(rows[0].exam_id),claimed[0])});
+  }
+  return {checked:due.length,done};
+}
 Deno.serve(async (req:Request) => {
   const origin=req.headers.get('origin')||'';
   const cors={'Access-Control-Allow-Origin':allowed.includes(origin)?origin:allowed[0],'Access-Control-Allow-Headers':'authorization, apikey, content-type, x-student-authorization','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin'};
@@ -163,6 +194,8 @@ Deno.serve(async (req:Request) => {
   if(req.method!=='POST')return json({error:'POST required'},405);
   if(origin&&!allowed.includes(origin))return json({error:'Origin not allowed'},403);
   try {
+    const secret=env('SWEEP_SECRET');
+    if(secret&&req.headers.get('x-sweep-secret')===secret)return json(await sweep());
     const authorization=req.headers.get('x-student-authorization')||req.headers.get('authorization')||'';
     const auth=await fetch(base+'/auth/v1/user',{headers:{apikey:anon,Authorization:authorization}});
     if(!auth.ok)throw new PublicError('Please reconnect your private student session.',401);
@@ -193,21 +226,7 @@ Deno.serve(async (req:Request) => {
     if(body.action==='process') {
       const claimed=await db('rpc/monthly_claim_marking','POST',{p_attempt:attempt.id});
       if(!claimed.length)return json({busy:true});
-      // Failed jobs are retried automatically, up to three tries in total.
-      const report=claimed[0], job=report.jobs.find((j:any)=>j.status==='pending')||report.jobs.find((j:any)=>j.status==='error'&&j.tries<3);
-      if(job) {
-        job.tries++;
-        try {Object.assign(job,await assess(job,attempt,catalog));}
-        catch(e){console.error('Marking failed',job.id,(e as Error).message);job.status='error';job.error='AI marking is temporarily unavailable. No score has been assigned. Retry or request teacher review.';}
-      }
-      const patch:any={jobs:report.jobs,lease_until:null,updated_at:new Date().toISOString()};
-      // Once nothing is left to mark, email the report card once.
-      if(!report.jobs.some((j:any)=>j.status==='pending'||(j.status==='error'&&j.tries<3))&&!report.emailed_at){
-        try{const sent=await emailReport(attempt,catalog,report);if(sent)patch.emailed_at=new Date().toISOString();}
-        catch(e){console.error('Report email failed',(e as Error).message);}
-      }
-      await db('monthly_ai_reports?attempt_id=eq.'+attempt.id,'PATCH',patch);
-      return json({processed:job?.id||null,emailed:!!patch.emailed_at});
+      return json(await markNext(attempt,catalog,claimed[0]));
     }
     if(body.action==='retry') {
       const claimed=await db('rpc/monthly_claim_marking','POST',{p_attempt:attempt.id});if(!claimed.length)return json({busy:true});
@@ -218,7 +237,7 @@ Deno.serve(async (req:Request) => {
     if(body.action==='refresh') {
       const claimed=await db('rpc/monthly_claim_marking','POST',{p_attempt:attempt.id});if(!claimed.length)return json({busy:true});
       const report=claimed[0];let reset=0;
-      for(const j of report.jobs)if(j.status==='error'||(j.status==='missing'&&j.section==='speaking')){j.status='pending';j.tries=0;delete j.error;delete j.result;reset++;}
+      for(const j of report.jobs)if(j.status==='error'||(j.status==='missing'&&j.section==='speaking')){j.status='pending';j.tries=0;delete j.error;delete j.cause;delete j.result;reset++;}
       const patch:any={jobs:report.jobs,lease_until:null};if(reset)patch.emailed_at=null;
       await db('monthly_ai_reports?attempt_id=eq.'+attempt.id,'PATCH',patch);return json({reset});
     }

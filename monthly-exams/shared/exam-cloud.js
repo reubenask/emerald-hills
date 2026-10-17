@@ -38,7 +38,8 @@
     const data = snapshot();
     if (!data.final && !Object.values(data.submitted).some(Boolean) && !data.student?.name && !Object.keys(data.answers).length) return;
     if (record?.locked) {
-      if (data.final && record.signature === JSON.stringify(data)) { reportButton.hidden=false; return; }
+      // A submitted test stays the same attempt; only a restarted (no longer final) test starts a new one.
+      if (data.final) { reportButton.hidden=false; return; }
       record=null; last=''; clipVersions.clear(); localStorage.removeItem(key);
     }
     syncing=true;
