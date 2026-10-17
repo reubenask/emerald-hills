@@ -5,7 +5,7 @@
   const young = exam === 'primary-step2';
   const key = 'monthly-cloud-attempt-' + exam, consentKey = young ? 'monthly-primary-ai-consent-v1' : 'monthly-adult-ai-consent-v1';
   const notice = document.createElement('section'); notice.className = 'student-form';
-  notice.innerHTML = '<h3>Private Saving &amp; End-of-Test Report</h3><label style="display:flex;gap:12px;align-items:flex-start;font:inherit;text-transform:none;letter-spacing:normal"><input id="adultAIConsent" type="checkbox" style="width:auto;margin-top:5px"><span>'+(young?'My teacher has the school\'s and my parent\'s permission to send my written answers and speaking recordings to private Supabase storage and Google Gemini for marking and a report card.':'I am 18 or older and agree to send my written responses and speaking recordings to private Supabase storage and Google Gemini for AI-assisted practice feedback. Transcripts, answer explanations and AI scores appear only after final submission.')+'</span></label><p id="cloudStatus" role="status">Your existing browser autosave remains on.</p><button type="button" id="cloudReport" class="btn btn-gold" hidden>Open Detailed Report</button>';
+  notice.innerHTML = '<h3>Private Saving &amp; End-of-Test Report</h3><label style="display:flex;gap:12px;align-items:flex-start;font:inherit;text-transform:none;letter-spacing:normal"><input id="adultAIConsent" type="checkbox" style="width:auto;margin-top:5px"><span>'+'I have my parent or guardian\'s consent, or I am 18 or older, and I agree to send my written answers and speaking recordings to private Supabase storage, ElevenLabs and Google Gemini so my voice can be transcribed and my test marked by AI. Transcripts, answer explanations and AI scores appear only after final submission.'+'</span></label><p id="cloudStatus" role="status">Your existing browser autosave remains on.</p><button type="button" id="cloudReport" class="btn btn-gold" hidden>Open Detailed Report</button>';
   document.querySelector('.student-form').after(notice);
   const consent = notice.querySelector('input'), status = notice.querySelector('#cloudStatus'), reportButton = notice.querySelector('button');
   consent.checked = localStorage.getItem(consentKey) === 'yes';
@@ -74,7 +74,7 @@
   }
   reportButton.onclick=()=>{if(record?.locked && snapshot().final)location.href='../report.html?exam='+exam+'&attempt='+encodeURIComponent(record.id);};
   // Preserve the established final confirmation and restart behaviour.
-  if(typeof submitAll==='function') { const original=submitAll; window.submitAll=function(...args){ const r=original.apply(this,args); if(snapshot().final){ if(!consent.checked)status.textContent=(young?'To send this test for marking, tick the box above. Your browser submission is saved.':'To request the detailed AI report, confirm the adult processing agreement above. Your browser submission is saved.');else sync().catch(showError); } return r; }; }
+  if(typeof submitAll==='function') { const original=submitAll; window.submitAll=function(...args){ const r=original.apply(this,args); if(snapshot().final){ if(!consent.checked)status.textContent=(young?'To send this test for marking, tick the box above. Your browser submission is saved.':'To send this test for marking, tick the consent box above. Your browser submission is saved.');else sync().catch(showError); } return r; }; }
   setInterval(()=>{ if(!snapshot().final)reportButton.hidden=true; sync().catch(showError); },15000);
   window.addEventListener('pageshow',()=>sync().catch(showError));
   sync().catch(showError);
