@@ -7,7 +7,11 @@
   const notice = document.createElement('section'); notice.className = 'student-form';
   notice.innerHTML = '<h3>Private Saving &amp; End-of-Test Report</h3><label style="display:flex;gap:12px;align-items:flex-start;font:inherit;text-transform:none;letter-spacing:normal"><input id="adultAIConsent" type="checkbox" style="width:auto;margin-top:5px"><span>'+'I have my parent or guardian\'s consent, or I am 18 or older, and I agree to my written answers and speaking recordings being processed by AI tools so my voice can be transcribed and my test marked. Transcripts, answer explanations and AI scores appear only after final submission.'+'</span></label><p id="cloudStatus" role="status">Your existing browser autosave remains on.</p><button type="button" id="cloudReport" class="btn btn-gold" hidden>Open Detailed Report</button>';
   document.querySelector('.student-form').after(notice);
-  const consent = notice.querySelector('input'), status = notice.querySelector('#cloudStatus'), reportButton = notice.querySelector('button');
+  const consent = notice.querySelector('input'), cloudStatus = notice.querySelector('#cloudStatus'), reportButton = notice.querySelector('button');
+  // Repeat the sending status under the final submit button, where students look after submitting.
+  const finalButton = document.querySelector('#finalSubmit, #submitAll'), sendStatus = document.createElement('p');
+  sendStatus.setAttribute('role','status'); sendStatus.style.fontWeight='600'; if (finalButton) finalButton.after(sendStatus);
+  const status = { set textContent(t) { cloudStatus.textContent = t; if (snapshot().final) sendStatus.textContent = /Final submission saved|Marking/.test(t) ? t : 'Not sent to your teacher yet: ' + t; } };
   consent.checked = localStorage.getItem(consentKey) === 'yes';
   consent.addEventListener('change', () => { localStorage.setItem(consentKey, consent.checked ? 'yes' : 'no'); if (consent.checked) sync().catch(showError); });
   let record; try { record = JSON.parse(localStorage.getItem(key) || 'null'); } catch { record = null; }
@@ -79,7 +83,7 @@
   reportButton.onclick=()=>{if(record?.locked && snapshot().final)location.href='../report.html?exam='+exam+'&attempt='+encodeURIComponent(record.id);};
   // Preserve the established final confirmation and restart behaviour.
   if(typeof submitAll==='function') { const original=submitAll; window.submitAll=function(...args){ if(missingDetails()){ alert('Enter your name, class and date at the top of the page before you submit.'); status.textContent='Submission blocked: enter your name, class and date at the top of the page.'; return; } const r=original.apply(this,args); if(snapshot().final){ if(!consent.checked)status.textContent=(young?'To send this test for marking, tick the box above. Your browser submission is saved.':'To send this test for marking, tick the consent box above. Your browser submission is saved.');else sync().catch(showError); } return r; }; }
-  setInterval(()=>{ if(!snapshot().final)reportButton.hidden=true; sync().catch(showError); },15000);
+  setInterval(()=>{ if(!snapshot().final)reportButton.hidden=true; else if(!consent.checked)status.textContent='Tick the consent box at the top of the page to send your test.'; sync().catch(showError); },15000);
   window.addEventListener('pageshow',()=>sync().catch(showError));
   sync().catch(showError);
 })();

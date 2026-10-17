@@ -15,8 +15,9 @@
       const refresh = !!current?.refresh_token;
       const r = await fetch(config.url + '/auth/v1/' + (refresh ? 'token?grant_type=refresh_token' : 'signup'), {
         method: 'POST', headers: { apikey: config.publicKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify(refresh ? { refresh_token: current.refresh_token } : { data: { purpose: 'adult-monthly-exam' } })
-      });
+        body: JSON.stringify(refresh ? { refresh_token: current.refresh_token } : { data: { purpose: 'adult-monthly-exam' } }),
+        signal: AbortSignal.timeout(30000)
+      }).catch(() => { throw Error('Cannot reach the marking server. Check your internet connection; this page will keep trying.'); });
       if (!r.ok) throw Error('Private student sign-in failed. Please retry; do not clear browser data or your recordings.');
       current = await r.json();
       if (!current.access_token || !current.user?.id) throw Error('Private sign-in returned no student identity.');
