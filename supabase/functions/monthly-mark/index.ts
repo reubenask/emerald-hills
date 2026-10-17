@@ -63,7 +63,7 @@ async function geminiOnly(prompt: string, audio?: {data:string,mime:string}) {
 // It cannot hear audio, so it is used only where a transcript is enough (textFallback); speech-to-text still needs Gemini or ElevenLabs.
 async function nvidia(prompt: string) {
   const key=env('NVIDIA_API_KEY'); if (!key) throw Error('NVIDIA is not configured');
-  const model=env('NVIDIA_MARKING_MODEL')||'meta/llama-3.3-70b-instruct';
+  const model=env('NVIDIA_MARKING_MODEL')||'nvidia/nemotron-3.5-super-vl-120b-a12b';
   let last='';
   for(let attempt=0;attempt<2;attempt++){
     const r=await fetch('https://integrate.api.nvidia.com/v1/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
