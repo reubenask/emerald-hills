@@ -39,9 +39,12 @@
   async function upload(attemptId, id, blob) {
     const s = await session();
     if (blob.size > 12 * 1024 * 1024) throw Error('A recording is too large for automatic marking. Download it for your teacher.');
-    const r = await fetch(config.url + '/storage/v1/object/monthly-speaking/' + s.user.id + '/' + attemptId + '/' + id, {
-      method: 'POST', headers: { apikey: config.publicKey, Authorization: 'Bearer ' + s.access_token, 'Content-Type': blob.type || 'audio/webm', 'x-upsert': 'true' }, body: blob
-    });
+    let r;
+    try { r = await fetch(config.url + '/storage/v1/object/monthly-speaking/' + s.user.id + '/' + attemptId + '/' + id, {
+      method: 'POST', headers: { apikey: config.publicKey, Authorization: 'Bearer ' + s.access_token, 'Content-Type': blob.type || 'audio/webm', 'x-upsert': 'true' }, body: blob,
+      // A stalled upload must fail and retry, not block every later save and the final submission.
+      signal: AbortSignal.timeout(120000)
+    }); } catch { throw Error('A recording is still uploading or the connection dropped. Keep this page open; it will try again automatically.'); }
     if (!r.ok) throw Error('A recording could not upload. Nothing was submitted for marking; retry with your browser backup intact.');
   }
   window.MonthlyCloud = { session, call, upload };
