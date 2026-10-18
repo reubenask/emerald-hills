@@ -3,10 +3,27 @@
   const exam = document.documentElement.dataset.cloudExam;
   if (!['primary-step2', 'itp', 'ibt'].includes(exam)) return;
   const young = exam === 'primary-step2';
-  const key = 'monthly-cloud-attempt-' + exam, consentKey = young ? 'monthly-primary-ai-consent-v1' : 'monthly-adult-ai-consent-v1';
+  // Set by the exam page when opened from a teacher's retake link.
+  const retake = typeof RETAKE !== 'undefined' ? RETAKE : null;
+  const key = 'monthly-cloud-attempt-' + exam + (retake ? '-retake-' + retake.code : ''), consentKey = young ? 'monthly-primary-ai-consent-v1' : 'monthly-adult-ai-consent-v1';
   const notice = document.createElement('section'); notice.className = 'student-form';
   notice.innerHTML = '<h3>Private Saving &amp; End-of-Test Report</h3><label style="display:flex;gap:12px;align-items:flex-start;font:inherit;text-transform:none;letter-spacing:normal"><input id="adultAIConsent" type="checkbox" style="width:auto;margin-top:5px"><span>'+'I have my parent or guardian\'s consent, or I am 18 or older, and I agree to my written answers and speaking recordings being processed by AI tools so my voice can be transcribed and my test marked. Transcripts, answer explanations and AI scores appear only after final submission.'+'</span></label><p id="cloudStatus" role="status">Your existing browser autosave remains on.</p><button type="button" id="cloudReport" class="btn btn-gold" hidden>Open Detailed Report</button>';
   document.querySelector('.student-form').after(notice);
+  // A retake is checked with the server first; it fills in the original test's name, class and date.
+  let retakeChecked = !retake;
+  const retakeStatus = document.createElement('p'); retakeStatus.setAttribute('role','status'); retakeStatus.style.fontWeight = '600';
+  if (retake) { notice.prepend(retakeStatus); retakeStatus.textContent = 'Checking your retake code...'; }
+  async function checkRetake() {
+    if (retakeChecked) return true;
+    try {
+      const r = await MonthlyCloud.call('retake-open', { code: retake.code, exam, section: retake.section });
+      for (const [id, k] of [['studentName','name'],['studentClass','className'],['studentDate','date']]) if (!state.student[k] && r.student?.[k]) { state.student[k] = r.student[k]; document.getElementById(id).value = r.student[k]; }
+      save(); retakeChecked = true;
+      retakeStatus.textContent = 'Section retake for ' + (r.student?.name || 'this student') + ': ' + r.sectionTitle + ' only. Complete it, submit it, then press Submit All. Your other sections keep their original marks.';
+      return true;
+    } catch (e) { retakeStatus.textContent = 'Retake code problem: ' + e.message; return false; }
+  }
+  if (retake) checkRetake();
   const consent = notice.querySelector('input'), cloudStatus = notice.querySelector('#cloudStatus'), reportButton = notice.querySelector('button');
   // Repeat the sending status under the final submit button, where students look after submitting.
   const finalButton = document.querySelector('#finalSubmit, #submitAll'), sendStatus = document.createElement('p');
@@ -39,6 +56,7 @@
   function persist() { localStorage.setItem(key, JSON.stringify(record)); }
   async function sync() {
     if (!consent.checked || syncing || finalising) return;
+    if (!(await checkRetake())) return;
     const data = snapshot();
     if (!data.final && !Object.values(data.submitted).some(Boolean) && !data.student?.name && !Object.keys(data.answers).length) return;
     if (record?.locked) {
@@ -50,7 +68,7 @@
     try {
       const serial=JSON.stringify(data);
       if (serial!==last || !record?.id) {
-        const r=await MonthlyCloud.call('sync',{exam,attemptId:record?.id,...(young?{consentConfirmed:true}:{adultConfirmed:true}),response:data});
+        const r=await MonthlyCloud.call('sync',{exam,attemptId:record?.id,...(retake?{retakeCode:retake.code}:{}),...(young?{consentConfirmed:true}:{adultConfirmed:true}),response:data});
         // Already submitted (for example restored by the teacher): stop re-sending instead of retrying uploads the server refuses.
         if (r.locked) { record={id:r.attemptId,locked:true,signature:serial}; persist(); status.textContent='Final submission saved. Your report is ready.'; reportButton.hidden=false; return; }
         record={id:r.attemptId,locked:false}; persist(); last=serial;

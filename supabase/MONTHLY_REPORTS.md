@@ -30,3 +30,17 @@ Writing and speaking are marked like a teacher marking a script, on Structure an
 
 - Primary Step 2 students are children. The consent box says that the teacher has the school's and the parent's permission to send their work to Google Gemini. Make sure that is true before using it with a class.
 - Marking runs while the exam page stays open after submission (about one task every 10-30 seconds). If a student closes the page early, opening the report page finishes the marking and sends the email.
+
+## Section retakes
+
+When a machine, microphone or audio problem spoils one section of a submitted Primary Step 2 or ITP test, the teacher can let the student retake just that section.
+
+1. Open `monthly-exams/retake.html`, enter the teacher password and the student's name, choose the test and the section, and press Create Retake Code.
+2. Open the link it shows on the student's computer. The test opens with only that section, and the student's name, class and date filled in. The student completes it, submits it, then presses Submit All.
+3. The retake is marked for that section only. Its marks replace that section in the original report, which is emailed again with a note saying which section was retaken. The retake is not emailed on its own.
+
+The code works once, for one student, one test and one section, expires after 48 hours, and is tied to the first computer that opens it. Only a hash of the code is stored.
+
+Setup (once): run `supabase/monthly-retake.sql`, add the function secret `RETAKE_TEACHER_SECRET` (the teacher password, at least 8 characters), and redeploy `monthly-mark`.
+
+Tests: `node tools/test_monthly_retake.mjs` (after building the Primary catalog and the function bundle).
