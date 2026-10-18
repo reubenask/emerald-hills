@@ -74,8 +74,9 @@ export function mergeRetake(original, retake, section, retakeAttempt) {
     const r = retake.jobs.find(x => x.id === j.id);
     return r ? { ...r, ...(r.section === 'speaking' ? { recording: retakeAttempt.student_id + '/' + retakeAttempt.id + '/' + r.id } : {}), retaken: true } : j;
   });
-  const objective = original.objective.map(s => s.id === section ? { ...(retake.objective.find(x => x.id === section) || s), retaken: true } : s);
-  const taken = [...(original.retake?.taken || []), { section, attempt: retakeAttempt.id, submittedAt: retakeAttempt.submitted_at }];
+  // A task-only retake has no objective part, so the section's objective marks stay as they were.
+  const objective = original.objective.map(s => { const r = s.id === section && retake.objective.find(x => x.id === section); return r ? { ...r, retaken: true } : s; });
+  const taken = [...(original.retake?.taken || []), { section, ...(retake.retake?.tasks ? { tasks: retake.retake.tasks } : {}), attempt: retakeAttempt.id, submittedAt: retakeAttempt.submitted_at }];
   return { jobs, objective, retake: { ...(original.retake || {}), taken } };
 }
 const ESC = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};

@@ -197,7 +197,7 @@ function studentOf(state:any) {
 async function emailReport(attempt:any, catalog:any, report:any) {
   const key=env('RESEND_API_KEY'), to=env('REPORT_EMAIL_TO');
   if(!key||!to)return false;
-  const retakes=(report.retake?.taken||[]).map((t:any)=>({title:catalog.sections.find((s:any)=>s.id===t.section)?.title||t.section,date:String(t.submittedAt||'').slice(0,10)}));
+  const retakes=(report.retake?.taken||[]).map((t:any)=>({title:(catalog.sections.find((s:any)=>s.id===t.section)?.title||t.section)+(t.tasks?.length?' ('+t.tasks.map((id:string)=>catalog.tasks.find((x:any)=>x.id===id)?.title||id).join(', ')+')':''),date:String(t.submittedAt||'').slice(0,10)}));
   const {subject,html}=reportEmail({retakes,exam:attempt.exam_id,student:studentOf(attempt.response_state),submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,scorecard:scorecard(catalog,report.objective,report.jobs)});
   const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
     body:JSON.stringify({from:env('REPORT_EMAIL_FROM')||'Emerald Hills Reports <onboarding@resend.dev>',to:to.split(',').map(s=>s.trim()).filter(Boolean),subject,html})});
@@ -272,9 +272,9 @@ Deno.serve(async (req:Request) => {
       if(q.length<2)throw new PublicError('Enter at least two letters of the student name.');
       const rows=await db('monthly_exam_attempts?status=eq.submitted&student_name=ilike.'+encodeURIComponent('*'+q+'*')+'&select=id,exam_id,student_name,class_name,submitted_at&order=submitted_at.desc&limit=20');
       const retakes=rows.length?await db('monthly_retakes?retake_attempt_id=in.('+rows.map((r:any)=>r.id).join(',')+')&select=retake_attempt_id'):[];
-      const skip=new Set(retakes.map((r:any)=>r.retake_attempt_id)), sections:any={};
-      for(const e of RETAKE_EXAMS){try{sections[e]=(await catalogFor(e)).sections;}catch{}}
-      return json({tests:rows.filter((r:any)=>!skip.has(r.id)).map((r:any)=>({...r,retakeAvailable:RETAKE_EXAMS.includes(r.exam_id)})),sections});
+      const skip=new Set(retakes.map((r:any)=>r.retake_attempt_id)), sections:any={}, tasks:any={};
+      for(const e of RETAKE_EXAMS){try{const c=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
+      return json({tests:rows.filter((r:any)=>!skip.has(r.id)).map((r:any)=>({...r,retakeAvailable:RETAKE_EXAMS.includes(r.exam_id)})),sections,tasks});
     }
     if(body.action==='retake-create') {
       await teacherCheck(body.teacherSecret);
@@ -282,18 +282,26 @@ Deno.serve(async (req:Request) => {
       const orig=(await db('monthly_exam_attempts?id=eq.'+body.attemptId+'&status=eq.submitted&select=id,exam_id,student_name,class_name'))[0];
       if(!orig)throw new PublicError('Submitted test not found.',404);
       if(!RETAKE_EXAMS.includes(orig.exam_id))throw new PublicError('Section retakes are available for Primary Step 2 and ITP only.');
-      const sec=(await catalogFor(orig.exam_id)).sections.find((s:any)=>s.id===body.section);
+      const catalog=await catalogFor(orig.exam_id), sec=catalog.sections.find((s:any)=>s.id===body.section);
       if(!sec)throw new PublicError('Choose the section to retake.');
+      // Writing and speaking may retake chosen tasks only; every other section is retaken whole.
+      const sectionTasks=catalog.tasks.filter((t:any)=>t.section===sec.id).map((t:any)=>t.id);
+      const tasks=Array.isArray(body.tasks)?[...new Set(body.tasks.map(String))]:[];
+      if(tasks.some(t=>!sectionTasks.includes(t)))throw new PublicError('Choose tasks from the selected section.');
+      const only=tasks.length&&tasks.length<sectionTasks.length?tasks:null;
       const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>CODE_CHARS[b%32]).join(''), expires=new Date(Date.now()+48*3600000).toISOString();
-      await db('monthly_retakes','POST',{code_hash:await sha256(code),attempt_id:orig.id,section:sec.id,expires_at:expires});
-      return json({code,exam:orig.exam_id,section:sec.id,sectionTitle:sec.title,student:orig.student_name,className:orig.class_name,expiresAt:expires});
+      await db('monthly_retakes','POST',{code_hash:await sha256(code),attempt_id:orig.id,section:sec.id,tasks:only,expires_at:expires});
+      return json({code,exam:orig.exam_id,section:sec.id,sectionTitle:sec.title,tasks:only?catalog.tasks.filter((t:any)=>only.includes(t.id)).map((t:any)=>t.title):null,student:orig.student_name,className:orig.class_name,expiresAt:expires});
     }
     // Student: check a retake code before starting, and get the original test's name, class and date.
     if(body.action==='retake-open') {
       const {rt,orig}=await retakeFor(body.code,body.exam,body.section), used=await retakeAttemptOf(rt);
       if(used&&used.student_id!==user.id)throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
       const catalog=await catalogFor(orig.exam_id);
-      return json({section:rt.section,sectionTitle:catalog.sections.find((s:any)=>s.id===rt.section)?.title||rt.section,student:studentOf(orig.response_state),expiresAt:rt.expires_at});
+      // For a task retake the page enables only those tasks: their answer boxes, and speaking task numbers.
+      const chosen=rt.tasks?.length?catalog.tasks.filter((t:any)=>rt.tasks.includes(t.id)):null;
+      const allowed=chosen&&{tasks:chosen.map((t:any)=>t.title),answers:chosen.flatMap((t:any)=>t.answerIds?t.answerIds.map((a:any)=>a.answerId):t.answerId?[t.answerId]:[]),speaking:chosen.filter((t:any)=>t.section==='speaking').map((t:any)=>Number(String(t.id).replace(/\D/g,'')))};
+      return json({section:rt.section,sectionTitle:catalog.sections.find((s:any)=>s.id===rt.section)?.title||rt.section,allowed,student:studentOf(orig.response_state),expiresAt:rt.expires_at});
     }
     if(body.action==='sync') {
       const catalog=await catalogFor(body.exam);
@@ -321,8 +329,8 @@ Deno.serve(async (req:Request) => {
       if(attempt.status==='draft')await db('monthly_exam_attempts?id=eq.'+attempt.id,'PATCH',{status:'submitted'});
       const old=await db('monthly_ai_reports?attempt_id=eq.'+attempt.id+'&select=attempt_id');
       // A retake is marked only for its section.
-      const rt=(await db('monthly_retakes?retake_attempt_id=eq.'+attempt.id+'&select=*'))[0], only=(id:string)=>!rt||id===rt.section;
-      if(!old.length)await db('monthly_ai_reports','POST',{attempt_id:attempt.id,catalog_version:catalog.version,...(rt?{retake:{of:rt.attempt_id,section:rt.section}}:{}),objective:objectiveReport(catalog,attempt.response_state.answers).filter((s:any)=>only(s.id)),jobs:catalog.tasks.filter((t:any)=>only(t.section)).map((t:any)=>({id:t.id,section:t.section,title:t.title,prompt:t.prompt,target:t.target||null,response:t.section==='writing'?taskResponse(t,attempt.response_state.answers):null,status:'pending',tries:0}))});
+      const rt=(await db('monthly_retakes?retake_attempt_id=eq.'+attempt.id+'&select=*'))[0], only=(id:string)=>!rt||id===rt.section, chosen=rt?.tasks?.length?rt.tasks:null;
+      if(!old.length)await db('monthly_ai_reports','POST',{attempt_id:attempt.id,catalog_version:catalog.version,...(rt?{retake:{of:rt.attempt_id,section:rt.section,...(chosen?{tasks:chosen}:{})}}:{}),objective:chosen?[]:objectiveReport(catalog,attempt.response_state.answers).filter((s:any)=>only(s.id)),jobs:catalog.tasks.filter((t:any)=>only(t.section)&&(!chosen||chosen.includes(t.id))).map((t:any)=>({id:t.id,section:t.section,title:t.title,prompt:t.prompt,target:t.target||null,response:t.section==='writing'?taskResponse(t,attempt.response_state.answers):null,status:'pending',tries:0}))});
       if(rt&&!rt.used_at)await db('monthly_retakes?code_hash=eq.'+rt.code_hash,'PATCH',{used_at:new Date().toISOString()});
       return json({submitted:true});
     }

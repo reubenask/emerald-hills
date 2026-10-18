@@ -18,12 +18,16 @@
     try {
       const r = await MonthlyCloud.call('retake-open', { code: retake.code, exam, section: retake.section });
       for (const [id, k] of [['studentName','name'],['studentClass','className'],['studentDate','date']]) if (!state.student[k] && r.student?.[k]) { state.student[k] = r.student[k]; document.getElementById(id).value = r.student[k]; }
-      save(); retakeChecked = true;
-      retakeStatus.textContent = 'Section retake for ' + (r.student?.name || 'this student') + ': ' + r.sectionTitle + ' only. Complete it, submit it, then press Submit All. Your other sections keep their original marks.';
+      // A task retake: the page enables only these tasks.
+      if (r.allowed) retake.allowed = r.allowed;
+      save(); render(); retakeChecked = true;
+      retakeStatus.textContent = 'Retake for ' + (r.student?.name || 'this student') + ': ' + r.sectionTitle + (r.allowed ? ', ' + r.allowed.tasks.join(', ') + ' only' : ' only') + '. Complete it, submit the section, then press Submit All. Everything else keeps its original marks.';
       return true;
     } catch (e) { retakeStatus.textContent = 'Retake code problem: ' + e.message; return false; }
   }
   if (retake) checkRetake();
+  // Teacher entry point for retakes, at the foot of the Primary and ITP pages.
+  else if (exam !== 'ibt') { const t = document.createElement('p'); t.style.cssText = 'text-align:center;margin:40px 0 20px;font-size:.85rem'; t.innerHTML = '<a href="../retake.html" style="color:inherit;opacity:.7">Teacher</a>'; document.body.append(t); }
   const consent = notice.querySelector('input'), cloudStatus = notice.querySelector('#cloudStatus'), reportButton = notice.querySelector('button');
   // Repeat the sending status under the final submit button, where students look after submitting.
   const finalButton = document.querySelector('#finalSubmit, #submitAll'), sendStatus = document.createElement('p');
