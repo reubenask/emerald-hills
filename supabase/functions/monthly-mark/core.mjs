@@ -53,6 +53,8 @@ export function validateAssessment(value, rubric, kind) {
   const linkingSuggestions = (Array.isArray(value.linkingSuggestions) ? value.linkingSuggestions : []).filter(l => l && ['original','better','reason'].every(k => typeof l[k] === 'string')).slice(0, 10).map(l => ({ original: l.original.slice(0, 1000), better: l.better.slice(0, 1000), reason: l.reason.slice(0, 1000) }));
   return { categories, corrections, linkingSuggestions, strengths: value.strengths.map(String).slice(0, 10), improvements: value.improvements.map(String).slice(0, 10), improvedResponse: value.improvedResponse.slice(0, 15000), needsTeacherReview: value.needsTeacherReview, score: categories.reduce((n,c) => n+c.score,0), maxScore: rubric.reduce((n,c) => n+c[1],0), kind, rubricVersion: RUBRIC_VERSION };
 }
+// The teacher has approved this task's mark, or changed it.
+export const teacherDecided = j => ['approved', 'changed'].includes(j.result?.teacherApproval);
 export function scorecard(catalog, objective, jobs) {
   const sections = catalog.sections.map(section => {
     const obj = objective.find(s => s.id === section.id);
@@ -63,7 +65,7 @@ export function scorecard(catalog, objective, jobs) {
     return { id: section.id, title: section.title, score: pending ? null : score, maxScore, percentage: pending || !maxScore ? null : Math.round(score/maxScore*100), status: pending ? 'pending' : 'complete' };
   });
   const complete = sections.every(s => s.status === 'complete');
-  return { sections, overall: complete ? Math.round(sections.reduce((n,s) => n+s.percentage,0)/sections.length) : null, maxOverall: 100, weighting: 'Each section contributes equally to the overall percentage. Task points are combined within each section.', complete, needsTeacherReview: jobs.some(j => j.result?.needsTeacherReview), disclaimer: 'AI-assisted classroom practice assessment, not an official ETS TOEFL score. AI transcription and grading can make mistakes; teacher review is available.' };
+  return { sections, overall: complete ? Math.round(sections.reduce((n,s) => n+s.percentage,0)/sections.length) : null, maxOverall: 100, weighting: 'Each section contributes equally to the overall percentage. Task points are combined within each section.', complete, needsTeacherReview: jobs.some(j => j.result?.needsTeacherReview && !teacherDecided(j)), approved: jobs.length > 0 && jobs.every(teacherDecided), disclaimer: 'AI-assisted classroom practice assessment, not an official ETS TOEFL score. AI transcription and grading can make mistakes; teacher review is available.' };
 }
 
 // A retake replaces one section of the original report: its objective marks and its writing or speaking tasks.
@@ -88,8 +90,8 @@ export function reportEmail(r) {
   const sc = r.scorecard, st = r.student || {}, name = st.name || st.studentName || 'Student', cls = st.className || st.studentClass || '', date = st.date || st.studentDate || '';
   const total = sc.sections.reduce((n, s) => n + (s.score ?? 0), 0), max = sc.sections.reduce((n, s) => n + s.maxScore, 0);
   // Speaking tasks with no usable recording are listed at the top, so a microphone problem is not missed.
-  const checks = r.jobs.filter(j => j.section === 'speaking' && (j.status === 'missing' || (j.status === 'complete' && j.result?.score === 0 && !j.result?.categories?.length))).map(j => j.title + (j.status === 'missing' ? ': no recording' : ': no speech heard'));
-  const subject = (sc.needsTeacherReview || !sc.complete || checks.length ? '[Check needed] ' : '') + name + (cls ? ' · ' + cls : '') + ' · ' + (EXAM_TITLES[r.exam] || r.exam) + ' Monthly: ' + (sc.overall ?? 'pending') + '%' + (r.retakes?.length ? ' (updated after ' + r.retakes.map(t => t.title).join(', ') + ' retake)' : '');
+  const checks = r.jobs.filter(j => j.section === 'speaking' && !teacherDecided(j) && (j.status === 'missing' || (j.status === 'complete' && j.result?.score === 0 && !j.result?.categories?.length))).map(j => j.title + (j.status === 'missing' ? ': no recording' : ': no speech heard'));
+  const subject = (sc.approved ? '[Approved] ' : sc.needsTeacherReview || !sc.complete || checks.length ? '[Check needed] ' : '') + name + (cls ? ' · ' + cls : '') + ' · ' + (EXAM_TITLES[r.exam] || r.exam) + ' Monthly: ' + (sc.overall ?? 'pending') + '%' + (r.retakes?.length ? ' (updated after ' + r.retakes.map(t => t.title).join(', ') + ' retake)' : '');
   const td = 'style="padding:6px 8px;border-bottom:1px solid #e5e1d8;vertical-align:top"';
   const wrong = r.objective.map(s => { const items = s.items.filter(q => !q.correct); return items.length ? '<h3 style="color:#092d24">' + esc(s.title) + ' · ' + s.score + ' / ' + s.maxScore + '</h3>' + items.map(q => '<p style="margin:0 0 10px"><b>' + esc(q.question) + '</b><br>Your answer: ' + esc(q.selected) + '<br>Correct answer: ' + esc(q.answer) + '<br><i>Why:</i> ' + esc(q.explanation) + '</p>').join('') : '<h3 style="color:#092d24">' + esc(s.title) + ' · ' + s.score + ' / ' + s.maxScore + ' · all correct</h3>'; }).join('');
   const tasks = r.jobs.map(j => { const a = j.result || {}; return '<div style="border-top:2px solid #dab977;margin-top:16px;padding-top:8px"><h3 style="margin:0;color:#092d24">' + esc(j.title) + ' · ' + (a.score ?? 'Pending') + ' / ' + (a.maxScore ?? '') + '</h3>' +
@@ -99,7 +101,8 @@ export function reportEmail(r) {
     (a.corrections?.length ? '<p><b>Mistakes and corrections:</b></p>' + a.corrections.map(c => '<p style="margin:0 0 8px">Original: ' + esc(c.original) + '<br>Correction: ' + esc(c.corrected) + '<br><i>' + esc(c.reason) + '</i></p>').join('') : '') +
     (a.linkingSuggestions?.length ? '<p><b>Linking words you could have used:</b></p>' + a.linkingSuggestions.map(l => '<p style="margin:0 0 8px">' + 'You wrote: ' + esc(l.original) + '<br>Better: ' + esc(l.better) + '<br><i>' + esc(l.reason) + '</i></p>').join('') : '') +
     (a.improvedResponse ? '<p><b>Corrected version:</b></p><pre style="white-space:pre-wrap;background:#eef5ef;padding:8px">' + esc(a.improvedResponse) + '</pre>' : '') +
-    (j.status === 'error' ? '<p style="color:#9a3412">Marking could not complete; teacher review needed.</p>' : a.needsTeacherReview ? '<p style="color:#9a3412">Teacher review recommended.</p>' : '') + '</div>'; }).join('');
+    (a.teacherApproval === 'changed' ? '<p style="font-size:14px;color:#14532d"><b>Teacher mark:</b> ' + a.score + ' / ' + a.maxScore + (a.aiScore != null ? ' (AI mark ' + a.aiScore + ')' : '') + (a.teacherNote ? '. ' + esc(a.teacherNote) : '') + '</p>' : a.teacherApproval === 'approved' && a.teacherNote ? '<p style="font-size:14px;color:#14532d"><b>Teacher note:</b> ' + esc(a.teacherNote) + '</p>' : '') +
+    (teacherDecided(j) ? '' : j.status === 'error' ? '<p style="color:#9a3412">Marking could not complete; teacher review needed.</p>' : a.needsTeacherReview ? '<p style="color:#9a3412">Teacher review recommended.</p>' : '') + '</div>'; }).join('');
   const html = '<!doctype html><html><body style="margin:0;background:#f5f3ee;font:15px/1.55 Georgia,serif;color:#1a2744"><div style="max-width:760px;margin:0 auto;background:#fff">' +
     '<div style="background:#092d24;color:#e9efdf;padding:22px 24px;border-bottom:4px solid #dab977"><div style="letter-spacing:.2em;font-size:12px;color:#dab977">EMERALD HILLS · MONTHLY EXAMINATION</div><h1 style="margin:6px 0 0;font-weight:400;color:#dab977">EXAM REPORT CARD</h1>' +
     '<p style="margin:8px 0 0">' + esc(name) + (cls ? ' · ' + esc(cls) : '') + (date ? ' · ' + esc(date) : '') + ' · ' + esc(EXAM_TITLES[r.exam] || r.exam) + ' · submitted ' + esc(String(r.submittedAt || '').slice(0, 10)) + '</p></div><div style="padding:20px 24px">' +
@@ -109,7 +112,7 @@ export function reportEmail(r) {
     sc.sections.map(s => '<tr><td ' + td + '>' + esc(s.title) + '</td><td ' + td + ' align="right">' + (s.score ?? 'Pending') + ' / ' + s.maxScore + '</td><td ' + td + ' align="right">' + (s.percentage ?? '') + '</td></tr>').join('') +
     '<tr style="font-weight:bold;background:#f5f3ee"><td style="padding:8px">Overall</td><td style="padding:8px" align="right">' + total + ' / ' + max + '</td><td style="padding:8px" align="right">' + (sc.overall ?? 'Pending') + '</td></tr></table>' +
     '<p style="font-size:13px;color:#555">' + esc(sc.weighting) + ' ' + esc(sc.disclaimer) + '</p>' +
-    '<p style="font-size:14px;color:#9a3412"><b>Status: awaiting teacher approval.</b> Writing and speaking were marked and then re-checked for fairness by AI; the teacher confirms or re-evaluates the final scores.</p>' +
+    (sc.approved ? '<p style="font-size:14px;color:#14532d"><b>Status: approved by the teacher.</b> These are the final marks.</p>' : '<p style="font-size:14px;color:#9a3412"><b>Status: awaiting teacher approval.</b> Writing and speaking were marked and then re-checked for fairness by AI; the teacher confirms or re-evaluates the final scores.</p>') +
     '<h2 style="color:#092d24;border-bottom:2px solid #dab977">Answers to Review</h2>' + wrong +
     '<h2 style="color:#092d24;border-bottom:2px solid #dab977">Writing and Speaking Feedback</h2>' + tasks + '</div></div></body></html>';
   return { subject, html };
