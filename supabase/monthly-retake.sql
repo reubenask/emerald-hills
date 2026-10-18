@@ -33,4 +33,7 @@ create table if not exists public.monthly_retake_requests (
 );
 alter table public.monthly_retake_requests enable row level security;
 revoke all on public.monthly_retake_requests from public, anon, authenticated;
+-- What the student asked to retake when requesting (empty tasks: the whole section).
+alter table public.monthly_retake_requests add column if not exists requested_section text;
+alter table public.monthly_retake_requests add column if not exists requested_tasks text[];
 commit;

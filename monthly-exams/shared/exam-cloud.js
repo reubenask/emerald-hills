@@ -104,23 +104,49 @@
   }
   // After submitting, a student can ask for a retake. The page shows a request code; the teacher approves it on their own
   // device, and this page then offers Start Retake. The teacher password is never typed on a student computer.
-  const requestBox = document.createElement('div'); requestBox.hidden = true; requestBox.style.marginTop = '16px';
-  requestBox.innerHTML = '<p role="status"></p><button type="button" class="btn btn-outline"></button>';
-  const requestStatus = requestBox.querySelector('p'), requestButton = requestBox.querySelector('button');
-  if (!retake && exam !== 'ibt') notice.append(requestBox);
-  function showRequest(r) {
-    if (r.status === 'approved') { requestStatus.textContent = 'Your teacher approved a retake of ' + r.sectionTitle + '.'; requestButton.hidden = false; requestButton.textContent = 'Start Retake'; requestButton.onclick = () => { location.href = location.pathname + '?retake=' + encodeURIComponent(r.code) + '&section=' + encodeURIComponent(r.section); }; }
-    else if (r.status === 'pending') { requestStatus.textContent = 'Retake requested. Show this code to your teacher: ' + r.requestCode + '. This page updates when your teacher approves it.'; requestButton.hidden = true; }
-    else { requestStatus.textContent = 'If a machine, microphone or sound problem spoiled part of your test, you can ask your teacher for a retake.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.onclick = askRetake; }
+  const requestBox = document.createElement('div'); requestBox.hidden = true; requestBox.style.cssText = 'margin-top:20px;padding-top:16px;border-top:1px solid #d8d2c4';
+  requestBox.innerHTML = '<h3 style="margin:0 0 8px">Request a Retake</h3><p role="status"></p><div></div><button type="button" class="btn btn-outline"></button>';
+  const requestStatus = requestBox.querySelector('p'), requestChoices = requestBox.querySelector('div'), requestButton = requestBox.querySelector('button');
+  // Sits under Submit All & View Results (and the results that appear there).
+  if (!retake && exam !== 'ibt') (document.querySelector('#finalResults') || sendStatus).after(requestBox);
+  const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const tickRow = (type, name, value, text, checked) => '<label style="display:flex;gap:10px;align-items:center;margin:6px 0;font:inherit;text-transform:none;letter-spacing:normal"><input type="' + type + '" name="' + name + '" value="' + esc(value) + '"' + (checked ? ' checked' : '') + ' style="width:auto;margin:0"> ' + esc(text) + '</label>';
+  // The student ticks one section; writing and speaking also list their tasks, all ticked to start with.
+  function showChoices(r) {
+    requestChoices.innerHTML = '<p style="margin:8px 0 4px;font-weight:600">Which part went wrong?</p>' + r.sections.map(x => tickRow('radio', 'retakeSection', x.id, x.title, false)).join('') + '<div id="retakeTasks"></div>';
+    const taskBox = requestChoices.querySelector('#retakeTasks');
+    requestChoices.querySelectorAll('input[name="retakeSection"]').forEach(el => el.onchange = () => {
+      const list = r.tasks.filter(t => t.section === el.value);
+      taskBox.innerHTML = list.length ? '<p style="margin:10px 0 4px;font-weight:600">Which tasks? Untick the ones that worked.</p>' + list.map(t => tickRow('checkbox', 'retakeTask', t.id, t.title, true)).join('') : '';
+      requestButton.disabled = false;
+    });
+    requestButton.disabled = true;
   }
-  async function askRetake() { requestButton.disabled = true; try { showRequest(await MonthlyCloud.call('retake-request', { attemptId: record.id })); } catch (e) { requestStatus.textContent = e.message; } finally { requestButton.disabled = false; } }
+  function showRequest(r) {
+    requestChoices.innerHTML = ''; requestButton.disabled = false;
+    if (r.status === 'approved') { requestStatus.textContent = 'Your teacher approved a retake of ' + r.sectionTitle + '.'; requestButton.hidden = false; requestButton.textContent = 'Start Retake'; requestButton.onclick = () => { location.href = location.pathname + '?retake=' + encodeURIComponent(r.code) + '&section=' + encodeURIComponent(r.section); }; }
+    else if (r.status === 'pending') { requestStatus.textContent = 'Retake requested' + (r.asked ? ' for ' + r.asked : '') + '. Show this code to your teacher: ' + r.requestCode + '. This page updates when your teacher approves it.'; requestButton.hidden = true; }
+    else { requestStatus.textContent = 'If a machine, microphone or sound problem spoiled part of your test, choose that part and ask your teacher for a retake.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.onclick = askRetake; showChoices(r); }
+  }
+  async function askRetake() {
+    const section = requestChoices.querySelector('input[name="retakeSection"]:checked')?.value, tasks = [...requestChoices.querySelectorAll('input[name="retakeTask"]:checked')].map(c => c.value);
+    if (!section) { requestStatus.textContent = 'Choose the part of the test you want to retake.'; return; }
+    if (requestChoices.querySelector('input[name="retakeTask"]') && !tasks.length) { requestStatus.textContent = 'Tick at least one task to retake.'; return; }
+    requestButton.disabled = true;
+    try { showRequest(await MonthlyCloud.call('retake-request', { attemptId: record.id, section, tasks })); } catch (e) { requestStatus.textContent = e.message; requestButton.disabled = false; }
+  }
+  let requestShown = '';
   async function checkRequest() {
     if (retake || exam === 'ibt') { requestBox.hidden = true; return; }
     requestBox.hidden = false;
     // Before submission the button is shown but disabled, so students know where to find it.
-    if (!record?.locked || !snapshot().final) { requestStatus.textContent = 'If a machine, microphone or sound problem spoils part of your test, you can ask your teacher for a retake here after you submit.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.disabled = true; return; }
-    requestButton.disabled = false;
-    try { showRequest(await MonthlyCloud.call('retake-request-status', { attemptId: record.id })); } catch {}
+    if (!record?.locked || !snapshot().final) { requestShown = ''; requestChoices.innerHTML = ''; requestStatus.textContent = 'If a machine, microphone or sound problem spoils part of your test, you can ask your teacher for a retake here after you submit.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.disabled = true; return; }
+    try {
+      const r = await MonthlyCloud.call('retake-request-status', { attemptId: record.id });
+      // Redraw only when something changed, so the 15-second check never clears the student's ticks.
+      const shown = r.status + (r.requestCode || '') + (r.code || '');
+      if (shown !== requestShown) { requestShown = shown; showRequest(r); }
+    } catch {}
   }
   setInterval(checkRequest, 15000); checkRequest();
   reportButton.onclick=()=>{if(record?.locked && snapshot().final)location.href='../report.html?exam='+exam+'&attempt='+encodeURIComponent(record.id);};
