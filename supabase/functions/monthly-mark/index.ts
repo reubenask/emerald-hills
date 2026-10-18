@@ -194,7 +194,8 @@ async function assess(job:any, attempt:any, catalog:any) {
   if(spec.section==='speaking') {
     const objectPath=job.recording||attempt.student_id+'/'+attempt.id+'/'+spec.id;
     const r=await fetch(base+'/storage/v1/object/monthly-speaking/'+objectPath,{headers:{apikey:service,Authorization:'Bearer '+service}});
-    if(r.status===404 || r.status===400)return {status:'missing',result:{score:0,maxScore:10,transcript:'',corrections:[],strengths:[],improvements:['No recording was submitted.'],needsTeacherReview:false}};
+    // A missing recording is nearly always a microphone or upload problem, so the teacher is told to check it.
+    if(r.status===404 || r.status===400)return {status:'missing',result:{score:0,maxScore:10,transcript:'',corrections:[],strengths:[],improvements:['No recording was submitted.'],needsTeacherReview:true}};
     if(!r.ok)throw Error('Recording unavailable');
     const bytes=new Uint8Array(await r.arrayBuffer());if(bytes.length>12*1024*1024)throw Error('Recording exceeds analysis limit');
     audio={data:toBase64(bytes),mime:(r.headers.get('content-type')||'audio/webm').split(';')[0]};
