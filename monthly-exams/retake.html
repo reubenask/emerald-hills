@@ -6,7 +6,8 @@
 <main>
 <section class="panel"><h2>1. Find the test</h2>
 <label for="secret">Teacher password</label><input id="secret" type="password" autocomplete="current-password">
-<label for="name">Student name</label><input id="name" autocomplete="off">
+<p id="thisTest" class="muted" hidden>This is the test taken on this computer. Enter the teacher password to see it.</p>
+<div id="nameBox"><label for="name">Student name</label><input id="name" autocomplete="off"></div>
 <button id="find">Find Submitted Tests</button><p id="findStatus" role="status"></p>
 <div id="tests"></div></section>
 <section class="panel" id="choose" hidden><h2>2. Choose the section</h2>
@@ -24,6 +25,9 @@
  const $=id=>document.getElementById(id), safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const titles={'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}, pages={'primary-step2':'primary-step2/index.html',itp:'junior/index.html'};
  let found={tests:[],sections:{}};
+ // Opened from the Teacher button of a finished test: that test, not a name search.
+ const attempt=/^[0-9a-f-]{36}$/i.test(new URLSearchParams(location.search).get('attempt')||'')?new URLSearchParams(location.search).get('attempt'):null;
+ if(attempt){$('thisTest').hidden=false;$('nameBox').hidden=true;$('find').textContent='Show This Test';}
  const chosen=()=>found.tests.find(t=>t.id===document.querySelector('input[name="test"]:checked')?.value);
  function sections(){const t=chosen();$('choose').hidden=!t;$('result').hidden=true;if(t){$('section').innerHTML=(found.sections[t.exam_id]||[]).map(s=>'<option value="'+safe(s.id)+'">'+safe(s.title)+'</option>').join('');tasks();}}
  // Task checkboxes for sections that have writing or speaking tasks.
@@ -32,9 +36,9 @@
  $('find').onclick=async()=>{
   $('find').disabled=true;$('findStatus').textContent='Searching...';$('tests').innerHTML='';$('choose').hidden=$('result').hidden=true;
   try{
-   found=await MonthlyCloud.call('retake-find',{teacherSecret:$('secret').value,name:$('name').value});
+   found=await MonthlyCloud.call('retake-find',{teacherSecret:$('secret').value,...(attempt?{attemptId:attempt}:{name:$('name').value})});
    $('findStatus').textContent=found.tests.length?'Choose the test to retake:':'No submitted tests match that name.';
-   $('tests').innerHTML=found.tests.map(t=>'<label class="test"><input type="radio" name="test" value="'+safe(t.id)+'"'+(t.retakeAvailable?'':' disabled')+'><span><b>'+safe(t.student_name)+'</b> · '+safe(t.class_name)+' · '+safe(titles[t.exam_id]||t.exam_id)+'<br><span class="muted">Submitted '+safe(new Date(t.submitted_at).toLocaleString())+(t.retakeAvailable?'':' · retakes are not available for this test')+'</span></span></label>').join('');
+   $('tests').innerHTML=found.tests.map(t=>'<label class="test"><input type="radio" name="test" value="'+safe(t.id)+'"'+(t.retakeAvailable?'':' disabled')+'><span><b>'+safe(t.student_name)+'</b> · '+safe(t.class_name)+' · '+safe(titles[t.exam_id]||t.exam_id)+(t.date?' · test date '+safe(t.date):'')+'<br>'+(t.scores||[]).map(s=>safe(s.title)+' '+(s.score??'pending')+'/'+s.maxScore).join(' · ')+'<br><span class="muted">Submitted '+safe(new Date(t.submitted_at).toLocaleString())+(t.retakeAvailable?'':' · retakes are not available for this test')+'</span></span></label>').join('');
    document.querySelectorAll('input[name="test"]').forEach(r=>r.onchange=sections);
   }catch(e){$('findStatus').textContent=e.message;}finally{$('find').disabled=false;}
  };
