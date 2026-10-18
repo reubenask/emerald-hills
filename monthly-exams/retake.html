@@ -5,7 +5,8 @@
 <header><div class="eyebrow">Monthly Examination · Teacher</div><h1>Section Retake</h1><p class="muted">Use this on your own device when a machine, microphone or audio problem spoiled part of a submitted test. The student retakes only that part, and its new marks replace the old ones in the original report, which is emailed again.</p></header>
 <main>
 <section class="panel"><h2>1. Choose the test</h2>
-<label for="secret">Teacher password</label><input id="secret" type="password" autocomplete="current-password">
+<label for="secret">Teacher password</label><input id="secret" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+<label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input id="showSecret" type="checkbox" style="width:auto"> Show password</label>
 <p class="muted">A student asks with Request a Retake on their submitted test and shows you the request code on their screen.</p>
 <button id="requests">Show Retake Requests</button><p id="requestStatus" role="status"></p><div id="requestList"></div>
 <details><summary>No request? Find the test by name</summary>
@@ -37,6 +38,7 @@
  // Task checkboxes for sections that have writing or speaking tasks.
  function tasks(){const list=(found.tasks?.[pick?.test.exam_id]||[]).filter(k=>k.section===$('section').value);$('taskBox').hidden=!list.length;$('taskList').innerHTML=list.map(k=>'<label class="test"><input type="checkbox" name="task" value="'+safe(k.id)+'" checked><span>'+safe(k.title)+'</span></label>').join('');$('result').hidden=$('approved').hidden=true;}
  $('section').onchange=tasks;
+ $('showSecret').onchange=e=>{$('secret').type=e.target.checked?'text':'password';};
  $('requests').onclick=async()=>{
   $('requests').disabled=true;$('requestStatus').textContent='Loading...';$('requestList').innerHTML='';choose(null);
   try{
