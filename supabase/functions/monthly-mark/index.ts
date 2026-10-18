@@ -1,5 +1,5 @@
 // Bundled with core.mjs by tools/build_monthly_mark_function.cjs for Dashboard deployment.
-import { RUBRICS, RUBRIC_VERSION, RUBRIC_SOURCES, LEVEL_GUIDES, STRUCTURE_GUIDE, objectiveReport, validateAssessment, scorecard, reportEmail } from './core.mjs';
+import { RUBRICS, RUBRIC_VERSION, RUBRIC_SOURCES, LEVEL_GUIDES, STRUCTURE_GUIDE, objectiveReport, validateAssessment, scorecard, reportEmail, mergeRetake } from './core.mjs';
 const env = (name: string) => Deno.env.get(name) || '';
 const base = env('SUPABASE_URL'), service = env('SUPABASE_SERVICE_ROLE_KEY'), anon = env('SUPABASE_ANON_KEY');
 const allowed = ['https://reubenask.github.io', 'http://localhost:8765', 'http://127.0.0.1:8765'];
@@ -21,6 +21,28 @@ async function owned(id: string, user: string) {
   if (!rows[0]) throw new PublicError('Attempt not found.',404);
   return rows[0];
 }
+// Section retakes: the teacher creates a one-time code for one section of a submitted test (Primary Step 2 and ITP pages).
+const RETAKE_EXAMS=['primary-step2','itp'], CODE_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const cleanCode=(c:any)=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,20);
+async function sha256(t:string){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t))),b=>b.toString(16).padStart(2,'0')).join('');}
+// The teacher password (RETAKE_TEACHER_SECRET); a wrong one waits before answering, to slow guessing.
+async function teacherCheck(secret:any){
+  const expected=env('RETAKE_TEACHER_SECRET');
+  if(expected.length<8)throw new PublicError('Retakes are not set up yet: the teacher password has not been configured.',503);
+  if(await sha256(String(secret||''))!==await sha256(expected)){await new Promise(r=>setTimeout(r,1500));throw new PublicError('The teacher password is incorrect.',403);}
+}
+// A usable code: known, not expired, not yet submitted, and for this exam and section.
+async function retakeFor(code:any, exam?:string, section?:string){
+  const c=cleanCode(code);if(c.length<8)throw new PublicError('Enter the retake code your teacher gave you.');
+  const rt=(await db('monthly_retakes?code_hash=eq.'+await sha256(c)+'&select=*'))[0];
+  if(!rt||new Date(rt.expires_at).getTime()<Date.now())throw new PublicError('This retake code is not valid or has expired. Ask your teacher for a new one.',403);
+  if(rt.used_at)throw new PublicError('This retake code has already been used.',403);
+  const orig=(await db('monthly_exam_attempts?id=eq.'+rt.attempt_id+'&select=*'))[0];
+  if(!orig)throw new PublicError('The original test for this retake no longer exists.',404);
+  if((exam&&orig.exam_id!==exam)||(section&&rt.section!==section))throw new PublicError('This retake code is for a different test or section.',403);
+  return {rt,orig};
+}
+async function retakeAttemptOf(rt:any){return rt.retake_attempt_id?(await db('monthly_exam_attempts?id=eq.'+rt.retake_attempt_id+'&select=id,student_id,status'))[0]:null;}
 // Models are tried in order: the configured model, then GEMINI_FALLBACK_MODELS, then other Flash models the key can use.
 let discovered:string[]|null=null;
 async function geminiModels(key:string) {
@@ -112,7 +134,7 @@ async function lessonTranscript(url:string) {
 // It can raise or lower a category; the change and the reason are kept for the teacher.
 // Feedback is plain text only: remove any emoji or pictograph the model writes.
 const EMOJI=/[\p{Extended_Pictographic}\u{FE0F}\u{200D}\u{20E3}\u{1F1E6}-\u{1F1FF}\u{1F3FB}-\u{1F3FF}]/gu;
-function plain(v:any):any{if(typeof v==='string')return v.replace(EMOJI,'').replace(/[ \t]{2,}/g,' ').trim();if(Array.isArray(v))return v.map(plain);if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).map(([k,x])=>[k,plain(x)]));return v;}
+function noEmoji(v:any):any{if(typeof v==='string')return v.replace(EMOJI,'').replace(/[ \t]{2,}/g,' ').trim();if(Array.isArray(v))return v.map(noEmoji);if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).map(([k,x])=>[k,noEmoji(x)]));return v;}
 async function moderate(spec:any, exam:string, rubric:any, result:any, evidence:any) {
   try {
     const raw=parseJSON(await gemini(`You are a senior ESL teacher moderating a colleague's marking. Policy: lenient and encouraging; full category credit when meaning is clear and errors are small; generous partial credit for any clear attempt. ${(LEVEL_GUIDES as any)[exam]||''}
@@ -125,7 +147,7 @@ FIRST MARKING: ${JSON.stringify({categories:result.categories,corrections:result
     const before=result.score;
     for(const c of result.categories){const m=raw.categories.find((x:any)=>x?.name===c.name);if(m&&Number.isFinite(m.score)&&m.score>=0&&m.score<=c.maxScore&&m.score!==c.score){c.firstScore=c.score;c.score=m.score;}}
     result.score=result.categories.reduce((n:number,c:any)=>n+c.score,0);
-    return {status:'checked',fair:raw.fair&&result.score===before,firstScore:before,finalScore:result.score,reason:plain(raw.reason).slice(0,1500)};
+    return {status:'checked',fair:raw.fair&&result.score===before,firstScore:before,finalScore:result.score,reason:noEmoji(raw.reason).slice(0,1500)};
   } catch(e) {console.error('Moderation failed',spec.id,(e as Error).message);return {status:'unavailable'};}
 }
 async function assess(job:any, attempt:any, catalog:any) {
@@ -133,7 +155,7 @@ async function assess(job:any, attempt:any, catalog:any) {
   let transcript='', audio, raw:any={};
   const response=taskResponse(spec,attempt.response_state.answers);
   if(spec.section==='speaking') {
-    const objectPath=attempt.student_id+'/'+attempt.id+'/'+spec.id;
+    const objectPath=job.recording||attempt.student_id+'/'+attempt.id+'/'+spec.id;
     const r=await fetch(base+'/storage/v1/object/monthly-speaking/'+objectPath,{headers:{apikey:service,Authorization:'Bearer '+service}});
     if(r.status===404 || r.status===400)return {status:'missing',result:{score:0,maxScore:10,transcript:'',corrections:[],strengths:[],improvements:['No recording was submitted.'],needsTeacherReview:false}};
     if(!r.ok)throw Error('Recording unavailable');
@@ -163,7 +185,7 @@ ${lesson?`LESSON THE STUDENT LISTENED TO (trusted transcript; check the student'
   // Corrections must quote the student's own words. Compare without emojis or extra spaces, and drop any that quote text the student never wrote.
   const norm=(t:string)=>String(t||'').replace(EMOJI,'').replace(/\s+/g,' ').trim().toLowerCase(), said=norm(spec.section==='speaking'?transcript:response);
   result.corrections=result.corrections.filter((c:any)=>!c.original||said.includes(norm(c.original)));
-  for(const k of ['corrections','linkingSuggestions','strengths','improvements','improvedResponse','categories'])if(k in result)result[k]=plain(result[k]);
+  for(const k of ['corrections','linkingSuggestions','strengths','improvements','improvedResponse','categories'])if(k in result)result[k]=noEmoji(result[k]);
   const moderation=await moderate(spec,attempt.exam_id,rubric,result,{response,transcript});
   return {status:'complete',result:{...result,needsTeacherReview:result.needsTeacherReview||!!spec.forceTeacherReview,moderation,teacherApproval:'pending',...(spec.section==='speaking'?{transcript,transcriptSource:raw.source||'gemini'}:{response}),model:lastModel,markedAt:new Date().toISOString()}};
 }
@@ -175,11 +197,22 @@ function studentOf(state:any) {
 async function emailReport(attempt:any, catalog:any, report:any) {
   const key=env('RESEND_API_KEY'), to=env('REPORT_EMAIL_TO');
   if(!key||!to)return false;
-  const {subject,html}=reportEmail({exam:attempt.exam_id,student:studentOf(attempt.response_state),submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,scorecard:scorecard(catalog,report.objective,report.jobs)});
+  const retakes=(report.retake?.taken||[]).map((t:any)=>({title:catalog.sections.find((s:any)=>s.id===t.section)?.title||t.section,date:String(t.submittedAt||'').slice(0,10)}));
+  const {subject,html}=reportEmail({retakes,exam:attempt.exam_id,student:studentOf(attempt.response_state),submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,scorecard:scorecard(catalog,report.objective,report.jobs)});
   const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
     body:JSON.stringify({from:env('REPORT_EMAIL_FROM')||'Emerald Hills Reports <onboarding@resend.dev>',to:to.split(',').map(s=>s.trim()).filter(Boolean),subject,html})});
   if(!r.ok)throw Error('Resend HTTP '+r.status+' '+(await r.text()).slice(0,300));
   return true;
+}
+// A finished retake replaces its section in the original report, which is then emailed again.
+async function mergeIntoOriginal(retakeAttempt:any, catalog:any, report:any) {
+  const orig=(await db('monthly_exam_attempts?id=eq.'+report.retake.of+'&select=*'))[0], rows=await db('monthly_ai_reports?attempt_id=eq.'+report.retake.of+'&select=*');
+  if(!orig||!rows[0])throw Error('Original report missing');
+  const merged={...rows[0],...mergeRetake(rows[0],report,report.retake.section,retakeAttempt),emailed_at:null as string|null};
+  try{if(await emailReport(orig,catalog,merged))merged.emailed_at=new Date().toISOString();}
+  catch(e){console.error('Report email failed',(e as Error).message);}
+  // If the email failed, emailed_at stays empty and the server check sends it later.
+  await db('monthly_ai_reports?attempt_id=eq.'+orig.id,'PATCH',{jobs:merged.jobs,objective:merged.objective,retake:merged.retake,emailed_at:merged.emailed_at,updated_at:new Date().toISOString()});
 }
 // Marks the next unmarked task of a claimed report, then emails the report once nothing is left.
 // Failed jobs are retried automatically, up to three tries in total.
@@ -192,8 +225,14 @@ async function markNext(attempt:any, catalog:any, report:any) {
   }
   const patch:any={jobs:report.jobs,lease_until:null,updated_at:new Date().toISOString()};
   if(!report.jobs.some((j:any)=>j.status==='pending'||(j.status==='error'&&j.tries<3))&&!report.emailed_at){
-    try{const sent=await emailReport(attempt,catalog,report);if(sent)patch.emailed_at=new Date().toISOString();}
-    catch(e){console.error('Report email failed',(e as Error).message);}
+    // A retake is not emailed on its own: it is merged into the original report, which is emailed.
+    if(report.retake?.of){
+      try{await mergeIntoOriginal(attempt,catalog,report);patch.emailed_at=new Date().toISOString();patch.retake={...report.retake,mergedAt:patch.emailed_at};}
+      catch(e){console.error('Retake merge failed',(e as Error).message);}
+    } else {
+      try{const sent=await emailReport(attempt,catalog,report);if(sent)patch.emailed_at=new Date().toISOString();}
+      catch(e){console.error('Report email failed',(e as Error).message);}
+    }
   }
   await db('monthly_ai_reports?attempt_id=eq.'+attempt.id,'PATCH',patch);
   return {processed:job?.id||null,emailed:!!patch.emailed_at};
@@ -226,14 +265,53 @@ Deno.serve(async (req:Request) => {
     const user=await auth.json();if(!user.id)throw new PublicError('Sign-in required.',401);
     const size=Number(req.headers.get('content-length')||0);if(size>500000)throw new PublicError('Submission too large.',413);
     const body=await req.json();if(JSON.stringify(body).length>500000)throw new PublicError('Submission too large.',413);
+    // Teacher: find a student's submitted tests, then create a one-time retake code for one section.
+    if(body.action==='retake-find') {
+      await teacherCheck(body.teacherSecret);
+      const q=String(body.name||'').replace(/[^\p{L}\p{N} .'-]/gu,'').trim().slice(0,60);
+      if(q.length<2)throw new PublicError('Enter at least two letters of the student name.');
+      const rows=await db('monthly_exam_attempts?status=eq.submitted&student_name=ilike.'+encodeURIComponent('*'+q+'*')+'&select=id,exam_id,student_name,class_name,submitted_at&order=submitted_at.desc&limit=20');
+      const retakes=rows.length?await db('monthly_retakes?retake_attempt_id=in.('+rows.map((r:any)=>r.id).join(',')+')&select=retake_attempt_id'):[];
+      const skip=new Set(retakes.map((r:any)=>r.retake_attempt_id)), sections:any={};
+      for(const e of RETAKE_EXAMS){try{sections[e]=(await catalogFor(e)).sections;}catch{}}
+      return json({tests:rows.filter((r:any)=>!skip.has(r.id)).map((r:any)=>({...r,retakeAvailable:RETAKE_EXAMS.includes(r.exam_id)})),sections});
+    }
+    if(body.action==='retake-create') {
+      await teacherCheck(body.teacherSecret);
+      if(!/^[0-9a-f-]{36}$/i.test(body.attemptId||''))throw new PublicError('Invalid attempt.');
+      const orig=(await db('monthly_exam_attempts?id=eq.'+body.attemptId+'&status=eq.submitted&select=id,exam_id,student_name,class_name'))[0];
+      if(!orig)throw new PublicError('Submitted test not found.',404);
+      if(!RETAKE_EXAMS.includes(orig.exam_id))throw new PublicError('Section retakes are available for Primary Step 2 and ITP only.');
+      const sec=(await catalogFor(orig.exam_id)).sections.find((s:any)=>s.id===body.section);
+      if(!sec)throw new PublicError('Choose the section to retake.');
+      const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>CODE_CHARS[b%32]).join(''), expires=new Date(Date.now()+48*3600000).toISOString();
+      await db('monthly_retakes','POST',{code_hash:await sha256(code),attempt_id:orig.id,section:sec.id,expires_at:expires});
+      return json({code,exam:orig.exam_id,section:sec.id,sectionTitle:sec.title,student:orig.student_name,className:orig.class_name,expiresAt:expires});
+    }
+    // Student: check a retake code before starting, and get the original test's name, class and date.
+    if(body.action==='retake-open') {
+      const {rt,orig}=await retakeFor(body.code,body.exam,body.section), used=await retakeAttemptOf(rt);
+      if(used&&used.student_id!==user.id)throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
+      const catalog=await catalogFor(orig.exam_id);
+      return json({section:rt.section,sectionTitle:catalog.sections.find((s:any)=>s.id===rt.section)?.title||rt.section,student:studentOf(orig.response_state),expiresAt:rt.expires_at});
+    }
     if(body.action==='sync') {
       const catalog=await catalogFor(body.exam);
       if(body.adultConfirmed!==true&&body.consentConfirmed!==true)throw new PublicError('Processing agreement required.');
       const response=body.response;
       if(!response||typeof response.answers!=='object')throw new PublicError('Invalid responses.');
       if(body.attemptId){const a=await owned(body.attemptId,user.id);if(a.exam_id!==body.exam)throw new PublicError('Wrong exam.');if(a.status!=='draft')return json({attemptId:a.id,locked:true});await db('monthly_exam_attempts?id=eq.'+a.id,'PATCH',{response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});return json({attemptId:a.id});}
+      let retake:any=null;
+      if(body.retakeCode){
+        retake=await retakeFor(body.retakeCode,body.exam);const used=await retakeAttemptOf(retake.rt);
+        if(used&&used.student_id!==user.id)throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
+        if(used){if(used.status!=='draft')return json({attemptId:used.id,locked:true});await db('monthly_exam_attempts?id=eq.'+used.id,'PATCH',{response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});return json({attemptId:used.id});}
+      }
       const count=await db('monthly_exam_attempts?student_id=eq.'+user.id+'&exam_id=eq.'+body.exam+'&created_at=gte.'+new Date(Date.now()-86400000).toISOString()+'&select=id');if(count.length>=5)throw new PublicError('Daily attempt limit reached. Ask your teacher for help.',429);
-      const rows=await db('monthly_exam_attempts','POST',{student_id:user.id,exam_id:body.exam,exam_version:catalog.version,response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});return json({attemptId:rows[0].id});
+      const rows=await db('monthly_exam_attempts','POST',{student_id:user.id,exam_id:body.exam,exam_version:catalog.version,response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});
+      // Claim the code for this attempt; only one attempt can hold it.
+      if(retake&&!(await db('monthly_retakes?code_hash=eq.'+retake.rt.code_hash+'&retake_attempt_id=is.null','PATCH',{retake_attempt_id:rows[0].id})).length)throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
+      return json({attemptId:rows[0].id});
     }
     const attempt=await owned(body.attemptId,user.id),catalog=await catalogFor(attempt.exam_id);
     if(body.action==='submit') {
@@ -242,7 +320,10 @@ Deno.serve(async (req:Request) => {
       if(!who.name||!who.className||!who.date)throw new PublicError('Enter your name, class and date at the top of the test, then submit again.');
       if(attempt.status==='draft')await db('monthly_exam_attempts?id=eq.'+attempt.id,'PATCH',{status:'submitted'});
       const old=await db('monthly_ai_reports?attempt_id=eq.'+attempt.id+'&select=attempt_id');
-      if(!old.length)await db('monthly_ai_reports','POST',{attempt_id:attempt.id,catalog_version:catalog.version,objective:objectiveReport(catalog,attempt.response_state.answers),jobs:catalog.tasks.map((t:any)=>({id:t.id,section:t.section,title:t.title,prompt:t.prompt,target:t.target||null,response:t.section==='writing'?taskResponse(t,attempt.response_state.answers):null,status:'pending',tries:0}))});
+      // A retake is marked only for its section.
+      const rt=(await db('monthly_retakes?retake_attempt_id=eq.'+attempt.id+'&select=*'))[0], only=(id:string)=>!rt||id===rt.section;
+      if(!old.length)await db('monthly_ai_reports','POST',{attempt_id:attempt.id,catalog_version:catalog.version,...(rt?{retake:{of:rt.attempt_id,section:rt.section}}:{}),objective:objectiveReport(catalog,attempt.response_state.answers).filter((s:any)=>only(s.id)),jobs:catalog.tasks.filter((t:any)=>only(t.section)).map((t:any)=>({id:t.id,section:t.section,title:t.title,prompt:t.prompt,target:t.target||null,response:t.section==='writing'?taskResponse(t,attempt.response_state.answers):null,status:'pending',tries:0}))});
+      if(rt&&!rt.used_at)await db('monthly_retakes?code_hash=eq.'+rt.code_hash,'PATCH',{used_at:new Date().toISOString()});
       return json({submitted:true});
     }
     if(attempt.status!=='submitted')throw new PublicError('Reports are available only after final submission.',403);
@@ -268,11 +349,11 @@ Deno.serve(async (req:Request) => {
     if(body.action==='report') {
       const report=rows[0];
       const audio=Object.fromEntries(await Promise.all(catalog.tasks.filter((t:any)=>t.section==='speaking').map(async(t:any)=>{
-        const path=attempt.student_id+'/'+attempt.id+'/'+t.id;
+        const path=report.jobs.find((j:any)=>j.id===t.id)?.recording||attempt.student_id+'/'+attempt.id+'/'+t.id;
         const r=await fetch(base+'/storage/v1/object/sign/monthly-speaking/'+path,{method:'POST',headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:3600})});
         if(!r.ok)return [t.id,null];const d=await r.json();return [t.id,base+'/storage/v1'+d.signedURL];
       })));
-      return json({attemptId:attempt.id,exam:attempt.exam_id,student:studentOf(attempt.response_state),submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,audio,scorecard:scorecard(catalog,report.objective,report.jobs),rubricVersion:RUBRIC_VERSION,rubricSources:RUBRIC_SOURCES});
+      return json({attemptId:attempt.id,exam:attempt.exam_id,student:studentOf(attempt.response_state),submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,audio,retake:report.retake||null,scorecard:scorecard(report.retake?.of?{...catalog,sections:catalog.sections.filter((s:any)=>s.id===report.retake.section)}:catalog,report.objective,report.jobs),rubricVersion:RUBRIC_VERSION,rubricSources:RUBRIC_SOURCES});
     }
     throw new PublicError('Unknown action.');
   } catch(e) {return json({error:e instanceof PublicError?e.message:'The marking service could not complete this request. Your saved responses are unchanged.'},e instanceof PublicError?e.status:503);}

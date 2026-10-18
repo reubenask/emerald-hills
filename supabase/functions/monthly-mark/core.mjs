@@ -66,6 +66,18 @@ export function scorecard(catalog, objective, jobs) {
   return { sections, overall: complete ? Math.round(sections.reduce((n,s) => n+s.percentage,0)/sections.length) : null, maxOverall: 100, weighting: 'Each section contributes equally to the overall percentage. Task points are combined within each section.', complete, needsTeacherReview: jobs.some(j => j.result?.needsTeacherReview), disclaimer: 'AI-assisted classroom practice assessment, not an official ETS TOEFL score. AI transcription and grading can make mistakes; teacher review is available.' };
 }
 
+// A retake replaces one section of the original report: its objective marks and its writing or speaking tasks.
+// Speaking jobs keep the path of the retake recording so the report can still play it.
+export function mergeRetake(original, retake, section, retakeAttempt) {
+  const jobs = original.jobs.map(j => {
+    if (j.section !== section) return j;
+    const r = retake.jobs.find(x => x.id === j.id);
+    return r ? { ...r, ...(r.section === 'speaking' ? { recording: retakeAttempt.student_id + '/' + retakeAttempt.id + '/' + r.id } : {}), retaken: true } : j;
+  });
+  const objective = original.objective.map(s => s.id === section ? { ...(retake.objective.find(x => x.id === section) || s), retaken: true } : s);
+  const taken = [...(original.retake?.taken || []), { section, attempt: retakeAttempt.id, submittedAt: retakeAttempt.submitted_at }];
+  return { jobs, objective, retake: { ...(original.retake || {}), taken } };
+}
 const ESC = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ESC[c] || c);
 export const EXAM_TITLES = { 'primary-step2': 'TOEFL Primary Step 2', itp: 'TOEFL ITP', ibt: 'TOEFL iBT' };
@@ -74,7 +86,7 @@ export const EXAM_TITLES = { 'primary-step2': 'TOEFL Primary Step 2', itp: 'TOEF
 export function reportEmail(r) {
   const sc = r.scorecard, st = r.student || {}, name = st.name || st.studentName || 'Student', cls = st.className || st.studentClass || '', date = st.date || st.studentDate || '';
   const total = sc.sections.reduce((n, s) => n + (s.score ?? 0), 0), max = sc.sections.reduce((n, s) => n + s.maxScore, 0);
-  const subject = (sc.needsTeacherReview || !sc.complete ? '[Check needed] ' : '') + name + (cls ? ' · ' + cls : '') + ' · ' + (EXAM_TITLES[r.exam] || r.exam) + ' Monthly: ' + (sc.overall ?? 'pending') + '%';
+  const subject = (sc.needsTeacherReview || !sc.complete ? '[Check needed] ' : '') + name + (cls ? ' · ' + cls : '') + ' · ' + (EXAM_TITLES[r.exam] || r.exam) + ' Monthly: ' + (sc.overall ?? 'pending') + '%' + (r.retakes?.length ? ' (updated after ' + r.retakes.map(t => t.title).join(', ') + ' retake)' : '');
   const td = 'style="padding:6px 8px;border-bottom:1px solid #e5e1d8;vertical-align:top"';
   const wrong = r.objective.map(s => { const items = s.items.filter(q => !q.correct); return items.length ? '<h3 style="color:#092d24">' + esc(s.title) + ' · ' + s.score + ' / ' + s.maxScore + '</h3>' + items.map(q => '<p style="margin:0 0 10px"><b>' + esc(q.question) + '</b><br>Your answer: ' + esc(q.selected) + '<br>Correct answer: ' + esc(q.answer) + '<br><i>Why:</i> ' + esc(q.explanation) + '</p>').join('') : '<h3 style="color:#092d24">' + esc(s.title) + ' · ' + s.score + ' / ' + s.maxScore + ' · all correct</h3>'; }).join('');
   const tasks = r.jobs.map(j => { const a = j.result || {}; return '<div style="border-top:2px solid #dab977;margin-top:16px;padding-top:8px"><h3 style="margin:0;color:#092d24">' + esc(j.title) + ' · ' + (a.score ?? 'Pending') + ' / ' + (a.maxScore ?? '') + '</h3>' +
@@ -88,6 +100,7 @@ export function reportEmail(r) {
   const html = '<!doctype html><html><body style="margin:0;background:#f5f3ee;font:15px/1.55 Georgia,serif;color:#1a2744"><div style="max-width:760px;margin:0 auto;background:#fff">' +
     '<div style="background:#092d24;color:#e9efdf;padding:22px 24px;border-bottom:4px solid #dab977"><div style="letter-spacing:.2em;font-size:12px;color:#dab977">EMERALD HILLS · MONTHLY EXAMINATION</div><h1 style="margin:6px 0 0;font-weight:400;color:#dab977">EXAM REPORT CARD</h1>' +
     '<p style="margin:8px 0 0">' + esc(name) + (cls ? ' · ' + esc(cls) : '') + (date ? ' · ' + esc(date) : '') + ' · ' + esc(EXAM_TITLES[r.exam] || r.exam) + ' · submitted ' + esc(String(r.submittedAt || '').slice(0, 10)) + '</p></div><div style="padding:20px 24px">' +
+    (r.retakes?.length ? '<p style="font-size:14px;border-left:4px solid #dab977;padding:8px 12px;background:#f5f3ee"><b>Section retake:</b> ' + r.retakes.map(t => esc(t.title) + ' was retaken' + (t.date ? ' on ' + esc(t.date) : '')).join('; ') + ', authorised by the teacher. The marks for that section come from the retake; all other sections are from the original test.</p>' : '') +
     '<table style="border-collapse:collapse;width:100%"><tr style="background:#092d24;color:#fff"><th style="text-align:left;padding:8px">Section</th><th style="text-align:right;padding:8px">Score</th><th style="text-align:right;padding:8px">%</th></tr>' +
     sc.sections.map(s => '<tr><td ' + td + '>' + esc(s.title) + '</td><td ' + td + ' align="right">' + (s.score ?? 'Pending') + ' / ' + s.maxScore + '</td><td ' + td + ' align="right">' + (s.percentage ?? '') + '</td></tr>').join('') +
     '<tr style="font-weight:bold;background:#f5f3ee"><td style="padding:8px">Overall</td><td style="padding:8px" align="right">' + total + ' / ' + max + '</td><td style="padding:8px" align="right">' + (sc.overall ?? 'Pending') + '</td></tr></table>' +

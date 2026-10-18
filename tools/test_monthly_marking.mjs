@@ -25,13 +25,14 @@ console.log('AI response validation rejects out-of-range scores, absent evidence
 let handler, mode='draft',providerFail=true,report;const emails=[];
 const uid='11111111-1111-4111-8111-111111111111',id='22222222-2222-4222-8222-222222222222';
 const fnExam=catalogs.ibt?'ibt':'primary-step2',cat=structuredClone(catalogs[fnExam]);cat.tasks=cat.tasks.slice(0,1);
-const attempt={id,student_id:uid,exam_id:fnExam,status:'draft',response_state:{student:{name:'Synthetic Student'},answers:{[cat.tasks[0].answerId]:'Hello, please correct my booking.'},submitted:Object.fromEntries(cat.sections.map(s=>[s.id,true])),final:false}};
+const attempt={id,student_id:uid,exam_id:fnExam,status:'draft',response_state:{student:{name:'Synthetic Student',className:'Test Class',date:'2026-10-01'},answers:{[cat.tasks[0].answerId]:'Hello, please correct my booking.'},submitted:Object.fromEntries(cat.sections.map(s=>[s.id,true])),final:false}};
 const reply=value=>new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}});
 const fetchMock=async(url,options={})=>{
  if(url.endsWith('/auth/v1/user'))return options.headers.Authorization==='Bearer valid'?reply({id:uid}):new Response('{}',{status:401});
  if(url==='https://api.resend.com/emails'){emails.push(JSON.parse(options.body));return reply({id:'email'});}
- if(url.includes('generativelanguage.googleapis.com'))return providerFail?new Response('{}',{status:503}):reply({output_text:JSON.stringify(good)});
+ if(url.includes('generativelanguage.googleapis.com'))return providerFail?new Response('{}',{status:503}):reply({candidates:[{content:{parts:[{text:JSON.stringify(good)}]}}]});
  if(url.includes('/rest/v1/monthly_ai_catalog'))return reply([{content:cat}]);
+ if(url.includes('/rest/v1/monthly_retakes'))return reply([]);
  if(url.includes('/rest/v1/monthly_exam_attempts?id=')){
   if(mode==='other')return reply([]);
   if(options.method==='PATCH')Object.assign(attempt,JSON.parse(options.body));return reply([attempt]);
