@@ -16,4 +16,6 @@ alter table public.monthly_retakes enable row level security;
 revoke all on public.monthly_retakes from public, anon, authenticated;
 -- A retake report has {"of":<original attempt>,"section":...}; the original lists merged retakes under "taken".
 alter table public.monthly_ai_reports add column if not exists retake jsonb;
+-- Writing and speaking can be retaken task by task; empty means the whole section.
+alter table public.monthly_retakes add column if not exists tasks text[];
 commit;

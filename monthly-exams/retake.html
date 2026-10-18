@@ -11,6 +11,7 @@
 <div id="tests"></div></section>
 <section class="panel" id="choose" hidden><h2>2. Choose the section</h2>
 <label for="section">Section to retake</label><select id="section"></select>
+<div id="taskBox" hidden><p class="muted">Writing and speaking can be retaken task by task. Untick the tasks that worked; leave all ticked to retake the whole section.</p><div id="taskList"></div></div>
 <button id="create">Create Retake Code</button><p id="createStatus" role="status"></p></section>
 <section class="panel" id="result" hidden><h2>3. Give the student the retake</h2>
 <p id="who"></p><p class="code" id="code"></p>
@@ -24,7 +25,10 @@
  const titles={'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}, pages={'primary-step2':'primary-step2/index.html',itp:'junior/index.html'};
  let found={tests:[],sections:{}};
  const chosen=()=>found.tests.find(t=>t.id===document.querySelector('input[name="test"]:checked')?.value);
- function sections(){const t=chosen();$('choose').hidden=!t;$('result').hidden=true;if(t)$('section').innerHTML=(found.sections[t.exam_id]||[]).map(s=>'<option value="'+safe(s.id)+'">'+safe(s.title)+'</option>').join('');}
+ function sections(){const t=chosen();$('choose').hidden=!t;$('result').hidden=true;if(t){$('section').innerHTML=(found.sections[t.exam_id]||[]).map(s=>'<option value="'+safe(s.id)+'">'+safe(s.title)+'</option>').join('');tasks();}}
+ // Task checkboxes for sections that have writing or speaking tasks.
+ function tasks(){const t=chosen(),list=(found.tasks?.[t?.exam_id]||[]).filter(k=>k.section===$('section').value);$('taskBox').hidden=!list.length;$('taskList').innerHTML=list.map(k=>'<label class="test"><input type="checkbox" name="task" value="'+safe(k.id)+'" checked><span>'+safe(k.title)+'</span></label>').join('');$('result').hidden=true;}
+ $('section').onchange=tasks;
  $('find').onclick=async()=>{
   $('find').disabled=true;$('findStatus').textContent='Searching...';$('tests').innerHTML='';$('choose').hidden=$('result').hidden=true;
   try{
@@ -38,9 +42,11 @@
   const t=chosen();if(!t)return;
   $('create').disabled=true;$('createStatus').textContent='Creating...';
   try{
-   const r=await MonthlyCloud.call('retake-create',{teacherSecret:$('secret').value,attemptId:t.id,section:$('section').value});
+   const picked=[...document.querySelectorAll('input[name="task"]:checked')].map(c=>c.value);
+   if(!$('taskBox').hidden&&!picked.length)throw Error('Tick at least one task to retake.');
+   const r=await MonthlyCloud.call('retake-create',{teacherSecret:$('secret').value,attemptId:t.id,section:$('section').value,tasks:picked});
    const link=new URL(pages[r.exam]+'?retake='+r.code+'&section='+encodeURIComponent(r.section),location.href).href;
-   $('who').textContent=r.student+' · '+r.className+' · '+(titles[r.exam]||r.exam)+' · '+r.sectionTitle+' retake';
+   $('who').textContent=r.student+' · '+r.className+' · '+(titles[r.exam]||r.exam)+' · '+r.sectionTitle+(r.tasks?' ('+r.tasks.join(', ')+')':'')+' retake';
    $('code').textContent=r.code;$('link').textContent=$('link').href=link;$('expires').textContent=new Date(r.expiresAt).toLocaleString();
    $('result').hidden=false;$('createStatus').textContent='';
   }catch(e){$('createStatus').textContent=e.message;}finally{$('create').disabled=false;}

@@ -102,4 +102,19 @@ assert(r.value.audio['speaking-1'].includes(retake),'the original report plays t
 r=await call({action:'report',attemptId:retake});assert.deepEqual(r.value.scorecard.sections.map(s=>s.id),['speaking']);
 // The retake does not show up as a test to retake.
 assert.deepEqual((await call({action:'retake-find',teacherSecret:'correct horse battery',name:'yaya'},'teacherDevice')).value.tests.map(t=>t.id),[original]);
+
+// A task retake: only Speaking Task 2 is retaken; the other tasks and the objective marks stay.
+const mid=structuredClone(tables.monthly_ai_reports.find(x=>x.attempt_id===original));
+r=await call({action:'retake-create',teacherSecret:'correct horse battery',attemptId:original,section:'speaking',tasks:['speaking-2','writing-story']},'teacherDevice');assert.equal(r.status,400,'tasks must belong to the section');
+r=await call({action:'retake-create',teacherSecret:'correct horse battery',attemptId:original,section:'speaking',tasks:['speaking-2']},'teacherDevice');assert.deepEqual(r.value.tasks,[cat.tasks.find(t=>t.id==='speaking-2').title]);
+const taskCode=r.value.code;r=await call({action:'retake-open',code:taskCode,exam:'primary-step2',section:'speaking'});assert.deepEqual(r.value.allowed.speaking,[2]);assert.deepEqual(r.value.allowed.answers,[]);
+const taskRetake=(await call({action:'sync',exam:'primary-step2',consentConfirmed:true,retakeCode:taskCode,response:{student,answers:{},submitted,final:true}})).value.attemptId;
+audio.add(users.student+'/'+taskRetake+'/speaking-2');assert.equal((await call({action:'submit',attemptId:taskRetake})).status,200);
+assert.deepEqual(tables.monthly_ai_reports.find(x=>x.attempt_id===taskRetake).jobs.map(j=>j.id),['speaking-2']);
+for(let i=0;i<10;i++)if(!(await call({action:'process',attemptId:taskRetake})).value.processed)break;
+const final=tables.monthly_ai_reports.find(x=>x.attempt_id===original);
+assert(final.jobs.find(j=>j.id==='speaking-2').recording.includes(taskRetake));
+assert.deepEqual(final.jobs.filter(j=>j.id!=='speaking-2'),mid.jobs.filter(j=>j.id!=='speaking-2'));assert.deepEqual(final.objective,mid.objective);
+assert.deepEqual(final.retake.taken[1].tasks,['speaking-2']);assert.equal(emails.length,3);assert(emails[2].html.includes('Speaking ('+cat.tasks.find(t=>t.id==='speaking-2').title+') was retaken'));
+console.log('Task retake: only the chosen task is enabled, marked and replaced; the rest of the report is unchanged.');
 console.log('Section retake: teacher password, one-time code bound to one computer and section, section-only marking, merge into the original report and re-email all pass.');
