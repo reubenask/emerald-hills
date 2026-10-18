@@ -24,11 +24,11 @@
 <p>Open this link on the student's computer. It opens only that part of the test, with the student's name, class and date filled in.</p><p class="link"><a id="link" style="color:inherit" target="_blank" rel="noopener"></a></p>
 <p class="muted">The code works once, for this student and this section only, and expires <span id="expires"></span>. If the retake is not submitted in time, create a new code.</p></section>
 </main>
-<script src="shared/cloud-config.js?v=20261018b"></script><script src="shared/cloud-client.js?v=20261018b"></script><script>
+<script src="shared/cloud-config.js?v=20261018c"></script><script src="shared/cloud-client.js?v=20261018c"></script><script>
 (function(){
  'use strict';
  const $=id=>document.getElementById(id), safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const titles={'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}, pages={'primary-step2':'primary-step2/index.html',itp:'junior/index.html'};
+ const titles={'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}, pages={'primary-step2':'primary-step2/index.html',itp:'junior/index.html'}, ibtPages={vocabulary:'ibt/Vocabulary.html',reading:'ibt/Reading.html',writing:'ibt/Writing.html',speaking:'ibt/Speaking.html'};
  let found={tests:[],sections:{}}, pick=null;
  const testLine=t=>'<b>'+safe(t.student_name)+'</b> · '+safe(t.class_name)+' · '+safe(titles[t.exam_id]||t.exam_id)+(t.date?' · test date '+safe(t.date):'')+'<br>'+(t.scores||[]).map(s=>safe(s.title)+' '+(s.score??'pending')+'/'+s.maxScore).join(' · ')+'<br><span class="muted">Submitted '+safe(new Date(t.submitted_at).toLocaleString())+'</span>';
  // pick: {test, requestId?}. A request is approved for that student's computer; a name search makes a code and link instead.
@@ -70,7 +70,7 @@
    const r=await MonthlyCloud.call(pick.requestId?'retake-approve':'retake-create',pick.requestId?{...args,requestId:pick.requestId}:{...args,attemptId:pick.test.id});
    const who=r.student+' · '+r.className+' · '+(titles[r.exam]||r.exam)+' · '+r.sectionTitle+(r.tasks?' ('+r.tasks.join(', ')+')':'')+' retake';
    if(pick.requestId){$('approvedWho').textContent=who;$('approved').hidden=false;$('choose').hidden=true;document.querySelector('#requestList input:checked')?.closest('label').remove();}
-   else{const link=new URL(pages[r.exam]+'?retake='+r.code+'&section='+encodeURIComponent(r.section),location.href).href;
+   else{const link=new URL((r.exam==='ibt'?ibtPages[r.section]:pages[r.exam])+'?retake='+r.code+'&section='+encodeURIComponent(r.section),location.href).href;
     $('who').textContent=who;$('code').textContent=r.code;$('link').textContent=$('link').href=link;$('expires').textContent=new Date(r.expiresAt).toLocaleString();$('result').hidden=false;}
    $('createStatus').textContent='';
   }catch(e){$('createStatus').textContent=e.message;}finally{$('create').disabled=false;}

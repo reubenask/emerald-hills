@@ -7,6 +7,8 @@ import vm from 'node:vm';
 import {stripTypeScriptTypes} from 'node:module';
 import {objectiveReport} from '../supabase/functions/monthly-mark/core.mjs';
 const cat=JSON.parse(fs.readFileSync(new URL('../supabase/.local/monthly-ai-catalog-primary.json',import.meta.url)))['primary-step2'];
+// The iBT catalog is built from files on the teacher's computer; without it the iBT check is skipped.
+const ibtFile=new URL('../supabase/.local/monthly-ai-catalog-ibt.json',import.meta.url),ibtCat=fs.existsSync(ibtFile)?JSON.parse(fs.readFileSync(ibtFile))['ibt']:null;
 const users={student:'11111111-1111-4111-8111-111111111111',teacherDevice:'33333333-3333-4333-8333-333333333333',other:'44444444-4444-4444-8444-444444444444'};
 const tables={monthly_exam_attempts:[],monthly_retakes:[],monthly_ai_reports:[],monthly_retake_requests:[]};const emails=[],audio=new Set();
 const reply=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{'Content-Type':'application/json'}});
@@ -36,7 +38,7 @@ async function fetchMock(url,options={}){
  }
  if(u.pathname.startsWith('/storage/v1/object/sign/'))return reply({signedURL:'/object/sign/'+u.pathname.split('/monthly-speaking/')[1]});
  if(u.pathname.startsWith('/storage/v1/object/monthly-speaking/')){const path=u.pathname.split('/monthly-speaking/')[1];return audio.has(path)?new Response(new Uint8Array([1,2,3]),{headers:{'Content-Type':'audio/webm'}}):reply({},404);}
- if(u.pathname==='/rest/v1/monthly_ai_catalog')return reply([{content:cat}]);
+ if(u.pathname==='/rest/v1/monthly_ai_catalog')return reply([{content:u.searchParams.get('exam_id')==='eq.ibt'?ibtCat:cat}]);
  if(u.pathname==='/rest/v1/rpc/monthly_claim_marking'){const r=tables.monthly_ai_reports.find(r=>r.attempt_id===JSON.parse(options.body).p_attempt);return reply(r?[structuredClone(r)]:[]);}
  const table=tables[u.pathname.replace('/rest/v1/','')];if(!table)throw Error('Unexpected mocked URL '+url);
  const rows=table.filter(r=>match(r,u.searchParams));
@@ -147,3 +149,28 @@ assert(tables.monthly_ai_reports.find(x=>x.attempt_id===original).jobs.find(j=>j
 assert.equal((await call({action:'retake-request-status',attemptId:original})).value.status,'none','after the retake the student can ask again');
 console.log('Requested retake: the student asks, the teacher approves on their own device without the password reaching the student, and only that computer can take it.');
 console.log('Section retake: teacher password, one-time code bound to one computer and section, section-only marking, merge into the original report and re-email all pass.');
+if(ibtCat){
+ // iBT: whole sections only. The student asks from Start Here, the teacher approves, the section page retakes it.
+ const ibtAnswers={};for(const s of ibtCat.objective)for(const q of s.questions)ibtAnswers[q.id]=String(q.key);ibtAnswers.email='Dear Ms Lee, the booking shows the wrong date.';ibtAnswers.discussion='I think online classes help busy students.';
+ const ibtStudent={name:'Ibt Test',className:'B1',date:'2026-10-18'},ibtSubmitted=Object.fromEntries(ibtCat.sections.map(s=>[s.id,true]));
+ const ibtOriginal=(await call({action:'sync',exam:'ibt',adultConfirmed:true,response:{student:ibtStudent,answers:ibtAnswers,submitted:ibtSubmitted,final:true}})).value.attemptId;
+ assert.equal((await call({action:'submit',attemptId:ibtOriginal})).status,200);
+ for(let i=0;i<20;i++)if(!(await call({action:'process',attemptId:ibtOriginal})).value.processed)break;
+ r=await call({action:'retake-request-status',attemptId:ibtOriginal});assert.equal(r.value.status,'none');assert.deepEqual(r.value.tasks,[],'iBT offers whole sections only');
+ r=await call({action:'retake-request',attemptId:ibtOriginal,section:'speaking',tasks:['repeat-1']});assert.equal(r.value.status,'pending');assert.equal(r.value.asked,'Speaking','ticked tasks are ignored on iBT');
+ r=await call({action:'retake-requests',teacherSecret:'correct horse battery'},'teacherDevice');const ibtReq=r.value.requests.find(x=>x.test.id===ibtOriginal);assert(ibtReq);assert.equal(ibtReq.tasks,null);assert.deepEqual(r.value.tasks.ibt,[]);
+ assert.equal((await call({action:'retake-approve',teacherSecret:'correct horse battery',requestId:ibtReq.id,section:'speaking',tasks:['repeat-1']},'teacherDevice')).status,200);
+ const ibtCode=(await call({action:'retake-request-status',attemptId:ibtOriginal})).value.code;
+ r=await call({action:'retake-open',code:ibtCode,exam:'ibt',section:'speaking'});assert.equal(r.status,200);assert.equal(r.value.allowed,null);assert.equal(r.value.student.name,'Ibt Test');
+ // The retake page sends only its own section; the others count as submitted.
+ const ibtRetake=(await call({action:'sync',exam:'ibt',adultConfirmed:true,retakeCode:ibtCode,response:{student:ibtStudent,answers:{},submitted:ibtSubmitted,final:true}})).value.attemptId;
+ for(const t of ibtCat.tasks.filter(t=>t.section==='speaking'))audio.add(users.student+'/'+ibtRetake+'/'+t.id);
+ assert.equal((await call({action:'submit',attemptId:ibtRetake})).status,200);
+ for(let i=0;i<40;i++)if(!(await call({action:'process',attemptId:ibtRetake})).value.processed)break;
+ const ibtAfter=tables.monthly_ai_reports.find(x=>x.attempt_id===ibtOriginal);
+ assert(ibtAfter.jobs.filter(j=>j.section==='speaking').every(j=>j.retaken&&j.recording.includes(ibtRetake)),'every speaking task comes from the retake');
+ assert(ibtAfter.jobs.filter(j=>j.section==='writing').every(j=>!j.retaken),'writing keeps its marks');
+ assert.deepEqual(ibtAfter.objective,tables.monthly_ai_reports.find(x=>x.attempt_id===ibtOriginal).objective);
+ assert(emails.at(-1).subject.includes('retake'),'the original iBT report is emailed again');
+ console.log('iBT retake: whole Speaking section requested, approved and merged into the original report.');
+}else console.log('iBT retake check skipped: build supabase/.local/monthly-ai-catalog-ibt.json first.');

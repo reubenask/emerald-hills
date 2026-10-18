@@ -21,8 +21,9 @@ async function owned(id: string, user: string) {
   if (!rows[0]) throw new PublicError('Attempt not found.',404);
   return rows[0];
 }
-// Section retakes: the teacher creates a one-time code for one section of a submitted test (Primary Step 2 and ITP pages).
-const RETAKE_EXAMS=['primary-step2','itp'], CODE_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+// Section retakes: the teacher creates a one-time code for one section of a submitted test.
+// iBT sections are retaken whole; Primary Step 2 and ITP writing and speaking may also retake chosen tasks.
+const RETAKE_EXAMS=['primary-step2','itp','ibt'], TASK_RETAKES=['primary-step2','itp'], CODE_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const cleanCode=(c:any)=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,20);
 async function sha256(t:string){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t))),b=>b.toString(16).padStart(2,'0')).join('');}
 // The teacher password (RETAKE_TEACHER_SECRET); a wrong one waits before answering, to slow guessing.
@@ -52,7 +53,7 @@ async function describeTests(rows:any[]) {
 }
 async function retakeChoices() {
   const sections:any={}, tasks:any={};
-  for(const e of RETAKE_EXAMS){try{const c=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
+  for(const e of RETAKE_EXAMS){try{const c=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.filter((t:any)=>TASK_RETAKES.includes(e)).map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
   return {sections,tasks};
 }
 const REQUEST_HOURS=48;
@@ -68,12 +69,12 @@ async function createRetake(attemptId:any, section:any, chosen:any, forStudent:s
   if(!/^[0-9a-f-]{36}$/i.test(attemptId||''))throw new PublicError('Invalid attempt.');
   const orig=(await db('monthly_exam_attempts?id=eq.'+attemptId+'&status=eq.submitted&select=id,exam_id,student_name,class_name'))[0];
   if(!orig)throw new PublicError('Submitted test not found.',404);
-  if(!RETAKE_EXAMS.includes(orig.exam_id))throw new PublicError('Section retakes are available for Primary Step 2 and ITP only.');
+  if(!RETAKE_EXAMS.includes(orig.exam_id))throw new PublicError('Section retakes are not available for this test.');
   const catalog=await catalogFor(orig.exam_id), sec=catalog.sections.find((s:any)=>s.id===section);
   if(!sec)throw new PublicError('Choose the section to retake.');
-  // Writing and speaking may retake chosen tasks only; every other section is retaken whole.
-  const sectionTasks=catalog.tasks.filter((t:any)=>t.section===sec.id).map((t:any)=>t.id);
-  const tasks=Array.isArray(chosen)?[...new Set(chosen.map(String))]:[];
+  // Writing and speaking may retake chosen tasks only; every other section (and every iBT section) is retaken whole.
+  const sectionTasks=TASK_RETAKES.includes(orig.exam_id)?catalog.tasks.filter((t:any)=>t.section===sec.id).map((t:any)=>t.id):[];
+  const tasks=Array.isArray(chosen)&&sectionTasks.length?[...new Set(chosen.map(String))]:[];
   if(tasks.some(t=>!sectionTasks.includes(t)))throw new PublicError('Choose tasks from the selected section.');
   const only=tasks.length&&tasks.length<sectionTasks.length?tasks:null;
   const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>CODE_CHARS[b%32]).join(''), expires=new Date(Date.now()+48*3600000).toISOString();
@@ -326,7 +327,7 @@ Deno.serve(async (req:Request) => {
     if(body.action==='retake-request'||body.action==='retake-request-status') {
       const attempt=await owned(body.attemptId,user.id);
       if(attempt.status!=='submitted')throw new PublicError('Submit your test before asking for a retake.');
-      if(!RETAKE_EXAMS.includes(attempt.exam_id))throw new PublicError('Retakes are available for Primary Step 2 and ITP only.');
+      if(!RETAKE_EXAMS.includes(attempt.exam_id))throw new PublicError('Retakes are not available for this test.');
       let req=(await db('monthly_retake_requests?attempt_id=eq.'+attempt.id+'&student_id=eq.'+user.id+'&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=1&select=*'))[0];
       // A request whose retake was submitted is finished; the student may ask again.
       if(req?.retake_code&&(await db('monthly_retakes?code_hash=eq.'+await sha256(req.retake_code)+'&select=used_at'))[0]?.used_at)req=null;
@@ -335,13 +336,13 @@ Deno.serve(async (req:Request) => {
       if(!req&&body.action==='retake-request'){
         const sec=catalog.sections.find((x:any)=>x.id===body.section);
         if(!sec)throw new PublicError('Choose the section you want to retake.');
-        const sectionTasks=catalog.tasks.filter((t:any)=>t.section===sec.id).map((t:any)=>t.id);
-        const tasks=Array.isArray(body.tasks)?[...new Set(body.tasks.map(String))]:[];
+        const sectionTasks=TASK_RETAKES.includes(attempt.exam_id)?catalog.tasks.filter((t:any)=>t.section===sec.id).map((t:any)=>t.id):[];
+        const tasks=Array.isArray(body.tasks)&&sectionTasks.length?[...new Set(body.tasks.map(String))]:[];
         if(tasks.some(t=>!sectionTasks.includes(t)))throw new PublicError('Choose tasks from the selected section.');
         if(sectionTasks.length&&!tasks.length)throw new PublicError('Tick at least one task to retake.');
         req=(await db('monthly_retake_requests','POST',{attempt_id:attempt.id,student_id:user.id,requested_section:sec.id,requested_tasks:tasks.length&&tasks.length<sectionTasks.length?tasks:null,request_code:Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>CODE_CHARS[b%32]).join('')}))[0];
       }
-      if(!req)return json({status:'none',sections:catalog.sections.map((x:any)=>({id:x.id,title:x.title})),tasks:catalog.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}))});
+      if(!req)return json({status:'none',sections:catalog.sections.map((x:any)=>({id:x.id,title:x.title})),tasks:TASK_RETAKES.includes(attempt.exam_id)?catalog.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section})):[]});
       if(!req.approved_at)return json({status:'pending',requestCode:req.request_code,asked:requestedText(catalog,req)});
       return json({status:'approved',requestCode:req.request_code,code:req.retake_code,exam:attempt.exam_id,section:req.section,sectionTitle:catalog.sections.find((s:any)=>s.id===req.section)?.title||req.section});
     }
