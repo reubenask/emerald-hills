@@ -268,13 +268,23 @@ Deno.serve(async (req:Request) => {
     // Teacher: find a student's submitted tests, then create a one-time retake code for one section.
     if(body.action==='retake-find') {
       await teacherCheck(body.teacherSecret);
-      const q=String(body.name||'').replace(/[^\p{L}\p{N} .'-]/gu,'').trim().slice(0,60);
-      if(q.length<2)throw new PublicError('Enter at least two letters of the student name.');
-      const rows=await db('monthly_exam_attempts?status=eq.submitted&student_name=ilike.'+encodeURIComponent('*'+q+'*')+'&select=id,exam_id,student_name,class_name,submitted_at&order=submitted_at.desc&limit=20');
+      // The Teacher button on a finished test passes that computer's own test, so same-named students cannot be mixed up.
+      const fields='&select=id,exam_id,student_name,class_name,submitted_at,response_state->student->>date';
+      let rows:any[];
+      if(/^[0-9a-f-]{36}$/i.test(body.attemptId||''))rows=await db('monthly_exam_attempts?status=eq.submitted&id=eq.'+body.attemptId+fields);
+      else {
+        const q=String(body.name||'').replace(/[^\p{L}\p{N} .'-]/gu,'').trim().slice(0,60);
+        if(q.length<2)throw new PublicError('Enter at least two letters of the student name.');
+        rows=await db('monthly_exam_attempts?status=eq.submitted&student_name=ilike.'+encodeURIComponent('*'+q+'*')+fields+'&order=submitted_at.desc&limit=20');
+      }
       const retakes=rows.length?await db('monthly_retakes?retake_attempt_id=in.('+rows.map((r:any)=>r.id).join(',')+')&select=retake_attempt_id'):[];
       const skip=new Set(retakes.map((r:any)=>r.retake_attempt_id)), sections:any={}, tasks:any={};
-      for(const e of RETAKE_EXAMS){try{const c=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
-      return json({tests:rows.filter((r:any)=>!skip.has(r.id)).map((r:any)=>({...r,retakeAvailable:RETAKE_EXAMS.includes(r.exam_id)})),sections,tasks});
+      const catalogs:any={};
+      for(const e of RETAKE_EXAMS){try{const c=catalogs[e]=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
+      // Section scores help tell same-named students apart: the spoiled section is usually the low one.
+      const reports=rows.length?await db('monthly_ai_reports?attempt_id=in.('+rows.map((r:any)=>r.id).join(',')+')&select=attempt_id,objective,jobs'):[];
+      const scores=(r:any)=>{const rep=reports.find((x:any)=>x.attempt_id===r.id),c=catalogs[r.exam_id];return rep&&c?scorecard(c,rep.objective,rep.jobs).sections.map((s:any)=>({title:s.title,score:s.score,maxScore:s.maxScore})):[];};
+      return json({tests:rows.filter((r:any)=>!skip.has(r.id)).map((r:any)=>({...r,scores:scores(r),retakeAvailable:RETAKE_EXAMS.includes(r.exam_id)})),sections,tasks});
     }
     if(body.action==='retake-create') {
       await teacherCheck(body.teacherSecret);

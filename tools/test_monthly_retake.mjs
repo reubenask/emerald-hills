@@ -65,6 +65,9 @@ assert.equal((await call({action:'retake-find',teacherSecret:'wrong',name:'Yaya'
 assert.equal((await call({action:'retake-create',teacherSecret:'wrong',attemptId:original,section:'speaking'},'teacherDevice')).status,403);
 r=await call({action:'retake-find',teacherSecret:'correct horse battery',name:'yaya'},'teacherDevice');
 assert.equal(r.status,200);assert.deepEqual(r.value.tests.map(t=>t.id),[original]);
+assert.equal(r.value.tests[0].scores.find(x=>x.title==='Speaking').score,0,'section scores help tell same-named students apart');
+r=await call({action:'retake-find',teacherSecret:'correct horse battery',attemptId:original},'teacherDevice');assert.deepEqual(r.value.tests.map(t=>t.id),[original],'the Teacher button finds this computer\'s own test');
+assert.equal((await call({action:'retake-find',teacherSecret:'wrong',attemptId:original},'teacherDevice')).status,403);
 r=await call({action:'retake-create',teacherSecret:'correct horse battery',attemptId:original,section:'speaking'},'teacherDevice');
 assert.equal(r.status,200);const retakeCode=r.value.code;assert.match(retakeCode,/^[A-Z2-9]{8}$/);
 assert(!JSON.stringify(tables.monthly_retakes).includes(retakeCode),'only the hash of the code is stored');

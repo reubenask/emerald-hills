@@ -27,7 +27,9 @@
   }
   if (retake) checkRetake();
   // Teacher entry point for retakes, at the foot of the Primary and ITP pages.
-  else if (exam !== 'ibt') { const t = document.createElement('p'); t.style.cssText = 'text-align:center;margin:40px 0 20px;font-size:.85rem'; t.innerHTML = '<a href="../retake.html" style="color:inherit;opacity:.7">Teacher</a>'; document.body.append(t); }
+  else if (exam !== 'ibt') { const t = document.createElement('p'); t.style.cssText = 'text-align:center;margin:40px 0 20px;font-size:.85rem'; t.innerHTML = '<a href="../retake.html" style="color:inherit;opacity:.7">Teacher</a>'; document.body.append(t);
+    // After submission, open the retake page on this computer's own test.
+    t.querySelector('a').onclick = e => { if (record?.locked && record.id) { e.preventDefault(); location.href = '../retake.html?attempt=' + encodeURIComponent(record.id); } }; }
   const consent = notice.querySelector('input'), cloudStatus = notice.querySelector('#cloudStatus'), reportButton = notice.querySelector('button');
   // Repeat the sending status under the final submit button, where students look after submitting.
   const finalButton = document.querySelector('#finalSubmit, #submitAll'), sendStatus = document.createElement('p');
