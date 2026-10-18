@@ -115,8 +115,11 @@
   }
   async function askRetake() { requestButton.disabled = true; try { showRequest(await MonthlyCloud.call('retake-request', { attemptId: record.id })); } catch (e) { requestStatus.textContent = e.message; } finally { requestButton.disabled = false; } }
   async function checkRequest() {
-    if (retake || exam === 'ibt' || !record?.locked || !snapshot().final) { requestBox.hidden = true; return; }
+    if (retake || exam === 'ibt') { requestBox.hidden = true; return; }
     requestBox.hidden = false;
+    // Before submission the button is shown but disabled, so students know where to find it.
+    if (!record?.locked || !snapshot().final) { requestStatus.textContent = 'If a machine, microphone or sound problem spoils part of your test, you can ask your teacher for a retake here after you submit.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.disabled = true; return; }
+    requestButton.disabled = false;
     try { showRequest(await MonthlyCloud.call('retake-request-status', { attemptId: record.id })); } catch {}
   }
   setInterval(checkRequest, 15000); checkRequest();
