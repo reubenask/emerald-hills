@@ -8,7 +8,7 @@ import {stripTypeScriptTypes} from 'node:module';
 import {objectiveReport} from '../supabase/functions/monthly-mark/core.mjs';
 const cat=JSON.parse(fs.readFileSync(new URL('../supabase/.local/monthly-ai-catalog-primary.json',import.meta.url)))['primary-step2'];
 const users={student:'11111111-1111-4111-8111-111111111111',teacherDevice:'33333333-3333-4333-8333-333333333333',other:'44444444-4444-4444-8444-444444444444'};
-const tables={monthly_exam_attempts:[],monthly_retakes:[],monthly_ai_reports:[],monthly_retake_requests:[]};const emails=[],audio=new Set();
+const tables={monthly_exam_attempts:[],monthly_retakes:[],monthly_ai_reports:[],monthly_retake_requests:[],monthly_teacher_logins:[]};const emails=[],audio=new Set();
 const reply=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{'Content-Type':'application/json'}});
 // Enough of PostgREST's filters for the function: eq, is.null, in.(...), gte, ilike with * wildcards.
 function match(row,params){
@@ -40,7 +40,8 @@ async function fetchMock(url,options={}){
  if(u.pathname==='/rest/v1/rpc/monthly_claim_marking'){const r=tables.monthly_ai_reports.find(r=>r.attempt_id===JSON.parse(options.body).p_attempt);return reply(r?[structuredClone(r)]:[]);}
  const table=tables[u.pathname.replace('/rest/v1/','')];if(!table)throw Error('Unexpected mocked URL '+url);
  const rows=table.filter(r=>match(r,u.searchParams));
- if(method==='GET')return reply(structuredClone(rows));
+ // select aliases such as student:response_state->student
+ if(method==='GET'){const aliases=[...(u.searchParams.get('select')||'').matchAll(/(\w+):response_state->(\w+)/g)];return reply(structuredClone(rows).map(r=>{for(const [,k,p] of aliases)r[k]=r.response_state?.[p];return r;}));}
  if(method==='POST'){const row={...(table===tables.monthly_exam_attempts?{id:uuid(),status:'draft',created_at:new Date().toISOString()}:table===tables.monthly_retake_requests?{id:uuid(),created_at:new Date().toISOString(),approved_at:null}:{}),...JSON.parse(options.body)};table.push(row);return reply([structuredClone(row)]);}
  if(method==='PATCH'){const patch=JSON.parse(options.body);for(const r of rows){Object.assign(r,patch);if(patch.status==='submitted')r.submitted_at=new Date().toISOString();}return reply(structuredClone(rows));}
  throw Error('Unexpected method '+method);
@@ -48,7 +49,7 @@ async function fetchMock(url,options={}){
 let handler;
 const code=stripTypeScriptTypes(fs.readFileSync(new URL('../supabase/.local/monthly-mark-deploy.ts',import.meta.url),'utf8'));
 const secrets={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'test-service',SUPABASE_ANON_KEY:'test-anon',GEMINI_API_KEY:'test-gemini',GEMINI_FALLBACK_MODELS:'test-model',RESEND_API_KEY:'test-resend',REPORT_EMAIL_TO:'teacher@example.com',RETAKE_TEACHER_SECRET:'correct horse battery'};
-vm.runInNewContext(code,{Deno:{env:{get:k=>secrets[k]},serve:fn=>handler=fn},fetch:fetchMock,Response,Request,AbortSignal,console:{error(){},log(){}},btoa,Uint8Array,Date,JSON,Error,Number,Math,Set,Object,Array,String,crypto,TextEncoder,setTimeout:(f)=>setTimeout(f,0)});
+vm.runInNewContext(code,{Deno:{env:{get:k=>secrets[k]},serve:fn=>handler=fn},fetch:fetchMock,Response,Request,AbortSignal,console:{error(...a){if(process.env.DEBUG)console.error(...a)},log(){}},btoa,Uint8Array,Date,JSON,Error,Number,Math,Set,Object,Array,String,crypto,TextEncoder,setTimeout:(f)=>setTimeout(f,0)});
 async function call(body,token='student'){const r=await handler(new Request('https://example.supabase.co/functions/v1/monthly-mark',{method:'POST',headers:{Authorization:'Bearer '+token,origin:'https://reubenask.github.io','Content-Type':'application/json'},body:JSON.stringify(body)}));return {status:r.status,value:await r.json()};}
 
 // The original test: speaking was not recorded, so it scored zero.
@@ -147,3 +148,27 @@ assert(tables.monthly_ai_reports.find(x=>x.attempt_id===original).jobs.find(j=>j
 assert.equal((await call({action:'retake-request-status',attemptId:original})).value.status,'none','after the retake the student can ask again');
 console.log('Requested retake: the student asks, the teacher approves on their own device without the password reaching the student, and only that computer can take it.');
 console.log('Section retake: teacher password, one-time code bound to one computer and section, section-only marking, merge into the original report and re-email all pass.');
+
+// Teacher view: every report on the teacher's own device, change a mark, approve and email.
+const T='correct horse battery';
+assert.equal((await call({action:'teacher-overview',teacherSecret:'wrong'},'teacherDevice')).status,403);
+r=await call({action:'teacher-overview',teacherSecret:T},'teacherDevice');assert.equal(r.status,200);
+assert.deepEqual(r.value.tests.map(t=>t.id),[original],'retake attempts are shown on their original test, not as tests');
+let row=r.value.tests[0];assert.equal(row.student.name,'Yaya Test');assert.equal(row.approved,false);assert(row.retake.some(l=>l.startsWith('Retake of Speaking marked')));
+r=await call({action:'teacher-report',teacherSecret:T,attemptId:original},'teacherDevice');assert.equal(r.status,200);assert(r.value.audio['speaking-3'].includes(asked));
+assert.equal((await call({action:'teacher-mark',teacherSecret:T,attemptId:original,jobId:'speaking-1',score:11},'teacherDevice')).status,400,'a mark above the maximum is refused');
+r=await call({action:'teacher-mark',teacherSecret:T,attemptId:original,jobId:'speaking-1',score:7,note:'Good effort.'},'teacherDevice');assert.equal(r.status,200);
+let job=tables.monthly_ai_reports.find(x=>x.attempt_id===original).jobs.find(j=>j.id==='speaking-1');
+assert.equal(job.result.score,7);assert.equal(job.result.aiScore,10);assert.equal(job.result.teacherApproval,'changed');assert.equal(job.result.teacherNote,'Good effort.');
+const sent=emails.length;r=await call({action:'teacher-approve',teacherSecret:T,attemptId:original},'teacherDevice');assert.equal(r.status,200);assert.equal(r.value.emailed,true);
+assert.equal(emails.length,sent+1);assert(emails.at(-1).subject.startsWith('[Approved] '));assert(emails.at(-1).html.includes('Teacher mark:</b> 7 / 10 (AI mark 10). Good effort.'));assert(emails.at(-1).html.includes('approved by the teacher'));
+row=(await call({action:'teacher-overview',teacherSecret:T},'teacherDevice')).value.tests[0];assert.equal(row.approved,true);assert.deepEqual(row.flags,[]);
+r=await call({action:'report',attemptId:original});assert.equal(r.value.scorecard.approved,true);
+assert.equal((await call({action:'teacher-report',teacherSecret:T,attemptId:original},'student')).status,200,'the password, not the computer, opens the teacher view');
+// Ten wrong passwords from one address lock the teacher pages there for an hour; other addresses still work.
+const from=(ip,body)=>handler(new Request('https://example.supabase.co/functions/v1/monthly-mark',{method:'POST',headers:{Authorization:'Bearer teacherDevice',origin:'https://reubenask.github.io','x-forwarded-for':ip,'Content-Type':'application/json'},body:JSON.stringify(body)})).then(r=>r.status);
+for(let i=0;i<10;i++)assert.equal(await from('9.9.9.9',{action:'teacher-overview',teacherSecret:'guess'+i}),403);
+assert.equal(await from('9.9.9.9',{action:'teacher-overview',teacherSecret:T}),429,'locked after ten wrong passwords');
+assert.equal(await from('8.8.8.8',{action:'teacher-overview',teacherSecret:T}),200);
+assert(!JSON.stringify(tables.monthly_teacher_logins).includes('9.9.9.9'),'only a hash of the address is stored');
+console.log('Teacher view: every report, change a mark, approve and email, and the wrong-password lockout all pass.');

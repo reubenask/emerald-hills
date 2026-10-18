@@ -25,11 +25,20 @@ async function owned(id: string, user: string) {
 const RETAKE_EXAMS=['primary-step2','itp'], CODE_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const cleanCode=(c:any)=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,20);
 async function sha256(t:string){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t))),b=>b.toString(16).padStart(2,'0')).join('');}
-// The teacher password (RETAKE_TEACHER_SECRET); a wrong one waits before answering, to slow guessing.
-async function teacherCheck(secret:any){
+// The teacher password (RETAKE_TEACHER_SECRET). Wrong passwords are logged (only a hash of the address) and,
+// after 10 from one address or 100 in total within an hour, every attempt is refused until the hour has passed.
+const LOCK_EACH=10, LOCK_ALL=100;
+async function teacherCheck(secret:any, req:Request){
   const expected=env('RETAKE_TEACHER_SECRET');
   if(expected.length<8)throw new PublicError('Retakes are not set up yet: the teacher password has not been configured.',503);
-  if(await sha256(String(secret||''))!==await sha256(expected)){await new Promise(r=>setTimeout(r,1500));throw new PublicError('The teacher password is incorrect.',403);}
+  const ip=await sha256('teacher-ip:'+((req.headers.get('x-forwarded-for')||req.headers.get('cf-connecting-ip')||'unknown').split(',')[0].trim()));
+  const since=new Date(Date.now()-3600000).toISOString();
+  const failed=await db('monthly_teacher_logins?failed=eq.true&created_at=gte.'+since+'&select=ip_hash');
+  if(failed.length>=LOCK_ALL||failed.filter((f:any)=>f.ip_hash===ip).length>=LOCK_EACH)throw new PublicError('Too many wrong teacher passwords. Teacher pages are locked for up to an hour; try again later.',429);
+  if(await sha256(String(secret||''))!==await sha256(expected)){
+    await db('monthly_teacher_logins','POST',{ip_hash:ip,failed:true,created_at:new Date().toISOString()});
+    await new Promise(r=>setTimeout(r,1500));throw new PublicError('The teacher password is incorrect.',403);
+  }
 }
 // A usable code: known, not expired, not yet submitted, and for this exam and section.
 async function retakeFor(code:any, exam?:string, section?:string){
@@ -227,6 +236,62 @@ ${lesson?`LESSON THE STUDENT LISTENED TO (trusted transcript; check the student'
   const moderation=await moderate(spec,attempt.exam_id,rubric,result,{response,transcript});
   return {status:'complete',result:{...result,needsTeacherReview:result.needsTeacherReview||!!spec.forceTeacherReview,moderation,teacherApproval:'pending',...(spec.section==='speaking'?{transcript,transcriptSource:raw.source||'gemini'}:{response}),model:lastModel,markedAt:new Date().toISOString()}};
 }
+// The full report, as the student's report page and the teacher's view show it, with signed links to the recordings.
+async function reportPayload(attempt:any, catalog:any, report:any) {
+  const audio=Object.fromEntries(await Promise.all(catalog.tasks.filter((t:any)=>t.section==='speaking').map(async(t:any)=>{
+    const path=report.jobs.find((j:any)=>j.id===t.id)?.recording||attempt.student_id+'/'+attempt.id+'/'+t.id;
+    const r=await fetch(base+'/storage/v1/object/sign/monthly-speaking/'+path,{method:'POST',headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:3600})});
+    if(!r.ok)return [t.id,null];const d=await r.json();return [t.id,base+'/storage/v1'+d.signedURL];
+  })));
+  return {attemptId:attempt.id,exam:attempt.exam_id,student:studentOf(attempt.response_state),submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,audio,retake:report.retake||null,emailedAt:report.emailed_at||null,scorecard:scorecard(report.retake?.of?{...catalog,sections:catalog.sections.filter((s:any)=>s.id===report.retake.section)}:catalog,report.objective,report.jobs),rubricVersion:RUBRIC_VERSION,rubricSources:RUBRIC_SOURCES};
+}
+// Teacher overview: what needs the teacher on each submitted test.
+const isApproved=(j:any)=>['approved','changed'].includes(j.result?.teacherApproval);
+function teacherFlags(exam:string, jobs:any[]) {
+  const flags:string[]=[];
+  for(const j of jobs){
+    if(isApproved(j))continue;
+    if(j.status==='pending')flags.push(j.title+': still being marked');
+    else if(j.status==='error')flags.push(j.title+': marking failed');
+    else if(j.section==='speaking'&&j.status==='missing')flags.push(j.title+': no recording');
+    else if(j.section==='speaking'&&j.result?.score===0&&!j.result?.categories?.length)flags.push(j.title+': no speech heard');
+    else if(j.section==='writing'&&j.status==='missing')flags.push(j.title+(exam==='primary-step2'?': handwritten page not marked yet':': no written answer'));
+    else if(j.result?.needsTeacherReview)flags.push(j.title+': AI asks for a teacher check');
+  }
+  return flags;
+}
+const notTrial=(r:any)=>!/^trial\b/i.test(String(r.student_name||''))&&!/delete me/i.test(String(r.class_name||''));
+async function teacherOverview() {
+  const catalogs:any={};for(const e of ['primary-step2','itp','ibt']){try{catalogs[e]=await catalogFor(e);}catch{}}
+  const fields='id,exam_id,student_name,class_name,submitted_at,updated_at,status,student:response_state->student';
+  const tests=(await db('monthly_exam_attempts?status=eq.submitted&order=submitted_at.desc&limit=100&select='+fields)).filter(notTrial);
+  const drafts=(await db('monthly_exam_attempts?status=eq.draft&updated_at=gte.'+new Date(Date.now()-14*86400000).toISOString()+'&order=updated_at.desc&limit=60&select='+fields+',submitted:response_state->submitted')).filter(notTrial);
+  // Retake attempts are shown on the test they belong to, not as tests of their own.
+  // Both retake tables are small, so the recent rows are read whole.
+  const retakes=await db('monthly_retakes?order=created_at.desc&limit=500&select=attempt_id,section,tasks,created_at,used_at,retake_attempt_id,expires_at');
+  const retakeIds=new Set(retakes.map((r:any)=>r.retake_attempt_id).filter(Boolean));
+  const requests=await db('monthly_retake_requests?order=created_at.desc&limit=500&select=attempt_id,request_code,created_at,approved_at,requested_section,section');
+  const reports=tests.length?await db('monthly_ai_reports?attempt_id=in.('+tests.map((t:any)=>t.id).join(',')+')&select=attempt_id,objective,jobs,emailed_at,retake'):[];
+  const title=(exam:string,id:string)=>catalogs[exam]?.sections.find((s:any)=>s.id===id)?.title||id;
+  const retakeText=(t:any)=>{
+    const lines:string[]=[], rep=reports.find((x:any)=>x.attempt_id===t.id);
+    for(const done of rep?.retake?.taken||[])lines.push('Retake of '+title(t.exam_id,done.section)+' marked and added '+String(done.submittedAt||'').slice(0,10));
+    const req=requests.find((q:any)=>q.attempt_id===t.id);
+    const code=retakes.filter((r:any)=>r.attempt_id===t.id&&!r.used_at&&new Date(r.expires_at).getTime()>Date.now()).sort((a:any,b:any)=>b.created_at.localeCompare(a.created_at))[0];
+    if(req&&!req.approved_at&&Date.now()-new Date(req.created_at).getTime()<48*3600000)lines.push('Retake requested ('+title(t.exam_id,req.requested_section)+'), code '+req.request_code+', waiting for you');
+    else if(code)lines.push('Retake of '+title(t.exam_id,code.section)+' approved, '+(code.retake_attempt_id&&retakeIds.has(code.retake_attempt_id)?'student is taking it':'not started yet'));
+    return lines;
+  };
+  return {
+    tests:tests.filter((t:any)=>!retakeIds.has(t.id)).map((t:any)=>{
+      const rep=reports.find((x:any)=>x.attempt_id===t.id), c=catalogs[t.exam_id], sc=rep&&c?scorecard(c,rep.objective,rep.jobs):null;
+      return {id:t.id,exam:t.exam_id,student:studentOf({student:t.student}),submittedAt:t.submitted_at,overall:sc?.overall??null,sections:sc?sc.sections.map((s:any)=>({title:s.title,score:s.score,maxScore:s.maxScore,percentage:s.percentage})):[],
+        flags:rep?teacherFlags(t.exam_id,rep.jobs):['Marking has not started'],approved:!!rep?.jobs.length&&rep.jobs.every(isApproved),emailedAt:rep?.emailed_at||null,retake:retakeText(t),retakeAvailable:RETAKE_EXAMS.includes(t.exam_id)};
+    }),
+    drafts:drafts.filter((t:any)=>!retakeIds.has(t.id)&&(studentOf({student:t.student}).name||Object.values(t.submitted||{}).some(Boolean))).map((t:any)=>({id:t.id,exam:t.exam_id,student:studentOf({student:t.student}),updatedAt:t.updated_at,done:Object.entries(t.submitted||{}).filter(([,v])=>v).map(([k])=>title(t.exam_id,k))})),
+    ...await retakeChoices()
+  };
+}
 // iBT pages save studentName/studentClass/studentDate; the other tests save name/className/date.
 function studentOf(state:any) {
   const s=state?.student||{}, t=(v:any)=>String(v||'').trim().slice(0,150);
@@ -288,6 +353,7 @@ async function sweep() {
   return {checked:due.length,done};
 }
 Deno.serve(async (req:Request) => {
+  const request=req; // several actions below name a retake request `req`
   const origin=req.headers.get('origin')||'';
   const cors={'Access-Control-Allow-Origin':allowed.includes(origin)?origin:allowed[0],'Access-Control-Allow-Headers':'authorization, apikey, content-type, x-student-authorization','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin'};
   const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers:{...cors,'Content-Type':'application/json','Cache-Control':'no-store'}});
@@ -305,7 +371,7 @@ Deno.serve(async (req:Request) => {
     const body=await req.json();if(JSON.stringify(body).length>500000)throw new PublicError('Submission too large.',413);
     // Teacher: find a student's submitted tests, then create a one-time retake code for one section.
     if(body.action==='retake-find') {
-      await teacherCheck(body.teacherSecret);
+      await teacherCheck(body.teacherSecret,request);
       const fields='&select=id,exam_id,student_name,class_name,submitted_at,response_state->student->>date';
       let rows:any[];
       if(/^[0-9a-f-]{36}$/i.test(body.attemptId||''))rows=await db('monthly_exam_attempts?status=eq.submitted&id=eq.'+body.attemptId+fields);
@@ -319,7 +385,7 @@ Deno.serve(async (req:Request) => {
       return json({tests:await describeTests(rows.filter((r:any)=>!skip.has(r.id))),...await retakeChoices()});
     }
     if(body.action==='retake-create') {
-      await teacherCheck(body.teacherSecret);
+      await teacherCheck(body.teacherSecret,request);
       return json(await createRetake(body.attemptId,body.section,body.tasks,null));
     }
     // Student: ask for a retake from the submitted test. The page shows a request code; the teacher approves it on their own device.
@@ -347,20 +413,62 @@ Deno.serve(async (req:Request) => {
     }
     // Teacher: waiting requests, and approving one (which creates a retake code only that student's computer can use).
     if(body.action==='retake-requests') {
-      await teacherCheck(body.teacherSecret);
+      await teacherCheck(body.teacherSecret,request);
       const reqs=await db('monthly_retake_requests?approved_at=is.null&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=30&select=id,attempt_id,request_code,created_at,requested_section,requested_tasks');
       const rows=reqs.length?await db('monthly_exam_attempts?id=in.('+reqs.map((r:any)=>r.attempt_id).join(',')+')&select=id,exam_id,student_name,class_name,submitted_at,response_state->student->>date'):[];
       const tests=await describeTests(rows);
       return json({requests:reqs.map((r:any)=>({id:r.id,requestCode:r.request_code,requestedAt:r.created_at,section:r.requested_section,tasks:r.requested_tasks,test:tests.find((t:any)=>t.id===r.attempt_id)})).filter((r:any)=>r.test),...await retakeChoices()});
     }
     if(body.action==='retake-approve') {
-      await teacherCheck(body.teacherSecret);
+      await teacherCheck(body.teacherSecret,request);
       if(!/^[0-9a-f-]{36}$/i.test(body.requestId||''))throw new PublicError('Invalid request.');
       const req=(await db('monthly_retake_requests?id=eq.'+body.requestId+'&approved_at=is.null&select=*'))[0];
       if(!req)throw new PublicError('This request was already approved or has expired.',404);
       const made=await createRetake(req.attempt_id,body.section,body.tasks,req.student_id);
       await db('monthly_retake_requests?id=eq.'+req.id,'PATCH',{approved_at:new Date().toISOString(),retake_code:made.code,section:made.section});
       const {code,...shown}=made;return json(shown);
+    }
+    // Teacher: every student's report on the teacher's own device; approve marks or change them, then email.
+    if(body.action==='teacher-overview') {
+      await teacherCheck(body.teacherSecret,request);
+      return json(await teacherOverview());
+    }
+    if(body.action==='teacher-report'||body.action==='teacher-mark'||body.action==='teacher-approve') {
+      await teacherCheck(body.teacherSecret,request);
+      if(!/^[0-9a-f-]{36}$/i.test(body.attemptId||''))throw new PublicError('Invalid attempt.');
+      const attempt=(await db('monthly_exam_attempts?id=eq.'+body.attemptId+'&status=eq.submitted&select=*'))[0];
+      if(!attempt)throw new PublicError('Submitted test not found.',404);
+      const catalog=await catalogFor(attempt.exam_id);
+      if(body.action==='teacher-report'){const rows=await db('monthly_ai_reports?attempt_id=eq.'+attempt.id+'&select=*');if(!rows[0])throw new PublicError('Marking has not started for this test.',404);return json(await reportPayload(attempt,catalog,rows[0]));}
+      const claimed=await db('rpc/monthly_claim_marking','POST',{p_attempt:attempt.id});
+      if(!claimed.length)throw new PublicError('This report is being marked right now. Try again in a minute.',409);
+      const report=claimed[0], now=new Date().toISOString();
+      const release=async(patch:any={})=>db('monthly_ai_reports?attempt_id=eq.'+attempt.id,'PATCH',{...patch,lease_until:null});
+      try {
+        if(body.action==='teacher-mark'){
+          const job=report.jobs.find((j:any)=>j.id===body.jobId);
+          if(!job)throw new PublicError('Task not found.',404);
+          if(job.status==='pending')throw new PublicError('This task is still being marked. Try again in a minute.',409);
+          const note=noEmoji(String(body.note||'')).slice(0,1000);
+          const max=job.result?.maxScore||10, given=body.score===''||body.score==null?null:Number(body.score);
+          if(given!==null&&(!Number.isFinite(given)||given<0||given>max||Math.round(given*4)!==given*4))throw new PublicError('Enter a mark from 0 to '+max+' (quarter points allowed).');
+          if(!job.result){if(given===null)throw new PublicError('This task has no mark yet. Enter one.');job.status='complete';delete job.error;job.result={score:given,maxScore:max,categories:[],corrections:[],strengths:[],improvements:[],needsTeacherReview:false,aiScore:null};}
+          else if(given!==null&&given!==job.result.score){if(!('aiScore' in job.result))job.result.aiScore=job.result.score;job.result.score=given;}
+          if(job.status==='missing'&&given!==null)job.status='complete';
+          job.result.teacherApproval=job.result.aiScore!=null&&job.result.score!==job.result.aiScore||job.result.aiScore===null?'changed':'approved';
+          job.result.teacherNote=note;job.result.teacherAt=now;
+          await release({jobs:report.jobs,updated_at:now});
+          return json({saved:true,job});
+        }
+        // Approve: every task without a teacher decision is approved as marked, then the final report is emailed.
+        const unmarked=report.jobs.filter((j:any)=>!isApproved(j)&&(!j.result||j.status==='pending'||j.status==='error'));
+        if(unmarked.length)throw new PublicError('Give a mark first for: '+unmarked.map((j:any)=>j.title).join(', ')+'.');
+        for(const j of report.jobs)if(!isApproved(j)){j.result.teacherApproval='approved';j.result.teacherAt=now;}
+        let emailed=false;
+        try{emailed=await emailReport(attempt,catalog,report);}catch(e){console.error('Report email failed',(e as Error).message);}
+        await release({jobs:report.jobs,updated_at:now,...(emailed?{emailed_at:now}:{})});
+        return json({approved:true,emailed});
+      } catch(e){await release().catch(()=>{});throw e;}
     }
     // Student: check a retake code before starting, and get the original test's name, class and date.
     if(body.action==='retake-open') {
@@ -423,15 +531,7 @@ Deno.serve(async (req:Request) => {
       const patch:any={jobs:report.jobs,lease_until:null};if(reset)patch.emailed_at=null;
       await db('monthly_ai_reports?attempt_id=eq.'+attempt.id,'PATCH',patch);return json({reset});
     }
-    if(body.action==='report') {
-      const report=rows[0];
-      const audio=Object.fromEntries(await Promise.all(catalog.tasks.filter((t:any)=>t.section==='speaking').map(async(t:any)=>{
-        const path=report.jobs.find((j:any)=>j.id===t.id)?.recording||attempt.student_id+'/'+attempt.id+'/'+t.id;
-        const r=await fetch(base+'/storage/v1/object/sign/monthly-speaking/'+path,{method:'POST',headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:3600})});
-        if(!r.ok)return [t.id,null];const d=await r.json();return [t.id,base+'/storage/v1'+d.signedURL];
-      })));
-      return json({attemptId:attempt.id,exam:attempt.exam_id,student:studentOf(attempt.response_state),submittedAt:attempt.submitted_at,objective:report.objective,jobs:report.jobs,audio,retake:report.retake||null,scorecard:scorecard(report.retake?.of?{...catalog,sections:catalog.sections.filter((s:any)=>s.id===report.retake.section)}:catalog,report.objective,report.jobs),rubricVersion:RUBRIC_VERSION,rubricSources:RUBRIC_SOURCES});
-    }
+    if(body.action==='report')return json(await reportPayload(attempt,catalog,rows[0]));
     throw new PublicError('Unknown action.');
-  } catch(e) {return json({error:e instanceof PublicError?e.message:'The marking service could not complete this request. Your saved responses are unchanged.'},e instanceof PublicError?e.status:503);}
+  } catch(e) {if(!(e instanceof PublicError))console.error('Request failed',(e as Error).message);return json({error:e instanceof PublicError?e.message:'The marking service could not complete this request. Your saved responses are unchanged.'},e instanceof PublicError?e.status:503);}
 });
