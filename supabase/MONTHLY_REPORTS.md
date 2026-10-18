@@ -33,11 +33,11 @@ Writing and speaking are marked like a teacher marking a script, on Structure an
 
 ## Section retakes
 
-When a machine, microphone or audio problem spoils one section of a submitted Primary Step 2 or ITP test, the teacher can let the student retake just that section.
+When a machine, microphone or audio problem spoils one section of a submitted Primary Step 2, ITP or iBT test, the teacher can let the student retake just that section.
 
 1. After submitting, the student goes to Request a Retake under Submit All & View Results, ticks the section that went wrong (and, for writing and speaking, the tasks), and presses Request a Retake. The page shows a request code.
 2. On your own device, open `monthly-exams/retake.html`, enter the teacher password and press Show Retake Requests. Choose the request whose code matches the student's screen; the student's choice is already selected and can be changed. Press Approve Retake. The student's page then shows Start Retake; nothing is typed on the student's computer, and only that computer can take the retake. (Without a request, you can still find a test by name and create a code and link to open on the student's computer.)
-For writing and speaking, untick the tasks that worked to retake only the broken ones; the other tasks keep their marks. Other sections are always retaken whole.
+For writing and speaking, untick the tasks that worked to retake only the broken ones; the other tasks keep their marks. Other sections, and every iBT section, are always retaken whole. An iBT student asks from Start Here, and the retake opens on that section's page.
 3. The retake is marked for that section (or those tasks) only. Its marks replace that section in the original report, which is emailed again with a note saying which section was retaken. The retake is not emailed on its own.
 
 The code works once, for one student, one test and one section, expires after 48 hours, and is tied to the first computer that opens it. Codes are stored as hashes; for an approved request the function also keeps the code (in a table only it can read) so it can hand it to that student's page.

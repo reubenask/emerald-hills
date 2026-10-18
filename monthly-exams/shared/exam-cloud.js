@@ -17,18 +17,19 @@
     if (retakeChecked) return true;
     try {
       const r = await MonthlyCloud.call('retake-open', { code: retake.code, exam, section: retake.section });
-      for (const [id, k] of [['studentName','name'],['studentClass','className'],['studentDate','date']]) if (!state.student[k] && r.student?.[k]) { state.student[k] = r.student[k]; document.getElementById(id).value = r.student[k]; }
+      // iBT pages keep the details under the input ids.
+      for (const [id, k] of [['studentName','name'],['studentClass','className'],['studentDate','date']]) { const sk = exam === 'ibt' ? id : k; if (!state.student[sk] && r.student?.[k]) { state.student[sk] = r.student[k]; document.getElementById(id).value = r.student[k]; } }
       // A task retake: the page enables only these tasks.
       if (r.allowed) retake.allowed = r.allowed;
       save(); render(); retakeChecked = true;
-      retakeStatus.textContent = 'Retake for ' + (r.student?.name || 'this student') + ': ' + r.sectionTitle + (r.allowed ? ', ' + r.allowed.tasks.join(', ') + ' only' : ' only') + '. Complete it, submit the section, then press Submit All. Everything else keeps its original marks.';
+      retakeStatus.textContent = 'Retake for ' + (r.student?.name || 'this student') + ': ' + r.sectionTitle + (r.allowed ? ', ' + r.allowed.tasks.join(', ') + ' only' : ' only') + (exam === 'ibt' ? '. Complete it and submit the section.' : '. Complete it, submit the section, then press Submit All.') + ' Everything else keeps its original marks.';
       return true;
     } catch (e) { retakeStatus.textContent = 'Retake code problem: ' + e.message; return false; }
   }
   if (retake) checkRetake();
   const consent = notice.querySelector('input'), cloudStatus = notice.querySelector('#cloudStatus'), reportButton = notice.querySelector('button');
   // Repeat the sending status under the final submit button, where students look after submitting.
-  const finalButton = document.querySelector('#finalSubmit, #submitAll'), sendStatus = document.createElement('p');
+  const finalButton = document.querySelector('#finalSubmit, #submitAll') || (retake && document.querySelector('#results')), sendStatus = document.createElement('p');
   sendStatus.setAttribute('role','status'); sendStatus.style.fontWeight='600'; if (finalButton) finalButton.after(sendStatus);
   const status = { set textContent(t) { cloudStatus.textContent = t; if (snapshot().final) sendStatus.textContent = /Final submission saved|Marking/.test(t) ? t : 'Not sent to your teacher yet: ' + t; } };
   consent.checked = localStorage.getItem(consentKey) === 'yes';
@@ -40,7 +41,15 @@
   // iBT pages use studentName/studentClass/studentDate; send one shape to the server.
   function normal(st) { st = st || {}; const t = v => String(v || '').trim(); return { name: t(st.name || st.studentName), className: t(st.className || st.studentClass), date: t(st.date || st.studentDate) }; }
   function missingDetails() { const st = snapshot().student; return !st.name || !st.className || !st.date; }
+  // An iBT retake page holds only its own section; the server keeps the other sections from the original test.
+  function ibtRetakeSnapshot() {
+    const id = retake.section, answers = {};
+    if (id === 'vocabulary' || id === 'reading') for (const [q,value] of Object.entries(state.answers || {})) answers[id+'-'+q.replace(/^q/,'')] = value;
+    if (id === 'writing') { for (const [q,value] of Object.entries(state.orders || {})) answers['arrangement-'+q.replace(/^s/,'')] = value; answers.email = state.answers?.email || ''; answers.discussion = state.answers?.discussion || ''; }
+    return { student: normal(state.student), answers, submitted: Object.fromEntries(['vocabulary','reading','writing','speaking'].map(s => [s, s !== id || !!state.submitted])), final: !!state.submitted };
+  }
   function snapshot() {
+    if (exam === 'ibt' && retake) return ibtRetakeSnapshot();
     if (exam !== 'ibt') return { student: normal(state.student), answers: structuredClone(state.answers), submitted: Object.fromEntries(Object.entries(state.sections).map(([id,s]) => [id, !!s.submitted])), final: state.final };
     const s = ibtStates(), answers = {};
     for (const id of ['vocabulary','reading']) for (const [q,value] of Object.entries(s[id]?.answers || {})) answers[id+'-'+q.replace(/^q/,'')] = value;
@@ -53,7 +62,8 @@
   }
   async function clips() {
     if (exam !== 'ibt') { await storageReady; return [...memoryClips].map(([id,blob]) => ({id:'speaking-'+id,blob})); }
-    return new Promise((resolve,reject) => { const r = indexedDB.open('monthly-ibt-october-2026-v1-speaking-recordings',1); r.onupgradeneeded=()=>r.result.createObjectStore('clips',{keyPath:'id'}); r.onsuccess=()=>{const d=r.result,q=d.transaction('clips').objectStore('clips').getAll();q.onsuccess=()=>{d.close();resolve(q.result)};q.onerror=()=>reject(q.error)};r.onerror=()=>reject(r.error); });
+    if (retake && retake.section !== 'speaking') return [];
+    return new Promise((resolve,reject) => { const r = indexedDB.open(retake ? KEY + '-recordings' : 'monthly-ibt-october-2026-v1-speaking-recordings',1); r.onupgradeneeded=()=>r.result.createObjectStore('clips',{keyPath:'id'}); r.onsuccess=()=>{const d=r.result,q=d.transaction('clips').objectStore('clips').getAll();q.onsuccess=()=>{d.close();resolve(q.result)};q.onerror=()=>reject(q.error)};r.onerror=()=>reject(r.error); });
   }
   function persist() { localStorage.setItem(key, JSON.stringify(record)); }
   async function sync() {
@@ -108,7 +118,9 @@
   requestBox.innerHTML = '<h3 style="margin:0 0 8px">Request a Retake</h3><p role="status"></p><div></div><button type="button" class="btn btn-outline"></button>';
   const requestStatus = requestBox.querySelector('p'), requestChoices = requestBox.querySelector('div'), requestButton = requestBox.querySelector('button');
   // Sits under Submit All & View Results (and the results that appear there).
-  if (!retake && exam !== 'ibt') (document.querySelector('#finalResults') || sendStatus).after(requestBox);
+  // On iBT it sits on Start Here, under the final results.
+  const requestPage = !retake && (exam !== 'ibt' || !!document.querySelector('#finalResults'));
+  if (requestPage) (document.querySelector('#finalResults') || sendStatus).after(requestBox);
   const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const tickRow = (type, name, value, text, checked) => '<label style="display:flex;gap:10px;align-items:center;margin:6px 0;font:inherit;text-transform:none;letter-spacing:normal"><input type="' + type + '" name="' + name + '" value="' + esc(value) + '"' + (checked ? ' checked' : '') + ' style="width:auto;margin:0"> ' + esc(text) + '</label>';
   // The student ticks one section; writing and speaking also list their tasks, all ticked to start with.
@@ -124,7 +136,7 @@
   }
   function showRequest(r) {
     requestChoices.innerHTML = ''; requestButton.disabled = false;
-    if (r.status === 'approved') { requestStatus.textContent = 'Your teacher approved a retake of ' + r.sectionTitle + '.'; requestButton.hidden = false; requestButton.textContent = 'Start Retake'; requestButton.onclick = () => { location.href = location.pathname + '?retake=' + encodeURIComponent(r.code) + '&section=' + encodeURIComponent(r.section); }; }
+    if (r.status === 'approved') { requestStatus.textContent = 'Your teacher approved a retake of ' + r.sectionTitle + '.'; requestButton.hidden = false; requestButton.textContent = 'Start Retake'; requestButton.onclick = () => { const page = exam === 'ibt' ? { vocabulary: 'Vocabulary.html', reading: 'Reading.html', writing: 'Writing.html', speaking: 'Speaking.html' }[r.section] : location.pathname; location.href = page + '?retake=' + encodeURIComponent(r.code) + '&section=' + encodeURIComponent(r.section); }; }
     else if (r.status === 'pending') { requestStatus.textContent = 'Retake requested' + (r.asked ? ' for ' + r.asked : '') + '. Show this code to your teacher: ' + r.requestCode + '. This page updates when your teacher approves it.'; requestButton.hidden = true; }
     else { requestStatus.textContent = 'If a machine, microphone or sound problem spoiled part of your test, choose that part and ask your teacher for a retake.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.onclick = askRetake; showChoices(r); }
   }
@@ -137,7 +149,7 @@
   }
   let requestShown = '';
   async function checkRequest() {
-    if (retake || exam === 'ibt') { requestBox.hidden = true; return; }
+    if (!requestPage) { requestBox.hidden = true; return; }
     requestBox.hidden = false;
     // Before submission the button is shown but disabled, so students know where to find it.
     if (!record?.locked || !snapshot().final) { requestShown = ''; requestChoices.innerHTML = ''; requestStatus.textContent = 'If a machine, microphone or sound problem spoils part of your test, you can ask your teacher for a retake here after you submit.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.disabled = true; return; }
