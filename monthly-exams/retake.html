@@ -15,7 +15,7 @@
 <section class="panel" id="choose" hidden><h2>2. Choose what to retake</h2>
 <p id="chosenWho"></p>
 <label for="section">Section to retake</label><select id="section"></select>
-<div id="taskBox" hidden><p class="muted">Writing and speaking can be retaken task by task. Untick the tasks that worked; leave all ticked to retake the whole section.</p><div id="taskList"></div></div>
+<div id="taskBox" hidden><p class="muted">Writing and speaking can be retaken task by task. For a request, the student's choice is ticked already; change it if needed.</p><div id="taskList"></div></div>
 <button id="create">Approve Retake</button><p id="createStatus" role="status"></p></section>
 <section class="panel" id="approved" hidden><h2>3. Approved</h2><p id="approvedWho"></p>
 <p>The student's test page now shows Start Retake. Nothing needs to be typed on their computer, and the retake works only on the computer that asked for it.</p></section>
@@ -24,7 +24,7 @@
 <p>Open this link on the student's computer. It opens only that part of the test, with the student's name, class and date filled in.</p><p class="link"><a id="link" style="color:inherit" target="_blank" rel="noopener"></a></p>
 <p class="muted">The code works once, for this student and this section only, and expires <span id="expires"></span>. If the retake is not submitted in time, create a new code.</p></section>
 </main>
-<script src="shared/cloud-config.js?v=20261018"></script><script src="shared/cloud-client.js?v=20261018"></script><script>
+<script src="shared/cloud-config.js?v=20261018b"></script><script src="shared/cloud-client.js?v=20261018b"></script><script>
 (function(){
  'use strict';
  const $=id=>document.getElementById(id), safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -34,18 +34,21 @@
  // pick: {test, requestId?}. A request is approved for that student's computer; a name search makes a code and link instead.
  function choose(p){pick=p;$('choose').hidden=!p;$('result').hidden=$('approved').hidden=true;if(!p)return;const t=p.test;
   $('chosenWho').innerHTML=(p.requestId?'Request '+safe(p.requestCode)+': ':'')+testLine(t);$('create').textContent=p.requestId?'Approve Retake':'Create Retake Code';
-  $('section').innerHTML=(found.sections[t.exam_id]||[]).map(s=>'<option value="'+safe(s.id)+'">'+safe(s.title)+'</option>').join('');tasks();}
+  $('section').innerHTML=(found.sections[t.exam_id]||[]).map(s=>'<option value="'+safe(s.id)+'">'+safe(s.title)+'</option>').join('');
+  if(p.section)$('section').value=p.section;tasks(p.tasks);}
  // Task checkboxes for sections that have writing or speaking tasks.
- function tasks(){const list=(found.tasks?.[pick?.test.exam_id]||[]).filter(k=>k.section===$('section').value);$('taskBox').hidden=!list.length;$('taskList').innerHTML=list.map(k=>'<label class="test"><input type="checkbox" name="task" value="'+safe(k.id)+'" checked><span>'+safe(k.title)+'</span></label>').join('');$('result').hidden=$('approved').hidden=true;}
- $('section').onchange=tasks;
+ function tasks(asked){const list=(found.tasks?.[pick?.test.exam_id]||[]).filter(k=>k.section===$('section').value);$('taskBox').hidden=!list.length;$('taskList').innerHTML=list.map(k=>'<label class="test"><input type="checkbox" name="task" value="'+safe(k.id)+'"'+(!asked?.length||asked.includes(k.id)?' checked':'')+'><span>'+safe(k.title)+'</span></label>').join('');$('result').hidden=$('approved').hidden=true;}
+ $('section').onchange=()=>tasks();
+ // What the student ticked, in words: "Speaking (Task 1, Task 3)".
+ const asked=q=>{const e=q.test.exam_id,sec=(found.sections[e]||[]).find(s=>s.id===q.section),list=(found.tasks?.[e]||[]).filter(k=>q.tasks?.includes(k.id)).map(k=>k.title);return (sec?.title||q.section)+(list.length?' ('+list.join(', ')+')':'');};
  $('showSecret').onchange=e=>{$('secret').type=e.target.checked?'text':'password';};
  $('requests').onclick=async()=>{
   $('requests').disabled=true;$('requestStatus').textContent='Loading...';$('requestList').innerHTML='';choose(null);
   try{
    const r=await MonthlyCloud.call('retake-requests',{teacherSecret:$('secret').value});found={...found,...r};
    $('requestStatus').textContent=r.requests.length?'Match the code on the student\'s screen, then choose it:':'No waiting requests.';
-   $('requestList').innerHTML=r.requests.map((q,i)=>'<label class="test"><input type="radio" name="pick" value="r'+i+'"><span><b class="code" style="font-size:1.3rem">'+safe(q.requestCode)+'</b><br>'+testLine(q.test)+'</span></label>').join('');
-   document.querySelectorAll('#requestList input').forEach((el,i)=>el.onchange=()=>choose({test:r.requests[i].test,requestId:r.requests[i].id,requestCode:r.requests[i].requestCode}));
+   $('requestList').innerHTML=r.requests.map((q,i)=>'<label class="test"><input type="radio" name="pick" value="r'+i+'"><span><b class="code" style="font-size:1.3rem">'+safe(q.requestCode)+'</b><br>'+(q.section?'Asked to retake: '+safe(asked(q))+'<br>':'')+testLine(q.test)+'</span></label>').join('');
+   document.querySelectorAll('#requestList input').forEach((el,i)=>el.onchange=()=>choose({test:r.requests[i].test,requestId:r.requests[i].id,requestCode:r.requests[i].requestCode,section:r.requests[i].section,tasks:r.requests[i].tasks}));
   }catch(e){$('requestStatus').textContent=e.message;}finally{$('requests').disabled=false;}
  };
  $('find').onclick=async()=>{

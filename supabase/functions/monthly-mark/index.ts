@@ -56,6 +56,12 @@ async function retakeChoices() {
   return {sections,tasks};
 }
 const REQUEST_HOURS=48;
+// What a student asked to retake, in words: "Speaking (Task 1, Task 3)".
+function requestedText(catalog:any, req:any) {
+  const sec=catalog.sections.find((x:any)=>x.id===req.requested_section);if(!sec)return '';
+  const tasks=req.requested_tasks?.length?catalog.tasks.filter((t:any)=>req.requested_tasks.includes(t.id)).map((t:any)=>t.title):[];
+  return sec.title+(tasks.length?' ('+tasks.join(', ')+')':'');
+}
 // A one-time code for one section (or, for writing and speaking, chosen tasks) of a submitted test.
 // forStudent: the code then works only on the computer that asked for the retake.
 async function createRetake(attemptId:any, section:any, chosen:any, forStudent:string|null) {
@@ -323,19 +329,28 @@ Deno.serve(async (req:Request) => {
       let req=(await db('monthly_retake_requests?attempt_id=eq.'+attempt.id+'&student_id=eq.'+user.id+'&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=1&select=*'))[0];
       // A request whose retake was submitted is finished; the student may ask again.
       if(req?.retake_code&&(await db('monthly_retakes?code_hash=eq.'+await sha256(req.retake_code)+'&select=used_at'))[0]?.used_at)req=null;
-      if(!req&&body.action==='retake-request')req=(await db('monthly_retake_requests','POST',{attempt_id:attempt.id,student_id:user.id,request_code:Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>CODE_CHARS[b%32]).join('')}))[0];
-      if(!req)return json({status:'none'});
-      if(!req.approved_at)return json({status:'pending',requestCode:req.request_code});
       const catalog=await catalogFor(attempt.exam_id);
+      // The student says which section (and, for writing and speaking, which tasks) went wrong; the teacher can still change it.
+      if(!req&&body.action==='retake-request'){
+        const sec=catalog.sections.find((x:any)=>x.id===body.section);
+        if(!sec)throw new PublicError('Choose the section you want to retake.');
+        const sectionTasks=catalog.tasks.filter((t:any)=>t.section===sec.id).map((t:any)=>t.id);
+        const tasks=Array.isArray(body.tasks)?[...new Set(body.tasks.map(String))]:[];
+        if(tasks.some(t=>!sectionTasks.includes(t)))throw new PublicError('Choose tasks from the selected section.');
+        if(sectionTasks.length&&!tasks.length)throw new PublicError('Tick at least one task to retake.');
+        req=(await db('monthly_retake_requests','POST',{attempt_id:attempt.id,student_id:user.id,requested_section:sec.id,requested_tasks:tasks.length&&tasks.length<sectionTasks.length?tasks:null,request_code:Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>CODE_CHARS[b%32]).join('')}))[0];
+      }
+      if(!req)return json({status:'none',sections:catalog.sections.map((x:any)=>({id:x.id,title:x.title})),tasks:catalog.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}))});
+      if(!req.approved_at)return json({status:'pending',requestCode:req.request_code,asked:requestedText(catalog,req)});
       return json({status:'approved',requestCode:req.request_code,code:req.retake_code,exam:attempt.exam_id,section:req.section,sectionTitle:catalog.sections.find((s:any)=>s.id===req.section)?.title||req.section});
     }
     // Teacher: waiting requests, and approving one (which creates a retake code only that student's computer can use).
     if(body.action==='retake-requests') {
       await teacherCheck(body.teacherSecret);
-      const reqs=await db('monthly_retake_requests?approved_at=is.null&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=30&select=id,attempt_id,request_code,created_at');
+      const reqs=await db('monthly_retake_requests?approved_at=is.null&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=30&select=id,attempt_id,request_code,created_at,requested_section,requested_tasks');
       const rows=reqs.length?await db('monthly_exam_attempts?id=in.('+reqs.map((r:any)=>r.attempt_id).join(',')+')&select=id,exam_id,student_name,class_name,submitted_at,response_state->student->>date'):[];
       const tests=await describeTests(rows);
-      return json({requests:reqs.map((r:any)=>({id:r.id,requestCode:r.request_code,requestedAt:r.created_at,test:tests.find((t:any)=>t.id===r.attempt_id)})).filter((r:any)=>r.test),...await retakeChoices()});
+      return json({requests:reqs.map((r:any)=>({id:r.id,requestCode:r.request_code,requestedAt:r.created_at,section:r.requested_section,tasks:r.requested_tasks,test:tests.find((t:any)=>t.id===r.attempt_id)})).filter((r:any)=>r.test),...await retakeChoices()});
     }
     if(body.action==='retake-approve') {
       await teacherCheck(body.teacherSecret);

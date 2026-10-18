@@ -122,13 +122,15 @@ assert.deepEqual(final.retake.taken[1].tasks,['speaking-2']);assert.equal(emails
 console.log('Task retake: only the chosen task is enabled, marked and replaced; the rest of the report is unchanged.');
 
 // Student asks for a retake on their own computer; the teacher approves it on another device.
-assert.equal((await call({action:'retake-request-status',attemptId:original})).value.status,'none');
-assert.equal((await call({action:'retake-request',attemptId:original},'other')).status,404,'only the student who took the test can ask');
-r=await call({action:'retake-request',attemptId:original});assert.equal(r.value.status,'pending');const requestCode=r.value.requestCode;assert.match(requestCode,/^[A-Z2-9]{6}$/);
+r=await call({action:'retake-request-status',attemptId:original});assert.equal(r.value.status,'none');assert(r.value.sections.some(x=>x.id==='speaking'));assert(r.value.tasks.some(t=>t.id==='speaking-3'));
+assert.equal((await call({action:'retake-request',attemptId:original})).status,400,'the student must choose a section');
+assert.equal((await call({action:'retake-request',attemptId:original,section:'speaking',tasks:['writing-story']})).status,400,'tasks must belong to the section');
+assert.equal((await call({action:'retake-request',attemptId:original,section:'speaking',tasks:['speaking-3']},'other')).status,404,'only the student who took the test can ask');
+r=await call({action:'retake-request',attemptId:original,section:'speaking',tasks:['speaking-3']});assert.equal(r.value.status,'pending');assert.equal(r.value.asked,'Speaking ('+cat.tasks.find(t=>t.id==='speaking-3').title+')');const requestCode=r.value.requestCode;assert.match(requestCode,/^[A-Z2-9]{6}$/);
 assert.equal((await call({action:'retake-request',attemptId:original})).value.requestCode,requestCode,'asking again shows the same code');
 assert.equal((await call({action:'retake-requests',teacherSecret:'wrong'},'teacherDevice')).status,403);
 r=await call({action:'retake-requests',teacherSecret:'correct horse battery'},'teacherDevice');
-assert.equal(r.value.requests.length,1);assert.equal(r.value.requests[0].requestCode,requestCode);assert.equal(r.value.requests[0].test.id,original);assert(r.value.requests[0].test.scores.length);
+assert.equal(r.value.requests.length,1);assert.equal(r.value.requests[0].requestCode,requestCode);assert.equal(r.value.requests[0].test.id,original);assert(r.value.requests[0].test.scores.length);assert.equal(r.value.requests[0].section,'speaking');assert.deepEqual(r.value.requests[0].tasks,['speaking-3']);
 const requestId=r.value.requests[0].id;
 r=await call({action:'retake-approve',teacherSecret:'correct horse battery',requestId,section:'speaking',tasks:['speaking-3']},'teacherDevice');
 assert.equal(r.status,200);assert.equal(r.value.code,undefined,'the teacher device never sees the code');
