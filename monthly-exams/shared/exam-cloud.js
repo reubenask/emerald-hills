@@ -26,10 +26,6 @@
     } catch (e) { retakeStatus.textContent = 'Retake code problem: ' + e.message; return false; }
   }
   if (retake) checkRetake();
-  // Teacher entry point for retakes, at the foot of the Primary and ITP pages.
-  else if (exam !== 'ibt') { const t = document.createElement('p'); t.style.cssText = 'text-align:center;margin:40px 0 20px;font-size:.85rem'; t.innerHTML = '<a href="../retake.html" style="color:inherit;opacity:.7">Teacher</a>'; document.body.append(t);
-    // After submission, open the retake page on this computer's own test.
-    t.querySelector('a').onclick = e => { if (record?.locked && record.id) { e.preventDefault(); location.href = '../retake.html?attempt=' + encodeURIComponent(record.id); } }; }
   const consent = notice.querySelector('input'), cloudStatus = notice.querySelector('#cloudStatus'), reportButton = notice.querySelector('button');
   // Repeat the sending status under the final submit button, where students look after submitting.
   const finalButton = document.querySelector('#finalSubmit, #submitAll'), sendStatus = document.createElement('p');
@@ -106,6 +102,24 @@
       }
     } finally { marking=false; }
   }
+  // After submitting, a student can ask for a retake. The page shows a request code; the teacher approves it on their own
+  // device, and this page then offers Start Retake. The teacher password is never typed on a student computer.
+  const requestBox = document.createElement('div'); requestBox.hidden = true; requestBox.style.marginTop = '16px';
+  requestBox.innerHTML = '<p role="status"></p><button type="button" class="btn btn-outline"></button>';
+  const requestStatus = requestBox.querySelector('p'), requestButton = requestBox.querySelector('button');
+  if (!retake && exam !== 'ibt') notice.append(requestBox);
+  function showRequest(r) {
+    if (r.status === 'approved') { requestStatus.textContent = 'Your teacher approved a retake of ' + r.sectionTitle + '.'; requestButton.hidden = false; requestButton.textContent = 'Start Retake'; requestButton.onclick = () => { location.href = location.pathname + '?retake=' + encodeURIComponent(r.code) + '&section=' + encodeURIComponent(r.section); }; }
+    else if (r.status === 'pending') { requestStatus.textContent = 'Retake requested. Show this code to your teacher: ' + r.requestCode + '. This page updates when your teacher approves it.'; requestButton.hidden = true; }
+    else { requestStatus.textContent = 'If a machine, microphone or sound problem spoiled part of your test, you can ask your teacher for a retake.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.onclick = askRetake; }
+  }
+  async function askRetake() { requestButton.disabled = true; try { showRequest(await MonthlyCloud.call('retake-request', { attemptId: record.id })); } catch (e) { requestStatus.textContent = e.message; } finally { requestButton.disabled = false; } }
+  async function checkRequest() {
+    if (retake || exam === 'ibt' || !record?.locked || !snapshot().final) { requestBox.hidden = true; return; }
+    requestBox.hidden = false;
+    try { showRequest(await MonthlyCloud.call('retake-request-status', { attemptId: record.id })); } catch {}
+  }
+  setInterval(checkRequest, 15000); checkRequest();
   reportButton.onclick=()=>{if(record?.locked && snapshot().final)location.href='../report.html?exam='+exam+'&attempt='+encodeURIComponent(record.id);};
   // Preserve the established final confirmation and restart behaviour.
   if(typeof submitAll==='function') { const original=submitAll; window.submitAll=function(...args){ if(missingDetails()){ alert('Enter your name, class and date at the top of the page before you submit.'); status.textContent='Submission blocked: enter your name, class and date at the top of the page.'; return; } const r=original.apply(this,args); if(snapshot().final){ if(!consent.checked)status.textContent=(young?'To send this test for marking, tick the box above. Your browser submission is saved.':'To send this test for marking, tick the consent box above. Your browser submission is saved.');else sync().catch(showError); } return r; }; }
