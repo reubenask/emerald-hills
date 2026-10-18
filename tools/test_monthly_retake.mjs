@@ -8,7 +8,7 @@ import {stripTypeScriptTypes} from 'node:module';
 import {objectiveReport} from '../supabase/functions/monthly-mark/core.mjs';
 const cat=JSON.parse(fs.readFileSync(new URL('../supabase/.local/monthly-ai-catalog-primary.json',import.meta.url)))['primary-step2'];
 const users={student:'11111111-1111-4111-8111-111111111111',teacherDevice:'33333333-3333-4333-8333-333333333333',other:'44444444-4444-4444-8444-444444444444'};
-const tables={monthly_exam_attempts:[],monthly_retakes:[],monthly_ai_reports:[]};const emails=[],audio=new Set();
+const tables={monthly_exam_attempts:[],monthly_retakes:[],monthly_ai_reports:[],monthly_retake_requests:[]};const emails=[],audio=new Set();
 const reply=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{'Content-Type':'application/json'}});
 // Enough of PostgREST's filters for the function: eq, is.null, in.(...), gte, ilike with * wildcards.
 function match(row,params){
@@ -41,7 +41,7 @@ async function fetchMock(url,options={}){
  const table=tables[u.pathname.replace('/rest/v1/','')];if(!table)throw Error('Unexpected mocked URL '+url);
  const rows=table.filter(r=>match(r,u.searchParams));
  if(method==='GET')return reply(structuredClone(rows));
- if(method==='POST'){const row={...(table===tables.monthly_exam_attempts?{id:uuid(),status:'draft',created_at:new Date().toISOString()}:{}),...JSON.parse(options.body)};table.push(row);return reply([structuredClone(row)]);}
+ if(method==='POST'){const row={...(table===tables.monthly_exam_attempts?{id:uuid(),status:'draft',created_at:new Date().toISOString()}:table===tables.monthly_retake_requests?{id:uuid(),created_at:new Date().toISOString(),approved_at:null}:{}),...JSON.parse(options.body)};table.push(row);return reply([structuredClone(row)]);}
  if(method==='PATCH'){const patch=JSON.parse(options.body);for(const r of rows){Object.assign(r,patch);if(patch.status==='submitted')r.submitted_at=new Date().toISOString();}return reply(structuredClone(rows));}
  throw Error('Unexpected method '+method);
 }
@@ -120,4 +120,28 @@ assert(final.jobs.find(j=>j.id==='speaking-2').recording.includes(taskRetake));
 assert.deepEqual(final.jobs.filter(j=>j.id!=='speaking-2'),mid.jobs.filter(j=>j.id!=='speaking-2'));assert.deepEqual(final.objective,mid.objective);
 assert.deepEqual(final.retake.taken[1].tasks,['speaking-2']);assert.equal(emails.length,3);assert(emails[2].html.includes('Speaking ('+cat.tasks.find(t=>t.id==='speaking-2').title+') was retaken'));
 console.log('Task retake: only the chosen task is enabled, marked and replaced; the rest of the report is unchanged.');
+
+// Student asks for a retake on their own computer; the teacher approves it on another device.
+assert.equal((await call({action:'retake-request-status',attemptId:original})).value.status,'none');
+assert.equal((await call({action:'retake-request',attemptId:original},'other')).status,404,'only the student who took the test can ask');
+r=await call({action:'retake-request',attemptId:original});assert.equal(r.value.status,'pending');const requestCode=r.value.requestCode;assert.match(requestCode,/^[A-Z2-9]{6}$/);
+assert.equal((await call({action:'retake-request',attemptId:original})).value.requestCode,requestCode,'asking again shows the same code');
+assert.equal((await call({action:'retake-requests',teacherSecret:'wrong'},'teacherDevice')).status,403);
+r=await call({action:'retake-requests',teacherSecret:'correct horse battery'},'teacherDevice');
+assert.equal(r.value.requests.length,1);assert.equal(r.value.requests[0].requestCode,requestCode);assert.equal(r.value.requests[0].test.id,original);assert(r.value.requests[0].test.scores.length);
+const requestId=r.value.requests[0].id;
+r=await call({action:'retake-approve',teacherSecret:'correct horse battery',requestId,section:'speaking',tasks:['speaking-3']},'teacherDevice');
+assert.equal(r.status,200);assert.equal(r.value.code,undefined,'the teacher device never sees the code');
+assert.equal((await call({action:'retake-approve',teacherSecret:'correct horse battery',requestId,section:'speaking'},'teacherDevice')).status,404,'a request is approved once');
+assert.equal((await call({action:'retake-requests',teacherSecret:'correct horse battery'},'teacherDevice')).value.requests.length,0);
+r=await call({action:'retake-request-status',attemptId:original});assert.equal(r.value.status,'approved');assert.equal(r.value.section,'speaking');const approved=r.value.code;
+assert.equal((await call({action:'retake-open',code:approved,exam:'primary-step2',section:'speaking'},'other')).status,403,'only the computer that asked can use it');
+assert.equal((await call({action:'sync',exam:'primary-step2',consentConfirmed:true,retakeCode:approved,response:{student,answers:{},submitted,final:true}},'other')).status,403);
+r=await call({action:'retake-open',code:approved,exam:'primary-step2',section:'speaking'});assert.deepEqual(r.value.allowed.speaking,[3]);
+const asked=(await call({action:'sync',exam:'primary-step2',consentConfirmed:true,retakeCode:approved,response:{student,answers:{},submitted,final:true}})).value.attemptId;
+audio.add(users.student+'/'+asked+'/speaking-3');assert.equal((await call({action:'submit',attemptId:asked})).status,200);
+for(let i=0;i<10;i++)if(!(await call({action:'process',attemptId:asked})).value.processed)break;
+assert(tables.monthly_ai_reports.find(x=>x.attempt_id===original).jobs.find(j=>j.id==='speaking-3').recording.includes(asked));
+assert.equal((await call({action:'retake-request-status',attemptId:original})).value.status,'none','after the retake the student can ask again');
+console.log('Requested retake: the student asks, the teacher approves on their own device without the password reaching the student, and only that computer can take it.');
 console.log('Section retake: teacher password, one-time code bound to one computer and section, section-only marking, merge into the original report and re-email all pass.');

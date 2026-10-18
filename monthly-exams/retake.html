@@ -1,22 +1,26 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Section Retake | Emerald Hills</title><style>
-:root{--ink:#e9efdf;--gold:#dab977;--deep:#092d24;--line:#caa66c55}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#175541,#061e19);font:16px/1.6 "Avenir Next","Segoe UI",sans-serif;color:var(--ink);min-height:100vh}header,main{max-width:820px;margin:auto;padding:28px}header{border-bottom:1px solid var(--gold)}h1,h2{font-family:Georgia,serif;font-weight:400;color:var(--gold)}h1{font-size:clamp(2rem,5vw,3rem);margin:8px 0}.eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:.8rem;color:var(--gold)}.panel{border:1px solid var(--line);background:#0d392e99;padding:24px;border-radius:12px;margin:24px 0}label{display:block;margin:12px 0 4px}input,select{width:100%;padding:10px;border-radius:6px;border:1px solid var(--gold);background:#fcfaf4;color:#1a2744;font:inherit}button{border:1px solid var(--gold);border-radius:6px;background:var(--gold);color:var(--deep);padding:10px 16px;font:inherit;cursor:pointer;margin-top:14px}button:disabled{opacity:.5;cursor:wait}.test{display:flex;gap:12px;align-items:flex-start;border-top:1px solid var(--line);padding:10px 0}.test input{width:auto;margin-top:6px}.code{font:2.4rem Georgia,serif;letter-spacing:.2em;color:var(--gold)}.link{overflow-wrap:anywhere;background:#ffffff12;padding:10px;border-radius:6px}.muted{color:#c6d6ce}[hidden]{display:none!important}
+:root{--ink:#e9efdf;--gold:#dab977;--deep:#092d24;--line:#caa66c55}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#175541,#061e19);font:16px/1.6 "Avenir Next","Segoe UI",sans-serif;color:var(--ink);min-height:100vh}header,main{max-width:820px;margin:auto;padding:28px}header{border-bottom:1px solid var(--gold)}h1,h2{font-family:Georgia,serif;font-weight:400;color:var(--gold)}h1{font-size:clamp(2rem,5vw,3rem);margin:8px 0}.eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:.8rem;color:var(--gold)}.panel{border:1px solid var(--line);background:#0d392e99;padding:24px;border-radius:12px;margin:24px 0}label{display:block;margin:12px 0 4px}input,select{width:100%;padding:10px;border-radius:6px;border:1px solid var(--gold);background:#fcfaf4;color:#1a2744;font:inherit}button{border:1px solid var(--gold);border-radius:6px;background:var(--gold);color:var(--deep);padding:10px 16px;font:inherit;cursor:pointer;margin-top:14px}button:disabled{opacity:.5;cursor:wait}.test{display:flex;gap:12px;align-items:flex-start;border-top:1px solid var(--line);padding:10px 0}.test input{width:auto;margin-top:6px}.code{font:2.4rem Georgia,serif;letter-spacing:.2em;color:var(--gold)}.link{overflow-wrap:anywhere;background:#ffffff12;padding:10px;border-radius:6px}.muted{color:#c6d6ce}details{margin-top:18px}summary{cursor:pointer;color:var(--gold)}[hidden]{display:none!important}
 </style></head><body>
-<header><div class="eyebrow">Monthly Examination · Teacher</div><h1>Section Retake</h1><p class="muted">Use this when a machine, microphone or audio problem spoiled one section of a submitted test. The student retakes only that section, and its new marks replace that section in the original report, which is emailed again.</p></header>
+<header><div class="eyebrow">Monthly Examination · Teacher</div><h1>Section Retake</h1><p class="muted">Use this on your own device when a machine, microphone or audio problem spoiled part of a submitted test. The student retakes only that part, and its new marks replace the old ones in the original report, which is emailed again.</p></header>
 <main>
-<section class="panel"><h2>1. Find the test</h2>
+<section class="panel"><h2>1. Choose the test</h2>
 <label for="secret">Teacher password</label><input id="secret" type="password" autocomplete="current-password">
-<p id="thisTest" class="muted" hidden>This is the test taken on this computer. Enter the teacher password to see it.</p>
-<div id="nameBox"><label for="name">Student name</label><input id="name" autocomplete="off"></div>
-<button id="find">Find Submitted Tests</button><p id="findStatus" role="status"></p>
-<div id="tests"></div></section>
-<section class="panel" id="choose" hidden><h2>2. Choose the section</h2>
+<p class="muted">A student asks with Request a Retake on their submitted test and shows you the request code on their screen.</p>
+<button id="requests">Show Retake Requests</button><p id="requestStatus" role="status"></p><div id="requestList"></div>
+<details><summary>No request? Find the test by name</summary>
+<label for="name">Student name</label><input id="name" autocomplete="off">
+<button id="find">Find Submitted Tests</button><p id="findStatus" role="status"></p><div id="tests"></div></details></section>
+<section class="panel" id="choose" hidden><h2>2. Choose what to retake</h2>
+<p id="chosenWho"></p>
 <label for="section">Section to retake</label><select id="section"></select>
 <div id="taskBox" hidden><p class="muted">Writing and speaking can be retaken task by task. Untick the tasks that worked; leave all ticked to retake the whole section.</p><div id="taskList"></div></div>
-<button id="create">Create Retake Code</button><p id="createStatus" role="status"></p></section>
+<button id="create">Approve Retake</button><p id="createStatus" role="status"></p></section>
+<section class="panel" id="approved" hidden><h2>3. Approved</h2><p id="approvedWho"></p>
+<p>The student's test page now shows Start Retake. Nothing needs to be typed on their computer, and the retake works only on the computer that asked for it.</p></section>
 <section class="panel" id="result" hidden><h2>3. Give the student the retake</h2>
 <p id="who"></p><p class="code" id="code"></p>
-<p>Open this link on the student's computer. It opens only that section, with the student's name, class and date filled in.</p><p class="link"><a id="link" style="color:inherit" target="_blank" rel="noopener"></a></p>
+<p>Open this link on the student's computer. It opens only that part of the test, with the student's name, class and date filled in.</p><p class="link"><a id="link" style="color:inherit" target="_blank" rel="noopener"></a></p>
 <p class="muted">The code works once, for this student and this section only, and expires <span id="expires"></span>. If the retake is not submitted in time, create a new code.</p></section>
 </main>
 <script src="shared/cloud-config.js"></script><script src="shared/cloud-client.js"></script><script>
@@ -24,35 +28,46 @@
  'use strict';
  const $=id=>document.getElementById(id), safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const titles={'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}, pages={'primary-step2':'primary-step2/index.html',itp:'junior/index.html'};
- let found={tests:[],sections:{}};
- // Opened from the Teacher button of a finished test: that test, not a name search.
- const attempt=/^[0-9a-f-]{36}$/i.test(new URLSearchParams(location.search).get('attempt')||'')?new URLSearchParams(location.search).get('attempt'):null;
- if(attempt){$('thisTest').hidden=false;$('nameBox').hidden=true;$('find').textContent='Show This Test';}
- const chosen=()=>found.tests.find(t=>t.id===document.querySelector('input[name="test"]:checked')?.value);
- function sections(){const t=chosen();$('choose').hidden=!t;$('result').hidden=true;if(t){$('section').innerHTML=(found.sections[t.exam_id]||[]).map(s=>'<option value="'+safe(s.id)+'">'+safe(s.title)+'</option>').join('');tasks();}}
+ let found={tests:[],sections:{}}, pick=null;
+ const testLine=t=>'<b>'+safe(t.student_name)+'</b> · '+safe(t.class_name)+' · '+safe(titles[t.exam_id]||t.exam_id)+(t.date?' · test date '+safe(t.date):'')+'<br>'+(t.scores||[]).map(s=>safe(s.title)+' '+(s.score??'pending')+'/'+s.maxScore).join(' · ')+'<br><span class="muted">Submitted '+safe(new Date(t.submitted_at).toLocaleString())+'</span>';
+ // pick: {test, requestId?}. A request is approved for that student's computer; a name search makes a code and link instead.
+ function choose(p){pick=p;$('choose').hidden=!p;$('result').hidden=$('approved').hidden=true;if(!p)return;const t=p.test;
+  $('chosenWho').innerHTML=(p.requestId?'Request '+safe(p.requestCode)+': ':'')+testLine(t);$('create').textContent=p.requestId?'Approve Retake':'Create Retake Code';
+  $('section').innerHTML=(found.sections[t.exam_id]||[]).map(s=>'<option value="'+safe(s.id)+'">'+safe(s.title)+'</option>').join('');tasks();}
  // Task checkboxes for sections that have writing or speaking tasks.
- function tasks(){const t=chosen(),list=(found.tasks?.[t?.exam_id]||[]).filter(k=>k.section===$('section').value);$('taskBox').hidden=!list.length;$('taskList').innerHTML=list.map(k=>'<label class="test"><input type="checkbox" name="task" value="'+safe(k.id)+'" checked><span>'+safe(k.title)+'</span></label>').join('');$('result').hidden=true;}
+ function tasks(){const list=(found.tasks?.[pick?.test.exam_id]||[]).filter(k=>k.section===$('section').value);$('taskBox').hidden=!list.length;$('taskList').innerHTML=list.map(k=>'<label class="test"><input type="checkbox" name="task" value="'+safe(k.id)+'" checked><span>'+safe(k.title)+'</span></label>').join('');$('result').hidden=$('approved').hidden=true;}
  $('section').onchange=tasks;
- $('find').onclick=async()=>{
-  $('find').disabled=true;$('findStatus').textContent='Searching...';$('tests').innerHTML='';$('choose').hidden=$('result').hidden=true;
+ $('requests').onclick=async()=>{
+  $('requests').disabled=true;$('requestStatus').textContent='Loading...';$('requestList').innerHTML='';choose(null);
   try{
-   found=await MonthlyCloud.call('retake-find',{teacherSecret:$('secret').value,...(attempt?{attemptId:attempt}:{name:$('name').value})});
-   $('findStatus').textContent=found.tests.length?'Choose the test to retake:':'No submitted tests match that name.';
-   $('tests').innerHTML=found.tests.map(t=>'<label class="test"><input type="radio" name="test" value="'+safe(t.id)+'"'+(t.retakeAvailable?'':' disabled')+'><span><b>'+safe(t.student_name)+'</b> · '+safe(t.class_name)+' · '+safe(titles[t.exam_id]||t.exam_id)+(t.date?' · test date '+safe(t.date):'')+'<br>'+(t.scores||[]).map(s=>safe(s.title)+' '+(s.score??'pending')+'/'+s.maxScore).join(' · ')+'<br><span class="muted">Submitted '+safe(new Date(t.submitted_at).toLocaleString())+(t.retakeAvailable?'':' · retakes are not available for this test')+'</span></span></label>').join('');
-   document.querySelectorAll('input[name="test"]').forEach(r=>r.onchange=sections);
+   const r=await MonthlyCloud.call('retake-requests',{teacherSecret:$('secret').value});found={...found,...r};
+   $('requestStatus').textContent=r.requests.length?'Match the code on the student\'s screen, then choose it:':'No waiting requests.';
+   $('requestList').innerHTML=r.requests.map((q,i)=>'<label class="test"><input type="radio" name="pick" value="r'+i+'"><span><b class="code" style="font-size:1.3rem">'+safe(q.requestCode)+'</b><br>'+testLine(q.test)+'</span></label>').join('');
+   document.querySelectorAll('#requestList input').forEach((el,i)=>el.onchange=()=>choose({test:r.requests[i].test,requestId:r.requests[i].id,requestCode:r.requests[i].requestCode}));
+  }catch(e){$('requestStatus').textContent=e.message;}finally{$('requests').disabled=false;}
+ };
+ $('find').onclick=async()=>{
+  $('find').disabled=true;$('findStatus').textContent='Searching...';$('tests').innerHTML='';choose(null);
+  try{
+   const r=await MonthlyCloud.call('retake-find',{teacherSecret:$('secret').value,name:$('name').value});found={...found,...r};
+   $('findStatus').textContent=r.tests.length?'Choose the test to retake:':'No submitted tests match that name.';
+   $('tests').innerHTML=r.tests.map((t,i)=>'<label class="test"><input type="radio" name="pick" value="t'+i+'"'+(t.retakeAvailable?'':' disabled')+'><span>'+testLine(t)+(t.retakeAvailable?'':'<br><span class="muted">Retakes are not available for this test</span>')+'</span></label>').join('');
+   document.querySelectorAll('#tests input').forEach((el,i)=>el.onchange=()=>choose({test:r.tests[i]}));
   }catch(e){$('findStatus').textContent=e.message;}finally{$('find').disabled=false;}
  };
  $('create').onclick=async()=>{
-  const t=chosen();if(!t)return;
-  $('create').disabled=true;$('createStatus').textContent='Creating...';
+  if(!pick)return;
+  $('create').disabled=true;$('createStatus').textContent='Saving...';
   try{
    const picked=[...document.querySelectorAll('input[name="task"]:checked')].map(c=>c.value);
    if(!$('taskBox').hidden&&!picked.length)throw Error('Tick at least one task to retake.');
-   const r=await MonthlyCloud.call('retake-create',{teacherSecret:$('secret').value,attemptId:t.id,section:$('section').value,tasks:picked});
-   const link=new URL(pages[r.exam]+'?retake='+r.code+'&section='+encodeURIComponent(r.section),location.href).href;
-   $('who').textContent=r.student+' · '+r.className+' · '+(titles[r.exam]||r.exam)+' · '+r.sectionTitle+(r.tasks?' ('+r.tasks.join(', ')+')':'')+' retake';
-   $('code').textContent=r.code;$('link').textContent=$('link').href=link;$('expires').textContent=new Date(r.expiresAt).toLocaleString();
-   $('result').hidden=false;$('createStatus').textContent='';
+   const args={teacherSecret:$('secret').value,section:$('section').value,tasks:picked};
+   const r=await MonthlyCloud.call(pick.requestId?'retake-approve':'retake-create',pick.requestId?{...args,requestId:pick.requestId}:{...args,attemptId:pick.test.id});
+   const who=r.student+' · '+r.className+' · '+(titles[r.exam]||r.exam)+' · '+r.sectionTitle+(r.tasks?' ('+r.tasks.join(', ')+')':'')+' retake';
+   if(pick.requestId){$('approvedWho').textContent=who;$('approved').hidden=false;$('choose').hidden=true;document.querySelector('#requestList input:checked')?.closest('label').remove();}
+   else{const link=new URL(pages[r.exam]+'?retake='+r.code+'&section='+encodeURIComponent(r.section),location.href).href;
+    $('who').textContent=who;$('code').textContent=r.code;$('link').textContent=$('link').href=link;$('expires').textContent=new Date(r.expiresAt).toLocaleString();$('result').hidden=false;}
+   $('createStatus').textContent='';
   }catch(e){$('createStatus').textContent=e.message;}finally{$('create').disabled=false;}
  };
 })();

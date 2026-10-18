@@ -43,6 +43,37 @@ async function retakeFor(code:any, exam?:string, section?:string){
   return {rt,orig};
 }
 async function retakeAttemptOf(rt:any){return rt.retake_attempt_id?(await db('monthly_exam_attempts?id=eq.'+rt.retake_attempt_id+'&select=id,student_id,status'))[0]:null;}
+// Section scores help tell same-named students apart: the spoiled section is usually the low one.
+async function describeTests(rows:any[]) {
+  const catalogs:any={};for(const e of RETAKE_EXAMS){try{catalogs[e]=await catalogFor(e);}catch{}}
+  const reports=rows.length?await db('monthly_ai_reports?attempt_id=in.('+rows.map((r:any)=>r.id).join(',')+')&select=attempt_id,objective,jobs'):[];
+  return rows.map((r:any)=>{const rep=reports.find((x:any)=>x.attempt_id===r.id),c=catalogs[r.exam_id];
+    return {...r,scores:rep&&c?scorecard(c,rep.objective,rep.jobs).sections.map((s:any)=>({title:s.title,score:s.score,maxScore:s.maxScore})):[],retakeAvailable:RETAKE_EXAMS.includes(r.exam_id)};});
+}
+async function retakeChoices() {
+  const sections:any={}, tasks:any={};
+  for(const e of RETAKE_EXAMS){try{const c=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
+  return {sections,tasks};
+}
+const REQUEST_HOURS=48;
+// A one-time code for one section (or, for writing and speaking, chosen tasks) of a submitted test.
+// forStudent: the code then works only on the computer that asked for the retake.
+async function createRetake(attemptId:any, section:any, chosen:any, forStudent:string|null) {
+  if(!/^[0-9a-f-]{36}$/i.test(attemptId||''))throw new PublicError('Invalid attempt.');
+  const orig=(await db('monthly_exam_attempts?id=eq.'+attemptId+'&status=eq.submitted&select=id,exam_id,student_name,class_name'))[0];
+  if(!orig)throw new PublicError('Submitted test not found.',404);
+  if(!RETAKE_EXAMS.includes(orig.exam_id))throw new PublicError('Section retakes are available for Primary Step 2 and ITP only.');
+  const catalog=await catalogFor(orig.exam_id), sec=catalog.sections.find((s:any)=>s.id===section);
+  if(!sec)throw new PublicError('Choose the section to retake.');
+  // Writing and speaking may retake chosen tasks only; every other section is retaken whole.
+  const sectionTasks=catalog.tasks.filter((t:any)=>t.section===sec.id).map((t:any)=>t.id);
+  const tasks=Array.isArray(chosen)?[...new Set(chosen.map(String))]:[];
+  if(tasks.some(t=>!sectionTasks.includes(t)))throw new PublicError('Choose tasks from the selected section.');
+  const only=tasks.length&&tasks.length<sectionTasks.length?tasks:null;
+  const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>CODE_CHARS[b%32]).join(''), expires=new Date(Date.now()+48*3600000).toISOString();
+  await db('monthly_retakes','POST',{code_hash:await sha256(code),attempt_id:orig.id,section:sec.id,tasks:only,for_student:forStudent,expires_at:expires});
+  return {code,exam:orig.exam_id,section:sec.id,sectionTitle:sec.title,tasks:only?catalog.tasks.filter((t:any)=>only.includes(t.id)).map((t:any)=>t.title):null,student:orig.student_name,className:orig.class_name,expiresAt:expires};
+}
 // Models are tried in order: the configured model, then GEMINI_FALLBACK_MODELS, then other Flash models the key can use.
 let discovered:string[]|null=null;
 async function geminiModels(key:string) {
@@ -268,7 +299,6 @@ Deno.serve(async (req:Request) => {
     // Teacher: find a student's submitted tests, then create a one-time retake code for one section.
     if(body.action==='retake-find') {
       await teacherCheck(body.teacherSecret);
-      // The Teacher button on a finished test passes that computer's own test, so same-named students cannot be mixed up.
       const fields='&select=id,exam_id,student_name,class_name,submitted_at,response_state->student->>date';
       let rows:any[];
       if(/^[0-9a-f-]{36}$/i.test(body.attemptId||''))rows=await db('monthly_exam_attempts?status=eq.submitted&id=eq.'+body.attemptId+fields);
@@ -278,35 +308,48 @@ Deno.serve(async (req:Request) => {
         rows=await db('monthly_exam_attempts?status=eq.submitted&student_name=ilike.'+encodeURIComponent('*'+q+'*')+fields+'&order=submitted_at.desc&limit=20');
       }
       const retakes=rows.length?await db('monthly_retakes?retake_attempt_id=in.('+rows.map((r:any)=>r.id).join(',')+')&select=retake_attempt_id'):[];
-      const skip=new Set(retakes.map((r:any)=>r.retake_attempt_id)), sections:any={}, tasks:any={};
-      const catalogs:any={};
-      for(const e of RETAKE_EXAMS){try{const c=catalogs[e]=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
-      // Section scores help tell same-named students apart: the spoiled section is usually the low one.
-      const reports=rows.length?await db('monthly_ai_reports?attempt_id=in.('+rows.map((r:any)=>r.id).join(',')+')&select=attempt_id,objective,jobs'):[];
-      const scores=(r:any)=>{const rep=reports.find((x:any)=>x.attempt_id===r.id),c=catalogs[r.exam_id];return rep&&c?scorecard(c,rep.objective,rep.jobs).sections.map((s:any)=>({title:s.title,score:s.score,maxScore:s.maxScore})):[];};
-      return json({tests:rows.filter((r:any)=>!skip.has(r.id)).map((r:any)=>({...r,scores:scores(r),retakeAvailable:RETAKE_EXAMS.includes(r.exam_id)})),sections,tasks});
+      const skip=new Set(retakes.map((r:any)=>r.retake_attempt_id));
+      return json({tests:await describeTests(rows.filter((r:any)=>!skip.has(r.id))),...await retakeChoices()});
     }
     if(body.action==='retake-create') {
       await teacherCheck(body.teacherSecret);
-      if(!/^[0-9a-f-]{36}$/i.test(body.attemptId||''))throw new PublicError('Invalid attempt.');
-      const orig=(await db('monthly_exam_attempts?id=eq.'+body.attemptId+'&status=eq.submitted&select=id,exam_id,student_name,class_name'))[0];
-      if(!orig)throw new PublicError('Submitted test not found.',404);
-      if(!RETAKE_EXAMS.includes(orig.exam_id))throw new PublicError('Section retakes are available for Primary Step 2 and ITP only.');
-      const catalog=await catalogFor(orig.exam_id), sec=catalog.sections.find((s:any)=>s.id===body.section);
-      if(!sec)throw new PublicError('Choose the section to retake.');
-      // Writing and speaking may retake chosen tasks only; every other section is retaken whole.
-      const sectionTasks=catalog.tasks.filter((t:any)=>t.section===sec.id).map((t:any)=>t.id);
-      const tasks=Array.isArray(body.tasks)?[...new Set(body.tasks.map(String))]:[];
-      if(tasks.some(t=>!sectionTasks.includes(t)))throw new PublicError('Choose tasks from the selected section.');
-      const only=tasks.length&&tasks.length<sectionTasks.length?tasks:null;
-      const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>CODE_CHARS[b%32]).join(''), expires=new Date(Date.now()+48*3600000).toISOString();
-      await db('monthly_retakes','POST',{code_hash:await sha256(code),attempt_id:orig.id,section:sec.id,tasks:only,expires_at:expires});
-      return json({code,exam:orig.exam_id,section:sec.id,sectionTitle:sec.title,tasks:only?catalog.tasks.filter((t:any)=>only.includes(t.id)).map((t:any)=>t.title):null,student:orig.student_name,className:orig.class_name,expiresAt:expires});
+      return json(await createRetake(body.attemptId,body.section,body.tasks,null));
+    }
+    // Student: ask for a retake from the submitted test. The page shows a request code; the teacher approves it on their own device.
+    if(body.action==='retake-request'||body.action==='retake-request-status') {
+      const attempt=await owned(body.attemptId,user.id);
+      if(attempt.status!=='submitted')throw new PublicError('Submit your test before asking for a retake.');
+      if(!RETAKE_EXAMS.includes(attempt.exam_id))throw new PublicError('Retakes are available for Primary Step 2 and ITP only.');
+      let req=(await db('monthly_retake_requests?attempt_id=eq.'+attempt.id+'&student_id=eq.'+user.id+'&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=1&select=*'))[0];
+      // A request whose retake was submitted is finished; the student may ask again.
+      if(req?.retake_code&&(await db('monthly_retakes?code_hash=eq.'+await sha256(req.retake_code)+'&select=used_at'))[0]?.used_at)req=null;
+      if(!req&&body.action==='retake-request')req=(await db('monthly_retake_requests','POST',{attempt_id:attempt.id,student_id:user.id,request_code:Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>CODE_CHARS[b%32]).join('')}))[0];
+      if(!req)return json({status:'none'});
+      if(!req.approved_at)return json({status:'pending',requestCode:req.request_code});
+      const catalog=await catalogFor(attempt.exam_id);
+      return json({status:'approved',requestCode:req.request_code,code:req.retake_code,exam:attempt.exam_id,section:req.section,sectionTitle:catalog.sections.find((s:any)=>s.id===req.section)?.title||req.section});
+    }
+    // Teacher: waiting requests, and approving one (which creates a retake code only that student's computer can use).
+    if(body.action==='retake-requests') {
+      await teacherCheck(body.teacherSecret);
+      const reqs=await db('monthly_retake_requests?approved_at=is.null&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=30&select=id,attempt_id,request_code,created_at');
+      const rows=reqs.length?await db('monthly_exam_attempts?id=in.('+reqs.map((r:any)=>r.attempt_id).join(',')+')&select=id,exam_id,student_name,class_name,submitted_at,response_state->student->>date'):[];
+      const tests=await describeTests(rows);
+      return json({requests:reqs.map((r:any)=>({id:r.id,requestCode:r.request_code,requestedAt:r.created_at,test:tests.find((t:any)=>t.id===r.attempt_id)})).filter((r:any)=>r.test),...await retakeChoices()});
+    }
+    if(body.action==='retake-approve') {
+      await teacherCheck(body.teacherSecret);
+      if(!/^[0-9a-f-]{36}$/i.test(body.requestId||''))throw new PublicError('Invalid request.');
+      const req=(await db('monthly_retake_requests?id=eq.'+body.requestId+'&approved_at=is.null&select=*'))[0];
+      if(!req)throw new PublicError('This request was already approved or has expired.',404);
+      const made=await createRetake(req.attempt_id,body.section,body.tasks,req.student_id);
+      await db('monthly_retake_requests?id=eq.'+req.id,'PATCH',{approved_at:new Date().toISOString(),retake_code:made.code,section:made.section});
+      const {code,...shown}=made;return json(shown);
     }
     // Student: check a retake code before starting, and get the original test's name, class and date.
     if(body.action==='retake-open') {
       const {rt,orig}=await retakeFor(body.code,body.exam,body.section), used=await retakeAttemptOf(rt);
-      if(used&&used.student_id!==user.id)throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
+      if((used&&used.student_id!==user.id)||(rt.for_student&&rt.for_student!==user.id))throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
       const catalog=await catalogFor(orig.exam_id);
       // For a task retake the page enables only those tasks: their answer boxes, and speaking task numbers.
       const chosen=rt.tasks?.length?catalog.tasks.filter((t:any)=>rt.tasks.includes(t.id)):null;
@@ -322,7 +365,7 @@ Deno.serve(async (req:Request) => {
       let retake:any=null;
       if(body.retakeCode){
         retake=await retakeFor(body.retakeCode,body.exam);const used=await retakeAttemptOf(retake.rt);
-        if(used&&used.student_id!==user.id)throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
+        if((used&&used.student_id!==user.id)||(retake.rt.for_student&&retake.rt.for_student!==user.id))throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
         if(used){if(used.status!=='draft')return json({attemptId:used.id,locked:true});await db('monthly_exam_attempts?id=eq.'+used.id,'PATCH',{response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});return json({attemptId:used.id});}
       }
       const count=await db('monthly_exam_attempts?student_id=eq.'+user.id+'&exam_id=eq.'+body.exam+'&created_at=gte.'+new Date(Date.now()-86400000).toISOString()+'&select=id');if(count.length>=5)throw new PublicError('Daily attempt limit reached. Ask your teacher for help.',429);

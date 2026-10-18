@@ -18,4 +18,19 @@ revoke all on public.monthly_retakes from public, anon, authenticated;
 alter table public.monthly_ai_reports add column if not exists retake jsonb;
 -- Writing and speaking can be retaken task by task; empty means the whole section.
 alter table public.monthly_retakes add column if not exists tasks text[];
+-- Retakes the student asked for: the student's page shows a request code, the teacher approves it on their own device,
+-- and the retake code then works only on that student's computer. retake_code is readable only by the function.
+alter table public.monthly_retakes add column if not exists for_student uuid;
+create table if not exists public.monthly_retake_requests (
+ id uuid primary key default gen_random_uuid(),
+ attempt_id uuid not null references public.monthly_exam_attempts(id) on delete cascade,
+ student_id uuid not null,
+ request_code text not null,
+ created_at timestamptz not null default now(),
+ approved_at timestamptz,
+ retake_code text,
+ section text
+);
+alter table public.monthly_retake_requests enable row level security;
+revoke all on public.monthly_retake_requests from public, anon, authenticated;
 commit;

@@ -35,12 +35,12 @@ Writing and speaking are marked like a teacher marking a script, on Structure an
 
 When a machine, microphone or audio problem spoils one section of a submitted Primary Step 2 or ITP test, the teacher can let the student retake just that section.
 
-1. Press Teacher at the bottom of the test page on the student's computer once they have submitted: it opens that computer's own test, so students with the same name cannot be mixed up. Or open `monthly-exams/retake.html` and search by name; each result shows the class, test date, submission time and section scores. Then enter the teacher password and the student's name, choose the test and the section, and press Create Retake Code.
-2. Open the link it shows on the student's computer. The test opens with only that section, and the student's name, class and date filled in. The student completes it, submits it, then presses Submit All.
+1. After submitting, the student presses Request a Retake on their test page, which shows a request code.
+2. On your own device, open `monthly-exams/retake.html`, enter the teacher password and press Show Retake Requests. Choose the request whose code matches the student's screen, pick the section, and press Approve Retake. The student's page then shows Start Retake; nothing is typed on the student's computer, and only that computer can take the retake. (Without a request, you can still find a test by name and create a code and link to open on the student's computer.)
 For writing and speaking, untick the tasks that worked to retake only the broken ones; the other tasks keep their marks. Other sections are always retaken whole.
 3. The retake is marked for that section (or those tasks) only. Its marks replace that section in the original report, which is emailed again with a note saying which section was retaken. The retake is not emailed on its own.
 
-The code works once, for one student, one test and one section, expires after 48 hours, and is tied to the first computer that opens it. Only a hash of the code is stored.
+The code works once, for one student, one test and one section, expires after 48 hours, and is tied to the first computer that opens it. Codes are stored as hashes; for an approved request the function also keeps the code (in a table only it can read) so it can hand it to that student's page.
 
 Setup (once): run `supabase/monthly-retake.sql`, add the function secret `RETAKE_TEACHER_SECRET` (the teacher password, at least 8 characters), and redeploy `monthly-mark`.
 
