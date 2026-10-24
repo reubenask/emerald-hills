@@ -125,7 +125,7 @@
   function showRequest(r) {
     requestChoices.innerHTML = ''; requestButton.disabled = false;
     if (r.status === 'approved') { requestStatus.textContent = 'Your teacher approved a retake of ' + r.sectionTitle + '.'; requestButton.hidden = false; requestButton.textContent = 'Start Retake'; requestButton.onclick = () => { location.href = location.pathname + '?retake=' + encodeURIComponent(r.code) + '&section=' + encodeURIComponent(r.section); }; }
-    else if (r.status === 'pending') { requestStatus.textContent = 'Retake requested' + (r.asked ? ' for ' + r.asked : '') + '. Show this code to your teacher: ' + r.requestCode + '. This page updates when your teacher approves it.'; requestButton.hidden = true; }
+    else if (r.status === 'pending') { requestStatus.textContent = 'Retake requested' + (r.asked ? ' for ' + r.asked : '') + '. Show this code to your teacher: ' + r.requestCode + '. This page updates when your teacher approves it, or press Check Approval.'; requestButton.hidden = false; requestButton.textContent = 'Check Approval'; requestButton.onclick = () => checkRequest(true); }
     else { requestStatus.textContent = 'If a machine, microphone or sound problem spoiled part of your test, choose that part and ask your teacher for a retake.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.onclick = askRetake; showChoices(r); }
   }
   async function askRetake() {
@@ -136,19 +136,26 @@
     try { showRequest(await MonthlyCloud.call('retake-request', { attemptId: record.id, section, tasks })); } catch (e) { requestStatus.textContent = e.message; requestButton.disabled = false; }
   }
   let requestShown = '';
-  async function checkRequest() {
+  async function checkRequest(pressed) {
     if (retake || exam === 'ibt') { requestBox.hidden = true; return; }
     requestBox.hidden = false;
     // Before submission the button is shown but disabled, so students know where to find it.
     if (!record?.locked || !snapshot().final) { requestShown = ''; requestChoices.innerHTML = ''; requestStatus.textContent = 'If a machine, microphone or sound problem spoils part of your test, you can ask your teacher for a retake here after you submit.'; requestButton.hidden = false; requestButton.textContent = 'Request a Retake'; requestButton.disabled = true; return; }
     try {
+      if (pressed === true) { requestButton.disabled = true; requestButton.textContent = 'Checking...'; }
       const r = await MonthlyCloud.call('retake-request-status', { attemptId: record.id });
-      // Redraw only when something changed, so the 15-second check never clears the student's ticks.
+      // Redraw only when something changed (or Check Approval was pressed), so the 15-second check never clears the student's ticks.
       const shown = r.status + (r.requestCode || '') + (r.code || '');
-      if (shown !== requestShown) { requestShown = shown; showRequest(r); }
-    } catch {}
+      if (shown !== requestShown || pressed === true) { requestShown = shown; showRequest(r); }
+    } catch (e) {
+      // Say why while waiting for approval, instead of silently showing the old status.
+      if (requestShown.startsWith('pending')) { requestStatus.textContent = 'Could not check for approval: ' + e.message + ' Press Check Approval to try again.'; requestButton.disabled = false; requestButton.textContent = 'Check Approval'; }
+    }
   }
   setInterval(checkRequest, 15000); checkRequest();
+  // Browsers slow timers in background tabs, so check again as soon as the student comes back to the page.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkRequest(); });
+  window.addEventListener('focus', () => checkRequest());
   reportButton.onclick=()=>{if(record?.locked && snapshot().final)location.href='../report.html?exam='+exam+'&attempt='+encodeURIComponent(record.id);};
   // Preserve the established final confirmation and restart behaviour.
   if(typeof submitAll==='function') { const original=submitAll; window.submitAll=function(...args){ if(missingDetails()){ alert('Enter your name, class and date at the top of the page before you submit.'); status.textContent='Submission blocked: enter your name, class and date at the top of the page.'; return; } const r=original.apply(this,args); if(snapshot().final){ if(!consent.checked)status.textContent=(young?'To send this test for marking, tick the box above. Your browser submission is saved.':'To send this test for marking, tick the consent box above. Your browser submission is saved.');else sync().catch(showError); } return r; }; }
