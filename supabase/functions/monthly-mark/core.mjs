@@ -6,8 +6,15 @@ export const RUBRICS = {
   speaking: [['Structure and task fulfilment', 2], ['Logic and development', 2], ['Grammar', 2], ['Vocabulary', 1], ['Linking words', 1], ['Delivery and intelligibility', 2]],
   sentences: [['Linking expressions used correctly', 6], ['Complete, grammatical sentences', 4]],
   readAloud: [['Reading accuracy', 5], ['Intelligibility', 3], ['Pacing and intonation', 2]],
-  repeat: [['Repetition accuracy', 6], ['Intelligibility and delivery', 4]]
+  repeat: [['Repetition accuracy', 6], ['Intelligibility and delivery', 4]],
+  // November 2026 ITP speaking (TOEFL Junior style): one holistic band 0-4 per task.
+  juniorReadAloud: [['Read-aloud fluency and accuracy', 4]],
+  juniorNarration: [['Narrative content, coherence and language', 4]],
+  juniorSchool: [['School-task content, coherence and language', 4]]
 };
+// Exams marked on the stricter junior-adapted criteria instead of the lenient monthly policy.
+export const JUNIOR_EXAMS = ['itp-november-2026'];
+export const JUNIOR_RUBRIC_VERSION = 'november-itp-junior-adapted-2026-11-v1';
 // What each level should be judged against. The same answer earns more at Primary than at iBT.
 export const LEVEL_GUIDES = {
   'primary-step2': 'LEVEL: TOEFL Primary Step 2 young learners (CEFR A1-A2). Full credit means: simple sentences mostly correct, present and past simple used correctly, everyday and topic words, and, but, because, then, first, finally used to join ideas, ideas in a clear order. Expect childlike content; be encouraging and explain corrections in simple words a child can follow.',
@@ -130,4 +137,9 @@ export function reportEmail(r) {
     '<h2 style="color:#092d24;border-bottom:2px solid #dab977">Answers to Review</h2>' + wrong +
     '<h2 style="color:#092d24;border-bottom:2px solid #dab977">Writing and Speaking Feedback</h2>' + tasks + '</div></div></body></html>';
   return { subject, html };
+}
+// Spoken corrections: drop ones that only change spelling, capitals or punctuation of a machine transcript.
+export function spokenCorrections(items) {
+  const soundWords = s => String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+  return items.filter(c => soundWords(c.original) !== soundWords(c.corrected) && !/capitali[sz]|punctuat|spell(?:ing|ed)?|upper.?case|lower.?case|apostrophe|hyphenation|paragraph (?:break|layout)/i.test(c.reason || ''));
 }
