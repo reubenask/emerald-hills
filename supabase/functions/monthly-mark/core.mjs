@@ -84,6 +84,17 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ESC[c] || c);
 export const EXAM_TITLES = { 'primary-step2': 'TOEFL Primary Step 2', itp: 'TOEFL ITP', ibt: 'TOEFL iBT' };
 // A later month's test has its own id, such as 'itp-november-2026', and is marked at its level ('itp').
 export const levelOf = exam => (String(exam || '').match(/^(primary-step2|itp|ibt)(?=$|-)/) || [])[1] || exam;
+// The internal reason a task could not be marked, in words for the teacher's email.
+export function failReason(cause) {
+  const c = String(cause || '');
+  if (/429|quota|RESOURCE_EXHAUSTED|resting/i.test(c)) return 'the free AI daily limit was used up';
+  if (/not configured/i.test(c)) return 'no AI key is set up on the server';
+  if (/out of time|timeout|timed out|abort/i.test(c)) return 'the AI took too long to answer';
+  if (/unusable reply|JSON|Invalid (assessment|transcription|correction)|Incomplete assessment/i.test(c)) return 'the AI sent back an answer that could not be read';
+  if (/Recording (unavailable|exceeds)/i.test(c)) return 'the recording could not be opened';
+  if (/HTTP 5\d\d|busy|overloaded|no output/i.test(c)) return 'the AI service was busy or sent back nothing';
+  return 'the AI service did not respond properly';
+}
 export const examTitle = exam => { const m = String(exam || '').match(/-([a-z]+)-(\d{4})$/); return (EXAM_TITLES[levelOf(exam)] || exam) + (m ? ' ' + m[1][0].toUpperCase() + m[1].slice(1) + ' ' + m[2] : ''); };
 // The emailed report card: score card, every wrong answer with the right one and why,
 // and the writing and speaking feedback with corrections.
@@ -92,7 +103,9 @@ export function reportEmail(r) {
   const total = sc.sections.reduce((n, s) => n + (s.score ?? 0), 0), max = sc.sections.reduce((n, s) => n + s.maxScore, 0);
   // Speaking tasks with no usable recording are listed at the top, so a microphone problem is not missed.
   const checks = r.jobs.filter(j => j.section === 'speaking' && (j.status === 'missing' || (j.status === 'complete' && j.result?.score === 0 && !j.result?.categories?.length))).map(j => j.title + (j.status === 'missing' ? ': no recording' : ': no speech heard'));
-  const subject = (sc.needsTeacherReview || !sc.complete || checks.length ? '[Check needed] ' : '') + name + (cls ? ' · ' + cls : '') + ' · ' + (examTitle(r.exam)) + ' Monthly: ' + (sc.overall ?? 'pending') + '%' + (r.retakes?.length ? ' (updated after ' + r.retakes.map(t => t.title).join(', ') + ' retake)' : '');
+  // Tasks the AI could not mark, with the reason and whether the server is still retrying them.
+  const failed = r.jobs.filter(j => j.status === 'error').map(j => j.title + ': ' + failReason(j.cause) + (j.retryAt ? ' (the server will keep retrying)' : ''));
+  const subject = (sc.needsTeacherReview || !sc.complete || checks.length ? '[Check needed] ' : '') + name + (cls ? ' · ' + cls : '') + ' · ' + (examTitle(r.exam)) + ' Monthly: ' + (sc.overall ?? 'pending') + '%' + (r.retakes?.length ? ' (updated after ' + r.retakes.map(t => t.title).join(', ') + ' retake)' : '') + (r.note ? ' (' + r.note + ')' : '');
   const td = 'style="padding:6px 8px;border-bottom:1px solid #e5e1d8;vertical-align:top"';
   const wrong = r.objective.map(s => { const items = s.items.filter(q => !q.correct); return items.length ? '<h3 style="color:#092d24">' + esc(s.title) + ' · ' + s.score + ' / ' + s.maxScore + '</h3>' + items.map(q => '<p style="margin:0 0 10px"><b>' + esc(q.question) + '</b><br>Your answer: ' + esc(q.selected) + '<br>Correct answer: ' + esc(q.answer) + '<br><i>Why:</i> ' + esc(q.explanation) + '</p>').join('') : '<h3 style="color:#092d24">' + esc(s.title) + ' · ' + s.score + ' / ' + s.maxScore + ' · all correct</h3>'; }).join('');
   const tasks = r.jobs.map(j => { const a = j.result || {}; return '<div style="border-top:2px solid #dab977;margin-top:16px;padding-top:8px"><h3 style="margin:0;color:#092d24">' + esc(j.title) + ' · ' + (a.score ?? 'Pending') + ' / ' + (a.maxScore ?? '') + '</h3>' +
@@ -106,6 +119,7 @@ export function reportEmail(r) {
   const html = '<!doctype html><html><body style="margin:0;background:#f5f3ee;font:15px/1.55 Georgia,serif;color:#1a2744"><div style="max-width:760px;margin:0 auto;background:#fff">' +
     '<div style="background:#092d24;color:#e9efdf;padding:22px 24px;border-bottom:4px solid #dab977"><div style="letter-spacing:.2em;font-size:12px;color:#dab977">EMERALD HILLS · MONTHLY EXAMINATION</div><h1 style="margin:6px 0 0;font-weight:400;color:#dab977">EXAM REPORT CARD</h1>' +
     '<p style="margin:8px 0 0">' + esc(name) + (cls ? ' · ' + esc(cls) : '') + (date ? ' · ' + esc(date) : '') + ' · ' + esc(examTitle(r.exam)) + ' · submitted ' + esc(String(r.submittedAt || '').slice(0, 10)) + '</p></div><div style="padding:20px 24px">' +
+    (failed.length ? '<p style="font-size:14px;border-left:4px solid #9a3412;padding:8px 12px;background:#fdf1ea;color:#9a3412"><b>Not marked yet:</b> ' + failed.map(esc).join('; ') + '. No score has been given for ' + (failed.length > 1 ? 'these tasks' : 'this task') + '. The server keeps retrying for about two days and emails the full report when marking succeeds; you can also press Refresh Report on the report page.</p>' : '') +
     (checks.length ? '<p style="font-size:14px;border-left:4px solid #9a3412;padding:8px 12px;background:#fdf1ea;color:#9a3412"><b>Check needed:</b> ' + checks.map(esc).join('; ') + (levelOf(r.exam) === 'ibt' ? '' : '. The student can use Request a Retake for those tasks') + '.</p>' : '') +
     (r.retakes?.length ? '<p style="font-size:14px;border-left:4px solid #dab977;padding:8px 12px;background:#f5f3ee"><b>Section retake:</b> ' + r.retakes.map(t => esc(t.title) + ' was retaken' + (t.date ? ' on ' + esc(t.date) : '')).join('; ') + ', authorised by the teacher. The marks for that section come from the retake; all other sections are from the original test.</p>' : '') +
     '<table style="border-collapse:collapse;width:100%"><tr style="background:#092d24;color:#fff"><th style="text-align:left;padding:8px">Section</th><th style="text-align:right;padding:8px">Score</th><th style="text-align:right;padding:8px">%</th></tr>' +
