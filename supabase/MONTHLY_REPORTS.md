@@ -55,3 +55,16 @@ Each month's pages get their own exam id, such as `itp-november-2026` (the form 
 3. Run `supabase/monthly-november-2026.sql` once (already done for November), then the new `supabase/catalog/<month>.sql`.
 4. For retakes, add the page to `pages` and `titles` in `monthly-exams/retake.html`.
 5. Take a short test on each page and check the report email arrives.
+6. Run `node tools/check_exam_pages.mjs` (GitHub also runs it every day and after every change to `monthly-exams`, and emails you if it fails). It lists any page that has no cloud saving code, or whose exam id has no marking on the server.
+
+If a student opens a page whose exam id the server can't mark, the student is told to tell the teacher and you get an email headed "[Action needed] Test ... is not connected to marking" (at most once a day per test).
+
+## When marking fails
+
+Each writing or speaking task is tried with the Gemini models first, then the NVIDIA backup models. A model that sends back broken or empty JSON is skipped and the next one is asked. A model that has hit its daily limit is skipped for ten minutes.
+
+If every model fails three times, the report is emailed with "[Check needed]" and a "Not marked yet" box giving the reason (for example "the free AI daily limit was used up"). The server check then keeps retrying that task after 30 minutes, 2, 6, 12 and 24 hours, and emails the full report again (subject ending "(marking completed)") once it is marked. Refresh Report on the report page retries straight away.
+
+Optional function secrets: `NVIDIA_MARKING_MODEL` (comma-separated, tried in order; default `meta/llama-3.3-70b-instruct,nvidia/nemotron-3.5-super-vl-120b-a12b`), `NVIDIA_MAX_TOKENS` (default 8192), `NVIDIA_TIMEOUT_MS` (default 75000), `MARKING_BUDGET_MS` (time each request may spend on marking, default 115000, under the function's 150-second limit).
+
+The lasting fix for the daily limit is a Gemini API key with billing turned on (Google AI Studio, Billing).
