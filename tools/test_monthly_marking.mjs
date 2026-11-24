@@ -2,10 +2,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {stripTypeScriptTypes} from 'node:module';
-import {objectiveReport,scorecard,validateAssessment,RUBRICS} from '../supabase/functions/monthly-mark/core.mjs';
+import {objectiveReport,scorecard,validateAssessment,RUBRICS,levelOf,examTitle} from '../supabase/functions/monthly-mark/core.mjs';
 const local=name=>{const u=new URL('../supabase/.local/'+name,import.meta.url);return fs.existsSync(u)?JSON.parse(fs.readFileSync(u)):{};};
 // ITP and iBT catalogs are built on the teacher's machine; Primary is built from this repo.
-const catalogs={...local('monthly-ai-catalog.json'),...local('monthly-ai-catalog-primary.json')};
+const catalogs={...local('monthly-ai-catalog.json'),...local('monthly-ai-catalog-primary.json'),...local('monthly-ai-catalog-november.json')};
+// A month's own test id is marked at its level.
+assert.equal(levelOf('itp-november-2026'),'itp');assert.equal(levelOf('primary-step2-november-2026'),'primary-step2');assert.equal(levelOf('ibt'),'ibt');
+assert.equal(examTitle('ibt-november-2026'),'TOEFL iBT November 2026');assert.equal(examTitle('itp'),'TOEFL ITP');
 for(const catalog of Object.values(catalogs)){
  const answers={};for(const s of catalog.objective)for(const q of s.questions)answers[q.id]=q.textAnswer?q.answer:String(q.key);
  if(catalog.arrangements)catalog.arrangements.forEach((q,i)=>answers['arrangement-'+i]=q.acceptedOrders[0]);

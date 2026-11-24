@@ -221,13 +221,13 @@ window.MONTHLY_CLOUD_CONFIG = {url:'https://vknfagvmdirmpgtjlhjr.supabase.co',pu
 (function () {
   'use strict';
   const exam = document.documentElement.dataset.cloudExam;
-  if (!['primary-step2', 'itp', 'ibt', 'itp-november-2026'].includes(exam)) return;
-  const young = exam === 'primary-step2';
+  if (!/^(primary-step2|itp|ibt)(-[a-z]+-\d{4})?$/.test(exam || '')) return;
+  const young = exam.startsWith('primary-step2');
   // Set by the exam page when opened from a teacher's retake link.
   const retake = typeof RETAKE !== 'undefined' ? RETAKE : null;
   const key = 'monthly-cloud-attempt-' + exam + (retake ? '-retake-' + retake.code : ''), consentKey = 'monthly-itp-november-2026-ai-consent-v1';
   const notice = document.createElement('section'); notice.className = 'student-form'; notice.id='novemberCloudNotice';
-  notice.innerHTML = '<h3>Private Saving &amp; End-of-Test Report</h3><label style="display:flex;gap:12px;align-items:flex-start;font:inherit;text-transform:none;letter-spacing:normal"><input id="adultAIConsent" type="checkbox" style="width:auto;margin-top:5px"><span>'+'I am 18 or older and agree to my written answers and speaking recordings being saved privately in Supabase and processed for AI-assisted practice feedback. Transcripts, answer explanations and AI scores appear only after final submission.'+'</span></label><p id="cloudStatus" role="status">Your existing browser autosave remains on.</p><button type="button" id="cloudReport" class="btn btn-gold" hidden>Open Detailed Report</button>';
+  notice.innerHTML = '<h3>Private Saving &amp; End-of-Test Report</h3><label style="display:flex;gap:12px;align-items:flex-start;font:inherit;text-transform:none;letter-spacing:normal"><input id="adultAIConsent" type="checkbox" style="width:auto;margin-top:5px"><span>'+'I have my parent or guardian\'s consent, or I am 18 or older, and I agree to my written answers and speaking recordings being processed by AI tools so my voice can be transcribed and my test marked. Transcripts, answer explanations and AI scores appear only after final submission.'+'</span></label><p id="cloudStatus" role="status">Your existing browser autosave remains on.</p><button type="button" id="cloudReport" class="btn btn-gold" hidden>Open Detailed Report</button>';
   document.querySelector('.student-form').after(notice);
   // A retake is checked with the server first; it fills in the original test's name, class and date.
   let retakeChecked = !retake || (retake.verified && state.final);

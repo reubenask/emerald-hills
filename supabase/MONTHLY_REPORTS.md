@@ -45,3 +45,13 @@ The code works once, for one student, one test and one section, expires after 48
 Setup (once): run `supabase/monthly-retake.sql`, add the function secret `RETAKE_TEACHER_SECRET` (the teacher password, at least 8 characters), and redeploy `monthly-mark`.
 
 Tests: `node tools/test_monthly_retake.mjs` (after building the Primary catalog and the function bundle).
+
+## A new month's tests
+
+Each month's pages get their own exam id, such as `itp-november-2026` (the form is `<primary-step2|itp|ibt>-<month>-<year>`), so earlier months keep their own answer keys. The server marks it at its level (Primary, ITP or iBT). A new page will not save or mark until its catalog is in Supabase.
+
+1. Give the page `data-cloud-exam="<exam id>"` on its `<html>` tag and the cloud script block (copy it from the November pages and change the exam id and consent key).
+2. Copy `tools/build_november_ai_catalog.cjs`, point it at the new pages, and rewrite the picture descriptions, audio transcripts and video summary for the new media. Run it.
+3. Run `supabase/monthly-november-2026.sql` once (already done for November), then the new `supabase/catalog/<month>.sql`.
+4. For retakes, add the page to `pages` and `titles` in `monthly-exams/retake.html`.
+5. Take a short test on each page and check the report email arrives.

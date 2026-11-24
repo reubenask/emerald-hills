@@ -28,7 +28,7 @@
 (function(){
  'use strict';
  const $=id=>document.getElementById(id), safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const titles={'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}, pages={'primary-step2':'primary-step2/index.html',itp:'junior/index.html'};
+ const titles={'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT','primary-step2-november-2026':'Primary Step 2 November 2026','itp-november-2026':'ITP November 2026','ibt-november-2026':'iBT November 2026'}, pages={'primary-step2':'primary-step2/index.html',itp:'junior/index.html','primary-step2-november-2026':'november-2026/primary-step2/index.html','itp-november-2026':'november-2026/itp/index.html'};
  let found={tests:[],sections:{}}, pick=null;
  const testLine=t=>'<b>'+safe(t.student_name)+'</b> · '+safe(t.class_name)+' · '+safe(titles[t.exam_id]||t.exam_id)+(t.date?' · test date '+safe(t.date):'')+'<br>'+(t.scores||[]).map(s=>safe(s.title)+' '+(s.score??'pending')+'/'+s.maxScore).join(' · ')+'<br><span class="muted">Submitted '+safe(new Date(t.submitted_at).toLocaleString())+'</span>';
  // pick: {test, requestId?}. A request is approved for that student's computer; a name search makes a code and link instead.
