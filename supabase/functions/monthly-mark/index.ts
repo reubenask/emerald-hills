@@ -1,3 +1,4 @@
+import { resolveCatalogRevision, responseMatchesRevision } from './versioning.mjs';
 // Bundled with core.mjs by tools/build_monthly_mark_function.cjs for Dashboard deployment.
 import { RUBRICS, RUBRIC_VERSION, RUBRIC_SOURCES, LEVEL_GUIDES, STRUCTURE_GUIDE, objectiveReport, validateAssessment, scorecard, reportEmail, mergeRetake, levelOf, JUNIOR_EXAMS, JUNIOR_RUBRIC_VERSION, spokenCorrections } from './core.mjs';
 const env = (name: string) => Deno.env.get(name) || '';
@@ -11,11 +12,13 @@ async function db(path: string, method = 'GET', value?: unknown) {
   if (!r.ok) { console.error('Database operation failed', method, r.status); throw new PublicError('Cloud operation failed. Your browser backup is unchanged.',503); }
   return r.status===204 ? null : r.json();
 }
-async function catalogFor(exam: string) {
+async function catalogFor(exam: string, version?: string) {
   if (!/^(primary-step2|itp|ibt)(-[a-z]+-\d{4})?$/.test(String(exam||''))) throw new NoCatalog('This test is not connected to the marking server, so it cannot be sent yet. Your answers are saved in this browser. Please tell your teacher.');
   const rows=await db('monthly_ai_catalog?exam_id=eq.'+exam+'&select=content');
   if (!rows[0]) throw new NoCatalog('This test is not connected to the marking server yet, so it cannot be sent. Your answers are saved in this browser. Please tell your teacher.',503);
-  return rows[0].content;
+  const selected=resolveCatalogRevision(rows[0].content,version);
+  if(!selected)throw new NoCatalog('This saved test revision is not available. Your browser backup is unchanged. Please contact your teacher.',409);
+  return selected;
 }
 async function owned(id: string, user: string) {
   if (!/^[0-9a-f-]{36}$/i.test(id || '')) throw new PublicError('Invalid attempt.');
@@ -47,9 +50,9 @@ async function retakeFor(code:any, exam?:string, section?:string){
 async function retakeAttemptOf(rt:any){return rt.retake_attempt_id?(await db('monthly_exam_attempts?id=eq.'+rt.retake_attempt_id+'&select=id,student_id,status'))[0]:null;}
 // Section scores help tell same-named students apart: the spoiled section is usually the low one.
 async function describeTests(rows:any[]) {
-  const catalogs:any={};for(const e of new Set(rows.map((r:any)=>r.exam_id))){try{catalogs[e]=await catalogFor(e);}catch{}}
+  const catalogs:any={};for(const r of rows){const k=r.exam_id+"|"+r.exam_version;if(!catalogs[k])try{catalogs[k]=await catalogFor(r.exam_id,r.exam_version);}catch{}}
   const reports=rows.length?await db('monthly_ai_reports?attempt_id=in.('+rows.map((r:any)=>r.id).join(',')+')&select=attempt_id,objective,jobs'):[];
-  return rows.map((r:any)=>{const rep=reports.find((x:any)=>x.attempt_id===r.id),c=catalogs[r.exam_id];
+  return rows.map((r:any)=>{const rep=reports.find((x:any)=>x.attempt_id===r.id),c=catalogs[r.exam_id+"|"+r.exam_version];
     return {...r,scores:rep&&c?scorecard(c,rep.objective,rep.jobs).sections.map((s:any)=>({title:s.title,score:s.score,maxScore:s.maxScore})):[],retakeAvailable:RETAKE_EXAMS.includes(levelOf(r.exam_id))};});
 }
 async function retakeChoices() {
@@ -68,10 +71,10 @@ function requestedText(catalog:any, req:any) {
 // forStudent: the code then works only on the computer that asked for the retake.
 async function createRetake(attemptId:any, section:any, chosen:any, forStudent:string|null) {
   if(!/^[0-9a-f-]{36}$/i.test(attemptId||''))throw new PublicError('Invalid attempt.');
-  const orig=(await db('monthly_exam_attempts?id=eq.'+attemptId+'&status=eq.submitted&select=id,exam_id,student_name,class_name'))[0];
+  const orig=(await db('monthly_exam_attempts?id=eq.'+attemptId+'&status=eq.submitted&select=id,exam_id,exam_version,student_name,class_name'))[0];
   if(!orig)throw new PublicError('Submitted test not found.',404);
   if(!RETAKE_EXAMS.includes(levelOf(orig.exam_id)))throw new PublicError('Section retakes are available for Primary Step 2 and ITP only.');
-  const catalog=await catalogFor(orig.exam_id), sec=catalog.sections.find((s:any)=>s.id===section);
+  const catalog=await catalogFor(orig.exam_id,orig.exam_version), sec=catalog.sections.find((s:any)=>s.id===section);
   if(!sec)throw new PublicError('Choose the section to retake.');
   // Writing and speaking may retake chosen tasks only; every other section is retaken whole.
   const sectionTasks=catalog.tasks.filter((t:any)=>t.section===sec.id).map((t:any)=>t.id);
@@ -355,7 +358,7 @@ async function sweep() {
     if(timeLeft()<60000)break;
     const rows=await db('monthly_exam_attempts?id=eq.'+r.attempt_id+'&status=eq.submitted&select=*');if(!rows[0])continue;
     const claimed=await db('rpc/monthly_claim_marking','POST',{p_attempt:r.attempt_id});if(!claimed.length)continue;
-    done.push({attempt:r.attempt_id,...await markNext(rows[0],await catalogFor(rows[0].exam_id),claimed[0])});
+    done.push({attempt:r.attempt_id,...await markNext(rows[0],await catalogFor(rows[0].exam_id,rows[0].exam_version),claimed[0])});
   }
   return {checked:due.length,done};
 }
@@ -394,7 +397,7 @@ Deno.serve(async (req:Request) => {
     const body=await req.json().catch(()=>{throw new PublicError('Invalid request.');});if(JSON.stringify(body).length>500000)throw new PublicError('Submission too large.',413);
     // Public check used by the daily page check (tools/check_exam_pages.mjs): is marking set up for this exam id?
     if(body?.action==='exam-status'){
-      try{const c=await catalogFor(String(body.exam||''));return json({exam:body.exam,ready:true,version:c.version||null,sections:(c.sections||[]).length,tasks:(c.tasks||[]).length});}
+      try{const c=await catalogFor(String(body.exam||''),body.examRevision||'__legacy__');return json({exam:body.exam,ready:true,version:c.version||null,sections:(c.sections||[]).length,tasks:(c.tasks||[]).length});}
       catch(e){if(e instanceof NoCatalog)return json({exam:body.exam,ready:false,reason:e.message});throw e;}
     }
     const authorization=req.headers.get('x-student-authorization')||req.headers.get('authorization')||'';
@@ -404,7 +407,7 @@ Deno.serve(async (req:Request) => {
     // Teacher: find a student's submitted tests, then create a one-time retake code for one section.
     if(body.action==='retake-find') {
       await teacherCheck(body.teacherSecret);
-      const fields='&select=id,exam_id,student_name,class_name,submitted_at,response_state->student->>date';
+      const fields='&select=id,exam_id,exam_version,student_name,class_name,submitted_at,response_state->student->>date';
       let rows:any[];
       if(/^[0-9a-f-]{36}$/i.test(body.attemptId||''))rows=await db('monthly_exam_attempts?status=eq.submitted&id=eq.'+body.attemptId+fields);
       else {
@@ -428,7 +431,7 @@ Deno.serve(async (req:Request) => {
       let req=(await db('monthly_retake_requests?attempt_id=eq.'+attempt.id+'&student_id=eq.'+user.id+'&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=1&select=*'))[0];
       // A request whose retake was submitted is finished; the student may ask again.
       if(req?.retake_code&&(await db('monthly_retakes?code_hash=eq.'+await sha256(req.retake_code)+'&select=used_at'))[0]?.used_at)req=null;
-      const catalog=await catalogFor(attempt.exam_id);
+      const catalog=await catalogFor(attempt.exam_id,attempt.exam_version);
       // The student says which section (and, for writing and speaking, which tasks) went wrong; the teacher can still change it.
       if(!req&&body.action==='retake-request'){
         const sec=catalog.sections.find((x:any)=>x.id===body.section);
@@ -447,7 +450,7 @@ Deno.serve(async (req:Request) => {
     if(body.action==='retake-requests') {
       await teacherCheck(body.teacherSecret);
       const reqs=await db('monthly_retake_requests?approved_at=is.null&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=30&select=id,attempt_id,request_code,created_at,requested_section,requested_tasks');
-      const rows=reqs.length?await db('monthly_exam_attempts?id=in.('+reqs.map((r:any)=>r.attempt_id).join(',')+')&select=id,exam_id,student_name,class_name,submitted_at,response_state->student->>date'):[];
+      const rows=reqs.length?await db('monthly_exam_attempts?id=in.('+reqs.map((r:any)=>r.attempt_id).join(',')+')&select=id,exam_id,exam_version,student_name,class_name,submitted_at,response_state->student->>date'):[];
       const tests=await describeTests(rows);
       return json({requests:reqs.map((r:any)=>({id:r.id,requestCode:r.request_code,requestedAt:r.created_at,section:r.requested_section,tasks:r.requested_tasks,test:tests.find((t:any)=>t.id===r.attempt_id)})).filter((r:any)=>r.test),...await retakeChoices()});
     }
@@ -464,23 +467,23 @@ Deno.serve(async (req:Request) => {
     if(body.action==='retake-open') {
       const {rt,orig}=await retakeFor(body.code,body.exam,body.section), used=await retakeAttemptOf(rt);
       if((used&&used.student_id!==user.id)||(rt.for_student&&rt.for_student!==user.id))throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
-      const catalog=await catalogFor(orig.exam_id);
+      const catalog=await catalogFor(orig.exam_id,orig.exam_version);
       // For a task retake the page enables only those tasks: their answer boxes, and speaking task numbers.
       const chosen=rt.tasks?.length?catalog.tasks.filter((t:any)=>rt.tasks.includes(t.id)):null;
       const allowed=chosen&&{tasks:chosen.map((t:any)=>t.title),answers:chosen.flatMap((t:any)=>t.answerIds?t.answerIds.map((a:any)=>a.answerId):t.answerId?[t.answerId]:[]),speaking:chosen.filter((t:any)=>t.section==='speaking').map((t:any)=>Number(String(t.id).replace(/\D/g,'')))};
-      return json({section:rt.section,sectionTitle:catalog.sections.find((s:any)=>s.id===rt.section)?.title||rt.section,allowed,student:studentOf(orig.response_state),expiresAt:rt.expires_at});
+      return json({examVersion:orig.exam_version,section:rt.section,sectionTitle:catalog.sections.find((s:any)=>s.id===rt.section)?.title||rt.section,allowed,student:studentOf(orig.response_state),expiresAt:rt.expires_at});
     }
     if(body.action==='sync') {
       let catalog:any;
-      try{catalog=await catalogFor(body.exam);}
+      try{catalog=await catalogFor(body.exam,body.response?.examRevision||'__legacy__');}
       catch(e){if(e instanceof NoCatalog)await alertMissingCatalog(String(body.exam||''),e.message,body.response);throw e;}
       if(body.adultConfirmed!==true&&body.consentConfirmed!==true)throw new PublicError('Processing agreement required.');
       const response=body.response;
       if(!response||typeof response.answers!=='object')throw new PublicError('Invalid responses.');
-      if(body.attemptId){const a=await owned(body.attemptId,user.id);if(a.exam_id!==body.exam)throw new PublicError('Wrong exam.');if(a.status!=='draft')return json({attemptId:a.id,locked:true});await db('monthly_exam_attempts?id=eq.'+a.id,'PATCH',{response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});return json({attemptId:a.id});}
+      if(body.attemptId){const a=await owned(body.attemptId,user.id);if(a.exam_id!==body.exam)throw new PublicError('Wrong exam.');const pinned=await catalogFor(a.exam_id,a.exam_version);if(pinned.version!==catalog.version||!responseMatchesRevision(pinned,response))throw new PublicError('This saved attempt belongs to a different test revision. Open its original saved exam.',409);if(a.status!=='draft')return json({attemptId:a.id,locked:true});await db('monthly_exam_attempts?id=eq.'+a.id,'PATCH',{response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});return json({attemptId:a.id});}
       let retake:any=null;
       if(body.retakeCode){
-        retake=await retakeFor(body.retakeCode,body.exam);const used=await retakeAttemptOf(retake.rt);
+        retake=await retakeFor(body.retakeCode,body.exam);const pinned=await catalogFor(retake.orig.exam_id,retake.orig.exam_version);if(pinned.version!==catalog.version)throw new PublicError('Open the original test revision for this retake.',409);catalog=pinned;const used=await retakeAttemptOf(retake.rt);
         if((used&&used.student_id!==user.id)||(retake.rt.for_student&&retake.rt.for_student!==user.id))throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
         if(used){if(used.status!=='draft')return json({attemptId:used.id,locked:true});await db('monthly_exam_attempts?id=eq.'+used.id,'PATCH',{response_state:response,student_name:studentOf(response).name,class_name:studentOf(response).className});return json({attemptId:used.id});}
       }
@@ -490,7 +493,7 @@ Deno.serve(async (req:Request) => {
       if(retake&&!(await db('monthly_retakes?code_hash=eq.'+retake.rt.code_hash+'&retake_attempt_id=is.null','PATCH',{retake_attempt_id:rows[0].id})).length)throw new PublicError('This retake code is already in use on another computer. Ask your teacher for a new one.',403);
       return json({attemptId:rows[0].id});
     }
-    const attempt=await owned(body.attemptId,user.id),catalog=await catalogFor(attempt.exam_id);
+    const attempt=await owned(body.attemptId,user.id),catalog=await catalogFor(attempt.exam_id,attempt.exam_version);
     if(body.action==='submit') {
       if(!catalog.sections.every((s:any)=>attempt.response_state.submitted?.[s.id]===true)||attempt.response_state.final!==true)throw new PublicError('Submit all exam sections first.');
       const who=studentOf(attempt.response_state);
