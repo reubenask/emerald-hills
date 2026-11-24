@@ -29,7 +29,7 @@ async function fetchMock(url,options={}){
  if(u.hostname==='generativelanguage.googleapis.com'){
   if(!url.includes(':generateContent'))return reply({models:[]});
   const prompt=JSON.parse(options.body).contents[0].parts[0].text;
-  if(prompt.startsWith('Transcribe'))return reply({candidates:[{content:{parts:[{text:JSON.stringify({transcript:'I am speaking again today.',unintelligible:false,noSpeech:false})}]}}]});
+  if(prompt.startsWith('Transcribe'))return reply({candidates:[{content:{parts:[{text:JSON.stringify({transcript:cat.tasks.find(t=>t.target)?.target||'I am speaking again today.',unintelligible:false,noSpeech:false})}]}}]});
   const rubric=JSON.parse(prompt.match(/Category names and maxima: (\[\[.*?\]\])\./)[1]);
   const value=prompt.includes('moderating')?{fair:true,categories:rubric.map(([name,max])=>({name,score:max})),reason:'Fair.'}:{categories:rubric.map(([name,max])=>({name,score:max,evidence:'Clear speech.'})),corrections:[],strengths:['Clear.'],improvements:[],improvedResponse:'I am speaking again today.',needsTeacherReview:false};
   return reply({candidates:[{content:{parts:[{text:JSON.stringify(value)}]}}]});

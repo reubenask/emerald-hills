@@ -109,7 +109,7 @@ export function reportEmail(r) {
   const sc = r.scorecard, st = r.student || {}, name = st.name || st.studentName || 'Student', cls = st.className || st.studentClass || '', date = st.date || st.studentDate || '';
   const total = sc.sections.reduce((n, s) => n + (s.score ?? 0), 0), max = sc.sections.reduce((n, s) => n + s.maxScore, 0);
   // Speaking tasks with no usable recording are listed at the top, so a microphone problem is not missed.
-  const checks = r.jobs.filter(j => j.section === 'speaking' && (j.status === 'missing' || (j.status === 'complete' && j.result?.score === 0 && !j.result?.categories?.length))).map(j => j.title + (j.status === 'missing' ? ': no recording' : ': no speech heard'));
+  const checks = r.jobs.filter(j => j.section === 'speaking' && (j.status === 'missing' || (j.status === 'complete' && j.result?.score === 0 && !j.result?.categories?.length) || j.result?.offTarget)).map(j => j.title + (j.status === 'missing' ? ': no recording' : j.result?.offTarget ? ': reading does not match the passage' : ': no speech heard'));
   // Tasks the AI could not mark, with the reason and whether the server is still retrying them.
   const failed = r.jobs.filter(j => j.status === 'error').map(j => j.title + ': ' + failReason(j.cause) + (j.retryAt ? ' (the server will keep retrying)' : ''));
   const subject = (sc.needsTeacherReview || !sc.complete || checks.length ? '[Check needed] ' : '') + name + (cls ? ' · ' + cls : '') + ' · ' + (examTitle(r.exam)) + ' Monthly: ' + (sc.overall ?? 'pending') + '%' + (r.retakes?.length ? ' (updated after ' + r.retakes.map(t => t.title).join(', ') + ' retake)' : '') + (r.note ? ' (' + r.note + ')' : '');
@@ -142,4 +142,13 @@ export function reportEmail(r) {
 export function spokenCorrections(items) {
   const soundWords = s => String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
   return items.filter(c => soundWords(c.original) !== soundWords(c.corrected) && !/capitali[sz]|punctuat|spell(?:ing|ed)?|upper.?case|lower.?case|apostrophe|hyphenation|paragraph (?:break|layout)/i.test(c.reason || ''));
+}
+// Read-aloud tasks: the recording must be the set passage. Share of the spoken words that come from the passage;
+// a student who reads slowly or stops early still scores high, a different text or an unrelated talk scores low.
+export const READ_ALOUD_RUBRICS = ['readAloud', 'juniorReadAloud'];
+export function readAloudMatch(target, transcript) {
+  const words = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9' ]+/g, ' ').split(/\s+/).filter(w => w.length > 2);
+  const passage = new Set(words(target)), said = words(transcript);
+  const matched = said.filter(w => passage.has(w)).length;
+  return { matched, spoken: said.length, share: said.length ? matched / said.length : 0, matches: matched >= 5 && matched / said.length >= 0.5 };
 }
