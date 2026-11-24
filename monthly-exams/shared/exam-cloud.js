@@ -30,11 +30,22 @@
   // Repeat the sending status under the final submit button, where students look after submitting.
   const finalButton = document.querySelector('#finalSubmit, #submitAll'), sendStatus = document.createElement('p');
   sendStatus.setAttribute('role','status'); sendStatus.style.fontWeight='600'; if (finalButton) finalButton.after(sendStatus);
-  const status = { set textContent(t) { cloudStatus.textContent = t; if (snapshot().final) sendStatus.textContent = /Final submission saved|Marking/.test(t) ? t : 'Not sent to your teacher yet: ' + t; } };
+  // Under Submit All: whether the test has reached the teacher, in colour, with a Send Now button while it has not.
+  const sendNow = document.createElement('button'); sendNow.type = 'button'; sendNow.className = 'btn btn-gold'; sendNow.textContent = 'Send Now'; sendNow.hidden = true;
+  sendStatus.after(sendNow);
+  sendNow.onclick = () => { sendNow.disabled = true; sendNow.textContent = 'Sending...'; sync().catch(showError).finally(() => { sendNow.disabled = false; sendNow.textContent = 'Send Now'; }); };
+  function showSend(t) {
+    if (!snapshot().final) { sendStatus.textContent = ''; sendStatus.style.cssText = 'font-weight:600'; sendNow.hidden = true; return; }
+    const sent = !!record?.locked;
+    sendStatus.textContent = sent ? (/^Final submission saved/.test(t) ? t : 'Sent to your teacher. ' + t) : 'Not sent to your teacher yet: ' + t + (/keep trying|Sending/.test(t) ? '' : ' This page keeps trying every 15 seconds; keep it open, or press Send Now.');
+    sendStatus.style.cssText = 'font-weight:600;padding:10px 12px;border-left:4px solid ' + (sent ? '#1f6f43;background:#eaf5ee;color:#1f4d33' : '#9a3412;background:#fdf1ea;color:#9a3412');
+    sendNow.hidden = sent || !consent.checked;
+  }
+  const status = { set textContent(t) { cloudStatus.textContent = t; showSend(t); } };
   consent.checked = localStorage.getItem(consentKey) === 'yes';
   consent.addEventListener('change', () => { localStorage.setItem(consentKey, consent.checked ? 'yes' : 'no'); if (consent.checked) sync().catch(showError); });
   let record; try { record = JSON.parse(localStorage.getItem(key) || 'null'); } catch { record = null; }
-  let syncing = false, finalising = false, last = '', clipVersions = new Map();
+  let syncing = false, finalising = false, again = false, last = '', clipVersions = new Map();
   const showError = e => { status.textContent = e.message || 'Cloud saving failed. Your browser autosave is unchanged.'; };
   function ibtStates() { const s = {}; for (const id of ['vocabulary','reading','writing','speaking']) { try { s[id] = JSON.parse(localStorage.getItem('monthly-ibt-october-2026-v1-'+id) || 'null'); } catch { s[id] = null; } } return s; }
   // iBT pages use studentName/studentClass/studentDate; send one shape to the server.
@@ -57,7 +68,9 @@
   }
   function persist() { localStorage.setItem(key, JSON.stringify(record)); }
   async function sync() {
-    if (!consent.checked || syncing || finalising) return;
+    if (!consent.checked) return;
+    // A send already running: run again as soon as it finishes, so a press of Submit All or Send Now is never dropped.
+    if (syncing || finalising) { again = true; return; }
     if (!(await checkRetake())) return;
     const data = snapshot();
     if (!data.final && !Object.values(data.submitted).some(Boolean) && !data.student?.name && !Object.keys(data.answers).length) return;
@@ -75,10 +88,11 @@
         if (r.locked) { record={id:r.attemptId,locked:true,signature:serial}; persist(); status.textContent='Final submission saved. Your report is ready.'; reportButton.hidden=false; return; }
         record={id:r.attemptId,locked:false}; persist(); last=serial;
       }
-      for (const c of await clips()) if (clipVersions.get(c.id)!==c.blob) { await MonthlyCloud.upload(record.id,c.id,c.blob); clipVersions.set(c.id,c.blob); }
-      status.textContent='Browser and private cloud copies saved. Detailed results remain locked until final submission.';
+      const toSend=(await clips()).filter(c=>clipVersions.get(c.id)!==c.blob);
+      for (const [i,c] of toSend.entries()) { if (data.final) status.textContent='Sending recording '+(i+1)+' of '+toSend.length+'... keep this page open.'; await MonthlyCloud.upload(record.id,c.id,c.blob); clipVersions.set(c.id,c.blob); }
+      status.textContent=data.final?'Sending your final submission... keep this page open.':'Browser and private cloud copies saved. Detailed results remain locked until final submission.';
       if(data.final)await finalise(data);
-    } finally { syncing=false; }
+    } finally { syncing=false; if (again) { again=false; setTimeout(()=>sync().catch(showError),500); } }
   }
   async function finalise(data) {
     finalising=true;
@@ -161,5 +175,10 @@
   if(typeof submitAll==='function') { const original=submitAll; window.submitAll=function(...args){ if(missingDetails()){ alert('Enter your name, class and date at the top of the page before you submit.'); status.textContent='Submission blocked: enter your name, class and date at the top of the page.'; return; } const r=original.apply(this,args); if(snapshot().final){ if(!consent.checked)status.textContent=(young?'To send this test for marking, tick the box above. Your browser submission is saved.':'To send this test for marking, tick the consent box above. Your browser submission is saved.');else sync().catch(showError); } return r; }; }
   setInterval(()=>{ if(!snapshot().final)reportButton.hidden=true; else if(!consent.checked)status.textContent='Tick the consent box at the top of the page to send your test.'; sync().catch(showError); },15000);
   window.addEventListener('pageshow',()=>sync().catch(showError));
+  // Send straight away when the connection comes back or the student returns to this tab (background tabs slow the 15-second timer).
+  window.addEventListener('online',()=>sync().catch(showError));
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden)sync().catch(showError); });
+  // Warn before closing the page while a finished test has not reached the teacher.
+  window.addEventListener('beforeunload',e=>{ if(consent.checked&&snapshot().final&&!record?.locked){ e.preventDefault(); e.returnValue=''; } });
   sync().catch(showError);
 })();
