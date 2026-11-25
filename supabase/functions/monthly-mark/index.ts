@@ -1,6 +1,6 @@
 import { resolveCatalogRevision, responseMatchesRevision } from './versioning.mjs';
 // Bundled with core.mjs by tools/build_monthly_mark_function.cjs for Dashboard deployment.
-import { RUBRICS, RUBRIC_VERSION, RUBRIC_SOURCES, LEVEL_GUIDES, STRUCTURE_GUIDE, objectiveReport, validateAssessment, scorecard, reportEmail, mergeRetake, levelOf, JUNIOR_EXAMS, JUNIOR_RUBRIC_VERSION, spokenCorrections } from './core.mjs';
+import { RUBRICS, RUBRIC_VERSION, RUBRIC_SOURCES, LEVEL_GUIDES, STRUCTURE_GUIDE, objectiveReport, validateAssessment, scorecard, reportEmail, mergeRetake, levelOf, JUNIOR_EXAMS, JUNIOR_RUBRIC_VERSION, spokenCorrections, READ_ALOUD_RUBRICS, readAloudMatch } from './core.mjs';
 const env = (name: string) => Deno.env.get(name) || '';
 const base = env('SUPABASE_URL'), service = env('SUPABASE_SERVICE_ROLE_KEY'), anon = env('SUPABASE_ANON_KEY');
 const allowed = ['https://reubenask.github.io', 'http://localhost:8765', 'http://127.0.0.1:8765'];
@@ -279,6 +279,13 @@ ${lesson?`LESSON THE STUDENT LISTENED TO (trusted transcript; check the student'
   if(junior&&spec.section==='speaking')result.corrections=spokenCorrections(result.corrections);
   for(const k of ['corrections','linkingSuggestions','strengths','improvements','improvedResponse','categories'])if(k in result)result[k]=noEmoji(result[k]);
   const moderation:any=await moderate(spec,attempt.exam_id,rubric,result,{response,transcript});
+  // Reuben's rule: a read-aloud must be the set passage. Any other reading or talk scores 0 for the whole task and is flagged.
+  if(READ_ALOUD_RUBRICS.includes(spec.rubric)&&spec.target&&!readAloudMatch(spec.target,transcript).matches){
+    result.categories.forEach((c:any)=>{if(c.score)c.firstScore=c.score;c.score=0;c.evidence='The recording does not match the passage the student had to read. '+String(c.evidence||'');});
+    result.score=0;result.needsTeacherReview=true;result.offTarget=true;
+    result.improvements=['Read the passage shown on the page aloud. This recording does not match it, so the task scores 0. Ask your teacher to check the recording.',...(result.improvements||[])];
+    if(moderation.status==='checked')moderation.finalScore=0;
+  }
   if(junior)result.rubricVersion=JUNIOR_RUBRIC_VERSION;
   // Junior speaking bands are whole numbers; a fractional score is rounded and flagged for the teacher.
   if(Number(spec.scoreMax)===4&&!Number.isInteger(result.score)){result.categories.forEach((c:any)=>c.score=Math.round(c.score));result.score=result.categories.reduce((n:number,c:any)=>n+c.score,0);result.needsTeacherReview=true;if(moderation.status==='checked')moderation.finalScore=result.score;}
