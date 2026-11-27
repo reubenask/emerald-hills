@@ -23,7 +23,8 @@ export const LEVEL_GUIDES = {
 };
 // The parts each task type needs; this is what "Structure" is judged on.
 export const STRUCTURE_GUIDE = 'STRUCTURE: an email needs a greeting to the named person, an opening stating its purpose, every question or point answered with a reason, a closing line and a sign-off. An opinion paragraph needs a topic sentence with a clear opinion, two supported reasons, a specific example and a conclusion. An academic discussion post needs a clear stance, explained reasons, an example, and an idea beyond the classmates\' posts. A written or spoken story needs the characters, the events in order with sequencing words, and an ending. A spoken answer needs a direct answer, supporting points with details, and a closing sentence.';
-export const plain = s => String(s ?? '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim();
+// Inline tags such as <u> are removed without a space, so "<u>passport</u>." reads "passport." not "passport .".
+export const plain = s => String(s ?? '').replace(/<(br|\/p|\/div|\/li|\/h[1-6])\b[^>]*>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim();
 export function objectiveReport(catalog, answers) {
   const result = catalog.objective.map(section => ({
     id: section.id, title: section.title,
