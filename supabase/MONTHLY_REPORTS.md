@@ -41,7 +41,7 @@ For writing and speaking, untick the tasks that worked to retake only the broken
 3. Before Submit All, Start Retake reopens that section (or those tasks) in the same test: its answers are cleared, a new recording replaces the old one, and the other sections stay as they are. The student submits the section again and then Submit All, and the whole test is marked and emailed once, as a normal test.
 4. After Submit All, the retake is marked for that section (or those tasks) only. Its marks replace that section in the original report, which is emailed again with a note saying which section was retaken. The retake is not emailed on its own.
 
-The code works once, for one student, one test and one section, expires after 48 hours, and is tied to the first computer that opens it. Codes are stored as hashes; for an approved request the function also keeps the code (in a table only it can read) so it can hand it to that student's page.
+The code works once, for one student, one test and one section, expires after 7 days (a request the teacher has not approved also drops off the teacher page after 7 days), and is tied to the first computer that opens it. Codes are stored as hashes; for an approved request the function also keeps the code (in a table only it can read) so it can hand it to that student's page.
 
 Setup (once): run `supabase/monthly-retake.sql`, add the function secret `RETAKE_TEACHER_SECRET` (the teacher password, at least 8 characters), and redeploy `monthly-mark`.
 
