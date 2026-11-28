@@ -7,7 +7,7 @@
 <section class="panel"><h2>1. Choose the test</h2>
 <label for="secret">Teacher password</label><input id="secret" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
 <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input id="showSecret" type="checkbox" style="width:auto"> Show password</label>
-<p class="muted">A student asks with Request a Retake on their submitted test and shows you the request code on their screen.</p>
+<p class="muted">A student asks with Request a Retake, either after Submit All or before it for a section they have already submitted, and shows you the request code on their screen.</p>
 <button id="requests">Show Retake Requests</button><p id="requestStatus" role="status"></p><div id="requestList"></div>
 <details><summary>No request? Find the test by name</summary>
 <label for="name">Student name</label><input id="name" autocomplete="off">
@@ -28,9 +28,13 @@
 (function(){
  'use strict';
  const $=id=>document.getElementById(id), safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const titles={'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT','primary-step2-november-2026':'Primary Step 2 November 2026','itp-november-2026':'ITP November 2026','ibt-november-2026':'iBT November 2026'}, pages={'primary-step2':'primary-step2/index.html',itp:'junior/index.html','primary-step2-november-2026':'november-2026/primary-step2/index.html','itp-november-2026':'november-2026/itp/index.html'};
+ // Names and page links come from the exam id itself: 'itp-december-2026' is 'ITP December 2026' at december-2026/itp/,
+ // so a new month's tests need no change here.
+ const examParts=id=>String(id||'').match(/^(primary-step2|itp|ibt)(?:-([a-z]+)-(\d{4}))?$/);
+ const titles=new Proxy({},{get:(_,id)=>{const m=examParts(id);return m?{'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}[m[1]]+(m[2]?' '+m[2][0].toUpperCase()+m[2].slice(1)+' '+m[3]:''):id;}});
+ const pages=new Proxy({},{get:(_,id)=>{const m=examParts(id);return !m?undefined:m[2]?m[2]+'-'+m[3]+'/'+m[1]+'/index.html':{'primary-step2':'primary-step2/index.html',itp:'junior/index.html',ibt:'ibt/Start Here.html'}[m[1]];}});
  let found={tests:[],sections:{}}, pick=null;
- const testLine=t=>'<b>'+safe(t.student_name)+'</b> · '+safe(t.class_name)+' · '+safe(titles[t.exam_id]||t.exam_id)+(t.date?' · test date '+safe(t.date):'')+'<br>'+(t.scores||[]).map(s=>safe(s.title)+' '+(s.score??'pending')+'/'+s.maxScore).join(' · ')+'<br><span class="muted">Submitted '+safe(new Date(t.submitted_at).toLocaleString())+'</span>';
+ const testLine=t=>'<b>'+safe(t.student_name)+'</b> · '+safe(t.class_name)+' · '+safe(titles[t.exam_id]||t.exam_id)+(t.date?' · test date '+safe(t.date):'')+'<br>'+(t.scores||[]).map(s=>safe(s.title)+' '+(s.score??'pending')+'/'+s.maxScore).join(' · ')+'<br><span class="muted">'+(t.status==='draft'||!t.submitted_at?'Not submitted yet: the student asked before Submit All, so approving reopens that finished section in the same test':'Submitted '+safe(new Date(t.submitted_at).toLocaleString()))+'</span>';
  // pick: {test, requestId?}. A request is approved for that student's computer; a name search makes a code and link instead.
  function choose(p){pick=p;$('choose').hidden=!p;$('result').hidden=$('approved').hidden=true;if(!p)return;const t=p.test;
   $('chosenWho').innerHTML=(p.requestId?'Request '+safe(p.requestCode)+': ':'')+testLine(t);$('create').textContent=p.requestId?'Approve Retake':'Create Retake Code';

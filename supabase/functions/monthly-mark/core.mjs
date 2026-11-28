@@ -14,6 +14,9 @@ export const RUBRICS = {
 };
 // Exams marked on the stricter junior-adapted criteria instead of the lenient monthly policy.
 export const JUNIOR_EXAMS = ['itp-november-2026'];
+// Any later month's test whose catalog uses the junior speaking rubrics (juniorReadAloud and so on), or sets junior: true,
+// is marked the same way, so a new month needs no code change.
+export const isJunior = (exam, catalog) => JUNIOR_EXAMS.includes(exam) || catalog?.junior === true || (catalog?.tasks || []).some(t => /^junior/.test(String(t.rubric || '')));
 export const JUNIOR_RUBRIC_VERSION = 'november-itp-junior-adapted-2026-11-v1';
 // What each level should be judged against. The same answer earns more at Primary than at iBT.
 export const LEVEL_GUIDES = {
