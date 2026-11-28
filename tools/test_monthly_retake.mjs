@@ -72,6 +72,7 @@ assert.equal((await call({action:'retake-find',teacherSecret:'wrong',attemptId:o
 r=await call({action:'retake-create',teacherSecret:'correct horse battery',attemptId:original,section:'speaking'},'teacherDevice');
 assert.equal(r.status,200);const retakeCode=r.value.code;assert.match(retakeCode,/^[A-Z2-9]{8}$/);
 assert(!JSON.stringify(tables.monthly_retakes).includes(retakeCode),'only the hash of the code is stored');
+{const days=(Date.parse(r.value.expiresAt)-Date.now())/86400000;assert(days>6.99&&days<=7,'a retake code lasts 7 days');}
 
 // The student opens the code; a wrong code or section is refused.
 assert.equal((await call({action:'retake-open',code:'ABCDEFGH',exam:'primary-step2',section:'speaking'})).status,403);

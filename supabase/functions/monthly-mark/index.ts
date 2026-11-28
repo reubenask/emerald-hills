@@ -63,7 +63,8 @@ async function retakeChoices(rows:any[]=[]) {
   for(const e of exams){try{const c=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
   return {sections,tasks};
 }
-const REQUEST_HOURS=48;
+// Reuben (Nov 28 2026): a retake request and its approved code each last 7 days.
+const REQUEST_HOURS=7*24;
 const DRAFT_RETAKE='This retake reopens a section of your unfinished test. Open the test from the class link on the computer that asked for it, and press Start Retake there.';
 // For a task retake the page enables only those tasks: their answer boxes, and speaking task numbers.
 function allowedFor(catalog:any, rt:any) {
@@ -93,7 +94,7 @@ async function createRetake(attemptId:any, section:any, chosen:any, forStudent:s
   const tasks=Array.isArray(chosen)?[...new Set(chosen.map(String))]:[];
   if(tasks.some(t=>!sectionTasks.includes(t)))throw new PublicError('Choose tasks from the selected section.');
   const only=tasks.length&&tasks.length<sectionTasks.length?tasks:null;
-  const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>CODE_CHARS[b%32]).join(''), expires=new Date(Date.now()+48*3600000).toISOString();
+  const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>CODE_CHARS[b%32]).join(''), expires=new Date(Date.now()+REQUEST_HOURS*3600000).toISOString();
   await db('monthly_retakes','POST',{code_hash:await sha256(code),attempt_id:orig.id,section:sec.id,tasks:only,for_student:forStudent,expires_at:expires});
   return {code,draft:orig.status==='draft',exam:orig.exam_id,section:sec.id,sectionTitle:sec.title,tasks:only?catalog.tasks.filter((t:any)=>only.includes(t.id)).map((t:any)=>t.title):null,student:orig.student_name,className:orig.class_name,expiresAt:expires};
 }
