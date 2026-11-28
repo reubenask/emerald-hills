@@ -269,6 +269,9 @@ window.MONTHLY_CLOUD_CONFIG = {url:'https://vknfagvmdirmpgtjlhjr.supabase.co',pu
   const SHOW_CONSENT = false;
   consent.checked = !SHOW_CONSENT || localStorage.getItem(consentKey) === 'yes';
   if (!SHOW_CONSENT) consent.closest('label').style.display = 'none';
+  // Privacy notice (heading, saving status and 'How private marking works') switched off for testing. Set SHOW_PRIVACY_NOTICE to true to bring it back.
+  const SHOW_PRIVACY_NOTICE = false;
+  if (!SHOW_PRIVACY_NOTICE) { const hidePrivacy = document.createElement('style'); hidePrivacy.textContent = '#novemberCloudNotice h3,#novemberCloudNotice #cloudStatus,#novemberCloudNotice details{display:none!important}#novemberCloudNotice:not(:has(button:not([hidden]))):not(:has(p[role=status]:not(#cloudStatus))){display:none!important}'; document.head.append(hidePrivacy); }
   consent.addEventListener('change', () => { localStorage.setItem(consentKey, consent.checked ? 'yes' : 'no'); if (consent.checked) sync().catch(showError); });
   let record; try { record = JSON.parse(localStorage.getItem(key) || 'null'); } catch { record = null; }
   let syncing = false, finalising = false, again = false, last = '', clipVersions = new Map();
