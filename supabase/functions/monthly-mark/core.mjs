@@ -146,6 +146,9 @@ export function spokenCorrections(items) {
 }
 // Read-aloud tasks: the recording must be the set passage. Share of the spoken words that come from the passage;
 // a student who reads slowly or stops early still scores high, a different text or an unrelated talk scores low.
+// Categories judged only by listening. The second check reads a transcript, never the audio, so it must leave these as the first marker set them.
+export const AUDIO_ONLY_CATEGORIES = ['Delivery and intelligibility', 'Intelligibility', 'Pacing and intonation', 'Intelligibility and delivery'];
+export const moderatorMayChange = (section, name) => section !== 'speaking' || !AUDIO_ONLY_CATEGORIES.includes(name);
 export const READ_ALOUD_RUBRICS = ['readAloud', 'juniorReadAloud'];
 export function readAloudMatch(target, transcript) {
   const words = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9' ]+/g, ' ').split(/\s+/).filter(w => w.length > 2);
