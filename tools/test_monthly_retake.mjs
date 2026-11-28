@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {stripTypeScriptTypes} from 'node:module';
-import {objectiveReport} from '../supabase/functions/monthly-mark/core.mjs';
+import {objectiveReport,isJunior} from '../supabase/functions/monthly-mark/core.mjs';
 const cat=JSON.parse(fs.readFileSync(new URL('../supabase/.local/monthly-ai-catalog-primary.json',import.meta.url)))['primary-step2'];
 const users={student:'11111111-1111-4111-8111-111111111111',teacherDevice:'33333333-3333-4333-8333-333333333333',other:'44444444-4444-4444-8444-444444444444'};
 const tables={monthly_exam_attempts:[],monthly_retakes:[],monthly_ai_reports:[],monthly_retake_requests:[]};const emails=[],audio=new Set();
@@ -40,7 +40,8 @@ async function fetchMock(url,options={}){
  if(u.pathname==='/rest/v1/rpc/monthly_claim_marking'){const r=tables.monthly_ai_reports.find(r=>r.attempt_id===JSON.parse(options.body).p_attempt);return reply(r?[structuredClone(r)]:[]);}
  const table=tables[u.pathname.replace('/rest/v1/','')];if(!table)throw Error('Unexpected mocked URL '+url);
  const rows=table.filter(r=>match(r,u.searchParams));
- if(method==='GET')return reply(structuredClone(rows));
+ // Newest first, like PostgREST's order=created_at.desc (rows added later win ties).
+ if(method==='GET')return reply(structuredClone(u.searchParams.get('order')==='created_at.desc'?rows.map((r,i)=>[r,i]).sort((a,b)=>String(b[0].created_at).localeCompare(String(a[0].created_at))||b[1]-a[1]).map(x=>x[0]):rows));
  if(method==='POST'){const row={...(table===tables.monthly_exam_attempts?{id:uuid(),status:'draft',created_at:new Date().toISOString()}:table===tables.monthly_retake_requests?{id:uuid(),created_at:new Date().toISOString(),approved_at:null}:{}),...JSON.parse(options.body)};table.push(row);return reply([structuredClone(row)]);}
  if(method==='PATCH'){const patch=JSON.parse(options.body);for(const r of rows){Object.assign(r,patch);if(patch.status==='submitted')r.submitted_at=new Date().toISOString();}return reply(structuredClone(rows));}
  throw Error('Unexpected method '+method);
@@ -146,4 +147,41 @@ for(let i=0;i<10;i++)if(!(await call({action:'process',attemptId:asked})).value.
 assert(tables.monthly_ai_reports.find(x=>x.attempt_id===original).jobs.find(j=>j.id==='speaking-3').recording.includes(asked));
 assert.equal((await call({action:'retake-request-status',attemptId:original})).value.status,'none','after the retake the student can ask again');
 console.log('Requested retake: the student asks, the teacher approves on their own device without the password reaching the student, and only that computer can take it.');
+// Before Submit All: the student has submitted some sections, asks for a retake of a finished one, the teacher approves,
+// and the same unfinished test reopens that section. Everything is then submitted and marked together.
+const partly=Object.fromEntries(cat.sections.map(s=>[s.id,s.id!=='writing']));
+const draft=(await call({action:'sync',exam:'primary-step2',consentConfirmed:true,response:{student,answers,submitted:partly,final:false}})).value.attemptId;
+r=await call({action:'retake-request-status',attemptId:draft});assert.equal(r.value.status,'none');assert.equal(r.value.draft,true);
+assert(!r.value.sections.some(x=>x.id==='writing'),'only finished sections can be asked for');assert(r.value.sections.some(x=>x.id==='speaking'));assert(!r.value.tasks.some(t=>t.section==='writing'));
+assert.equal((await call({action:'retake-request',attemptId:draft,section:'writing',tasks:['writing-story']})).status,400,'an unfinished section is not retaken: the student can still change it');
+r=await call({action:'retake-request',attemptId:draft,section:'speaking',tasks:['speaking-1']});assert.equal(r.value.status,'pending');assert.equal(r.value.draft,true);
+r=await call({action:'retake-requests',teacherSecret:'correct horse battery'},'teacherDevice');const early=r.value.requests.find(q=>q.test.id===draft);
+assert(early,'the teacher sees requests from unfinished tests');assert.equal(early.test.status,'draft');assert(r.value.sections['primary-step2']);
+r=await call({action:'retake-approve',teacherSecret:'correct horse battery',requestId:early.id,section:'writing'},'teacherDevice');assert.equal(r.status,400,'the teacher cannot reopen a section the student has not finished');
+r=await call({action:'retake-approve',teacherSecret:'correct horse battery',requestId:early.id,section:'speaking',tasks:['speaking-1']},'teacherDevice');assert.equal(r.status,200);assert.equal(r.value.draft,true);
+r=await call({action:'retake-request-status',attemptId:draft});assert.equal(r.value.status,'approved');assert.equal(r.value.draft,true);const reopenCode=r.value.code;
+assert.equal((await call({action:'retake-open',code:reopenCode,exam:'primary-step2',section:'speaking'})).status,409,'the code does not start a separate retake test while the original is unfinished');
+assert.equal((await call({action:'sync',exam:'primary-step2',consentConfirmed:true,retakeCode:reopenCode,response:{student,answers:{},submitted,final:false}})).status,409);
+assert.equal((await call({action:'retake-reopen',attemptId:draft,code:reopenCode},'other')).status,404,'only the student who asked can reopen');
+assert.equal((await call({action:'retake-reopen',attemptId:original,code:reopenCode})).status,403,'the code is for this test only');
+r=await call({action:'retake-reopen',attemptId:draft,code:reopenCode});assert.equal(r.status,200);assert.equal(r.value.section,'speaking');assert.deepEqual(r.value.allowed.speaking,[1]);assert.deepEqual(r.value.answers,[]);
+assert.equal((await call({action:'retake-reopen',attemptId:draft,code:reopenCode})).status,403,'a code reopens the section once');
+assert.equal((await call({action:'retake-request-status',attemptId:draft})).value.status,'none','after reopening, the student may ask again');
+const writingIds=cat.tasks.filter(t=>t.section==='writing').map(t=>t.id);
+// A whole writing section, once finished, reopens with its task answers listed for the page to clear.
+await call({action:'sync',exam:'primary-step2',consentConfirmed:true,attemptId:draft,response:{student,answers,submitted,final:false}});
+r=await call({action:'retake-request',attemptId:draft,section:'writing',tasks:writingIds});assert.equal(r.value.status,'pending',JSON.stringify(r));
+r=await call({action:'retake-requests',teacherSecret:'correct horse battery'},'teacherDevice');
+assert.equal((await call({action:'retake-approve',teacherSecret:'correct horse battery',requestId:r.value.requests.find(q=>q.test.id===draft).id,section:'writing',tasks:writingIds},'teacherDevice')).status,200);
+r=await call({action:'retake-reopen',attemptId:draft,code:(await call({action:'retake-request-status',attemptId:draft})).value.code});assert.equal(r.value.allowed,null,JSON.stringify(r));assert.deepEqual(r.value.answers.sort(),cat.tasks.filter(t=>t.section==='writing').flatMap(t=>t.answerIds?t.answerIds.map(a=>a.answerId):[t.answerId]).sort());
+await call({action:'sync',exam:'primary-step2',consentConfirmed:true,attemptId:draft,response:{student,answers,submitted,final:true}});
+for(const t of cat.tasks.filter(t=>t.section==='speaking'))audio.add(users.student+'/'+draft+'/'+t.id);
+assert.equal((await call({action:'submit',attemptId:draft})).status,200);
+for(let i=0;i<10;i++)if(!(await call({action:'process',attemptId:draft})).value.processed)break;
+const together=tables.monthly_ai_reports.find(x=>x.attempt_id===draft);assert(!together.retake,'one ordinary report, not a retake');assert(together.jobs.every(j=>['complete','missing'].includes(j.status)));
+// After Submit All the same test can still ask for a retake the usual way.
+assert.equal((await call({action:'retake-request-status',attemptId:draft})).value.draft,false);
+console.log('Retake before Submit All: only finished sections can be asked for, the approved code reopens the section once in the same test, and the test is marked together when submitted.');
+// A later month needs no code change for the junior rubric: its catalog's rubrics say so.
+assert(isJunior('itp-november-2026',{tasks:[]}));assert(isJunior('itp-december-2026',{tasks:[{rubric:'juniorNarration'}]}));assert(!isJunior('itp-december-2026',{tasks:[{rubric:'speaking'}]}));
 console.log('Section retake: teacher password, one-time code bound to one computer and section, section-only marking, merge into the original report and re-email all pass.');

@@ -3,9 +3,11 @@
  const $=id=>document.getElementById(id), params=new URLSearchParams(location.search), attemptId=params.get('attempt');
  const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let report,processing=false;
+ // 'itp-december-2026' -> 'ITP December 2026', so every month's report is named without a code change.
+ const examName=id=>{const m=String(id||'').match(/^(primary-step2|itp|ibt)(?:-([a-z]+)-(\d{4}))?$/);return m?{'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}[m[1]]+(m[2]?' '+m[2][0].toUpperCase()+m[2].slice(1)+' '+m[3]:''):String(id||'');};
  const list=a=>'<ul>'+(a||[]).map(s=>'<li>'+safe(s)+'</li>').join('')+'</ul>';
  function render(r){
-  report=r;$('identity').textContent=({'primary-step2':'Primary Step 2',itp:'ITP',ibt:'iBT'}[r.exam]||r.exam)+' · '+(r.student?.name||'Student')+' · '+(r.student?.className||'')+(r.student?.date?' · '+r.student.date:'')+' · Submitted '+new Date(r.submittedAt).toLocaleString();
+  report=r;$('identity').textContent=examName(r.exam)+' · '+(r.student?.name||'Student')+' · '+(r.student?.className||'')+(r.student?.date?' · '+r.student.date:'')+' · Submitted '+new Date(r.submittedAt).toLocaleString();
   const sc=r.scorecard;
   $('report').hidden=false;$('download').disabled=false;$('print').disabled=false;
   const errors=r.jobs.filter(j=>j.status==='error'),pending=r.jobs.filter(j=>j.status==='pending');

@@ -35,27 +35,27 @@ Writing and speaking are marked like a teacher marking a script, on Structure an
 
 When a machine, microphone or audio problem spoils one section of a submitted Primary Step 2 or ITP test, the teacher can let the student retake just that section.
 
-1. After submitting, the student goes to Request a Retake under Submit All & View Results, ticks the section that went wrong (and, for writing and speaking, the tasks), and presses Request a Retake. The page shows a request code.
+1. The student goes to Request a Retake under Submit All & View Results, ticks the section that went wrong (and, for writing and speaking, the tasks), and presses Request a Retake. The page shows a request code. This works after Submit All, and also before it for any section the student has already submitted (sections not yet submitted can still be changed by the student, so they are not offered).
 2. On your own device, open `monthly-exams/retake.html`, enter the teacher password and press Show Retake Requests. Choose the request whose code matches the student's screen; the student's choice is already selected and can be changed. Press Approve Retake. The student's page then shows Start Retake; nothing is typed on the student's computer, and only that computer can take the retake. (Without a request, you can still find a test by name and create a code and link to open on the student's computer.)
 For writing and speaking, untick the tasks that worked to retake only the broken ones; the other tasks keep their marks. Other sections are always retaken whole.
-3. The retake is marked for that section (or those tasks) only. Its marks replace that section in the original report, which is emailed again with a note saying which section was retaken. The retake is not emailed on its own.
+3. Before Submit All, Start Retake reopens that section (or those tasks) in the same test: its answers are cleared, a new recording replaces the old one, and the other sections stay as they are. The student submits the section again and then Submit All, and the whole test is marked and emailed once, as a normal test.
+4. After Submit All, the retake is marked for that section (or those tasks) only. Its marks replace that section in the original report, which is emailed again with a note saying which section was retaken. The retake is not emailed on its own.
 
 The code works once, for one student, one test and one section, expires after 48 hours, and is tied to the first computer that opens it. Codes are stored as hashes; for an approved request the function also keeps the code (in a table only it can read) so it can hand it to that student's page.
 
 Setup (once): run `supabase/monthly-retake.sql`, add the function secret `RETAKE_TEACHER_SECRET` (the teacher password, at least 8 characters), and redeploy `monthly-mark`.
 
-Tests: `node tools/test_monthly_retake.mjs` (after building the Primary catalog and the function bundle).
+Tests: `node tools/test_monthly_retake.mjs` (after building the Primary catalog and the function bundle), and `node tools/test_retake_pages_browser.mjs` (the November pages and the teacher page in a browser; it needs the live catalogs saved as `supabase/.local/live-catalogs.json`).
 
 ## A new month's tests
 
-Each month's pages get their own exam id, such as `itp-november-2026` (the form is `<primary-step2|itp|ibt>-<month>-<year>`), so earlier months keep their own answer keys. The server marks it at its level (Primary, ITP or iBT). A new page will not save or mark until its catalog is in Supabase.
+Each month's pages get their own exam id, such as `itp-november-2026` (the form is `<primary-step2|itp|ibt>-<month>-<year>`), so earlier months keep their own answer keys. The server marks it at its level (Primary, ITP or iBT). A new page will not save or mark until its catalog is in Supabase. Nothing in the code is keyed to a month: retake sections and tasks come from the test's own catalog, the teacher page names the test and links to `<month>-<year>/<level>/index.html` from its exam id, and the stricter junior speaking marking is used whenever the catalog's speaking tasks use the junior rubrics (`juniorReadAloud`, `juniorNarration`, `juniorSchool`). So a new month needs its pages and its catalog, and no code change or new function deploy.
 
 1. Give the page `data-cloud-exam="<exam id>"` on its `<html>` tag and the cloud script block (copy it from the November pages and change the exam id and consent key).
 2. Copy `tools/build_november_ai_catalog.cjs`, point it at the new pages, and rewrite the picture descriptions, audio transcripts and video summary for the new media. Run it.
 3. Run `supabase/monthly-november-2026.sql` once (already done for November), then the new `supabase/catalog/<month>.sql`.
-4. For retakes, add the page to `pages` and `titles` in `monthly-exams/retake.html`.
-5. Take a short test on each page and check the report email arrives.
-6. Run `node tools/check_exam_pages.mjs` (GitHub also runs it every day and after every change to `monthly-exams`, and emails you if it fails). It lists any page that has no cloud saving code, or whose exam id has no marking on the server.
+4. Take a short test on each page and check the report email arrives.
+5. Run `node tools/check_exam_pages.mjs` (GitHub also runs it every day and after every change to `monthly-exams`, and emails you if it fails). It lists any page that has no cloud saving code, or whose exam id has no marking on the server.
 
 If a student opens a page whose exam id the server can't mark, the student is told to tell the teacher and you get an email headed "[Action needed] Test ... is not connected to marking" (at most once a day per test).
 
