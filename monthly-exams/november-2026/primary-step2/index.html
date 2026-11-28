@@ -249,7 +249,7 @@ window.MONTHLY_CLOUD_CONFIG = {url:'https://vknfagvmdirmpgtjlhjr.supabase.co',pu
   function showSend(t) {
     if (!snapshot().final) { sendStatus.textContent = ''; sendStatus.style.cssText = 'font-weight:600'; sendNow.hidden = true; return; }
     const sent = !!record?.locked;
-    sendStatus.textContent = sent ? (/^Final submission saved/.test(t) ? t : 'Sent to your teacher. ' + t) : 'Not sent to your teacher yet: ' + t + (/keep trying|Sending/.test(t) ? '' : ' This page keeps trying every 15 seconds; keep it open, or press Send Now.');
+    sendStatus.textContent = sent ? (/^Final submission saved/.test(t) ? t : 'Sent to your teacher. ' + t) : 'Not sent to your teacher yet: ' + t + (/keep trying|Sending|cannot send/.test(t) ? '' : ' This page keeps trying every 15 seconds; keep it open, or press Send Now.');
     sendStatus.style.cssText = 'font-weight:600;padding:10px 12px;border-left:4px solid ' + (sent ? '#1f6f43;background:#eaf5ee;color:#1f4d33' : '#9a3412;background:#fdf1ea;color:#9a3412');
     sendNow.hidden = sent || !consent.checked;
   }
@@ -289,7 +289,7 @@ window.MONTHLY_CLOUD_CONFIG = {url:'https://vknfagvmdirmpgtjlhjr.supabase.co',pu
   async function sync() {
     if (!consent.checked) return;
     // A send already running: run again as soon as it finishes, so a press of Submit All or Send Now is never dropped.
-    if (syncing || finalising) { again = true; return; } if(!NOVEMBER_ONLINE.enabled){status.textContent='Browser autosave is on. November private saving is awaiting server activation; nothing has been uploaded.';return;} if(location.protocol==='file:'){status.textContent='Browser autosave is on. Open the private local preview to use online saving and marking before publication.';return;}
+    if (syncing || finalising) { again = true; return; } if(!NOVEMBER_ONLINE.enabled){status.textContent='Browser autosave is on. November private saving is awaiting server activation; nothing has been uploaded.';return;} if(location.protocol==='file:'){status.textContent='This is a downloaded copy of the test, so it cannot send your work to your teacher. Press Download Saved Exam and give that file to your teacher, or open the test from the class link.';return;}
     if (!(await checkRetake()) || syncing || finalising) return;
     const data = snapshot(),localAttempt=state.attemptId,audioReset=state.audioResetAt||0; if(record && ((record.localAttempt && record.localAttempt!==localAttempt) || (record.audioReset??0)!==audioReset)){record=null;last='';clipVersions.clear();localStorage.removeItem(key);}
     if (!data.final && !Object.values(data.submitted).some(Boolean) && !data.student?.name && !Object.keys(data.answers).length) return;
