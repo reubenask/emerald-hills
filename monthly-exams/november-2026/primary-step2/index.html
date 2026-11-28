@@ -254,7 +254,10 @@ window.MONTHLY_CLOUD_CONFIG = {url:'https://vknfagvmdirmpgtjlhjr.supabase.co',pu
     sendNow.hidden = sent || !consent.checked;
   }
   const status = { set textContent(t) { cloudStatus.textContent = t; showSend(t); } };
-  consent.checked = localStorage.getItem(consentKey) === 'yes';
+  // Consent box switched off for testing (tests are not sold). Set SHOW_CONSENT to true to bring it back.
+  const SHOW_CONSENT = false;
+  consent.checked = !SHOW_CONSENT || localStorage.getItem(consentKey) === 'yes';
+  if (!SHOW_CONSENT) consent.closest('label').style.display = 'none';
   consent.addEventListener('change', () => { localStorage.setItem(consentKey, consent.checked ? 'yes' : 'no'); if (consent.checked) sync().catch(showError); });
   let record; try { record = JSON.parse(localStorage.getItem(key) || 'null'); } catch { record = null; }
   let syncing = false, finalising = false, again = false, last = '', clipVersions = new Map();
