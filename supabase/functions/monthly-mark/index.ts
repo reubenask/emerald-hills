@@ -55,9 +55,12 @@ async function describeTests(rows:any[]) {
   return rows.map((r:any)=>{const rep=reports.find((x:any)=>x.attempt_id===r.id),c=catalogs[r.exam_id+"|"+r.exam_version];
     return {...r,scores:rep&&c?scorecard(c,rep.objective,rep.jobs).sections.map((s:any)=>({title:s.title,score:s.score,maxScore:s.maxScore})):[],retakeAvailable:RETAKE_EXAMS.includes(levelOf(r.exam_id))};});
 }
-async function retakeChoices() {
-  const sections:any={}, tasks:any={};
-  for(const e of RETAKE_EXAMS){try{const c=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
+// Section and task choices for the teacher page, keyed by exam id. Monthly tests have their own exam ids
+// (such as itp-november-2026), so each listed test's own exam id is included, not only the original ones.
+async function retakeChoices(rows:any[]=[]) {
+  const sections:any={}, tasks:any={}, exams=new Set<string>(RETAKE_EXAMS);
+  for(const r of rows)if(RETAKE_EXAMS.includes(levelOf(r.exam_id)))exams.add(r.exam_id);
+  for(const e of exams){try{const c=await catalogFor(e);sections[e]=c.sections;tasks[e]=c.tasks.map((t:any)=>({id:t.id,title:t.title,section:t.section}));}catch{}}
   return {sections,tasks};
 }
 const REQUEST_HOURS=48;
@@ -424,7 +427,7 @@ Deno.serve(async (req:Request) => {
       }
       const retakes=rows.length?await db('monthly_retakes?retake_attempt_id=in.('+rows.map((r:any)=>r.id).join(',')+')&select=retake_attempt_id'):[];
       const skip=new Set(retakes.map((r:any)=>r.retake_attempt_id));
-      return json({tests:await describeTests(rows.filter((r:any)=>!skip.has(r.id))),...await retakeChoices()});
+      return json({tests:await describeTests(rows.filter((r:any)=>!skip.has(r.id))),...await retakeChoices(rows)});
     }
     if(body.action==='retake-create') {
       await teacherCheck(body.teacherSecret);
@@ -459,7 +462,7 @@ Deno.serve(async (req:Request) => {
       const reqs=await db('monthly_retake_requests?approved_at=is.null&created_at=gte.'+new Date(Date.now()-REQUEST_HOURS*3600000).toISOString()+'&order=created_at.desc&limit=30&select=id,attempt_id,request_code,created_at,requested_section,requested_tasks');
       const rows=reqs.length?await db('monthly_exam_attempts?id=in.('+reqs.map((r:any)=>r.attempt_id).join(',')+')&select=id,exam_id,exam_version,student_name,class_name,submitted_at,response_state->student->>date'):[];
       const tests=await describeTests(rows);
-      return json({requests:reqs.map((r:any)=>({id:r.id,requestCode:r.request_code,requestedAt:r.created_at,section:r.requested_section,tasks:r.requested_tasks,test:tests.find((t:any)=>t.id===r.attempt_id)})).filter((r:any)=>r.test),...await retakeChoices()});
+      return json({requests:reqs.map((r:any)=>({id:r.id,requestCode:r.request_code,requestedAt:r.created_at,section:r.requested_section,tasks:r.requested_tasks,test:tests.find((t:any)=>t.id===r.attempt_id)})).filter((r:any)=>r.test),...await retakeChoices(rows)});
     }
     if(body.action==='retake-approve') {
       await teacherCheck(body.teacherSecret);
